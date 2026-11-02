@@ -240,6 +240,13 @@ else
   gsettings set org.gnome.desktop.interface color-scheme 'prefer-light' 2>/dev/null || true
 fi
 
+# If liquid-glass extension is present, ensure stable rock-solid menu size (disable bouncy spring animation)
+LG_SCHEMA="org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com"
+LG_SCHEMADIR="${HOME}/.local/share/gnome-shell/extensions/liquid-glass@thinkingcoding1231.gmail.com/schemas"
+if [[ -d "${LG_SCHEMADIR}" ]]; then
+  gsettings --schemadir "${LG_SCHEMADIR}" set "${LG_SCHEMA}" enable-quick-settings-animation false 2>/dev/null || true
+fi
+
 log_success "Desktop settings updated to ${THEME_NAME}"
 
 echo ""

@@ -84,8 +84,9 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
 // 2. Quick Settings - glass card from the shader, lenses from the theme
 // -----------------------------------------------------------------------------
 .quick-settings {
+  min-width: 370px !important;
   width: 370px !important;
-  max-width: 380px !important;
+  max-width: 370px !important;
   padding: 14px !important;
   margin: 6px !important;
   border-radius: 28px !important;
@@ -93,6 +94,8 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   border: none !important;
   box-shadow: none !important;
   color: $lg_fg !important;
+  transition: none !important;
+  transition-duration: 0ms !important;
 
   .icon-button,
   .button {
@@ -103,8 +106,13 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
 }
 
 .quick-settings-grid {
+  min-width: 342px !important;
+  width: 342px !important;
+  max-width: 342px !important;
   spacing-rows: 10px !important;
   spacing-columns: 10px !important;
+  transition: none !important;
+  transition-duration: 0ms !important;
 }
 
 // Toggle lenses
@@ -265,6 +273,8 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   color: $lg_fg !important;
   padding: 0 12px !important;
   margin: 0 !important;
+  transition: none !important;
+  transition-duration: 0ms !important;
 
   & > StBoxLayout {
     spacing: 8px !important;

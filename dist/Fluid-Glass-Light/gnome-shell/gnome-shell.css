@@ -5357,8 +5357,9 @@ StWidget.focused .app-grid-running-dot {
 }
 
 .quick-settings {
+  min-width: 370px !important;
   width: 370px !important;
-  max-width: 380px !important;
+  max-width: 370px !important;
   padding: 14px !important;
   margin: 6px !important;
   border-radius: 28px !important;
@@ -5366,6 +5367,8 @@ StWidget.focused .app-grid-running-dot {
   border: none !important;
   box-shadow: none !important;
   color: rgba(0, 0, 0, 0.85) !important;
+  transition: none !important;
+  transition-duration: 0ms !important;
 }
 
 .quick-settings .icon-button, .quick-settings .message-notification-group .message-collapse-button, .message-notification-group .quick-settings .message-collapse-button, .quick-settings .message .message-header .message-expand-button, .message .message-header .quick-settings .message-expand-button,
@@ -5378,8 +5381,13 @@ StWidget.focused .app-grid-running-dot {
 }
 
 .quick-settings-grid {
+  min-width: 342px !important;
+  width: 342px !important;
+  max-width: 342px !important;
   spacing-rows: 10px !important;
   spacing-columns: 10px !important;
+  transition: none !important;
+  transition-duration: 0ms !important;
 }
 
 .quick-toggle,
@@ -5545,6 +5553,8 @@ StWidget.focused .app-grid-running-dot {
   color: rgba(0, 0, 0, 0.85) !important;
   padding: 0 12px !important;
   margin: 0 !important;
+  transition: none !important;
+  transition-duration: 0ms !important;
 }
 
 .quick-slider > StBoxLayout,
