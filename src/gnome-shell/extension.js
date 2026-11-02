@@ -27,11 +27,15 @@ export default class FluidGlassExtension extends Extension {
         this._stylesheetLoaded = false;
         this._blurWarningShown = false;
 
-        try {
-            this.loadStylesheet();
-            this._stylesheetLoaded = true;
-        } catch (error) {
-            logError(error, '[Fluid Glass] Could not load Shell stylesheet');
+        this._quickOpenSignal = null;
+
+        if (typeof this.loadStylesheet === 'function') {
+            try {
+                this.loadStylesheet();
+                this._stylesheetLoaded = true;
+            } catch (error) {
+                logError(error, '[Fluid Glass] Could not load Shell stylesheet');
+            }
         }
 
         Main.uiGroup?.add_style_class_name(ROOT_CLASS);
@@ -50,6 +54,14 @@ export default class FluidGlassExtension extends Extension {
         this._installScreenshotAction();
         this._applyColorScheme();
         this._refreshEffects();
+
+        this._hideToggleLabels();
+        const quickMenu = Main.panel?.statusArea?.quickSettings?.menu;
+        if (quickMenu && typeof quickMenu.connect === 'function') {
+            this._quickOpenSignal = quickMenu.connect('open-state-changed', (menu, isOpen) => {
+                if (isOpen) this._hideToggleLabels();
+            });
+        }
     }
 
     _isDark() {
@@ -141,7 +153,7 @@ export default class FluidGlassExtension extends Extension {
             return;
 
         const quickSettings = Main.panel?.statusArea?.quickSettings;
-        const actionBox = quickSettings?._system?._indicator?.child;
+        const actionBox = quickSettings?._system?._indicator?.child ?? quickSettings?._system?.child;
         if (!actionBox || typeof actionBox.insert_child_at_index !== 'function' ||
             !QuickSettings.QuickSettingsItem) {
             log('[Fluid Glass] Screenshot action button unavailable on this Shell build; native screenshot shortcuts remain available.');
@@ -236,6 +248,12 @@ export default class FluidGlassExtension extends Extension {
         if (this._themeContext && this._scaleSignal)
             this._themeContext.disconnect(this._scaleSignal);
 
+        if (this._quickOpenSignal && Main.panel?.statusArea?.quickSettings?.menu) {
+            Main.panel.statusArea.quickSettings.menu.disconnect(this._quickOpenSignal);
+            this._quickOpenSignal = null;
+        }
+        this._restoreToggleLabels();
+
         this._removeEffects();
         this._clearStyledActors();
         this._removeScreenshotAction();
@@ -246,7 +264,7 @@ export default class FluidGlassExtension extends Extension {
         Main.uiGroup?.remove_style_class_name(DARK_CLASS);
         Main.uiGroup?.remove_style_class_name(LIGHT_CLASS);
 
-        if (this._stylesheetLoaded)
+        if (this._stylesheetLoaded && typeof this.unloadStylesheet === 'function')
             this.unloadStylesheet();
 
         this._settings = null;
@@ -257,5 +275,49 @@ export default class FluidGlassExtension extends Extension {
         this._quickSettingsActor = null;
         this._calendarActor = null;
         this._stylesheetLoaded = false;
+    }
+
+    _hideToggleLabels() {
+        const quick = Main.panel?.statusArea?.quickSettings?.menu?.actor;
+        if (!quick) return;
+
+        const walk = actor => {
+            if (!actor || typeof actor.get_children !== 'function') return;
+            for (const child of actor.get_children()) {
+                if (child.has_style_class_name?.('quick-toggle-title') ||
+                    child.has_style_class_name?.('quick-toggle-subtitle') ||
+                    child.has_style_class_name?.('quick-toggle-label')) {
+                    child.visible = false;
+                    const parent = child.get_parent?.();
+                    if (parent && parent !== actor)
+                        parent.visible = false;
+                } else {
+                    walk(child);
+                }
+            }
+        };
+        walk(quick);
+    }
+
+    _restoreToggleLabels() {
+        const quick = Main.panel?.statusArea?.quickSettings?.menu?.actor;
+        if (!quick) return;
+
+        const walk = actor => {
+            if (!actor || typeof actor.get_children !== 'function') return;
+            for (const child of actor.get_children()) {
+                if (child.has_style_class_name?.('quick-toggle-title') ||
+                    child.has_style_class_name?.('quick-toggle-subtitle') ||
+                    child.has_style_class_name?.('quick-toggle-label')) {
+                    child.visible = true;
+                    const parent = child.get_parent?.();
+                    if (parent && parent !== actor)
+                        parent.visible = true;
+                } else {
+                    walk(child);
+                }
+            }
+        };
+        walk(quick);
     }
 }
