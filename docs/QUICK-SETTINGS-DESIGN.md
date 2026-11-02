@@ -52,3 +52,12 @@ The reference image is a visual direction, not a promise that unsupported hardwa
 
 - GNOME JavaScript Guide, Quick Settings: https://gjs.guide/extensions/topics/quick-settings.html
 - GNOME Help, Quick Settings behavior: https://help.gnome.org/gnome-help/quick-settings.html
+
+
+## Visual troubleshooting
+
+The extension follows GNOME's color-scheme setting. The GTK installer variant alone does not force Shell appearance:
+- Light material: set **Settings → Appearance → Style → Light**, or run `gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'`.
+- Dark material: set **Settings → Appearance → Style → Dark**, or run `gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'`.
+
+The glass surface uses low-alpha fills (dark: 0.42, light: 0.32) so the native Shell backdrop blur remains visible. If the panel still appears opaque, verify that Quick Settings blur is enabled in extension preferences and that the GNOME Shell extension is enabled; then log out and back in to reload Shell safely.
