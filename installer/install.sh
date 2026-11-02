@@ -171,11 +171,6 @@ if (( EXT_ONLY == 0 )); then
     else
         echo "Warning: GTK theme installed, but GSettings could not select it automatically." >&2
     fi
-
-    if command -v gsettings >/dev/null 2>&1 && gsettings writable org.gnome.shell.extensions.user-theme name >/dev/null 2>&1; then
-        gsettings set org.gnome.shell.extensions.user-theme name ''
-        gsettings set org.gnome.shell.extensions.user-theme name "$THEME_NAME"
-    fi
 fi
 
 if (( WITH_EXTENSION )); then
