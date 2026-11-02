@@ -184,7 +184,9 @@ if (( WITH_EXTENSION )); then
     touch "$stage/.fluid-glass-owned"
     rm -rf -- "$EXT_DIR"
     mv -- "$stage" "$EXT_DIR"
-    gnome-extensions enable "$UUID"
+    if ! gnome-extensions enable "$UUID" >/dev/null 2>&1; then
+        echo "Note: Extension files installed and schemas compiled. GNOME Shell will detect the extension after logout/login."
+    fi
 fi
 
 echo "Fluid Glass $VERSION installed for this user."
