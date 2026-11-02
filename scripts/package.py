@@ -9,6 +9,7 @@ for rel in ('extension.js','prefs.js','stylesheet.css','tokens.css','schemas/org
 for name in ('Fluid-Glass-Dark','Fluid-Glass-Light'):
     assert (root/'themes'/name/'gtk-3.0/gtk.css').is_file()
     assert (root/'themes'/name/'gtk-4.0/gtk.css').is_file()
+    assert (root/'themes'/name/'gnome-shell/gnome-shell.css').is_file()
 archive=root/'fluid-glass@fluidglass.dev.shell-extension.zip'
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
     for p in sorted(ext.rglob('*')):

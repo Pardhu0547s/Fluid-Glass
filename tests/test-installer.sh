@@ -41,10 +41,12 @@ cd "$ROOT"
 ./install.sh --variant dark >/dev/null
 [[ -f "$HOME/.themes/Fluid-Glass-Dark/gtk-3.0/gtk.css" ]]
 [[ -f "$HOME/.themes/Fluid-Glass-Dark/gtk-4.0/gtk.css" ]]
+[[ -f "$HOME/.themes/Fluid-Glass-Dark/gnome-shell/gnome-shell.css" ]]
 [[ -f "$XDG_DATA_HOME/gnome-shell/extensions/fluid-glass@fluidglass.dev/schemas/gschemas.compiled" ]]
 ./install.sh --variant light >/dev/null
 [[ -f "$HOME/.themes/Fluid-Glass-Light/gtk-3.0/gtk.css" ]]
 [[ -f "$HOME/.themes/Fluid-Glass-Light/gtk-4.0/gtk.css" ]]
+[[ -f "$HOME/.themes/Fluid-Glass-Light/gnome-shell/gnome-shell.css" ]]
 [[ ! -d "$HOME/.themes/Fluid-Glass-Dark" ]]
 ./uninstall.sh >/dev/null
 [[ -f "$HOME/.themes/Fluid-Glass-Dark/custom.css" ]]

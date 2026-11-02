@@ -3,7 +3,7 @@
 from pathlib import Path
 import sys
 ROOT = Path(__file__).resolve().parents[1]
-FILES = sorted(ROOT.glob('src/gtk3/*/gtk-3.0/*.css')) + sorted(ROOT.glob('src/gtk4/*/gtk-4.0/*.css')) + [ROOT/'src/gnome-shell/stylesheet.css', ROOT/'src/gnome-shell/tokens.css']
+FILES = sorted(ROOT.glob('src/gtk3/*/gtk-3.0/*.css')) + sorted(ROOT.glob('src/gtk4/*/gtk-4.0/*.css')) + sorted(ROOT.glob('src/gnome-shell-theme/*/*.css')) + [ROOT/'src/gnome-shell/stylesheet.css', ROOT/'src/gnome-shell/tokens.css']
 
 try:
     import tinycss2
