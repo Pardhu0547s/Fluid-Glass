@@ -53,7 +53,14 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-command -v sassc >/dev/null || { echo "sassc is required (sudo dnf install sassc)"; exit 1; }
+if ! command -v sassc >/dev/null; then
+  echo "Error: sassc is required to build from SCSS source."
+  echo "Install it with:"
+  echo "  Fedora:        sudo dnf install sassc"
+  echo "  Ubuntu/Debian: sudo apt install sassc"
+  echo "  Arch Linux:    sudo pacman -S sassc"
+  exit 1
+fi
 
 # ---------------------------------------------------------------------------
 # Detect GNOME Shell version the same way MacTahoe does

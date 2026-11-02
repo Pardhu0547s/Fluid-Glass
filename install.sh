@@ -2,20 +2,21 @@
 #
 # Fluid Glass for Linux Install Script
 #
-# Installs the Fluid Glass GNOME Shell & GTK themes, with full macOS
-# measurements and Fluid Glass shader-inspired material aesthetics.
+# Installs the Fluid Glass GNOME Shell & GTK themes, with full macOS 27"
+# proportions and Fluid Glass shader-inspired material aesthetics.
 #
 # Usage: ./install.sh [OPTIONS]
-#   -c, --color [dark|light]        Theme color variant (default: dark)
-#   -s, --style [clear|normal|frosted] Glass strength (default: normal)
-#   -d, --dest DIR                  Destination directory (default: ~/.themes)
-#   -l, --libadwaita                Install GTK4 theme for libadwaita apps (default: enabled)
-#       --no-libadwaita             Do not configure ~/.config/gtk-4.0
-#       --mac27, --hd               macOS 27" Desktop proportions (default)
-#       --laptop                    Install compact laptop sizing
-#   -e, --with-extension            Install and enable the Liquid Glass GNOME extension
-#   -r, --remove                    Uninstall Fluid-Glass themes
-#   -h, --help                      Show this help message
+#   -c, --color [dark|light]            Theme color variant (default: dark)
+#   -s, --style [clear|normal|frosted]  Glass strength (default: normal)
+#   -d, --dest DIR                      Destination directory (default: ~/.themes)
+#   -b, --build                         Rebuild themes from SCSS source with sassc
+#   -l, --libadwaita                    Install GTK4 theme for libadwaita apps (default: enabled)
+#       --no-libadwaita                 Do not configure ~/.config/gtk-4.0
+#       --mac27, --hd                   macOS 27" Desktop proportions (default)
+#       --laptop                        Install compact laptop sizing
+#   -e, --with-extension                Install and enable the Liquid Glass GNOME extension
+#   -r, --remove, --uninstall           Uninstall Fluid-Glass themes and restore backups
+#   -h, --help                          Show this help message
 #
 set -euo pipefail
 
@@ -30,6 +31,7 @@ HD="true"
 LIBADWAITA="true"
 WITH_EXT="false"
 REMOVE="false"
+FORCE_BUILD="false"
 
 # Colors
 GREEN='\033[0;32m'
@@ -44,7 +46,7 @@ log_success() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_err()     { echo -e "${RED}[ERR]${NC} $1"; }
 
-usage() { sed -n '3,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '3,21p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -56,16 +58,17 @@ while [[ $# -gt 0 ]]; do
       esac; shift 2 ;;
     -s|--style)
       case "${2,,}" in
-        clear|normal|frosted) STYLE="$2" ;;
+        clear|normal|frosted) STYLE="${2,,}" ;;
         *) log_err "Unknown style '$2'. Use 'clear', 'normal', or 'frosted'."; exit 1 ;;
       esac; shift 2 ;;
     -d|--dest) DEST="$2"; shift 2 ;;
+    -b|--build) FORCE_BUILD="true"; shift ;;
     -l|--libadwaita) LIBADWAITA="true"; shift ;;
     --no-libadwaita) LIBADWAITA="false"; shift ;;
     --mac27|--hd) HD="true"; shift ;;
     --laptop)     HD="false"; shift ;;
     -e|--with-extension) WITH_EXT="true"; shift ;;
-    -r|--remove) REMOVE="true"; shift ;;
+    -r|--remove|--uninstall) REMOVE="true"; shift ;;
     -h|--help) usage; exit 0 ;;
     *) log_err "Unknown option '$1'"; usage; exit 1 ;;
   esac
@@ -79,7 +82,7 @@ THEME_NAME="Fluid-Glass-${COLOR}"
 if [[ "${REMOVE}" == "true" ]]; then
   echo -e "\n${BOLD}Uninstalling Fluid-Glass...${NC}\n"
 
-  # Reset gsettings if currently set to Fluid-Glass or Liquid-Tahoe
+  # Reset gsettings if currently set to Fluid-Glass or legacy Liquid-Tahoe
   current_gtk="$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null || echo '')"
   current_shell="$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null || echo '')"
 
@@ -92,7 +95,7 @@ if [[ "${REMOVE}" == "true" ]]; then
     gsettings reset org.gnome.shell.extensions.user-theme name 2>/dev/null || true
   fi
 
-  # Remove installed themes
+  # Remove installed themes from ~/.themes
   for c in Dark Light; do
     for name in Fluid-Glass Liquid-Tahoe; do
       t="${DEST}/${name}-${c}"
@@ -105,39 +108,58 @@ if [[ "${REMOVE}" == "true" ]]; then
 
   # Restore ~/.config/gtk-4.0
   GTK4_USER="${HOME}/.config/gtk-4.0"
-  if [[ -f "${GTK4_USER}/gtk.css" ]]; then
-    latest_backup="$(ls -td "${GTK4_USER}"/gtk.css.backup.* 2>/dev/null | head -1 || true)"
-    if [[ -n "${latest_backup}" ]]; then
-      log_info "Restoring GTK4 config from ${latest_backup}..."
-      mv "${latest_backup}" "${GTK4_USER}/gtk.css"
-    else
-      log_info "Removing GTK4 theme overrides..."
-      rm -f "${GTK4_USER}/gtk.css" "${GTK4_USER}/gtk-dark.css" "${GTK4_USER}/gtk-light.css"
-      rm -rf "${GTK4_USER}/assets" "${GTK4_USER}/windows-assets"
-    fi
+  ORIG_BACKUP="${GTK4_USER}/gtk.css.fluid-glass-orig"
+  if [[ -f "${ORIG_BACKUP}" ]]; then
+    log_info "Restoring original GTK4 configuration from $(basename "${ORIG_BACKUP}")..."
+    mv -f "${ORIG_BACKUP}" "${GTK4_USER}/gtk.css"
+    rm -f "${GTK4_USER}/gtk-dark.css" "${GTK4_USER}/gtk-light.css"
+    rm -rf "${GTK4_USER}/assets" "${GTK4_USER}/windows-assets"
+  else
+    log_info "Removing GTK4 theme overrides..."
+    rm -f "${GTK4_USER}/gtk.css" "${GTK4_USER}/gtk-dark.css" "${GTK4_USER}/gtk-light.css"
+    rm -rf "${GTK4_USER}/assets" "${GTK4_USER}/windows-assets"
   fi
 
   # Disable extension if installed
+  EXT_DEST="${HOME}/.local/share/gnome-shell/extensions/liquid-glass@thinkingcoding1231.gmail.com"
   if gnome-extensions list 2>/dev/null | grep -q "liquid-glass@thinkingcoding1231.gmail.com"; then
     log_info "Disabling liquid-glass extension..."
     gnome-extensions disable "liquid-glass@thinkingcoding1231.gmail.com" 2>/dev/null || true
   fi
+  if [[ -d "${EXT_DEST}" ]]; then
+    log_info "Removing installed extension files from ${EXT_DEST}..."
+    rm -rf "${EXT_DEST}"
+  fi
 
-  log_success "Fluid-Glass has been uninstalled."
+  log_success "Fluid-Glass has been completely uninstalled."
   exit 0
 fi
 
 # =============================================================================
-# Build Check
+# Build Check (Install from dist by default; build only on demand)
 # =============================================================================
 echo -e "\n${BOLD}Fluid Glass for Linux Theme Installer${NC}"
 echo -e "Variant: ${COLOR} | Style: ${STYLE} | Destination: ${DEST}\n"
 
-# Recompile theme assets with requested style and proportion setting
-hd_flag="--hd"
-[[ "${HD}" == "false" ]] && hd_flag="--laptop"
-log_info "Building theme assets (style '${STYLE}', proportions: ${hd_flag})..."
-"${REPO_DIR}/build.sh" -c all -s "${STYLE}" "${hd_flag}" -o "${DIST_DIR}"
+TARGET_DIST="${DIST_DIR}/Fluid-Glass-${COLOR}"
+if [[ "${FORCE_BUILD}" == "true" || ! -d "${TARGET_DIST}" ]]; then
+  if ! command -v sassc &>/dev/null; then
+    log_err "sassc is required to build the theme from SCSS."
+    echo ""
+    echo "Please install sassc:"
+    echo "  Fedora:        sudo dnf install sassc"
+    echo "  Ubuntu/Debian: sudo apt install sassc"
+    echo "  Arch Linux:    sudo pacman -S sassc"
+    echo ""
+    exit 1
+  fi
+  hd_flag="--hd"
+  [[ "${HD}" == "false" ]] && hd_flag="--laptop"
+  log_info "Building theme assets from SCSS (style '${STYLE}', proportions: ${hd_flag})..."
+  "${REPO_DIR}/build.sh" -c all -s "${STYLE}" "${hd_flag}" -o "${DIST_DIR}"
+else
+  log_info "Using precompiled theme assets from ./dist (pass -b / --build to recompile)"
+fi
 
 # =============================================================================
 # Install Themes to ~/.themes
@@ -171,11 +193,13 @@ if [[ "${LIBADWAITA}" == "true" ]]; then
   GTK4_CONF="${HOME}/.config/gtk-4.0"
   mkdir -p "${GTK4_CONF}"
 
-  # Backup existing gtk.css if not already backed up
-  if [[ -f "${GTK4_CONF}/gtk.css" && ! -L "${GTK4_CONF}/gtk.css" ]]; then
-    backup_file="${GTK4_CONF}/gtk.css.backup.$(date +%Y%m%d_%H%M%S)"
-    log_info "Backing up existing gtk-4.0/gtk.css to $(basename "${backup_file}")"
-    cp "${GTK4_CONF}/gtk.css" "${backup_file}"
+  # Persistent original backup: only back up if not already Fluid-Glass
+  ORIG_BACKUP="${GTK4_CONF}/gtk.css.fluid-glass-orig"
+  if [[ -f "${GTK4_CONF}/gtk.css" && ! -f "${ORIG_BACKUP}" ]]; then
+    if ! grep -q "Fluid-Glass" "${GTK4_CONF}/gtk.css" 2>/dev/null; then
+      log_info "Backing up original gtk-4.0/gtk.css to $(basename "${ORIG_BACKUP}")"
+      cp "${GTK4_CONF}/gtk.css" "${ORIG_BACKUP}"
+    fi
   fi
 
   T_ADW="${DEST}/${THEME_NAME}/gtk-4.0"

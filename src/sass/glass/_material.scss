@@ -15,7 +15,7 @@ $glass_factor: 1.0;
   $glass_factor: 1.25;
 }
 
-// Function to clamp opacity between 0.05 and 0.98
+// Function to clamp opacity between 0.10 and 0.96
 @function glass-clamp($val) {
   $v: $val * $glass_factor;
   @if $v > 0.96 { @return 0.96; }

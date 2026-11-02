@@ -9,14 +9,12 @@ A modern fluid glass theme for Linux combining the **exact sizes and proportions
 - **macOS 27" Desktop Measurements & Proportions**: Calibrated to match the exact proportions of macOS on a 27-inch 5K / Retina desktop display (2560×1440pt logical viewport, Apple 8pt spatial grid):
   - **Menu Bar (Top Panel)**: 32px height (desktop non-notch standard), 16px horizontal margins, 18px Apple icon.
   - **Unified Toolbar (Headerbar)**: 52px height, 12px traffic light controls with 8px dot pitch, 16px left inset.
-  - **Control Center (Quick Settings)**: 320px container width (1:8 screen width ratio), 20px corner radius, 16px padding, 44px toggle capsules, 28px sliders, 40px circular discs.
+  - **Control Center (Quick Settings)**: 370px container width (calibrated so toggles and sliders fit without truncation), 28px corner radius, 14px padding, 44px toggle capsules, 40px slider capsules, 40px circular system discs.
   - **Sidebar Proportions**: 240px width (~1:4.5 window ratio), 32px row height, 8px selection pill radius.
   - **Window Geometry**: 12px window inner radius / 26px mutter frame shadow, 8px button corner radius.
-- **Fluid Glass Shader Material**: Features derived directly from the [ryohsuke1231/liquid-glass](https://github.com/ryohsuke1231/liquid-glass) extension:
-  - 90° top specular rim highlight (`border-top: 1px solid rgba(255, 255, 255, 0.55 - 0.70)`)
-  - Continuous perimeter edge illumination (`1px solid rgba(255, 255, 255, 0.18)`)
-  - 100% transparent container backing allowing the GPU Cogl/GLSL shader blur to shine through smoothly at 144Hz
-  - Frosted translucent capsules and pills (`rgba(255, 255, 255, 0.16)`) and luminous blue active state (`rgba(42, 130, 228, 0.40)`)
+- **Fluid Glass Architecture (CSS Lenses + GLSL Shader)**:
+  - **Theme Layer**: Borderless optical lens styling with soft inner rim highlights (`inset 0 0 4px rgba(...)`) and 100% transparent container shells.
+  - **Shader Layer**: Real-time background refraction, chromatic dispersion, specular highlights, and ambient occlusion powered by the [Liquid Glass](https://github.com/ryohsuke1231/liquid-glass) GNOME extension.
 - **Full GNOME Shell & App Coverage**:
   - Top Panel & Panel Menus
   - Quick Settings grid, quick toggles, and volume/brightness sliders
@@ -27,9 +25,17 @@ A modern fluid glass theme for Linux combining the **exact sizes and proportions
 
 ---
 
+## 📋 Requirements
+
+1. **GNOME Shell 46, 47, or 48+**
+2. **User Themes extension** (`user-theme@gnome-shell-extensions.gcampax.github.com`): required by GNOME Shell to apply custom shell themes.
+3. **Liquid Glass extension** (recommended for true optical glass): provides real-time GLSL shader blur and refraction behind panels. You can install it with `./install.sh -e` or from [extensions.gnome.org](https://extensions.gnome.org/extension/6966/liquid-glass/).
+
+---
+
 ## 🚀 Quick Install
 
-To install and activate **Fluid-Glass-Dark** with macOS 27" Desktop Proportions:
+Precompiled themes are shipped ready-to-install in `./dist/` — **no compiler or dependencies required** for standard installation:
 
 ```bash
 git clone https://github.com/Pardhu0547s/Fluid-Glass.git
@@ -44,12 +50,13 @@ cd Fluid-Glass
 
   -c, --color [dark|light]            Color variant (default: dark)
   -s, --style [clear|normal|frosted]  Glass opacity level (default: normal)
+  -b, --build                         Rebuild themes from SCSS source with sassc
       --mac27, --hd                   macOS 27" Desktop proportions (default)
       --laptop                        Compact laptop sizing
   -l, --libadwaita                    Configure GTK4 ~/.config/gtk-4.0 (default: enabled)
   -e, --with-extension                Install and enable Liquid Glass GNOME extension
   -d, --dest DIR                      Install directory (default: ~/.themes)
-  -r, --remove                        Uninstall Fluid-Glass and restore defaults
+  -r, --remove, --uninstall           Uninstall Fluid-Glass and restore original configuration
   -h, --help                          Show help
 ```
 
