@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.fluid-glass" path="/org/gnome/shell/extensions/fluid-glass/">
+    <key name="blur-enabled" type="b">
+      <default>true</default>
+      <summary>Enable backdrop blur</summary>
+    </key>
+    <key name="panel-blur" type="b">
+      <default>true</default>
+      <summary>Blur the top panel</summary>
+    </key>
+    <key name="popup-blur" type="b">
+      <default>false</default>
+      <summary>Blur Quick Settings and calendar popups</summary>
+    </key>
+    <key name="blur-radius" type="i">
+      <range min="4" max="32"/>
+      <default>16</default>
+      <summary>Backdrop blur radius</summary>
+    </key>
+    <key name="brightness" type="d">
+      <range min="0.5" max="1.0"/>
+      <default>0.88</default>
+      <summary>Blur brightness multiplier</summary>
+    </key>
+  </schema>
+</schemalist>

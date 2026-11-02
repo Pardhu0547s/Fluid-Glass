@@ -1,137 +1,64 @@
-# Fluid Glass for Linux - GTK & GNOME Shell Theme
+# Fluid Glass 2.0
 
-A modern fluid glass theme for Linux combining the **exact sizes and proportions of macOS 27" desktop** with **Fluid Glass shader-inspired material aesthetics** (translucent glass tints, 90° top specular rim lighting, ambient occlusion edge shadows, and soft diffused lighting).
+**An independent, Fedora-first glass interface for GNOME.**
 
----
+Status: **2.0.0-alpha.3**. This release expands the token-driven GTK3/GTK4 widget styles, explicitly scopes Shell surfaces for dark/light mode, improves Shell actor lifecycle handling, makes blur scale-factor-aware, and corrects preferences type/range handling.
 
-## 🌟 Highlights
+## Design goals
 
-- **macOS 27" Desktop Measurements & Proportions**: Calibrated to match the exact proportions of macOS on a 27-inch 5K / Retina desktop display (2560×1440pt logical viewport, Apple 8pt spatial grid):
-  - **Menu Bar (Top Panel)**: 32px height (desktop non-notch standard), 16px horizontal margins, 18px Apple icon.
-  - **Unified Toolbar (Headerbar)**: 52px height, 12px traffic light controls with 8px dot pitch, 16px left inset.
-  - **Control Center (Quick Settings)**: 370px container width (calibrated so toggles and sliders fit without truncation), 28px corner radius, 14px padding, 44px toggle capsules, 40px slider capsules, 40px circular system discs.
-  - **Sidebar Proportions**: 240px width (~1:4.5 window ratio), 32px row height, 8px selection pill radius.
-  - **Window Geometry**: 12px window inner radius / 26px mutter frame shadow, 8px button corner radius.
-- **Fluid Glass Architecture (CSS Lenses + GLSL Shader)**:
-  - **Theme Layer**: Borderless optical lens styling with soft inner rim highlights (`inset 0 0 4px rgba(...)`) and 100% transparent container shells.
-  - **Shader Layer**: Real-time background refraction, chromatic dispersion, specular highlights, and ambient occlusion powered by the [Liquid Glass](https://github.com/ryohsuke1231/liquid-glass) GNOME extension.
-- **Full GNOME Shell & App Coverage**:
-  - Top Panel & Panel Menus
-  - Quick Settings grid, quick toggles, and volume/brightness sliders
-  - Calendar, DateMenu, and event cards
-  - Notification banners & OSD popups
-  - Dash to Dock & App Grid
-  - GTK3 & GTK4 / Libadwaita window headerbars, sidebars, boxed lists, buttons, and switches
+- Independent source tree and original styles; no MacTahoe or third-party Liquid Glass extension runtime dependency.
+- Fedora Workstation 44 / GNOME Shell 50 as the first supported target.
+- `src/design/tokens.json` generates GTK3, GTK4 and Shell color definitions.
+- GNOME Shell styling for panel, Quick Settings, calendar, notifications, OSD and overview.
+- Native Shell backdrop blur, configurable radius/brightness and CSS fallbacks.
+- Reversible per-user installation; no `sudo` and no overwrite of `~/.config/gtk-4.0/gtk.css`.
 
----
+## Status
 
-## 📋 Requirements
+| Area | Alpha 3 status |
+|---|---|
+| GTK3 dark/light | Expanded widget coverage; visual QA pending |
+| GTK4 dark/light | Expanded GTK4-native widget coverage; app support varies |
+| Shared tokens | Generated from one JSON source |
+| GNOME panel | Native backdrop blur + adaptive tint |
+| Quick Settings/calendar | Token-driven CSS; popup blur opt-in + runtime feature detection |
+| Notifications/OSD/overview | CSS surface styling; visual QA pending |
+| Extension preferences | Type-safe blur enablement, targets, radius and brightness controls |
+| Optical refraction/dispersion | GLSL prototype only; not integrated with GNOME |
+| Fedora 44/GNOME 50 runtime QA | Pending |
 
-1. **GNOME Shell 46, 47, or 48+**
-2. **User Themes extension** (`user-theme@gnome-shell-extensions.gcampax.github.com`): required by GNOME Shell to apply custom shell themes.
-3. **Liquid Glass extension** (recommended for true optical glass): provides real-time GLSL shader blur and refraction behind panels. You can install it with `./install.sh -e` or from [extensions.gnome.org](https://extensions.gnome.org/extension/6966/liquid-glass/).
+## Requirements
 
----
+- Fedora Workstation 44 / GNOME Shell 50 for the complete Shell experience.
+- `bash`, `python3`, `glib2` (`glib-compile-schemas`), `gsettings`, `gnome-shell` and `gnome-extensions`.
+- GTK3 and GTK4 applications that honor the selected GTK theme. Libadwaita applications may keep their own styling.
 
-## 🚀 Quick Install
-
-Precompiled themes are shipped ready-to-install in `./dist/` — **no compiler or dependencies required** for standard installation:
+## Build and install
 
 ```bash
-git clone https://github.com/Pardhu0547s/Fluid-Glass.git
-cd Fluid-Glass
-./install.sh
+./scripts/validate.sh
+./build.sh
+./install.sh --variant dark
 ```
 
-### Installation Options
+Use `./install.sh --variant light` for light mode, `--gtk-only` to skip the Shell extension, or `--extension-only` for the extension alone. Popup blur is disabled by default because background blur can be expensive; enable it in extension preferences when desired. The installer compiles the extension GSettings schema on Fedora before activation. Open settings with:
 
 ```bash
-./install.sh [OPTIONS]
-
-  -c, --color [dark|light]            Color variant (default: dark)
-  -s, --style [clear|normal|frosted]  Glass opacity level (default: normal)
-  -b, --build                         Rebuild themes from SCSS source with sassc
-      --mac27, --hd                   macOS 27" Desktop proportions (default)
-      --laptop                        Compact laptop sizing
-  -l, --libadwaita                    Configure GTK4 ~/.config/gtk-4.0 (default: enabled)
-  -e, --with-extension                Install and enable Liquid Glass GNOME extension
-  -d, --dest DIR                      Install directory (default: ~/.themes)
-  -r, --remove, --uninstall           Uninstall Fluid-Glass and restore original configuration
-  -h, --help                          Show help
+gnome-extensions prefs fluid-glass@fluidglass.dev
 ```
 
-### Examples
+Uninstall and restore the previous GTK theme selection with `./uninstall.sh`. All files are installed per-user; do not use `sudo`.
 
-- **Install Light Glass variant**:
-  ```bash
-  ./install.sh -c light
-  ```
+## Important GTK4 limitation
 
-- **Install with Frosted Glass look**:
-  ```bash
-  ./install.sh -s frosted
-  ```
+GTK4 theme CSS applies only to apps that honor the selected GTK theme. Libadwaita applications may retain Adwaita styling. Fluid Glass does not inject CSS into applications or overwrite the user's GTK4 config.
 
-- **Install and enable the Liquid Glass extension for real GLSL refraction**:
-  ```bash
-  ./install.sh -e
-  ```
+## Rendering truth
 
-- **Uninstall and restore system defaults**:
-  ```bash
-  ./install.sh -r
-  ```
+The extension uses GNOME Shell's native `Shell.BlurEffect` in background mode for supported Shell actors. GTK stylesheets do not sample the compositor or provide real window backdrop refraction. The standalone GLSL shader is a renderer prototype, not a live GNOME effect; it must not be described as integrated until the compositor texture path and performance are validated.
 
----
+See [architecture](docs/ARCHITECTURE.md), [roadmap](docs/ROADMAP.md), [testing](docs/TESTING.md), [GTK4 notes](src/gtk4/README.md) and [build report](docs/BUILD-REPORT.md).
 
-## 🛠️ Building from Source
+## License
 
-To compile the themes from SCSS using `sassc`:
-
-```bash
-./build.sh -c all -s normal
-```
-
-The compiled themes will be placed into `./dist/`:
-- `dist/Fluid-Glass-Dark/`
-- `dist/Fluid-Glass-Light/`
-
-To verify geometry against stock MacTahoe:
-```bash
-./build.sh --stock -o /tmp/lt-stock
-```
-
----
-
-## 📂 Project Architecture
-
-```
-Fluid-Glass/
-├── build.sh               # SCSS build script with variant and option generation
-├── install.sh             # Installation and activation script
-├── COPYING                # GNU GPL-v3 License
-├── extension/             # Vendored Liquid Glass extension for --with-extension
-│   └── liquid-glass@thinkingcoding1231.gmail.com/
-├── dist/                  # Precompiled ready-to-install themes
-│   ├── Fluid-Glass-Dark/
-│   └── Fluid-Glass-Light/
-├── src/
-│   ├── assets/            # Shell icons, title buttons, activity icons
-│   ├── main/              # SCSS main entry templates
-│   └── sass/
-│       ├── glass/         # Fluid Glass Material Layer
-│       │   ├── _material.scss  # Glass tokens, rim lighting, AO mixins
-│       │   ├── _shell.scss     # GNOME Shell glass overrides
-│       │   ├── _gtk3.scss      # GTK3 glass overrides
-│       │   └── _gtk4.scss      # GTK4 & Libadwaita glass overrides
-│       ├── gnome-shell/   # Shell widgets & layouts
-│       └── gtk/           # GTK widgets & drawing
-```
-
----
-
-## 📜 Credits & License
-
-- Based on **MacTahoe GTK Theme** by [vinceliuice](https://github.com/vinceliuice/MacTahoe-gtk-theme) (GPL-3.0).
-- Glass aesthetics and shader parameters from **Liquid Glass** by [ryohsuke1231](https://github.com/ryohsuke1231/liquid-glass) (MIT).
-- Distributed under the **GNU General Public License v3.0**.
+GPL-3.0-or-later. See [LICENSE](LICENSE).

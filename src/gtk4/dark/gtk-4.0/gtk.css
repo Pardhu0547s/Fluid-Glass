@@ -1,0 +1,45 @@
+@import url("tokens.css");
+/* Fluid Glass 2.0 — GTK4 dark material. */
+window, window.background, .background { color: @fg_color; background-color: @bg_color; }
+headerbar {
+  min-height: 44px; padding: 0 10px; color: @fg_color;
+  background-color: @elevated_surface_color;
+  background-image: linear-gradient(to bottom, rgba(255,255,255,.07), rgba(255,255,255,.012));
+  border-bottom: 1px solid @border_color;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+button {
+  min-height: 28px; padding: 5px 11px; color: @fg_color;
+  background-color: @surface_alt_color; border: 1px solid @border_color;
+  border-radius: 10px; box-shadow: inset 0 1px 0 rgba(255,255,255,.045);
+}
+button:hover { background-color: @surface_color; border-color: @strong_border_color; }
+button:active, button:checked { background-color: @selected_bg_color; border-color: @focus_ring_color; }
+button:focus { outline: 2px solid @focus_ring_color; outline-offset: 1px; }
+button.flat { background-color: transparent; border-color: transparent; box-shadow: none; }
+button.flat:hover { background-color: @surface_alt_color; border-color: @border_color; }
+button.suggested-action { color: @selected_fg_color; background-color: @accent_active_color; border-color: @accent_color; }
+button.destructive-action { color: @selected_fg_color; background-color: @destructive_color; }
+entry, spinbutton, textview, passwordentry {
+  color: @text_color; background-color: @base_color; border: 1px solid @border_color;
+  border-radius: 9px; caret-color: @accent_color;
+}
+entry:focus, spinbutton:focus, textview:focus, passwordentry:focus { border-color: @accent_color; box-shadow: 0 0 0 2px alpha(@focus_ring_color, .20); }
+listview, gridview, columnview, .view { color: @fg_color; background-color: @surface_color; }
+.navigation-sidebar, .navigation-sidebar row { background-color: @surface_alt_color; }
+.navigation-sidebar row:hover, listview row:hover { background-color: @surface_alt_color; }
+row:selected, listview row:selected, gridview child:selected { color: @selected_fg_color; background-color: @selected_bg_color; }
+popover > contents, popover.background, menu, .menu { color: @fg_color; background-color: @popover_surface; border: 1px solid @border_color; border-radius: 14px; box-shadow: 0 12px 32px @panel_shadow; }
+menuitem { min-height: 26px; padding: 4px 9px; border-radius: 7px; }
+menuitem:hover { background-color: @surface_alt_color; }
+switch { background-color: @switch_bg; border: 1px solid @border_color; border-radius: 99px; }
+switch:checked { background-color: @accent_active_color; }
+scale trough, progressbar trough, levelbar trough { background-color: @slider_track; border-radius: 99px; }
+scale highlight, progressbar progress, levelbar block.filled { background-color: @slider_fill; border-radius: 99px; }
+scale slider { background-color: @elevated_surface_color; border: 1px solid @strong_border_color; }
+scrollbar slider { min-width: 7px; min-height: 7px; background-color: @scrollbar_color; border-radius: 99px; }
+checkbutton check, radiobutton radio { color: @accent_color; }
+selection { background-color: @selected_bg_color; color: @selected_fg_color; }
+tooltip { color: @fg_color; background-color: @popover_surface; border: 1px solid @border_color; border-radius: 8px; }
+separator { background-color: @border_color; }
+*:disabled { opacity: .55; }

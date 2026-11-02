@@ -1,44 +1,57 @@
 #!/usr/bin/env bash
-# =============================================================================
-# Fluid Glass 2.0: Complete Theme Uninstaller
-# Restores original configuration and safely cleans up installed files
-# =============================================================================
-set -euo pipefail
+set -Eeuo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-THEMES_DIR="${HOME}/.themes"
-MANIFEST="${THEMES_DIR}/.fluid_glass_manifest.json"
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
+UUID="fluid-glass@fluidglass.dev"
+DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+STATE_DIR="$STATE_HOME/fluid-glass"
+EXT_DIR="$DATA_HOME/gnome-shell/extensions/$UUID"
+THEMES_DIR="$HOME/.themes"
 
-echo "====================================================================="
-echo "  Uninstalling Fluid Glass 2.0..."
-echo "====================================================================="
+if [[ ! -f "$STATE_DIR/install-state" ]]; then
+    echo "No Fluid Glass installation state found; nothing will be removed."
+    exit 0
+fi
 
-# 1. Restore GTK and GSettings
-"${SCRIPT_DIR}/restore.sh"
+# shellcheck disable=SC1090
+source "$STATE_DIR/install-state"
 
-# 2. Remove Theme Directories
-for c in Dark Light; do
-  for name in Fluid-Glass Liquid-Tahoe; do
-    t="${THEMES_DIR}/${name}-${c}"
-    if [[ -d "${t}" ]]; then
-      echo "[UNINSTALL] Removing ${t}..."
-      rm -rf "${t}"
+if [[ "${extension_installed:-0}" == 1 ]]; then
+    if command -v gnome-extensions >/dev/null 2>&1; then
+        gnome-extensions disable "$UUID" >/dev/null 2>&1 || true
     fi
-  done
+    if [[ -f "$EXT_DIR/.fluid-glass-owned" ]]; then
+        rm -rf -- "$EXT_DIR"
+    else
+        echo "Extension directory ownership marker missing; leaving $EXT_DIR untouched." >&2
+    fi
+fi
+
+# Remove only marked theme directories and restore any original directory backed
+# up by this installer. A directory without our marker is treated as user data.
+IFS=':' read -r -a theme_names <<< "${installed_themes:-${gtk_theme:-}}"
+for theme_name in "${theme_names[@]}"; do
+    [[ -n "$theme_name" ]] || continue
+    theme_path="$THEMES_DIR/$theme_name"
+    if [[ -f "$theme_path/.fluid-glass-owned" ]]; then
+        rm -rf -- "$theme_path"
+    fi
+    previous="$STATE_DIR/backups/${backup_id:-unknown}/$theme_name.previous"
+    if [[ -d "$previous" && ! -e "$theme_path" ]]; then
+        cp -a "$previous" "$theme_path"
+    fi
 done
 
-# 3. Clean up extension if installed by Fluid Glass
-EXT_DIR="${HOME}/.local/share/gnome-shell/extensions/liquid-glass@thinkingcoding1231.gmail.com"
-if gnome-extensions list 2>/dev/null | grep -q "liquid-glass@thinkingcoding1231.gmail.com"; then
-  echo "[UNINSTALL] Disabling extension..."
-  gnome-extensions disable "liquid-glass@thinkingcoding1231.gmail.com" 2>/dev/null || true
-fi
-if [[ -d "${EXT_DIR}" ]]; then
-  echo "[UNINSTALL] Removing extension files at ${EXT_DIR}..."
-  rm -rf "${EXT_DIR}"
+if [[ -f "$STATE_DIR/gtk-theme.before" ]] && command -v gsettings >/dev/null 2>&1; then
+    previous_theme="$(<"$STATE_DIR/gtk-theme.before")"
+    if [[ -n "$previous_theme" ]] && gsettings writable org.gnome.desktop.interface gtk-theme >/dev/null 2>&1; then
+        gsettings set org.gnome.desktop.interface gtk-theme "$previous_theme" || \
+            echo "Could not restore previous GTK theme setting automatically." >&2
+    fi
 fi
 
-# 4. Remove manifest
-rm -f "${MANIFEST}"
-
-echo "[OK] Fluid Glass 2.0 completely uninstalled."
+rm -f -- "$STATE_DIR/install-state"
+rm -f -- "$STATE_DIR/gtk-theme.before"
+echo "Fluid Glass components installed by this installer have been removed."
+echo "Backups remain at: $STATE_DIR (remove manually after checking them)."

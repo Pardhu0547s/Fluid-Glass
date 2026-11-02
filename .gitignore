@@ -1,10 +1,5 @@
-# OS files
+dist/
+*.zip
+*.tar.gz
+*.log
 .DS_Store
-Thumbs.db
-
-# Editors
-*.swp
-*.swo
-*~
-.vscode/
-.idea/

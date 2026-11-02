@@ -1,79 +1,97 @@
 #!/usr/bin/env bash
-# =============================================================================
-# Fluid Glass 2.0 Validation Script
-# Verifies build artifacts, SCSS tokens, St CSS engine compliance, and manifests
-# =============================================================================
-set -euo pipefail
+set -Eeuo pipefail
+ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-DIST_DIR="${ROOT_DIR}/dist"
+python3 "$ROOT/scripts/generate-tokens.py"
 
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-NC='\033[0m'
-PASS=0
-FAIL=0
+for script in "$ROOT/build.sh" "$ROOT/install.sh" "$ROOT/uninstall.sh" \
+              "$ROOT/scripts/build.sh" "$ROOT/installer/install.sh" "$ROOT/installer/uninstall.sh" "$ROOT/tests/test-installer.sh"; do
+    bash -n "$script"
+done
 
-check() {
-  local desc="$1"; shift
-  if "$@"; then
-    echo -e "${GREEN}[PASS]${NC} ${desc}"
-    PASS=$((PASS + 1))
-  else
-    echo -e "${RED}[FAIL]${NC} ${desc}"
-    FAIL=$((FAIL + 1))
-  fi
-}
+python3 "$ROOT/tests/test-css-syntax.py"
 
-echo "====================================================================="
-echo "  Running Fluid Glass 2.0 Pre-flight Checks..."
-echo "====================================================================="
+python3 - "$ROOT" <<'PY'
+import json, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+metadata = json.loads((root / 'src/gnome-shell/metadata.json').read_text())
+assert metadata['uuid'] == 'fluid-glass@fluidglass.dev'
+assert metadata['shell-version'] == ['50']
+for path in [
+    root / 'src/gnome-shell/extension.js',
+    root / 'src/gnome-shell/stylesheet.css',
+    root / 'src/gtk3/dark/gtk-3.0/gtk.css',
+    root / 'src/gtk3/light/gtk-3.0/gtk.css',
+    root / 'src/gtk4/dark/gtk-4.0/gtk.css',
+    root / 'src/gtk4/light/gtk-4.0/gtk.css',
+    root / 'src/gnome-shell/prefs.js',
+    root / 'src/gnome-shell/schemas/org.gnome.shell.extensions.fluid-glass.gschema.xml',
+    root / 'src/engine/shaders/glass.frag',
+    root / 'src/design/tokens.json',
+]:
+    assert path.is_file() and path.stat().st_size > 100, path
+tokens = json.loads((root / 'src/design/tokens.json').read_text())
+assert set(tokens) == {'dark', 'light'}
+assert set(tokens['dark']) == set(tokens['light'])
 
-# 1. Check executables
-check "Root build.sh is executable" test -x "${ROOT_DIR}/build.sh"
-check "Root install.sh is executable" test -x "${ROOT_DIR}/install.sh"
-check "scripts/build.sh is executable" test -x "${ROOT_DIR}/scripts/build.sh"
-check "installer/install.sh is executable" test -x "${ROOT_DIR}/installer/install.sh"
-check "installer/uninstall.sh is executable" test -x "${ROOT_DIR}/installer/uninstall.sh"
-check "installer/backup.sh is executable" test -x "${ROOT_DIR}/installer/backup.sh"
-check "installer/restore.sh is executable" test -x "${ROOT_DIR}/installer/restore.sh"
+# Ensure all @color references in source stylesheets exist in their generated token files.
+import re
+for variant in ('dark', 'light'):
+    for platform, version in (('gtk3', '3.0'), ('gtk4', '4.0')):
+        base = root / f'src/{platform}/{variant}/gtk-{version}'
+        defined = set(re.findall(r'@define-color\s+([a-zA-Z0-9_-]+)', (base / 'tokens.css').read_text()))
+        css = (base / 'gtk.css').read_text()
+        refs = set(re.findall(r'(?<![\w-])@([a-zA-Z_][a-zA-Z0-9_-]*)', css)) - {'import'}
+        assert refs <= defined, f'{platform}/{variant}: undefined tokens {sorted(refs-defined)}'
+shell_tokens = set(re.findall(r'@define-color\s+([a-zA-Z0-9_-]+)', (root/'src/gnome-shell/tokens.css').read_text()))
+shell_css = (root/'src/gnome-shell/stylesheet.css').read_text()
+shell_refs = set(re.findall(r'(?<![\w-])@([a-zA-Z_][a-zA-Z0-9_-]*)', shell_css)) - {'import'}
+assert shell_refs <= shell_tokens, f'GNOME Shell: undefined tokens {sorted(shell_refs-shell_tokens)}'
+print('Static file, design-token, CSS token-reference, and metadata checks passed.')
+PY
 
-# 2. Check tokens existence
-check "Core tokens index exists" test -f "${ROOT_DIR}/src/core/index.scss"
-check "Color tokens exist" test -f "${ROOT_DIR}/src/core/tokens/_colors.scss"
-check "Opacity tokens exist" test -f "${ROOT_DIR}/src/core/tokens/_opacity.scss"
-check "Geometry tokens exist" test -f "${ROOT_DIR}/src/core/tokens/_geometry.scss"
-check "Elevation tokens exist" test -f "${ROOT_DIR}/src/core/tokens/_elevation.scss"
-
-# 3. Check distribution artifacts
-check "Dark theme output exists" test -d "${DIST_DIR}/Fluid-Glass-Dark"
-check "Light theme output exists" test -d "${DIST_DIR}/Fluid-Glass-Light"
-check "Build manifest exists" test -f "${DIST_DIR}/manifest.json"
-
-# 4. Check St CSS engine compliance (single-shadow only, no comma-separated box-shadows)
-check_st_shadows() {
-  local errors=0
-  for v in Dark Light; do
-    css="${DIST_DIR}/Fluid-Glass-${v}/gnome-shell/gnome-shell.css"
-    if [[ -f "${css}" ]]; then
-      # Strip functional notations: rgba(...), rgb(...), st-lighten(...), st-darken(...), st-transparentize(...)
-      if grep -n "box-shadow:" "${css}" | sed -E 's/(rgba|rgb|st-[a-z-]+)\([^)]*\)//g' | grep -q ","; then
-        echo "Error: Multi-shadow syntax found in ${css}"
-        errors=$((errors + 1))
-      fi
-    fi
-  done
-  return ${errors}
-}
-check "St CSS single-shadow compliance" check_st_shadows
-
-# 5. Check manifest valid JSON
-if command -v python3 &>/dev/null; then
-  check "Manifest JSON validity" python3 -m json.tool "${DIST_DIR}/manifest.json" >/dev/null
+if command -v node >/dev/null 2>&1; then
+    node --input-type=module --check < "$ROOT/src/gnome-shell/extension.js"
+    node --input-type=module --check < "$ROOT/src/gnome-shell/prefs.js"
+    echo 'GNOME extension and preferences JavaScript syntax checks passed with Node.'
+elif command -v gjs >/dev/null 2>&1; then
+    echo 'NOTE: node is not installed; skipping JS syntax check.'
+else
+    echo 'NOTE: neither gjs nor node is installed; JavaScript syntax check skipped.'
+fi
+if command -v glslangValidator >/dev/null 2>&1; then
+    glslangValidator -S frag "$ROOT/src/engine/shaders/glass.frag"
+else
+    echo 'NOTE: glslangValidator is not installed here; GLSL compiler check skipped.'
 fi
 
-echo "====================================================================="
-echo -e "Results: ${GREEN}${PASS} Passed${NC}, ${RED}${FAIL} Failed${NC}"
-echo "====================================================================="
-[[ ${FAIL} -eq 0 ]] || exit 1
+python3 - "$ROOT/src/gnome-shell/schemas/org.gnome.shell.extensions.fluid-glass.gschema.xml" <<'PYSCHEMA'
+import sys, xml.etree.ElementTree as ET
+root = ET.parse(sys.argv[1]).getroot()
+schema = root.find('schema')
+assert schema is not None and schema.get('id') == 'org.gnome.shell.extensions.fluid-glass'
+keys = {key.get('name'): key.get('type') for key in schema.findall('key')}
+assert keys == {'blur-enabled': 'b', 'panel-blur': 'b', 'popup-blur': 'b', 'blur-radius': 'i', 'brightness': 'd'}
+by_name = {key.get('name'): key for key in schema.findall('key')}
+assert by_name['brightness'].find('range').attrib == {'min': '0.5', 'max': '1.0'}
+assert by_name['popup-blur'].findtext('default') == 'false'
+assert by_name['blur-radius'].find('range').attrib == {'min': '4', 'max': '32'}
+print('GSettings schema XML is well-formed and has the expected keys and ranges.')
+PYSCHEMA
+if command -v node >/dev/null 2>&1; then
+    node --check "$ROOT/tests/test-extension-lifecycle.mjs"
+    node "$ROOT/tests/test-extension-lifecycle.mjs"
+else
+    echo 'NOTE: Node is unavailable; mocked Shell extension lifecycle test skipped.'
+fi
+
+# Clutter St CSS single-shadow compliance check (avoids Shell journal parse errors)
+if grep -n "box-shadow:" "$ROOT/src/gnome-shell/stylesheet.css" | sed -E 's/(rgba|rgb|st-[a-z-]+)\([^)]*\)//g' | grep -q ","; then
+    echo "Error: Multi-shadow comma syntax found in src/gnome-shell/stylesheet.css" >&2
+    exit 1
+fi
+echo 'Clutter St CSS single-shadow compliance check passed.'
+
+"$ROOT/tests/test-installer.sh"
+
+echo 'All Fluid Glass 2.0 validation checks passed successfully.'

@@ -1,0 +1,12 @@
+{
+  "uuid": "fluid-glass@fluidglass.dev",
+  "name": "Fluid Glass",
+  "description": "Independent Fedora-first GNOME glass interface with shared design tokens, custom styles and native backdrop blur.",
+  "shell-version": [
+    "50"
+  ],
+  "version": 202,
+  "version-name": "2.0.0-alpha.3",
+  "url": "https://github.com/Pardhu0547s/Fluid-Glass",
+  "settings-schema": "org.gnome.shell.extensions.fluid-glass"
+}

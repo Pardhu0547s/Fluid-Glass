@@ -1,0 +1,63 @@
+@import url("tokens.css");
+/* Fluid Glass 2.0 — GTK3 light material. */
+* {
+  -GtkWidget-focus-line-width: 2;
+  -GtkWidget-focus-line-pattern: '';
+  outline-color: @focus_ring_color;
+  -gtk-secondary-caret-color: @accent_color;
+}
+window, dialog, .background { color: @fg_color; background-color: @bg_color; }
+decoration { box-shadow: 0 12px 36px @panel_shadow; border-radius: 14px; }
+headerbar {
+  min-height: 42px; padding: 0 10px; color: @fg_color;
+  background-color: @elevated_surface_color;
+  background-image: linear-gradient(to bottom, rgba(255,255,255,.92), rgba(230,238,248,.68));
+  border-bottom: 1px solid @border_color;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82);
+}
+headerbar.titlebar { min-height: 44px; }
+toolbar { padding: 5px; background-color: @surface_alt_color; border-bottom: 1px solid @border_color; }
+button {
+  min-height: 28px; padding: 5px 11px; color: @fg_color;
+  background-color: @surface_alt_color;
+  background-image: linear-gradient(to bottom, rgba(255,255,255,.85), rgba(225,235,247,.50));
+  border: 1px solid @border_color; border-radius: 10px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.82); text-shadow: none;
+}
+button:hover { background-color: @surface_color; border-color: @strong_border_color; }
+button:active, button:checked { background-color: @selected_bg_color; border-color: @focus_ring_color; }
+button:focus { outline: 2px solid @focus_ring_color; outline-offset: 1px; }
+button.flat { background-color: transparent; background-image: none; border-color: transparent; box-shadow: none; }
+button.flat:hover { background-color: @surface_alt_color; border-color: @border_color; }
+button.suggested-action { color: @selected_fg_color; background-color: @accent_active_color; border-color: @accent_color; }
+button.destructive-action { color: @selected_fg_color; background-color: @destructive_color; border-color: @destructive_color; }
+entry, spinbutton, textview, treeview.view {
+  color: @text_color; background-color: @base_color; border: 1px solid @border_color;
+  border-radius: 9px; caret-color: @accent_color; padding: 6px 8px;
+}
+entry:focus, spinbutton:focus, textview:focus { border-color: @accent_color; box-shadow: 0 0 0 2px alpha(@focus_ring_color, .18); }
+spinbutton button { min-height: 22px; padding: 2px 7px; border-radius: 7px; }
+.view, iconview, .view text, .view dim-label { color: @fg_color; background-color: @surface_color; }
+.sidebar, .sidebar .view { background-color: @surface_alt_color; }
+.sidebar row, list row { border-bottom: 1px solid alpha(@border_color, .55); }
+.sidebar row:hover, list row:hover { background-color: @surface_alt_color; }
+.sidebar row:selected, .view:selected, row:selected { color: @selected_fg_color; background-color: @selected_bg_color; }
+popover, popover.background, menu, .menu { color: @fg_color; background-color: @popover_surface; border: 1px solid @border_color; border-radius: 14px; box-shadow: 0 12px 32px @panel_shadow; }
+menuitem { min-height: 26px; padding: 4px 9px; border-radius: 7px; }
+menuitem:hover { color: @fg_color; background-color: @surface_alt_color; }
+notebook { background-color: @bg_color; }
+notebook > header { background-color: @surface_alt_color; border-color: @border_color; }
+notebook > header tab { padding: 7px 12px; color: @muted_fg_color; }
+notebook > header tab:checked { color: @fg_color; background-color: @surface_color; border-bottom: 2px solid @accent_color; }
+switch { background-color: @switch_bg; border: 1px solid @border_color; border-radius: 99px; }
+switch:checked { background-color: @accent_active_color; }
+scale trough, progressbar trough, levelbar trough { background-color: @slider_track; border-radius: 99px; }
+scale highlight, progressbar progress, levelbar block.filled { background-color: @slider_fill; border-radius: 99px; }
+scale slider { background-color: @elevated_surface_color; border: 1px solid @strong_border_color; box-shadow: 0 1px 3px @panel_shadow; }
+scrollbar slider { min-width: 7px; min-height: 7px; background-color: @scrollbar_color; border-radius: 99px; }
+scrollbar slider:hover { background-color: @muted_fg_color; }
+check, radio { color: @accent_color; }
+selection { background-color: @selected_bg_color; color: @selected_fg_color; }
+tooltip { color: @fg_color; background-color: @popover_surface; border: 1px solid @border_color; border-radius: 8px; }
+separator { background-color: @border_color; }
+*:disabled { opacity: .55; }

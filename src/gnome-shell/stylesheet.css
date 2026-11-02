@@ -1,0 +1,112 @@
+@import url("tokens.css");
+/* Fluid Glass 2.0 — independent GNOME Shell material system. */
+
+/* Top panel */
+#panel.fluid-glass-panel { transition-duration: 180ms; }
+#panel.fluid-glass-panel.fluid-glass-dark {
+  color: @fluid_glass_dark_fg_color;
+  background-color: @fluid_glass_dark_panel_surface;
+  border-bottom: 1px solid @fluid_glass_dark_panel_border;
+  box-shadow: 0 7px 24px @fluid_glass_dark_panel_shadow;
+}
+#panel.fluid-glass-panel.fluid-glass-light {
+  color: @fluid_glass_light_fg_color;
+  background-color: @fluid_glass_light_panel_surface;
+  border-bottom: 1px solid @fluid_glass_light_panel_border;
+  box-shadow: 0 7px 24px @fluid_glass_light_panel_shadow;
+}
+#panel.fluid-glass-panel .panel-button { border-radius: 9px; transition-duration: 140ms; }
+#panel.fluid-glass-panel .panel-button:hover { background-color: rgba(255,255,255,.09); }
+
+/* Popup, Quick Settings and calendar surfaces */
+.fluid-glass-root.fluid-glass-dark .popup-menu-content,
+.fluid-glass-root.fluid-glass-dark .quick-settings,
+.fluid-glass-root.fluid-glass-dark .calendar {
+  color: @fluid_glass_dark_fg_color;
+  background-color: @fluid_glass_dark_popover_surface;
+  border: 1px solid @fluid_glass_dark_border_color;
+  border-radius: 20px;
+  box-shadow: 0 16px 42px @fluid_glass_dark_panel_shadow;
+}
+.fluid-glass-root.fluid-glass-light .popup-menu-content,
+.fluid-glass-root.fluid-glass-light .quick-settings,
+.fluid-glass-root.fluid-glass-light .calendar {
+  color: @fluid_glass_light_fg_color;
+  background-color: @fluid_glass_light_popover_surface;
+  border: 1px solid @fluid_glass_light_border_color;
+  border-radius: 20px;
+  box-shadow: 0 16px 42px @fluid_glass_light_panel_shadow;
+}
+
+/* Quick Settings size stability (prevents jitter and resizing bounce on open/close) */
+.fluid-glass-root .quick-settings {
+  min-width: 370px;
+  width: 370px;
+  max-width: 370px;
+}
+
+/* Quick Settings toggles */
+.fluid-glass-root.fluid-glass-dark .quick-toggle,
+.fluid-glass-root.fluid-glass-dark .quick-settings .icon-button {
+  color: @fluid_glass_dark_fg_color;
+  background-color: @fluid_glass_dark_surface_alt_color;
+  border: 1px solid @fluid_glass_dark_border_color;
+  border-radius: 14px;
+}
+.fluid-glass-root.fluid-glass-light .quick-toggle,
+.fluid-glass-root.fluid-glass-light .quick-settings .icon-button {
+  color: @fluid_glass_light_fg_color;
+  background-color: @fluid_glass_light_surface_alt_color;
+  border: 1px solid @fluid_glass_light_border_color;
+  border-radius: 14px;
+}
+.fluid-glass-root.fluid-glass-dark .quick-toggle:checked { background-color: @fluid_glass_dark_accent_active_color; }
+.fluid-glass-root.fluid-glass-light .quick-toggle:checked { background-color: @fluid_glass_light_accent_active_color; }
+.quick-slider .slider, .quick-slider .level { border-radius: 99px; }
+
+/* Calendar */
+.calendar .calendar-day, .calendar .calendar-month-label { border-radius: 9px; }
+.fluid-glass-root.fluid-glass-dark .calendar .calendar-day:selected { background-color: @fluid_glass_dark_selected_bg_color; }
+.fluid-glass-root.fluid-glass-light .calendar .calendar-day:selected { background-color: @fluid_glass_light_selected_bg_color; }
+
+/* Notifications, OSD and overview */
+.fluid-glass-root.fluid-glass-dark .message,
+.fluid-glass-root.fluid-glass-dark .notification-banner {
+  color: @fluid_glass_dark_fg_color;
+  background-color: @fluid_glass_dark_notification_surface;
+  border: 1px solid @fluid_glass_dark_border_color;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px @fluid_glass_dark_panel_shadow;
+}
+.fluid-glass-root.fluid-glass-light .message,
+.fluid-glass-root.fluid-glass-light .notification-banner {
+  color: @fluid_glass_light_fg_color;
+  background-color: @fluid_glass_light_notification_surface;
+  border: 1px solid @fluid_glass_light_border_color;
+  border-radius: 16px;
+  box-shadow: 0 10px 28px @fluid_glass_light_panel_shadow;
+}
+.notification-banner .notification-button, .message .message-close-button { border-radius: 10px; }
+.fluid-glass-root.fluid-glass-dark .osd-window {
+  color: @fluid_glass_dark_fg_color; background-color: @fluid_glass_dark_elevated_surface_color;
+  border: 1px solid @fluid_glass_dark_border_color; border-radius: 18px;
+  box-shadow: 0 12px 34px @fluid_glass_dark_panel_shadow;
+}
+.fluid-glass-root.fluid-glass-light .osd-window {
+  color: @fluid_glass_light_fg_color; background-color: @fluid_glass_light_elevated_surface_color;
+  border: 1px solid @fluid_glass_light_border_color; border-radius: 18px;
+  box-shadow: 0 12px 34px @fluid_glass_light_panel_shadow;
+}
+.fluid-glass-root.fluid-glass-dark #dash .dash-background,
+.fluid-glass-root.fluid-glass-dark .dash-background {
+  background-color: @fluid_glass_dark_panel_surface; border: 1px solid @fluid_glass_dark_border_color;
+  border-radius: 22px; box-shadow: 0 12px 36px @fluid_glass_dark_panel_shadow;
+}
+.fluid-glass-root.fluid-glass-light #dash .dash-background,
+.fluid-glass-root.fluid-glass-light .dash-background {
+  background-color: @fluid_glass_light_panel_surface; border: 1px solid @fluid_glass_light_border_color;
+  border-radius: 22px; box-shadow: 0 12px 36px @fluid_glass_light_panel_shadow;
+}
+.workspace-thumbnail { border-radius: 12px; }
+.fluid-glass-root.fluid-glass-dark .window-picker .window-clone-border { border: 2px solid @fluid_glass_dark_accent_color; border-radius: 12px; }
+.fluid-glass-root.fluid-glass-light .window-picker .window-clone-border { border: 2px solid @fluid_glass_light_accent_color; border-radius: 12px; }
