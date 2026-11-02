@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
-# Liquid-Tahoe build script
+# Fluid Glass for Linux build script
 #
 # Compiles the vendored MacTahoe SCSS (exact MacTahoe geometry) together with
-# the Liquid Glass material overlay into ready-to-install themes in ./dist.
+# the Fluid Glass material overlay into ready-to-install themes in ./dist.
 #
 # Usage: ./build.sh [OPTIONS]
 #   -c, --color   dark|light|all          Color variants      (default: all)
 #   -s, --style   clear|normal|frosted    Glass strength      (default: normal)
-#   -n, --name    NAME                    Theme base name     (default: Liquid-Tahoe)
+#   -n, --name    NAME                    Theme base name     (default: Fluid-Glass)
 #   -o, --out     DIR                     Output directory    (default: ./dist)
 #       --mac27, --hd                     macOS 27" Desktop proportions (default)
 #       --laptop                          Compact laptop sizing
@@ -20,7 +20,7 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_DIR="${REPO_DIR}/src"
 
-NAME="Liquid-Tahoe"
+NAME="Fluid-Glass"
 OUT_DIR="${REPO_DIR}/dist"
 COLORS=(Dark Light)
 STYLE="normal"
@@ -186,8 +186,8 @@ for color in "${COLORS[@]}"; do
   cat > "${T}/index.theme" <<EOF
 [Desktop Entry]
 Type=X-GNOME-Metatheme
-Name=${THEME}
-Comment=MacTahoe geometry with a Liquid Glass material (${STYLE})
+Name=Fluid Glass for Linux (${color})
+Comment=Fluid Glass for Linux with macOS 27" geometry (${STYLE})
 Encoding=UTF-8
 
 [X-GNOME-Metatheme]

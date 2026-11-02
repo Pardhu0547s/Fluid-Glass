@@ -1,6 +1,6 @@
-# Liquid-Tahoe GTK & GNOME Shell Theme
+# Fluid Glass for Linux - GTK & GNOME Shell Theme
 
-A hybrid theme combining the **exact sizes and measurements of MacTahoe** with the **Liquid Glass shader-inspired material aesthetics** (translucent glass tints, 90° top specular rim lighting, ambient occlusion edge shadows, and soft diffused lighting).
+A modern fluid glass theme for Linux combining the **exact sizes and proportions of macOS 27" desktop** with **Fluid Glass shader-inspired material aesthetics** (translucent glass tints, 90° top specular rim lighting, ambient occlusion edge shadows, and soft diffused lighting).
 
 ---
 
@@ -12,7 +12,7 @@ A hybrid theme combining the **exact sizes and measurements of MacTahoe** with t
   - **Control Center (Quick Settings)**: 320px container width (1:8 screen width ratio), 20px corner radius, 16px padding, 44px toggle capsules, 28px sliders, 40px circular discs.
   - **Sidebar Proportions**: 240px width (~1:4.5 window ratio), 32px row height, 8px selection pill radius.
   - **Window Geometry**: 12px window inner radius / 26px mutter frame shadow, 8px button corner radius.
-- **Liquid Glass Shader Material**: Features derived directly from the [ryohsuke1231/liquid-glass](https://github.com/ryohsuke1231/liquid-glass) extension:
+- **Fluid Glass Shader Material**: Features derived directly from the [ryohsuke1231/liquid-glass](https://github.com/ryohsuke1231/liquid-glass) extension:
   - 90° top specular rim highlight (`border-top: 1px solid rgba(255, 255, 255, 0.55 - 0.70)`)
   - Continuous perimeter edge illumination (`1px solid rgba(255, 255, 255, 0.18)`)
   - 100% transparent container backing allowing the GPU Cogl/GLSL shader blur to shine through smoothly at 144Hz
@@ -29,7 +29,7 @@ A hybrid theme combining the **exact sizes and measurements of MacTahoe** with t
 
 ## 🚀 Quick Install
 
-To install and activate **Liquid-Tahoe-Dark** with macOS 27" Desktop Proportions:
+To install and activate **Fluid-Glass-Dark** with macOS 27" Desktop Proportions:
 
 ```bash
 git clone https://github.com/Pardhu0547s/Fluid-Glass.git
@@ -49,7 +49,7 @@ cd Fluid-Glass
   -l, --libadwaita                    Configure GTK4 ~/.config/gtk-4.0 (default: enabled)
   -e, --with-extension                Install and enable Liquid Glass GNOME extension
   -d, --dest DIR                      Install directory (default: ~/.themes)
-  -r, --remove                        Uninstall Liquid-Tahoe and restore defaults
+  -r, --remove                        Uninstall Fluid-Glass and restore defaults
   -h, --help                          Show help
 ```
 
@@ -86,8 +86,8 @@ To compile the themes from SCSS using `sassc`:
 ```
 
 The compiled themes will be placed into `./dist/`:
-- `dist/Liquid-Tahoe-Dark/`
-- `dist/Liquid-Tahoe-Light/`
+- `dist/Fluid-Glass-Dark/`
+- `dist/Fluid-Glass-Light/`
 
 To verify geometry against stock MacTahoe:
 ```bash
@@ -99,26 +99,26 @@ To verify geometry against stock MacTahoe:
 ## 📂 Project Architecture
 
 ```
-Liquid-Tahoe/
+Fluid-Glass/
 ├── build.sh               # SCSS build script with variant and option generation
 ├── install.sh             # Installation and activation script
 ├── COPYING                # GNU GPL-v3 License
 ├── extension/             # Vendored Liquid Glass extension for --with-extension
 │   └── liquid-glass@thinkingcoding1231.gmail.com/
 ├── dist/                  # Precompiled ready-to-install themes
-│   ├── Liquid-Tahoe-Dark/
-│   └── Liquid-Tahoe-Light/
-└── src/
-    ├── assets/            # Shell icons, title buttons, activity icons
-    ├── main/              # SCSS main entry templates
-    └── sass/
-        ├── glass/         # Liquid Glass Material Layer
-        │   ├── _material.scss  # Glass tokens, rim lighting, AO mixins
-        │   ├── _shell.scss     # GNOME Shell glass overrides
-        │   ├── _gtk3.scss      # GTK3 glass overrides
-        │   └── _gtk4.scss      # GTK4 & Libadwaita glass overrides
-        ├── gnome-shell/   # Vendored MacTahoe shell widgets & layouts
-        └── gtk/           # Vendored MacTahoe GTK widgets & drawing
+│   ├── Fluid-Glass-Dark/
+│   └── Fluid-Glass-Light/
+├── src/
+│   ├── assets/            # Shell icons, title buttons, activity icons
+│   ├── main/              # SCSS main entry templates
+│   └── sass/
+│       ├── glass/         # Fluid Glass Material Layer
+│       │   ├── _material.scss  # Glass tokens, rim lighting, AO mixins
+│       │   ├── _shell.scss     # GNOME Shell glass overrides
+│       │   ├── _gtk3.scss      # GTK3 glass overrides
+│       │   └── _gtk4.scss      # GTK4 & Libadwaita glass overrides
+│       ├── gnome-shell/   # Shell widgets & layouts
+│       └── gtk/           # GTK widgets & drawing
 ```
 
 ---

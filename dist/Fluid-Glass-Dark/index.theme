@@ -1,12 +1,12 @@
 [Desktop Entry]
 Type=X-GNOME-Metatheme
-Name=Liquid-Tahoe-Dark
-Comment=MacTahoe geometry with a Liquid Glass material (normal)
+Name=Fluid Glass for Linux (Dark)
+Comment=Fluid Glass for Linux with macOS 27" geometry (normal)
 Encoding=UTF-8
 
 [X-GNOME-Metatheme]
-GtkTheme=Liquid-Tahoe-Dark
-MetacityTheme=Liquid-Tahoe-Dark
+GtkTheme=Fluid-Glass-Dark
+MetacityTheme=Fluid-Glass-Dark
 IconTheme=Adwaita
 CursorTheme=Adwaita
 ButtonLayout=close,minimize,maximize:menu

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# Liquid-Tahoe Install Script
+# Fluid Glass for Linux Install Script
 #
-# Installs the Liquid-Tahoe GNOME Shell & GTK themes, with full MacTahoe
-# measurements and Liquid Glass shader-inspired material aesthetics.
+# Installs the Fluid Glass GNOME Shell & GTK themes, with full macOS
+# measurements and Fluid Glass shader-inspired material aesthetics.
 #
 # Usage: ./install.sh [OPTIONS]
 #   -c, --color [dark|light]        Theme color variant (default: dark)
@@ -14,7 +14,7 @@
 #       --mac27, --hd               macOS 27" Desktop proportions (default)
 #       --laptop                    Install compact laptop sizing
 #   -e, --with-extension            Install and enable the Liquid Glass GNOME extension
-#   -r, --remove                    Uninstall Liquid-Tahoe themes
+#   -r, --remove                    Uninstall Fluid-Glass themes
 #   -h, --help                      Show this help message
 #
 set -euo pipefail
@@ -71,34 +71,36 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-THEME_NAME="Liquid-Tahoe-${COLOR}"
+THEME_NAME="Fluid-Glass-${COLOR}"
 
 # =============================================================================
 # Uninstall Logic
 # =============================================================================
 if [[ "${REMOVE}" == "true" ]]; then
-  echo -e "\n${BOLD}Uninstalling Liquid-Tahoe...${NC}\n"
+  echo -e "\n${BOLD}Uninstalling Fluid-Glass...${NC}\n"
 
-  # Reset gsettings if currently set to Liquid-Tahoe
+  # Reset gsettings if currently set to Fluid-Glass or Liquid-Tahoe
   current_gtk="$(gsettings get org.gnome.desktop.interface gtk-theme 2>/dev/null || echo '')"
   current_shell="$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null || echo '')"
 
-  if [[ "${current_gtk}" =~ "Liquid-Tahoe" ]]; then
+  if [[ "${current_gtk}" =~ "Fluid-Glass" || "${current_gtk}" =~ "Liquid-Tahoe" ]]; then
     log_info "Resetting GTK theme to 'Adwaita'..."
     gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita'
   fi
-  if [[ "${current_shell}" =~ "Liquid-Tahoe" ]]; then
+  if [[ "${current_shell}" =~ "Fluid-Glass" || "${current_shell}" =~ "Liquid-Tahoe" ]]; then
     log_info "Resetting Shell user-theme..."
     gsettings reset org.gnome.shell.extensions.user-theme name 2>/dev/null || true
   fi
 
   # Remove installed themes
   for c in Dark Light; do
-    t="${DEST}/Liquid-Tahoe-${c}"
-    if [[ -d "${t}" ]]; then
-      log_info "Removing ${t}..."
-      rm -rf "${t}"
-    fi
+    for name in Fluid-Glass Liquid-Tahoe; do
+      t="${DEST}/${name}-${c}"
+      if [[ -d "${t}" ]]; then
+        log_info "Removing ${t}..."
+        rm -rf "${t}"
+      fi
+    done
   done
 
   # Restore ~/.config/gtk-4.0
@@ -121,14 +123,14 @@ if [[ "${REMOVE}" == "true" ]]; then
     gnome-extensions disable "liquid-glass@thinkingcoding1231.gmail.com" 2>/dev/null || true
   fi
 
-  log_success "Liquid-Tahoe has been uninstalled."
+  log_success "Fluid-Glass has been uninstalled."
   exit 0
 fi
 
 # =============================================================================
 # Build Check
 # =============================================================================
-echo -e "\n${BOLD}Liquid-Tahoe Theme Installer${NC}"
+echo -e "\n${BOLD}Fluid Glass for Linux Theme Installer${NC}"
 echo -e "Variant: ${COLOR} | Style: ${STYLE} | Destination: ${DEST}\n"
 
 # Recompile theme assets with requested style and proportion setting
@@ -143,8 +145,8 @@ log_info "Building theme assets (style '${STYLE}', proportions: ${hd_flag})..."
 mkdir -p "${DEST}"
 
 for c in Dark Light; do
-  T_SRC="${DIST_DIR}/Liquid-Tahoe-${c}"
-  T_DST="${DEST}/Liquid-Tahoe-${c}"
+  T_SRC="${DIST_DIR}/Fluid-Glass-${c}"
+  T_DST="${DEST}/Fluid-Glass-${c}"
 
   if [[ ! -d "${T_SRC}" ]]; then
     log_err "Missing build artifact: ${T_SRC}"
@@ -159,7 +161,7 @@ for c in Dark Light; do
   fi
 
   cp -r "${T_SRC}" "${T_DST}"
-  log_success "Installed Liquid-Tahoe-${c}"
+  log_success "Installed Fluid-Glass-${c}"
 done
 
 # =============================================================================
@@ -242,12 +244,12 @@ log_success "Desktop settings updated to ${THEME_NAME}"
 
 echo ""
 echo -e "${GREEN}═════════════════════════════════════════════════════════════════════${NC}"
-echo -e "${GREEN}${BOLD}  🎉  Liquid-Tahoe installed and applied successfully!${NC}"
+echo -e "${GREEN}${BOLD}  🎉  Fluid Glass for Linux installed and applied successfully!${NC}"
 echo -e "${GREEN}═════════════════════════════════════════════════════════════════════${NC}"
 echo -e "  • GNOME Shell Theme : ${BOLD}${THEME_NAME}${NC}"
 echo -e "  • GTK Theme         : ${BOLD}${THEME_NAME}${NC}"
-echo -e "  • Geometry          : Exact MacTahoe measurements preserved"
-echo -e "  • Material          : Liquid Glass shader-inspired rim light & tints"
+echo -e "  • Geometry          : macOS 27\" Desktop Proportions"
+echo -e "  • Material          : Fluid Glass shader-inspired rim light & tints"
 echo -e ""
 echo -e "  To uninstall anytime: ${BOLD}./install.sh -r${NC}"
 echo ""
