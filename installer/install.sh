@@ -187,9 +187,6 @@ if (( WITH_EXTENSION )); then
     if ! gnome-extensions enable "$UUID" >/dev/null 2>&1; then
         echo "Note: Extension files installed and schemas compiled. GNOME Shell will detect the extension after logout/login."
     fi
-    if command -v gsettings >/dev/null 2>&1; then
-        GSETTINGS_SCHEMA_DIR="$EXT_DIR/schemas" gsettings set org.gnome.shell.extensions.fluid-glass popup-blur true >/dev/null 2>&1 || true
-    fi
 fi
 
 echo "Fluid Glass $VERSION installed for this user."
