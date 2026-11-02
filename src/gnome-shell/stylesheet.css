@@ -192,22 +192,38 @@
   color: transparent;
   font-size: 0;
 }
+/* Merge menu toggle and arrow into a single unified button (No divider line or shade split) */
+.quick-toggle-has-menu .quick-toggle,
+.quick-menu-toggle .quick-toggle {
+  border-radius: 99px 0 0 99px !important;
+  border-right: none !important;
+  margin-right: 0 !important;
+}
+
+.quick-toggle-has-menu .quick-toggle-menu-button,
+.quick-menu-toggle .quick-toggle-arrow,
 .quick-settings .quick-toggle-arrow-button {
-  min-width: 34px;
-  border-radius: 0 999px 999px 0;
+  border-radius: 0 99px 99px 0 !important;
+  border-left: none !important;
+  margin-left: 0 !important;
+  background-color: inherit !important;
+  box-shadow: none !important;
   padding: 0 11px;
 }
-.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-arrow-button {
-  color: @fluid_glass_dark_fg_color;
-  background-color: rgba(220,232,255,.075);
-  border-left: 1px solid rgba(220,232,255,.10);
+
+/* Ensure active blue state matches on both halves */
+.quick-menu-toggle:checked .quick-toggle-arrow,
+.quick-toggle-has-menu .quick-toggle-menu-button:checked,
+.quick-settings .quick-toggle-arrow-button:checked {
+  background-color: inherit !important;
 }
-.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-arrow-button {
-  color: @fluid_glass_light_fg_color;
-  background-color: rgba(74,99,132,.075);
-  border-left: 1px solid rgba(74,99,132,.12);
+
+/* Eliminate divider line completely */
+.quick-toggle-has-menu .quick-toggle-separator {
+  width: 0 !important;
+  border: none !important;
+  background-color: transparent !important;
 }
-.quick-settings .quick-toggle-arrow-button:hover { background-color: rgba(110,155,209,.18); }
 
 /* Volume and brightness controls become full-width glass tracks. */
 .fluid-glass-root .quick-settings .quick-slider {
