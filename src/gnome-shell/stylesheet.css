@@ -130,56 +130,162 @@
   spacing-rows: 10px;
   spacing-columns: 10px;
 }
-.fluid-glass-root .quick-settings .quick-toggle,
-.fluid-glass-root .quick-settings .quick-toggle-has-menu,
-.quick-settings .quick-toggle,
-.quick-settings .quick-toggle-has-menu {
+
+/* Standalone toggles (Night Light, Dark Mode, DND, Airplane Mode, etc.) */
+.fluid-glass-root .quick-settings .quick-toggle:not(.power-item),
+.quick-settings .quick-toggle:not(.power-item) {
   min-width: 70px !important;
   max-width: 70px !important;
   width: 70px !important;
-  min-height: 56px;
-  border-radius: 999px;
-  padding: 4px;
+  min-height: 56px !important;
+  border-radius: 999px !important;
+  padding: 0 !important;
+  margin: 0 !important;
   transition-duration: 160ms;
 }
+
+/* Menu toggle container (Wi-Fi, Bluetooth, Hotspot, etc.): single 70px unified pill */
+.fluid-glass-root .quick-settings .quick-toggle-has-menu:not(.power-item),
+.quick-settings .quick-toggle-has-menu:not(.power-item) {
+  min-width: 70px !important;
+  max-width: 70px !important;
+  width: 70px !important;
+  min-height: 56px !important;
+  border-radius: 999px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transition-duration: 160ms;
+}
+
+/* Inside the menu toggle container, the left toggle fills flexible space without its own 70px constraint */
+.fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle,
 .quick-settings .quick-toggle-has-menu .quick-toggle {
   min-width: 0 !important;
   max-width: none !important;
   width: auto !important;
-  padding: 0 4px !important;
+  min-height: 56px !important;
+  border-radius: 999px 0 0 999px !important;
+  border-right: none !important;
+  margin-right: 0 !important;
+  padding: 0 0 0 10px !important;
 }
-.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle {
+
+/* Inactive styling: Standalone toggle */
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle:not(.power-item) {
   color: @fluid_glass_dark_fg_color;
   background-color: @fluid_glass_dark_surface_color;
   border: 1px solid @fluid_glass_dark_border_color;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 4px 14px rgba(0,0,0,.10);
 }
-.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle {
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle:not(.power-item) {
   color: @fluid_glass_light_fg_color;
   background-color: @fluid_glass_light_surface_color;
   border: 1px solid @fluid_glass_light_border_color;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.88), 0 5px 14px rgba(35,53,78,.09);
 }
-.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle:hover {
-  background-color: @fluid_glass_dark_surface_alt_color;
-  border-color: @fluid_glass_dark_strong_border_color;
+
+/* Inactive styling: Menu button (right arrow half) matches left half exactly without divider */
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-arrow-button {
+  color: @fluid_glass_dark_fg_color !important;
+  background-color: @fluid_glass_dark_surface_color !important;
+  border: 1px solid @fluid_glass_dark_border_color !important;
+  border-left: none !important;
+  border-radius: 0 999px 999px 0 !important;
+  min-width: 22px !important;
+  max-width: 26px !important;
+  min-height: 56px !important;
+  padding: 0 6px 0 0 !important;
+  margin-left: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 4px 14px rgba(0,0,0,.10) !important;
 }
-.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle:hover {
-  background-color: @fluid_glass_light_surface_alt_color;
-  border-color: @fluid_glass_light_strong_border_color;
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-arrow-button {
+  color: @fluid_glass_light_fg_color !important;
+  background-color: @fluid_glass_light_surface_color !important;
+  border: 1px solid @fluid_glass_light_border_color !important;
+  border-left: none !important;
+  border-radius: 0 999px 999px 0 !important;
+  min-width: 22px !important;
+  max-width: 26px !important;
+  min-height: 56px !important;
+  padding: 0 6px 0 0 !important;
+  margin-left: 0 !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.88), 0 5px 14px rgba(35,53,78,.09) !important;
 }
-.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle:checked {
-  color: @fluid_glass_dark_selected_fg_color;
-  background-color: @fluid_glass_dark_accent_active_color;
-  border-color: @fluid_glass_dark_accent_color;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 0 18px rgba(104,151,215,.28);
+
+/* Hover styling: seamless unified hover */
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle:not(.power-item):hover,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu .quick-toggle:hover,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:hover {
+  background-color: @fluid_glass_dark_surface_alt_color !important;
+  border-color: @fluid_glass_dark_strong_border_color !important;
 }
-.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle:checked {
-  color: #ffffff;
-  background-color: @fluid_glass_light_accent_active_color;
-  border-color: @fluid_glass_light_accent_color;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 0 16px rgba(69,111,169,.22);
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle:not(.power-item):hover,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu .quick-toggle:hover,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:hover {
+  background-color: @fluid_glass_light_surface_alt_color !important;
+  border-color: @fluid_glass_light_strong_border_color !important;
 }
+
+/* Active / Checked styling: Standalone toggle */
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle:not(.power-item):checked {
+  color: @fluid_glass_dark_selected_fg_color !important;
+  background-color: @fluid_glass_dark_accent_active_color !important;
+  border-color: @fluid_glass_dark_accent_color !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 0 18px rgba(104,151,215,.28) !important;
+}
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle:not(.power-item):checked {
+  color: #ffffff !important;
+  background-color: @fluid_glass_light_accent_active_color !important;
+  border-color: @fluid_glass_light_accent_color !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 0 16px rgba(69,111,169,.22) !important;
+}
+
+/* Active / Checked styling: Menu toggle left half */
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu:checked .quick-toggle,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu.is-checked .quick-toggle,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu .quick-toggle:checked {
+  color: @fluid_glass_dark_selected_fg_color !important;
+  background-color: @fluid_glass_dark_accent_active_color !important;
+  border-color: @fluid_glass_dark_accent_color !important;
+  border-right: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 0 18px rgba(104,151,215,.28) !important;
+}
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu:checked .quick-toggle,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu.is-checked .quick-toggle,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu .quick-toggle:checked {
+  color: #ffffff !important;
+  background-color: @fluid_glass_light_accent_active_color !important;
+  border-color: @fluid_glass_light_accent_color !important;
+  border-right: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 0 16px rgba(69,111,169,.22) !important;
+}
+
+/* Active / Checked styling: Menu toggle right arrow half matches left half seamlessly */
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu:checked .quick-toggle-menu-button,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu.is-checked .quick-toggle-menu-button,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:checked,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button.is-checked,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-arrow-button:checked {
+  color: @fluid_glass_dark_selected_fg_color !important;
+  background-color: @fluid_glass_dark_accent_active_color !important;
+  border-color: @fluid_glass_dark_accent_color !important;
+  border-left: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 0 18px rgba(104,151,215,.28) !important;
+}
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu:checked .quick-toggle-menu-button,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu.is-checked .quick-toggle-menu-button,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:checked,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button.is-checked,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-arrow-button:checked {
+  color: #ffffff !important;
+  background-color: @fluid_glass_light_accent_active_color !important;
+  border-color: @fluid_glass_light_accent_color !important;
+  border-left: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 0 16px rgba(69,111,169,.22) !important;
+}
+
 .fluid-glass-root .quick-settings .quick-toggle:focus,
 .fluid-glass-root .quick-settings .icon-button:focus {
   border-color: @fluid_glass_dark_focus_ring_color;
@@ -188,51 +294,63 @@
 .quick-settings .quick-toggle > StBoxLayout { spacing: 0; }
 .quick-settings .quick-toggle-icon { icon-size: 22px; }
 
-/* Hide text labels on quick toggles (Wi-Fi, Bluetooth, etc.) */
-.fluid-glass-root .quick-settings .quick-toggle .quick-toggle-title,
-.fluid-glass-root .quick-settings .quick-toggle .quick-toggle-subtitle,
-.fluid-glass-root .quick-settings .quick-toggle .quick-toggle-label,
-.fluid-glass-root .quick-settings .quick-toggle-title,
-.fluid-glass-root .quick-settings .quick-toggle-subtitle,
-.fluid-glass-root .quick-settings .quick-toggle-label {
-  width: 0;
-  height: 0;
-  margin: 0;
-  padding: 0;
-  color: transparent;
-  font-size: 0;
-}
-/* Merge menu toggle and arrow into a single unified button (No divider line or shade split) */
-.quick-toggle-has-menu .quick-toggle,
-.quick-menu-toggle .quick-toggle {
-  border-radius: 99px 0 0 99px !important;
-  border-right: none !important;
-  margin-right: 0 !important;
+/* Hide text labels ONLY for standard quick toggles (never hide battery text) */
+.fluid-glass-root .quick-settings .quick-toggle:not(.power-item) .quick-toggle-title,
+.fluid-glass-root .quick-settings .quick-toggle:not(.power-item) .quick-toggle-subtitle,
+.fluid-glass-root .quick-settings .quick-toggle:not(.power-item) .quick-toggle-label,
+.fluid-glass-root .quick-settings .quick-toggle-has-menu:not(.power-item) .quick-toggle-title,
+.fluid-glass-root .quick-settings .quick-toggle-has-menu:not(.power-item) .quick-toggle-subtitle,
+.fluid-glass-root .quick-settings .quick-toggle-has-menu:not(.power-item) .quick-toggle-label {
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: transparent !important;
+  font-size: 0 !important;
 }
 
-.quick-toggle-has-menu .quick-toggle-menu-button,
-.quick-menu-toggle .quick-toggle-arrow,
-.quick-settings .quick-toggle-arrow-button {
-  border-radius: 0 99px 99px 0 !important;
-  border-left: none !important;
-  margin-left: 0 !important;
-  background-color: inherit !important;
-  box-shadow: none !important;
-  min-width: 20px !important;
-  max-width: 24px !important;
-  padding: 0 6px !important;
+/* Battery / Power pill: retain full natural width, display charge text clearly */
+.quick-settings .quick-toggle.power-item,
+.quick-settings .power-item,
+.fluid-glass-root .quick-settings .power-item,
+.quick-settings-system-item .power-item {
+  min-width: auto !important;
+  max-width: none !important;
+  width: auto !important;
+  min-height: 38px !important;
+  border-radius: 999px !important;
+  padding: 4px 14px !important;
 }
-
-/* Ensure active blue state matches on both halves */
-.quick-menu-toggle:checked .quick-toggle-arrow,
-.quick-toggle-has-menu .quick-toggle-menu-button:checked,
-.quick-settings .quick-toggle-arrow-button:checked {
-  background-color: inherit !important;
+.quick-settings .power-item .quick-toggle-title,
+.fluid-glass-root .quick-settings .power-item .quick-toggle-title,
+.quick-settings .power-item .quick-toggle-label,
+.fluid-glass-root .quick-settings .power-item .quick-toggle-label {
+  width: auto !important;
+  height: auto !important;
+  margin: 0 0 0 6px !important;
+  padding: 0 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+}
+.fluid-glass-root.fluid-glass-light .quick-settings .power-item .quick-toggle-title,
+.fluid-glass-root.fluid-glass-light .quick-settings .power-item .quick-toggle-label {
+  color: #0f172a !important;
+}
+.fluid-glass-root.fluid-glass-dark .quick-settings .power-item .quick-toggle-title,
+.fluid-glass-root.fluid-glass-dark .quick-settings .power-item .quick-toggle-label {
+  color: #ffffff !important;
 }
 
 /* Eliminate divider line completely */
-.quick-toggle-has-menu .quick-toggle-separator {
+.quick-toggle-has-menu .quick-toggle-separator,
+.quick-settings .quick-toggle-separator,
+.fluid-glass-root .quick-settings .quick-toggle-separator {
   width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
   border: none !important;
   background-color: transparent !important;
 }
@@ -261,7 +379,7 @@
 .quick-settings .quick-slider .slider .handle {
   width: 22px;
   height: 22px;
-  border-radius: 50%;
+  border-radius: 999px;
   border: 1px solid rgba(255,255,255,.82);
   background-color: #f9fbff;
   box-shadow: 0 3px 10px rgba(18,34,58,.24), inset 0 1px 0 #ffffff;
@@ -274,7 +392,7 @@
   min-width: 48px;
   min-height: 48px;
   padding: 0;
-  border-radius: 50%;
+  border-radius: 999px;
   transition-duration: 150ms;
 }
 .fluid-glass-root.fluid-glass-dark .quick-settings .quick-settings-system-item .icon-button {

@@ -55,11 +55,16 @@ export default class FluidGlassExtension extends Extension {
         this._applyColorScheme();
         this._refreshEffects();
 
+        this._toggleSignals = [];
         this._hideToggleLabels();
+        this._syncMenuToggles();
         const quickMenu = Main.panel?.statusArea?.quickSettings?.menu;
         if (quickMenu && typeof quickMenu.connect === 'function') {
             this._quickOpenSignal = quickMenu.connect('open-state-changed', (menu, isOpen) => {
-                if (isOpen) this._hideToggleLabels();
+                if (isOpen) {
+                    this._hideToggleLabels();
+                    this._syncMenuToggles();
+                }
             });
         }
     }
@@ -252,6 +257,15 @@ export default class FluidGlassExtension extends Extension {
             Main.panel.statusArea.quickSettings.menu.disconnect(this._quickOpenSignal);
             this._quickOpenSignal = null;
         }
+        if (this._toggleSignals) {
+            for (const { actor, id } of this._toggleSignals) {
+                try {
+                    if (actor && typeof actor.disconnect === 'function')
+                        actor.disconnect(id);
+                } catch (e) {}
+            }
+            this._toggleSignals = [];
+        }
         this._restoreToggleLabels();
 
         this._removeEffects();
@@ -277,6 +291,16 @@ export default class FluidGlassExtension extends Extension {
         this._stylesheetLoaded = false;
     }
 
+    _isPowerItem(actor) {
+        let cur = actor;
+        while (cur) {
+            if (cur.has_style_class_name?.('power-item'))
+                return true;
+            cur = cur.get_parent?.();
+        }
+        return false;
+    }
+
     _hideToggleLabels() {
         const quick = Main.panel?.statusArea?.quickSettings?.menu?.actor;
         if (!quick) return;
@@ -284,17 +308,58 @@ export default class FluidGlassExtension extends Extension {
         const walk = actor => {
             if (!actor || typeof actor.get_children !== 'function') return;
             for (const child of actor.get_children()) {
+                if (this._isPowerItem(child)) {
+                    // Do not hide battery pill percentage text or its layout container
+                    child.visible = true;
+                    continue;
+                }
                 if (child.has_style_class_name?.('quick-toggle-title') ||
                     child.has_style_class_name?.('quick-toggle-subtitle') ||
                     child.has_style_class_name?.('quick-toggle-label')) {
                     child.visible = false;
                     const parent = child.get_parent?.();
-                    if (parent && parent !== actor)
+                    if (parent && parent !== actor && !this._isPowerItem(parent))
                         parent.visible = false;
                 } else {
                     walk(child);
                 }
             }
+        };
+        walk(quick);
+    }
+
+    _syncMenuToggles() {
+        const quick = Main.panel?.statusArea?.quickSettings?.menu?.actor;
+        if (!quick) return;
+
+        const walk = actor => {
+            if (!actor || typeof actor.get_children !== 'function') return;
+            if (actor.has_style_class_name?.('quick-toggle-has-menu')) {
+                const children = actor.get_children();
+                const toggle = children.find(c => c.has_style_class_name?.('quick-toggle'));
+                const menuBtn = children.find(c => c.has_style_class_name?.('quick-toggle-menu-button') ||
+                    c.has_style_class_name?.('quick-toggle-arrow-button'));
+                if (toggle && menuBtn) {
+                    const update = () => {
+                        const isChecked = Boolean(toggle.checked || actor.checked);
+                        if (isChecked) {
+                            actor.add_style_class_name('is-checked');
+                            menuBtn.add_style_class_name('is-checked');
+                        } else {
+                            actor.remove_style_class_name('is-checked');
+                            menuBtn.remove_style_class_name('is-checked');
+                        }
+                    };
+                    update();
+                    if (!actor._fluidGlassSyncSignal && typeof toggle.connect === 'function') {
+                        const sigId = toggle.connect('notify::checked', update);
+                        actor._fluidGlassSyncSignal = sigId;
+                        this._toggleSignals.push({ actor: toggle, id: sigId });
+                    }
+                }
+            }
+            for (const child of actor.get_children())
+                walk(child);
         };
         walk(quick);
     }
