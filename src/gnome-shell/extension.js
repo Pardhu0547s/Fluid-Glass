@@ -27,13 +27,11 @@ export default class FluidGlassExtension extends Extension {
         this._stylesheetLoaded = false;
         this._blurWarningShown = false;
 
-        if (typeof this.loadStylesheet === 'function') {
-            try {
-                this.loadStylesheet();
-                this._stylesheetLoaded = true;
-            } catch (error) {
-                logError(error, '[Fluid Glass] Could not load Shell stylesheet');
-            }
+        try {
+            this.loadStylesheet();
+            this._stylesheetLoaded = true;
+        } catch (error) {
+            logError(error, '[Fluid Glass] Could not load Shell stylesheet');
         }
 
         Main.uiGroup?.add_style_class_name(ROOT_CLASS);
@@ -143,7 +141,7 @@ export default class FluidGlassExtension extends Extension {
             return;
 
         const quickSettings = Main.panel?.statusArea?.quickSettings;
-        const actionBox = quickSettings?._system?._indicator?.child ?? quickSettings?._system?.child;
+        const actionBox = quickSettings?._system?._indicator?.child;
         if (!actionBox || typeof actionBox.insert_child_at_index !== 'function' ||
             !QuickSettings.QuickSettingsItem) {
             log('[Fluid Glass] Screenshot action button unavailable on this Shell build; native screenshot shortcuts remain available.');
@@ -248,7 +246,7 @@ export default class FluidGlassExtension extends Extension {
         Main.uiGroup?.remove_style_class_name(DARK_CLASS);
         Main.uiGroup?.remove_style_class_name(LIGHT_CLASS);
 
-        if (this._stylesheetLoaded && typeof this.unloadStylesheet === 'function')
+        if (this._stylesheetLoaded)
             this.unloadStylesheet();
 
         this._settings = null;
