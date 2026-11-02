@@ -1,0 +1,119 @@
+// =============================================================================
+// Liquid-Tahoe: Glass Material Tokens & Mixins
+// Derived from https://github.com/ryohsuke1231/liquid-glass shader parameters
+// =============================================================================
+
+@import 'options-temp';
+
+// -----------------------------------------------------------------------------
+// Opacity & Tint Scales based on $glass_style ('clear' | 'normal' | 'frosted')
+// -----------------------------------------------------------------------------
+$glass_factor: 1.0;
+@if $glass_style == 'clear' {
+  $glass_factor: 0.75;
+} @else if $glass_style == 'frosted' {
+  $glass_factor: 1.25;
+}
+
+// Function to clamp opacity between 0.05 and 0.98
+@function glass-clamp($val) {
+  $v: $val * $glass_factor;
+  @if $v > 0.96 { @return 0.96; }
+  @if $v < 0.10 { @return 0.10; }
+  @return $v;
+}
+
+// Per-surface opacities
+$glass_panel_alpha:        glass-clamp(if($variant == 'light', 0.65, 0.58));
+$glass_qs_alpha:           glass-clamp(if($variant == 'light', 0.82, 0.78));
+$glass_toggle_alpha:       glass-clamp(if($variant == 'light', 0.55, 0.50));
+$glass_toggle_menu_alpha:  glass-clamp(if($variant == 'light', 0.85, 0.80));
+$glass_menu_alpha:         glass-clamp(if($variant == 'light', 0.85, 0.80));
+$glass_notif_alpha:        glass-clamp(if($variant == 'light', 0.78, 0.72));
+$glass_osd_alpha:          glass-clamp(if($variant == 'light', 0.80, 0.75));
+$glass_dash_alpha:         glass-clamp(if($variant == 'light', 0.65, 0.58));
+$glass_card_alpha:         glass-clamp(if($variant == 'light', 0.60, 0.52));
+$glass_sidebar_alpha:      glass-clamp(if($variant == 'light', 0.70, 0.62));
+$glass_window_alpha:       glass-clamp(if($variant == 'light', 0.82, 0.76));
+
+// Base glass tint colors
+// Dark: rich deep gray with subtle cool tint (matches liquid-glass dark)
+// Light: clean luminous pearlescent white (matches liquid-glass light)
+$glass_base_dark_top:     #2c2c34;
+$glass_base_dark_bottom:  #18181c;
+$glass_base_light_top:    #ffffff;
+$glass_base_light_bottom: #e8e8ed;
+
+// Highlight and rim border colors (from liquid-glass rim light & edge lighting)
+$glass_rim_top:       if($variant == 'light', rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.38));
+$glass_rim_edge:      if($variant == 'light', rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.16));
+$glass_rim_bottom:    if($variant == 'light', rgba(0, 0, 0, 0.08),       rgba(0, 0, 0, 0.30));
+$glass_border_outer:  if($variant == 'light', rgba(0, 0, 0, 0.06),       rgba(255, 255, 255, 0.12));
+
+// Accent glass colors (for checked toggles, primary buttons, active items)
+$glass_accent_color:  if(type-of($selected_bg_color) == 'color', $selected_bg_color, #0A84FF);
+$glass_accent_top:    lighten($glass_accent_color, 8%);
+$glass_accent_bottom: darken($glass_accent_color, 8%);
+
+// -----------------------------------------------------------------------------
+// Mixins: Lighting, Rim, Ambient Occlusion, and Shadows
+// -----------------------------------------------------------------------------
+
+// Specular rim light (optimized for hardware acceleration: top highlight line)
+@mixin glass-rim($top-intensity: 1.0, $rim-edge: 1.0, $ao-intensity: 1.0) {
+  $top_alpha: if($variant == 'light', 0.80 * $top-intensity, 0.40 * $top-intensity);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, $top_alpha);
+}
+
+// Lightweight, hardware-accelerated surface shadow for floating glass panels
+@mixin glass-float-shadow($extra: ()) {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, if($variant == 'light', 0.10, 0.28));
+}
+
+// Full glass surface with gradient & luminous edge
+@mixin glass-surface($alpha: 0.75, $border: true) {
+  @if $variant == 'light' {
+    background-color: rgba($glass_base_light_top, $alpha);
+    background-gradient-direction: vertical;
+    background-gradient-start: rgba($glass_base_light_top, $alpha + 0.06);
+    background-gradient-end: rgba($glass_base_light_bottom, $alpha - 0.04);
+  } @else {
+    background-color: rgba($glass_base_dark_top, $alpha);
+    background-gradient-direction: vertical;
+    background-gradient-start: rgba($glass_base_dark_top, $alpha + 0.06);
+    background-gradient-end: rgba($glass_base_dark_bottom, $alpha - 0.04);
+  }
+
+  @if $border {
+    border: 1px solid $glass_border_outer;
+  }
+}
+
+// Flat translucent glass (for buttons, cards, list rows)
+@mixin glass-pill($alpha: 0.15, $highlight: true) {
+  @if $variant == 'light' {
+    background-color: rgba(0, 0, 0, $alpha * 0.4);
+    @if $highlight {
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+                  inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+    }
+  } @else {
+    background-color: rgba(255, 255, 255, $alpha);
+    @if $highlight {
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
+                  inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+  }
+}
+
+// Active / Checked accent glass pill
+@mixin glass-accent-pill($alpha: 0.90) {
+  background-color: if(type-of($selected_bg_color) == 'color', rgba($selected_bg_color, $alpha), $selected_bg_color);
+  background-gradient-direction: vertical;
+  background-gradient-start: rgba($glass_accent_top, $alpha);
+  background-gradient-end: rgba($glass_accent_bottom, $alpha);
+  color: #ffffff !important;
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.45),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+              0 2px 6px rgba(0, 0, 0, 0.25);
+}
