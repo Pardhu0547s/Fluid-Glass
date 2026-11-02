@@ -19,7 +19,9 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         for (const [key, title, subtitle] of [
             ['blur-enabled', 'Enable backdrop blur', 'Turn live background blur on or off.'],
             ['panel-blur', 'Top panel blur', 'Blur the narrow GNOME top panel surface.'],
-            ['popup-blur', 'Quick Settings and calendar blur', 'Blur popup surfaces when opened. This uses more GPU time.'],
+            ['quick-settings-blur', 'Quick Settings glass blur', 'Apply live backdrop blur to the main control center.'],
+            ['calendar-blur', 'Calendar popup blur', 'Optional: blur the calendar and notification popup surface.'],
+            ['screenshot-button', 'Screenshot shortcut', 'Show a native GNOME screenshot shortcut in Quick Settings.'],
         ]) {
             const row = new Adw.SwitchRow({ title, subtitle });
             settings.bind(key, row, 'active', Gio.SettingsBindFlags.DEFAULT);

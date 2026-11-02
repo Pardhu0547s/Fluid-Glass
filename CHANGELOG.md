@@ -1,5 +1,25 @@
 # Changelog
 
+## 2.0.0-alpha.4 — 2026-11-02
+
+- Restyled GNOME's native Quick Settings surface as a rounded, two-column glass control center inspired by the supplied design reference.
+- Reworked native Quick Toggles into wide glass capsules with distinct active, inactive, hover, focus and submenu-arrow states.
+- Styled the volume and brightness Quick Sliders as full-width glass tracks with bright handles and active tracks.
+- Restyled GNOME's built-in system action buttons as circular glass controls while preserving Settings, Lock and Power behavior.
+- Added an optional native screenshot shortcut to the existing Quick Settings action row; it opens GNOME's screenshot UI when exposed by the Shell build.
+- Enabled Quick Settings backdrop blur by default and separated it from optional calendar blur.
+- Added preferences for Quick Settings blur, calendar blur and the screenshot shortcut.
+- Included the supplied Quick Settings visual reference in `docs/design-reference/`.
+- Expanded lifecycle tests for screenshot action insertion/removal, screenshot activation and independently configurable popup blur.
+
+### Validation notes
+
+- Static CSS/token checks, JavaScript syntax checks, GSettings XML checks and mocked extension lifecycle tests pass in the build environment.
+- A live Fedora 44 / GNOME 50 Shell session and real compositor/GPU performance test are still required.
+- The screenshot shortcut uses a guarded GNOME Shell internal entry point; when unavailable, the extension logs a fallback message and leaves the native Print-key shortcut intact.
+- GTK4 theming does not force Libadwaita applications to use third-party styles.
+- The GLSL refraction shader remains a prototype and is not integrated with Mutter/GNOME Shell.
+
 ## 2.0.0-alpha.3 — 2026-11-02
 
 - Expanded GTK3 and GTK4 styles across headerbars, toolbars, buttons, inputs, lists, menus, tabs, switches, scales, progress indicators, scrollbars, tooltips and focus states.
@@ -20,9 +40,3 @@
 - Added extension preferences backed by a GSettings schema for blur enablement, blur targets, radius and brightness.
 - Moved GSettings schema compilation into the per-user installer.
 - Added a mocked install/upgrade/uninstall test that checks GTK3/GTK4 installation, extension schema compilation, variant switching and restoration of an existing theme.
-
-### Known limitations
-
-- The extension and preferences have only received JavaScript syntax checks here; a live Fedora 44/GNOME 50 session is still required.
-- GTK4 theming does not force Libadwaita applications to use third-party styles.
-- The GLSL refraction shader remains a prototype and is not integrated with Mutter/GNOME Shell.

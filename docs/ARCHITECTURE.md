@@ -12,7 +12,7 @@ Fluid Glass owns its palette, GTK3/GTK4 CSS, Shell stylesheet, extension, prefer
 
 1. GTK3 theme: original widget styles; no compositor capture.
 2. GTK4 theme: original GTK4 styles for applications that honor the GTK theme. Libadwaita apps may retain Adwaita styling.
-3. GNOME Shell extension: styles panel, Quick Settings, calendar, notifications, OSD and overview. Native `Shell.BlurEffect` attaches to the top panel and, when explicitly enabled, Quick Settings and calendar popup actors. The blur radius follows the Shell stage scale factor.
+3. GNOME Shell extension: styles panel, Quick Settings, calendar, notifications, OSD and overview. Native `Shell.BlurEffect` attaches to the top panel and Quick Settings by default; calendar popup blur is separately opt-in. The Quick Settings grid and native controls are restyled without replacing network, Bluetooth, audio, display or power services. The blur radius follows the Shell stage scale factor.
 4. Preferences: local GSettings schema controls blur enablement, targets, radius and brightness.
 5. Installer: per-user marker-based install with theme selection backup/restore.
 

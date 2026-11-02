@@ -42,3 +42,14 @@
 - [ ] Keyboard navigation, focus and contrast review
 - [ ] GTK3/GTK4 matrix and Libadwaita caveats
 - [ ] Reproducible release package, screenshots and checksums
+
+
+## Alpha 4 — Quick Settings Control Center (implementation complete; runtime QA pending)
+
+- [x] Restyle GNOME native two-column Quick Settings grid with glass capsules.
+- [x] Restyle volume and brightness sliders.
+- [x] Add guarded native screenshot action.
+- [x] Separate Quick Settings and calendar blur preferences.
+- [ ] Validate visual layout on Fedora 44 / GNOME 50 at 100%, 150% and 200% scale.
+- [ ] Verify each native toggle on a laptop and desktop hardware profile.
+- [ ] Benchmark popup blur GPU/frame-time impact.

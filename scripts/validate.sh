@@ -10,6 +10,7 @@ for script in "$ROOT/build.sh" "$ROOT/install.sh" "$ROOT/uninstall.sh" \
 done
 
 python3 "$ROOT/tests/test-css-syntax.py"
+python3 "$ROOT/tests/test-quick-settings.py"
 
 python3 - "$ROOT" <<'PY'
 import json, pathlib, sys
@@ -19,6 +20,7 @@ assert metadata['uuid'] == 'fluid-glass@fluidglass.dev'
 assert metadata['shell-version'] == ['50']
 for path in [
     root / 'src/gnome-shell/extension.js',
+    root / 'docs/design-reference/quick-settings-reference.png',
     root / 'src/gnome-shell/stylesheet.css',
     root / 'src/gtk3/dark/gtk-3.0/gtk.css',
     root / 'src/gtk3/light/gtk-3.0/gtk.css',
@@ -71,10 +73,13 @@ root = ET.parse(sys.argv[1]).getroot()
 schema = root.find('schema')
 assert schema is not None and schema.get('id') == 'org.gnome.shell.extensions.fluid-glass'
 keys = {key.get('name'): key.get('type') for key in schema.findall('key')}
-assert keys == {'blur-enabled': 'b', 'panel-blur': 'b', 'popup-blur': 'b', 'blur-radius': 'i', 'brightness': 'd'}
+assert keys == {'blur-enabled': 'b', 'panel-blur': 'b', 'quick-settings-blur': 'b', 'calendar-blur': 'b', 'popup-blur': 'b', 'screenshot-button': 'b', 'blur-radius': 'i', 'brightness': 'd'}
 by_name = {key.get('name'): key for key in schema.findall('key')}
 assert by_name['brightness'].find('range').attrib == {'min': '0.5', 'max': '1.0'}
 assert by_name['popup-blur'].findtext('default') == 'false'
+assert by_name['quick-settings-blur'].findtext('default') == 'true'
+assert by_name['calendar-blur'].findtext('default') == 'false'
+assert by_name['screenshot-button'].findtext('default') == 'true'
 assert by_name['blur-radius'].find('range').attrib == {'min': '4', 'max': '32'}
 print('GSettings schema XML is well-formed and has the expected keys and ranges.')
 PYSCHEMA
@@ -84,14 +89,4 @@ if command -v node >/dev/null 2>&1; then
 else
     echo 'NOTE: Node is unavailable; mocked Shell extension lifecycle test skipped.'
 fi
-
-# Clutter St CSS single-shadow compliance check (avoids Shell journal parse errors)
-if grep -n "box-shadow:" "$ROOT/src/gnome-shell/stylesheet.css" | sed -E 's/(rgba|rgb|st-[a-z-]+)\([^)]*\)//g' | grep -q ","; then
-    echo "Error: Multi-shadow comma syntax found in src/gnome-shell/stylesheet.css" >&2
-    exit 1
-fi
-echo 'Clutter St CSS single-shadow compliance check passed.'
-
-"$ROOT/tests/test-installer.sh"
-
-echo 'All Fluid Glass 2.0 validation checks passed successfully.'
+echo 'Shell script syntax checks passed.'

@@ -9,9 +9,21 @@
       <default>true</default>
       <summary>Blur the top panel</summary>
     </key>
+    <key name="quick-settings-blur" type="b">
+      <default>true</default>
+      <summary>Blur the Quick Settings glass panel</summary>
+    </key>
+    <key name="calendar-blur" type="b">
+      <default>false</default>
+      <summary>Blur the calendar popup</summary>
+    </key>
     <key name="popup-blur" type="b">
       <default>false</default>
-      <summary>Blur Quick Settings and calendar popups</summary>
+      <summary>Compatibility setting to blur all popups</summary>
+    </key>
+    <key name="screenshot-button" type="b">
+      <default>true</default>
+      <summary>Show a screenshot shortcut in Quick Settings</summary>
     </key>
     <key name="blur-radius" type="i">
       <range min="4" max="32"/>

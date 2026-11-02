@@ -19,7 +19,8 @@
 - The project owns its GNOME Shell extension, GSettings schema, preferences page and styles.
 - It uses `Shell.BlurEffect` in background mode when the Shell API exposes it.
 - Blur radius scales with the Shell stage scale factor.
-- Popup blur is opt-in by default; panel blur is enabled by default.
+- Top panel and Quick Settings blur are enabled by default; calendar blur remains independently opt-in.
+- Alpha 4 restyles GNOME native Quick Toggles, Quick Sliders and system action controls as a two-column glass Control Center; it adds a guarded native screenshot action.
 - Actor style classes and named effects are removed during refresh/disable to avoid stale Shell styling.
 - Unsupported blur APIs fall back to the token-driven translucent CSS material.
 
