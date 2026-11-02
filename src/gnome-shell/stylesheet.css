@@ -130,13 +130,23 @@
   spacing-rows: 10px;
   spacing-columns: 10px;
 }
-.fluid-glass-root .quick-settings .quick-toggle {
-  min-width: 11.5em;
-  max-width: 11.5em;
+.fluid-glass-root .quick-settings .quick-toggle,
+.fluid-glass-root .quick-settings .quick-toggle-has-menu,
+.quick-settings .quick-toggle,
+.quick-settings .quick-toggle-has-menu {
+  min-width: 70px !important;
+  max-width: 70px !important;
+  width: 70px !important;
   min-height: 56px;
   border-radius: 999px;
-  padding: 4px 7px 4px 12px;
+  padding: 4px;
   transition-duration: 160ms;
+}
+.quick-settings .quick-toggle-has-menu .quick-toggle {
+  min-width: 0 !important;
+  max-width: none !important;
+  width: auto !important;
+  padding: 0 4px !important;
 }
 .fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle {
   color: @fluid_glass_dark_fg_color;
@@ -208,7 +218,9 @@
   margin-left: 0 !important;
   background-color: inherit !important;
   box-shadow: none !important;
-  padding: 0 11px;
+  min-width: 20px !important;
+  max-width: 24px !important;
+  padding: 0 6px !important;
 }
 
 /* Ensure active blue state matches on both halves */
