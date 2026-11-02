@@ -1,0 +1,13 @@
+// =============================================================================
+// Fluid Glass 2.0 Design Tokens: Motion & Timing
+// Zero panel latency + subtle control transitions
+// =============================================================================
+
+// High-speed instantaneous panel response (prevents resize/bounce glitches)
+$duration-instant:     0ms;
+$duration-quick:       120ms;
+$duration-normal:      200ms;
+
+// Easing Curves
+$ease-standard:        cubic-bezier(0.2, 0.0, 0.0, 1.0);
+$ease-out:             cubic-bezier(0.0, 0.0, 0.2, 1.0);

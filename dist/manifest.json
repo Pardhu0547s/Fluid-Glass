@@ -1,0 +1,12 @@
+{
+  "theme_name": "Fluid-Glass",
+  "version": "2.0.0-alpha.1",
+  "gnome_version": "50",
+  "widgets_target": "48-0",
+  "style": "normal",
+  "proportions": "mac27",
+  "build_date": "2026-11-02T13:59:41Z",
+  "variants": [
+    "Dark", "Light"
+  ]
+}

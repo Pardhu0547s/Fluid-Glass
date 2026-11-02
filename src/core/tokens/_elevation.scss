@@ -1,0 +1,27 @@
+// =============================================================================
+// Fluid Glass 2.0 Design Tokens: Elevation & Specular Highlights
+// Strict single-shadow Clutter St CSS compliance (zero parser errors)
+// =============================================================================
+
+@import 'colors';
+
+// Soft Inner Specular Rim Highlights (Optical Lens Effect)
+$lens-glow-light:        inset 0 0 4px rgba(255, 255, 255, 0.70);
+$lens-glow-dark:         inset 0 0 4px rgba(255, 255, 255, 0.35);
+$lens-glow:              if($is-light, $lens-glow-light, $lens-glow-dark);
+
+$lens-glow-strong-light: inset 0 0 6px rgba(255, 255, 255, 0.90);
+$lens-glow-strong-dark:  inset 0 0 6px rgba(255, 255, 255, 0.50);
+$lens-glow-strong:       if($is-light, $lens-glow-strong-light, $lens-glow-strong-dark);
+
+// Drop Shadows (Single shadow only for Clutter St compatibility)
+$shadow-floating-light:  0 8px 24px rgba(0, 0, 0, 0.10);
+$shadow-floating-dark:   0 8px 24px rgba(0, 0, 0, 0.32);
+$shadow-floating:        if($is-light, $shadow-floating-light, $shadow-floating-dark);
+
+$shadow-modal-light:     0 12px 32px rgba(0, 0, 0, 0.14);
+$shadow-modal-dark:      0 12px 32px rgba(0, 0, 0, 0.40);
+$shadow-modal:           if($is-light, $shadow-modal-light, $shadow-modal-dark);
+
+// Top Rim Highlight for GTK headerbars
+$headerbar-rim:          inset 0 1px 0 0 if($is-light, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.15));
