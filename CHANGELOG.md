@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased — Alpha 4.1 visual correction
+
+- Reduced dark and light Quick Settings surface opacity so the native backdrop blur is visible rather than hidden behind near-opaque fills.
+- Restored translucent dark/light glass surface tokens, brighter blue active states and stronger refractive-style edge highlights.
+- Explicitly set active Quick Toggle label/icon contrast to white.
+- Documented that Shell follows GNOME's system color-scheme preference; selecting a GTK installer variant alone does not force Shell Light/Dark mode.
+
+
 ## 2.0.0-alpha.4 — 2026-11-02
 
 - Restyled GNOME's native Quick Settings surface as a rounded, two-column glass control center inspired by the supplied design reference.
