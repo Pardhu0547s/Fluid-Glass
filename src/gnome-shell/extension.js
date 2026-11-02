@@ -58,12 +58,14 @@ export default class FluidGlassExtension extends Extension {
         this._toggleSignals = [];
         this._hideToggleLabels();
         this._syncMenuToggles();
+        this._applyGridSpacing();
         const quickMenu = Main.panel?.statusArea?.quickSettings?.menu;
         if (quickMenu && typeof quickMenu.connect === 'function') {
             this._quickOpenSignal = quickMenu.connect('open-state-changed', (menu, isOpen) => {
                 if (isOpen) {
                     this._hideToggleLabels();
                     this._syncMenuToggles();
+                    this._applyGridSpacing();
                 }
             });
         }
@@ -267,6 +269,7 @@ export default class FluidGlassExtension extends Extension {
             this._toggleSignals = [];
         }
         this._restoreToggleLabels();
+        this._restoreGridSpacing();
 
         this._removeEffects();
         this._clearStyledActors();
@@ -384,5 +387,21 @@ export default class FluidGlassExtension extends Extension {
             }
         };
         walk(quick);
+    }
+
+    _applyGridSpacing() {
+        const grid = Main.panel?.statusArea?.quickSettings?.menu?._grid;
+        if (grid?.layout_manager) {
+            grid.layout_manager.column_spacing = 5;
+            grid.layout_manager.row_spacing = 10;
+        }
+    }
+
+    _restoreGridSpacing() {
+        const grid = Main.panel?.statusArea?.quickSettings?.menu?._grid;
+        if (grid?.layout_manager) {
+            grid.layout_manager.column_spacing = 12;
+            grid.layout_manager.row_spacing = 12;
+        }
     }
 }

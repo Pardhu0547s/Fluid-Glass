@@ -126,9 +126,10 @@
 
 /* The native Shell menu already uses a two-column reflowing grid. Keep it native
    and give its controls the wide capsule proportions from the design reference. */
+.fluid-glass-root .quick-settings-grid,
 .quick-settings-grid {
   spacing-rows: 10px;
-  spacing-columns: 10px;
+  spacing-columns: 5px;
 }
 
 /* Standalone toggles (Night Light, Dark Mode, DND, Airplane Mode, etc.) */
