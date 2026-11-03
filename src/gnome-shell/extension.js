@@ -318,8 +318,11 @@ export default class FluidGlassExtension extends Extension {
 
         const showPowerTree = node => {
             if (!node) return;
-            if (!node.has_style_class_name?.('quick-toggle-subtitle'))
-                node.visible = true;
+            if (node.has_style_class_name?.('quick-toggle-subtitle')) {
+                node.visible = false;
+                return;
+            }
+            node.visible = true;
             if (typeof node.get_children === 'function') {
                 for (const sub of node.get_children())
                     showPowerTree(sub);
