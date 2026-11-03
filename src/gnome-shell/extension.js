@@ -394,6 +394,18 @@ export default class FluidGlassExtension extends Extension {
         if (grid?.layout_manager) {
             grid.layout_manager.column_spacing = 6;
             grid.layout_manager.row_spacing = 6;
+            grid.layout_manager.column_homogeneous = false;
+        }
+        if (grid && typeof grid.get_children === 'function') {
+            for (const child of grid.get_children()) {
+                if (child.has_style_class_name?.('quick-toggle') ||
+                    child.has_style_class_name?.('quick-toggle-has-menu') ||
+                    child.has_style_class_name?.('quick-menu-toggle')) {
+                    if (!this._isPowerItem(child)) {
+                        child.x_expand = false;
+                    }
+                }
+            }
         }
     }
 
@@ -402,6 +414,16 @@ export default class FluidGlassExtension extends Extension {
         if (grid?.layout_manager) {
             grid.layout_manager.column_spacing = 12;
             grid.layout_manager.row_spacing = 12;
+            grid.layout_manager.column_homogeneous = true;
+        }
+        if (grid && typeof grid.get_children === 'function') {
+            for (const child of grid.get_children()) {
+                if (child.has_style_class_name?.('quick-toggle') ||
+                    child.has_style_class_name?.('quick-toggle-has-menu') ||
+                    child.has_style_class_name?.('quick-menu-toggle')) {
+                    child.x_expand = true;
+                }
+            }
         }
     }
 }
