@@ -323,6 +323,7 @@ export default class FluidGlassExtension extends Extension {
                 return;
             }
             node.visible = true;
+            node.y_align = 2; // Clutter.ActorAlign.CENTER
             if (typeof node.get_children === 'function') {
                 for (const sub of node.get_children())
                     showPowerTree(sub);
@@ -374,7 +375,7 @@ export default class FluidGlassExtension extends Extension {
             if (!actor || typeof actor.get_children !== 'function') return;
             if (actor.has_style_class_name?.('quick-toggle-has-menu') ||
                 actor.has_style_class_name?.('quick-menu-toggle')) {
-                const toggle = findDescendant(actor, c => c.has_style_class_name?.('quick-toggle'));
+                const toggle = actor._toggleButton || findDescendant(actor, c => c.has_style_class_name?.('quick-toggle'));
                 const menuBtn = findDescendant(actor, c =>
                     c.has_style_class_name?.('quick-toggle-menu-button') ||
                     c.has_style_class_name?.('quick-toggle-arrow-button') ||
@@ -384,24 +385,34 @@ export default class FluidGlassExtension extends Extension {
                     sep.width = 0;
                     sep.opacity = 0;
                 }
-                if (toggle && menuBtn) {
+                if (toggle) {
                     const update = () => {
-                        const isChecked = Boolean(toggle.checked || actor.checked);
+                        const isChecked = Boolean(actor.checked || toggle.checked);
                         if (isChecked) {
-                            actor.add_style_class_name('is-checked');
-                            toggle.add_style_class_name('is-checked');
-                            menuBtn.add_style_class_name('is-checked');
+                            actor.add_style_class_name?.('is-checked');
+                            actor.add_style_pseudo_class?.('checked');
+                            actor.set_style?.('background-color: #3584e4 !important; border-radius: 99px !important;');
+                            toggle.add_style_class_name?.('is-checked');
+                            menuBtn?.add_style_class_name?.('is-checked');
                         } else {
-                            actor.remove_style_class_name('is-checked');
-                            toggle.remove_style_class_name('is-checked');
-                            menuBtn.remove_style_class_name('is-checked');
+                            actor.remove_style_class_name?.('is-checked');
+                            actor.remove_style_pseudo_class?.('checked');
+                            actor.set_style?.('background-color: rgba(58, 62, 72, 0.85) !important; border-radius: 99px !important;');
+                            toggle.remove_style_class_name?.('is-checked');
+                            menuBtn?.remove_style_class_name?.('is-checked');
                         }
+                        toggle.set_style?.('background-color: transparent !important; border: none !important; box-shadow: none !important;');
+                        menuBtn?.set_style?.('background-color: transparent !important; border: none !important; box-shadow: none !important;');
                     };
                     update();
                     if (!actor._fluidGlassSyncSignal && typeof toggle.connect === 'function') {
                         const sigId = toggle.connect('notify::checked', update);
                         actor._fluidGlassSyncSignal = sigId;
                         this._toggleSignals.push({ actor: toggle, id: sigId });
+                        if (typeof actor.connect === 'function') {
+                            const outerSigId = actor.connect('notify::checked', update);
+                            this._toggleSignals.push({ actor, id: outerSigId });
+                        }
                     }
                 }
             }
@@ -417,6 +428,12 @@ export default class FluidGlassExtension extends Extension {
 
         const walk = actor => {
             if (!actor || typeof actor.get_children !== 'function') return;
+            if (actor.has_style_class_name?.('quick-toggle-has-menu') ||
+                actor.has_style_class_name?.('quick-menu-toggle') ||
+                actor.has_style_class_name?.('quick-toggle') ||
+                actor.has_style_class_name?.('quick-toggle-menu-button')) {
+                actor.set_style?.(null);
+            }
             for (const child of actor.get_children()) {
                 if (child.has_style_class_name?.('quick-toggle-title') ||
                     child.has_style_class_name?.('quick-toggle-subtitle') ||
