@@ -106,52 +106,34 @@
 
 /* Alpha 4 — Quick Settings Control Center, based on the supplied visual reference. */
 /* 1. Compact the top system row (Battery + 4 buttons) so the popup can actually narrow! */
-.quick-settings-system-item,
-.quick-settings .quick-settings-system-item {
-  spacing: 4px !important;
-  padding: 0 !important;
-}
-
-.quick-settings-system-item > StBoxLayout,
-.quick-settings .quick-settings-system-item > StBoxLayout {
-  spacing: 4px !important;
-}
-
-.quick-settings-system-item .icon-button,
 .quick-settings .quick-settings-system-item .icon-button,
 .quick-settings .quick-settings-system-item .fluid-glass-screenshot-action {
-  min-width: 30px !important;
-  min-height: 30px !important;
-  width: 30px !important;
-  height: 30px !important;
-  padding: 4px !important;
-  margin: 0 !important;
-  border-radius: 999px !important;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 10px;
+  border-radius: 999px;
   transition-duration: 150ms;
 }
 .fluid-glass-root.fluid-glass-dark .quick-settings .quick-settings-system-item .icon-button {
   color: @fluid_glass_dark_fg_color;
   background-color: @fluid_glass_dark_surface_color;
   border: 1px solid @fluid_glass_dark_strong_border_color;
-  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+  box-shadow: 0 6px 16px rgba(0,0,0,.14);
 }
 .fluid-glass-root.fluid-glass-light .quick-settings .quick-settings-system-item .icon-button {
   color: @fluid_glass_light_fg_color;
   background-color: @fluid_glass_light_surface_color;
   border: 1px solid @fluid_glass_light_strong_border_color;
-  box-shadow: 0 4px 12px rgba(35,53,78,.10);
+  box-shadow: 0 6px 16px rgba(35,53,78,.10);
 }
 .quick-settings .quick-settings-system-item .icon-button:hover {
   background-color: @fluid_glass_light_surface_alt_color;
 }
 
-/* 2. Shrink the grid & popup container naturally without triggering negative allocation */
-.quick-settings,
 .fluid-glass-root.fluid-glass-dark .quick-settings,
 .fluid-glass-root.fluid-glass-light .quick-settings {
-  min-width: 210px !important;
-  width: 224px !important;
-  padding: 12px !important;
+  min-width: 380px;
+  padding: 18px;
   border-radius: 27px;
   border-width: 1px;
 }
@@ -168,8 +150,8 @@
 
 .fluid-glass-root .quick-settings-grid,
 .quick-settings-grid {
-  spacing-rows: 6px !important;
-  row-spacing: 6px !important;
+  spacing-rows: 10px !important;
+  row-spacing: 10px !important;
   spacing-columns: 6px !important;
   column-spacing: 6px !important;
 }
@@ -298,7 +280,7 @@
 }
 .quick-settings .quick-toggle-icon { icon-size: 18px; }
 
-/* Battery / Power pill: compact natural width and centered charge text */
+/* Battery / Power pill: full height and charge text */
 .fluid-glass-root .quick-settings .quick-settings-system-item .power-item,
 .fluid-glass-root .quick-settings .quick-toggle.power-item,
 .fluid-glass-root .quick-settings .power-item,
@@ -306,18 +288,19 @@
 .quick-settings .quick-toggle.power-item,
 .quick-settings .power-item,
 .quick-settings-system-item .power-item {
-  min-width: 0 !important;
-  max-width: 92px !important;
-  height: 32px !important;
-  min-height: 32px !important;
-  padding: 0 8px !important;
+  min-width: 100px !important;
+  max-width: 150px !important;
+  width: 112px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 14px !important;
   border-radius: 99px !important;
   background-color: rgba(58, 62, 72, 0.85) !important;
 }
 .fluid-glass-root .quick-settings .power-item > StBoxLayout,
 .quick-settings .power-item > StBoxLayout {
-  spacing: 5px !important;
-  padding: 0 2px !important;
+  spacing: 8px !important;
+  padding: 0 4px !important;
 }
 .quick-settings .power-item .quick-toggle-title,
 .fluid-glass-root .quick-settings .power-item .quick-toggle-title,
@@ -325,7 +308,7 @@
 .fluid-glass-root .quick-settings .power-item .quick-toggle-label {
   margin: 0 !important;
   padding: 0 !important;
-  font-size: 11px !important;
+  font-size: 13px !important;
   font-weight: 700 !important;
   color: #ffffff !important;
 }

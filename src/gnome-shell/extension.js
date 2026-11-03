@@ -375,6 +375,7 @@ export default class FluidGlassExtension extends Extension {
             if (!actor || typeof actor.get_children !== 'function') return;
             if (actor.has_style_class_name?.('quick-toggle-has-menu') ||
                 actor.has_style_class_name?.('quick-menu-toggle')) {
+                actor.x_align = 2; // Clutter.ActorAlign.CENTER — keep 96px width inside full-width grid
                 const toggle = actor._toggleButton || findDescendant(actor, c => c.has_style_class_name?.('quick-toggle'));
                 const menuBtn = findDescendant(actor, c =>
                     c.has_style_class_name?.('quick-toggle-menu-button') ||
@@ -415,6 +416,13 @@ export default class FluidGlassExtension extends Extension {
                         }
                     }
                 }
+            } else if (actor.has_style_class_name?.('quick-toggle') && !this._isPowerItem(actor)) {
+                const parent = actor.get_parent?.();
+                const inMenuToggle = parent?.has_style_class_name?.('quick-toggle-has-menu') ||
+                    parent?.has_style_class_name?.('quick-menu-toggle');
+                if (!inMenuToggle) {
+                    actor.x_align = 2; // Clutter.ActorAlign.CENTER — keep 96px width on standalone pills
+                }
             }
             for (const child of actor.get_children())
                 walk(child);
@@ -433,6 +441,7 @@ export default class FluidGlassExtension extends Extension {
                 actor.has_style_class_name?.('quick-toggle') ||
                 actor.has_style_class_name?.('quick-toggle-menu-button')) {
                 actor.set_style?.(null);
+                actor.x_align = 0;
             }
             for (const child of actor.get_children()) {
                 if (child.has_style_class_name?.('quick-toggle-title') ||
