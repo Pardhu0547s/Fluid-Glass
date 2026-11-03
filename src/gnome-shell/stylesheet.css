@@ -105,31 +105,24 @@
 .fluid-glass-root.fluid-glass-light .window-picker .window-clone-border { border: 2px solid @fluid_glass_light_accent_color; border-radius: 12px; }
 
 /* Alpha 4 — Quick Settings Control Center, based on the supplied visual reference. */
-.quick-settings,
 .fluid-glass-root.fluid-glass-dark .quick-settings,
 .fluid-glass-root.fluid-glass-light .quick-settings {
-  width: 250px !important;
-  min-width: 250px !important;
-  max-width: 250px !important;
-  padding: 18px;
+  padding: 16px;
   border-radius: 27px;
   border-width: 1px;
 }
 .fluid-glass-root.fluid-glass-dark .quick-settings {
-  background-color: rgba(25, 32, 45, 0.92);
-  border-color: rgba(220, 232, 255, 0.25);
-  box-shadow: 0 20px 54px rgba(0, 0, 0, 0.22),
-              inset 0 1px 0 rgba(255,255,255,.10);
+  background-color: @fluid_glass_dark_popover_surface;
+  border-color: @fluid_glass_dark_strong_border_color;
+  box-shadow: 0 20px 54px @fluid_glass_dark_panel_shadow;
 }
 .fluid-glass-root.fluid-glass-light .quick-settings {
-  background-color: rgba(247, 250, 254, 0.94);
-  border-color: rgba(74, 99, 132, 0.30);
-  box-shadow: 0 20px 54px rgba(25, 39, 62, 0.12),
-              inset 0 1px 0 rgba(255,255,255,.88);
+  background-color: @fluid_glass_light_popover_surface;
+  border-color: @fluid_glass_light_strong_border_color;
+  box-shadow: 0 20px 54px @fluid_glass_light_panel_shadow;
 }
 
-/* The native Shell menu already uses a two-column reflowing grid. Keep it native
-   and give its controls compact 50% capsule proportions. */
+/* 50% grid spacing (6px instead of default 12px) */
 .fluid-glass-root .quick-settings-grid,
 .quick-settings-grid {
   spacing-rows: 6px !important;
@@ -138,24 +131,24 @@
   column-spacing: 6px !important;
 }
 
-/* Standalone toggles (Night Light, Dark Mode, DND, Airplane Mode, etc.) */
+/* 50% pill width (96px instead of GNOME Shell's default 12em / ~188px) */
 .fluid-glass-root .quick-settings .quick-toggle:not(.power-item),
 .quick-settings .quick-toggle:not(.power-item),
 .quick-toggle:not(.power-item) {
-  min-width: 72px !important;
+  min-width: 96px !important;
   max-width: 96px !important;
-  width: 96px !important;
-  min-height: 48px !important;
+  min-height: 46px !important;
   border-radius: 99px !important;
-  padding: 0 4px !important;
+  padding: 0 10px !important;
   margin: 0 !important;
-  background-color: rgba(60, 60, 65, 0.85) !important;
-  border: 1px solid rgba(220, 232, 255, 0.14) !important;
+  background-color: rgba(58, 62, 72, 0.85) !important;
+  border: none !important;
+  box-shadow: none !important;
   color: #ffffff !important;
   transition-duration: 160ms;
 }
 
-/* Menu toggle parent container: unified solid pill for both icon and arrow */
+/* Menu toggle wrapper: 96px width, transparent outer wrapper so the two halves meet edge-to-edge without double-alpha */
 .fluid-glass-root .quick-settings .quick-menu-toggle:not(.power-item),
 .fluid-glass-root .quick-settings .quick-toggle-has-menu:not(.power-item),
 .quick-settings .quick-menu-toggle:not(.power-item),
@@ -164,84 +157,84 @@
 .quick-toggle-has-menu:not(.power-item) {
   min-width: 96px !important;
   max-width: 96px !important;
-  width: 96px !important;
-  min-height: 48px !important;
-  background-color: rgba(60, 60, 65, 0.85) !important;
-  border: 1px solid rgba(220, 232, 255, 0.14) !important;
+  min-height: 46px !important;
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   border-radius: 99px !important;
   padding: 0 !important;
   margin: 0 !important;
-  transition-duration: 160ms;
 }
 
-/* Light mode inactive surface */
-.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle:not(.power-item),
-.fluid-glass-root.fluid-glass-light .quick-settings .quick-menu-toggle:not(.power-item),
-.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu:not(.power-item) {
-  background-color: rgba(255, 255, 255, 0.72) !important;
-  border: 1px solid rgba(74, 99, 132, 0.18) !important;
-  color: #26354a !important;
-}
-
-/* Checked / Active state on parent container and standalone toggles (no two-tone split) */
-.quick-menu-toggle:checked,
-.quick-toggle-has-menu:checked,
-.quick-toggle-has-menu.is-checked,
-.fluid-glass-root .quick-settings .quick-menu-toggle:checked,
-.fluid-glass-root .quick-settings .quick-toggle-has-menu:checked,
-.fluid-glass-root .quick-settings .quick-toggle-has-menu.is-checked,
-.fluid-glass-root .quick-settings .quick-toggle:not(.power-item):checked,
-.quick-settings .quick-toggle:not(.power-item):checked {
-  background-color: #3584e4 !important;
-  border-color: #6897d7 !important;
-  border-radius: 99px !important;
-  color: #ffffff !important;
-}
-
-/* Inside the menu toggle container: both halves are completely transparent so parent background shows seamlessly */
+/* Menu toggle left half: flush right edge, identical inactive color */
 .fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle,
 .fluid-glass-root .quick-settings .quick-menu-toggle .quick-toggle,
 .quick-settings .quick-toggle-has-menu .quick-toggle,
 .quick-settings .quick-menu-toggle .quick-toggle,
 .quick-toggle-has-menu .quick-toggle,
-.quick-menu-toggle .quick-toggle,
-.fluid-glass-root .quick-settings .quick-toggle-has-menu:checked .quick-toggle,
-.fluid-glass-root .quick-settings .quick-toggle-has-menu.is-checked .quick-toggle,
-.fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle:checked,
-.quick-toggle-has-menu .quick-toggle:checked {
-  min-width: 64px !important;
-  max-width: 68px !important;
-  width: 68px !important;
-  min-height: 48px !important;
-  background-color: transparent !important;
+.quick-menu-toggle .quick-toggle {
+  min-width: 60px !important;
+  max-width: 64px !important;
+  min-height: 46px !important;
+  background-color: rgba(58, 62, 72, 0.85) !important;
   border: none !important;
   box-shadow: none !important;
   border-radius: 99px 0 0 99px !important;
   margin: 0 !important;
-  padding: 0 2px 0 8px !important;
+  padding: 0 2px 0 12px !important;
+  color: #ffffff !important;
 }
 
-/* Make the -> arrow button transparent so it shares the parent pill background without shade split */
+/* Menu toggle right arrow half: flush left edge, identical inactive color (no shade split) */
 .quick-menu-toggle .quick-toggle-arrow,
 .quick-toggle-has-menu .quick-toggle-menu-button,
 .quick-settings .quick-toggle-arrow-button,
 .fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button,
+.fluid-glass-root .quick-settings .quick-toggle-arrow-button {
+  min-width: 32px !important;
+  max-width: 36px !important;
+  min-height: 46px !important;
+  background-color: rgba(58, 62, 72, 0.85) !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 99px 99px 0 !important;
+  margin: 0 !important;
+  padding: 0 10px 0 4px !important;
+  color: #ffffff !important;
+}
+
+/* Light mode inactive surface for both halves and standalone toggles */
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle:not(.power-item),
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu .quick-toggle,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button {
+  background-color: rgba(255, 255, 255, 0.78) !important;
+  color: #1e293b !important;
+}
+
+/* Active / Checked state: exact same solid #3584e4 blue on standalone toggles and both halves of menu toggles */
+.fluid-glass-root .quick-settings .quick-toggle:not(.power-item):checked,
+.quick-settings .quick-toggle:not(.power-item):checked,
+.quick-toggle:not(.power-item):checked,
+.fluid-glass-root .quick-settings .quick-toggle-has-menu:checked .quick-toggle,
+.fluid-glass-root .quick-settings .quick-toggle-has-menu.is-checked .quick-toggle,
+.fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle:checked,
+.fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle.is-checked,
+.quick-toggle-has-menu:checked .quick-toggle,
+.quick-toggle-has-menu.is-checked .quick-toggle,
+.quick-toggle-has-menu .quick-toggle:checked,
 .fluid-glass-root .quick-settings .quick-toggle-has-menu:checked .quick-toggle-menu-button,
 .fluid-glass-root .quick-settings .quick-toggle-has-menu.is-checked .quick-toggle-menu-button,
 .fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button:checked,
 .fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button.is-checked,
-.fluid-glass-root .quick-settings .quick-toggle-arrow-button:checked {
-  background-color: transparent !important;
+.fluid-glass-root .quick-settings .quick-toggle-arrow-button:checked,
+.quick-toggle-has-menu:checked .quick-toggle-menu-button,
+.quick-toggle-has-menu.is-checked .quick-toggle-menu-button,
+.quick-toggle-has-menu .quick-toggle-menu-button:checked,
+.quick-toggle-has-menu .quick-toggle-menu-button.is-checked,
+.quick-menu-toggle:checked .quick-toggle-arrow {
+  background-color: #3584e4 !important;
   border: none !important;
-  border-left: none !important;
   box-shadow: none !important;
-  border-radius: 0 99px 99px 0 !important;
-  min-width: 24px !important;
-  max-width: 28px !important;
-  min-height: 48px !important;
-  padding-left: 4px !important;
-  padding-right: 6px !important;
-  margin-left: -4px !important;
   color: #ffffff !important;
 }
 
@@ -250,8 +243,11 @@
   border-color: rgba(139, 184, 245, 0.72);
   box-shadow: 0 0 0 2px rgba(139, 184, 245, 0.72);
 }
-.quick-settings .quick-toggle > StBoxLayout { spacing: 0; }
-.quick-settings .quick-toggle-icon { icon-size: 20px; }
+.quick-settings .quick-toggle > StBoxLayout {
+  spacing: 0 !important;
+  padding: 0 !important;
+}
+.quick-settings .quick-toggle-icon { icon-size: 18px; }
 
 /* Hide text labels ONLY for standard quick toggles (never hide battery text) */
 .fluid-glass-root .quick-settings .quick-toggle:not(.power-item) .quick-toggle-title,
@@ -268,27 +264,27 @@
   font-size: 0 !important;
 }
 
-/* Battery / Power pill: retain full natural width, display charge text clearly */
+/* Battery / Power pill: retain natural width (min-width: 0), display charge text clearly */
 .quick-settings .quick-toggle.power-item,
 .quick-settings .power-item,
 .fluid-glass-root .quick-settings .power-item,
 .quick-settings-system-item .power-item {
-  min-width: auto !important;
-  max-width: none !important;
-  width: auto !important;
-  min-height: 38px !important;
+  min-width: 0 !important;
+  min-height: 34px !important;
   border-radius: 999px !important;
-  padding: 4px 14px !important;
+  padding: 4px 10px !important;
+}
+.quick-settings .power-item > StBoxLayout {
+  spacing: 6px !important;
+  padding: 0 2px !important;
 }
 .quick-settings .power-item .quick-toggle-title,
 .fluid-glass-root .quick-settings .power-item .quick-toggle-title,
 .quick-settings .power-item .quick-toggle-label,
 .fluid-glass-root .quick-settings .power-item .quick-toggle-label {
-  width: auto !important;
-  height: auto !important;
-  margin: 0 0 0 6px !important;
+  margin: 0 !important;
   padding: 0 !important;
-  font-size: 13px !important;
+  font-size: 12px !important;
   font-weight: 700 !important;
   color: #ffffff !important;
 }
@@ -308,6 +304,7 @@
   width: 0 !important;
   min-width: 0 !important;
   max-width: 0 !important;
+  opacity: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
   border: none !important;
@@ -316,8 +313,9 @@
 
 /* Volume and brightness controls become full-width glass tracks. */
 .fluid-glass-root .quick-settings .quick-slider {
-  min-height: 48px;
-  padding: 4px 12px;
+  min-width: 0 !important;
+  min-height: 42px;
+  padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid transparent;
 }
@@ -331,26 +329,26 @@
   border-color: @fluid_glass_light_border_color;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.88);
 }
-.quick-settings .quick-slider .quick-toggle-icon { icon-size: 21px; }
+.quick-settings .quick-slider .quick-toggle-icon { icon-size: 18px; }
 .quick-settings .quick-slider .slider-bin { border-radius: 999px; padding: 4px 2px; }
 .quick-settings .quick-slider .slider { border-radius: 999px; }
 .quick-settings .quick-slider .slider .bar { height: 7px; border-radius: 999px; }
 .quick-settings .quick-slider .slider .handle {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,.82);
   background-color: #f9fbff;
-  box-shadow: 0 3px 10px rgba(18,34,58,.24), inset 0 1px 0 #ffffff;
+  box-shadow: 0 3px 10px rgba(18,34,58,.24);
 }
 
-/* System actions mirror the circular screenshot/settings/lock/power controls. */
-.quick-settings .quick-settings-system-item > StBoxLayout { spacing: 9px; }
+/* System actions: compact circular buttons so the 2-column grid shrinks by ~50% */
+.quick-settings .quick-settings-system-item > StBoxLayout { spacing: 6px !important; }
 .quick-settings .quick-settings-system-item .icon-button,
 .quick-settings .quick-settings-system-item .fluid-glass-screenshot-action {
-  min-width: 48px;
-  min-height: 48px;
-  padding: 0;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  padding: 6px !important;
   border-radius: 999px;
   transition-duration: 150ms;
 }
@@ -358,20 +356,20 @@
   color: @fluid_glass_dark_fg_color;
   background-color: @fluid_glass_dark_surface_color;
   border: 1px solid @fluid_glass_dark_strong_border_color;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 4px 12px rgba(0,0,0,.12);
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
 }
 .fluid-glass-root.fluid-glass-light .quick-settings .quick-settings-system-item .icon-button {
   color: @fluid_glass_light_fg_color;
   background-color: @fluid_glass_light_surface_color;
   border: 1px solid @fluid_glass_light_strong_border_color;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 4px 12px rgba(35,53,78,.10);
+  box-shadow: 0 4px 12px rgba(35,53,78,.10);
 }
 .quick-settings .quick-settings-system-item .icon-button:hover {
   background-color: @fluid_glass_light_surface_alt_color;
 }
 .quick-settings .quick-settings-system-item .power-item {
   border-radius: 999px;
-  padding: 5px 12px;
+  padding: 4px 10px;
 }
 
 /* Nested network/Bluetooth pages and other quick-toggle submenus. */

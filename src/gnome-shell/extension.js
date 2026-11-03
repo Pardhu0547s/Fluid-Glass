@@ -139,6 +139,9 @@ export default class FluidGlassExtension extends Extension {
         const mode = this._backdropBlurMode();
         if (!actor || mode === undefined || typeof actor.add_effect_with_name !== 'function')
             return false;
+        if (actor.width === 0 || actor.height === 0 ||
+            actor.has_style_class_name?.('liquid-glass-transparent'))
+            return false;
 
         try {
             actor.remove_effect_by_name(EFFECT_NAME);
@@ -305,24 +308,43 @@ export default class FluidGlassExtension extends Extension {
     }
 
     _hideToggleLabels() {
-        const quick = Main.panel?.statusArea?.quickSettings?.menu?.actor;
+        const menu = Main.panel?.statusArea?.quickSettings?.menu;
+        const quick = menu?.actor;
         if (!quick) return;
+        if (menu?.box) {
+            menu.box.visible = true;
+            menu.box.opacity = 255;
+        }
+
+        const showPowerTree = node => {
+            if (!node) return;
+            if (!node.has_style_class_name?.('quick-toggle-subtitle'))
+                node.visible = true;
+            if (typeof node.get_children === 'function') {
+                for (const sub of node.get_children())
+                    showPowerTree(sub);
+            }
+        };
 
         const walk = actor => {
             if (!actor || typeof actor.get_children !== 'function') return;
+            if (this._isPowerItem(actor)) {
+                showPowerTree(actor);
+                return;
+            }
             for (const child of actor.get_children()) {
                 if (this._isPowerItem(child)) {
-                    // Do not hide battery pill percentage text or its layout container
-                    child.visible = true;
+                    showPowerTree(child);
                     continue;
                 }
                 if (child.has_style_class_name?.('quick-toggle-title') ||
                     child.has_style_class_name?.('quick-toggle-subtitle') ||
                     child.has_style_class_name?.('quick-toggle-label')) {
                     child.visible = false;
-                    const parent = child.get_parent?.();
-                    if (parent && parent !== actor && !this._isPowerItem(parent))
-                        parent.visible = false;
+                    if (!actor.has_style_class_name?.('quick-toggle') &&
+                        !this._isPowerItem(actor)) {
+                        actor.visible = false;
+                    }
                 } else {
                     walk(child);
                 }
@@ -335,21 +357,40 @@ export default class FluidGlassExtension extends Extension {
         const quick = Main.panel?.statusArea?.quickSettings?.menu?.actor;
         if (!quick) return;
 
+        const findDescendant = (root, predicate) => {
+            if (!root || typeof root.get_children !== 'function') return null;
+            for (const child of root.get_children()) {
+                if (predicate(child)) return child;
+                const found = findDescendant(child, predicate);
+                if (found) return found;
+            }
+            return null;
+        };
+
         const walk = actor => {
             if (!actor || typeof actor.get_children !== 'function') return;
-            if (actor.has_style_class_name?.('quick-toggle-has-menu')) {
-                const children = actor.get_children();
-                const toggle = children.find(c => c.has_style_class_name?.('quick-toggle'));
-                const menuBtn = children.find(c => c.has_style_class_name?.('quick-toggle-menu-button') ||
-                    c.has_style_class_name?.('quick-toggle-arrow-button'));
+            if (actor.has_style_class_name?.('quick-toggle-has-menu') ||
+                actor.has_style_class_name?.('quick-menu-toggle')) {
+                const toggle = findDescendant(actor, c => c.has_style_class_name?.('quick-toggle'));
+                const menuBtn = findDescendant(actor, c =>
+                    c.has_style_class_name?.('quick-toggle-menu-button') ||
+                    c.has_style_class_name?.('quick-toggle-arrow-button') ||
+                    c.has_style_class_name?.('quick-toggle-arrow'));
+                const sep = findDescendant(actor, c => c.has_style_class_name?.('quick-toggle-separator'));
+                if (sep) {
+                    sep.width = 0;
+                    sep.opacity = 0;
+                }
                 if (toggle && menuBtn) {
                     const update = () => {
                         const isChecked = Boolean(toggle.checked || actor.checked);
                         if (isChecked) {
                             actor.add_style_class_name('is-checked');
+                            toggle.add_style_class_name('is-checked');
                             menuBtn.add_style_class_name('is-checked');
                         } else {
                             actor.remove_style_class_name('is-checked');
+                            toggle.remove_style_class_name('is-checked');
                             menuBtn.remove_style_class_name('is-checked');
                         }
                     };
@@ -378,9 +419,7 @@ export default class FluidGlassExtension extends Extension {
                     child.has_style_class_name?.('quick-toggle-subtitle') ||
                     child.has_style_class_name?.('quick-toggle-label')) {
                     child.visible = true;
-                    const parent = child.get_parent?.();
-                    if (parent && parent !== actor)
-                        parent.visible = true;
+                    actor.visible = true;
                 } else {
                     walk(child);
                 }
@@ -394,18 +433,6 @@ export default class FluidGlassExtension extends Extension {
         if (grid?.layout_manager) {
             grid.layout_manager.column_spacing = 6;
             grid.layout_manager.row_spacing = 6;
-            grid.layout_manager.column_homogeneous = false;
-        }
-        if (grid && typeof grid.get_children === 'function') {
-            for (const child of grid.get_children()) {
-                if (child.has_style_class_name?.('quick-toggle') ||
-                    child.has_style_class_name?.('quick-toggle-has-menu') ||
-                    child.has_style_class_name?.('quick-menu-toggle')) {
-                    if (!this._isPowerItem(child)) {
-                        child.x_expand = false;
-                    }
-                }
-            }
         }
     }
 
@@ -414,16 +441,6 @@ export default class FluidGlassExtension extends Extension {
         if (grid?.layout_manager) {
             grid.layout_manager.column_spacing = 12;
             grid.layout_manager.row_spacing = 12;
-            grid.layout_manager.column_homogeneous = true;
-        }
-        if (grid && typeof grid.get_children === 'function') {
-            for (const child of grid.get_children()) {
-                if (child.has_style_class_name?.('quick-toggle') ||
-                    child.has_style_class_name?.('quick-toggle-has-menu') ||
-                    child.has_style_class_name?.('quick-menu-toggle')) {
-                    child.x_expand = true;
-                }
-            }
         }
     }
 }
