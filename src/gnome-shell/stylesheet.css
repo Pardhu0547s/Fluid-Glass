@@ -128,29 +128,35 @@
    and give its controls the wide capsule proportions from the design reference. */
 .fluid-glass-root .quick-settings-grid,
 .quick-settings-grid {
-  spacing-rows: 10px;
-  spacing-columns: 5px;
+  spacing-rows: 6px !important;
+  row-spacing: 6px !important;
+  spacing-columns: 6px !important;
+  column-spacing: 6px !important;
 }
 
-/* Standalone toggles (Night Light, Dark Mode, DND, Airplane Mode, etc.) */
+/* Standalone toggles and menu toggle left halves: 72px width (Case B) */
 .fluid-glass-root .quick-settings .quick-toggle:not(.power-item),
-.quick-settings .quick-toggle:not(.power-item) {
-  min-width: 70px !important;
-  max-width: 70px !important;
-  width: 70px !important;
+.fluid-glass-root .quick-settings .quick-menu-toggle .quick-toggle:not(.power-item),
+.fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle:not(.power-item),
+.quick-settings .quick-toggle:not(.power-item),
+.quick-settings .quick-menu-toggle .quick-toggle:not(.power-item),
+.quick-settings .quick-toggle-has-menu .quick-toggle:not(.power-item),
+.quick-toggle:not(.power-item) {
+  min-width: 72px !important;
+  max-width: 72px !important;
+  width: 72px !important;
   min-height: 56px !important;
   border-radius: 999px !important;
-  padding: 0 !important;
+  padding: 0 4px 0 0 !important;
   margin: 0 !important;
   transition-duration: 160ms;
 }
 
-/* Menu toggle container (Wi-Fi, Bluetooth, Hotspot, etc.): single 70px unified pill */
+/* Menu toggle container (Wi-Fi, Bluetooth, Hotspot, etc.) */
 .fluid-glass-root .quick-settings .quick-toggle-has-menu:not(.power-item),
 .quick-settings .quick-toggle-has-menu:not(.power-item) {
-  min-width: 70px !important;
-  max-width: 70px !important;
-  width: 70px !important;
+  min-width: 72px !important;
+  max-width: 96px !important;
   min-height: 56px !important;
   border-radius: 999px !important;
   padding: 0 !important;
@@ -158,17 +164,17 @@
   transition-duration: 160ms;
 }
 
-/* Inside the menu toggle container, the left toggle fills flexible space without its own 70px constraint */
+/* Inside the menu toggle container, the left toggle is 72px and arrow sits tight */
 .fluid-glass-root .quick-settings .quick-toggle-has-menu .quick-toggle,
 .quick-settings .quick-toggle-has-menu .quick-toggle {
-  min-width: 0 !important;
-  max-width: none !important;
-  width: auto !important;
+  min-width: 72px !important;
+  max-width: 72px !important;
+  width: 72px !important;
   min-height: 56px !important;
   border-radius: 999px 0 0 999px !important;
   border-right: none !important;
   margin-right: 0 !important;
-  padding: 0 0 0 10px !important;
+  padding: 0 4px 0 10px !important;
 }
 
 /* Inactive styling: Standalone toggle */
@@ -185,33 +191,39 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.88), 0 5px 14px rgba(35,53,78,.09);
 }
 
-/* Inactive styling: Menu button (right arrow half) matches left half exactly without divider */
+/* Inactive styling: Menu button (right arrow half) pulled 50% closer (Case C) */
 .fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button,
-.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-arrow-button {
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-menu-toggle .quick-toggle-arrow,
+.fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-arrow-button,
+.quick-toggle-arrow,
+.quick-toggle-menu-button {
   color: @fluid_glass_dark_fg_color !important;
   background-color: @fluid_glass_dark_surface_color !important;
   border: 1px solid @fluid_glass_dark_border_color !important;
   border-left: none !important;
   border-radius: 0 999px 999px 0 !important;
-  min-width: 22px !important;
-  max-width: 26px !important;
+  min-width: 20px !important;
+  max-width: 24px !important;
   min-height: 56px !important;
-  padding: 0 6px 0 0 !important;
-  margin-left: 0 !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  margin-left: -4px !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.055), 0 4px 14px rgba(0,0,0,.10) !important;
 }
 .fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu .quick-toggle-menu-button,
+.fluid-glass-root.fluid-glass-light .quick-settings .quick-menu-toggle .quick-toggle-arrow,
 .fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-arrow-button {
   color: @fluid_glass_light_fg_color !important;
   background-color: @fluid_glass_light_surface_color !important;
   border: 1px solid @fluid_glass_light_border_color !important;
   border-left: none !important;
   border-radius: 0 999px 999px 0 !important;
-  min-width: 22px !important;
-  max-width: 26px !important;
+  min-width: 20px !important;
+  max-width: 24px !important;
   min-height: 56px !important;
-  padding: 0 6px 0 0 !important;
-  margin-left: 0 !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  margin-left: -4px !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.88), 0 5px 14px rgba(35,53,78,.09) !important;
 }
 
@@ -273,6 +285,9 @@
   background-color: @fluid_glass_dark_accent_active_color !important;
   border-color: @fluid_glass_dark_accent_color !important;
   border-left: none !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  margin-left: -4px !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 0 18px rgba(104,151,215,.28) !important;
 }
 .fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu:checked .quick-toggle-menu-button,
@@ -284,6 +299,9 @@
   background-color: @fluid_glass_light_accent_active_color !important;
   border-color: @fluid_glass_light_accent_color !important;
   border-left: none !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  margin-left: -4px !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.38), 0 0 16px rgba(69,111,169,.22) !important;
 }
 

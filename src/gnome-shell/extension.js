@@ -392,8 +392,8 @@ export default class FluidGlassExtension extends Extension {
     _applyGridSpacing() {
         const grid = Main.panel?.statusArea?.quickSettings?.menu?._grid;
         if (grid?.layout_manager) {
-            grid.layout_manager.column_spacing = 5;
-            grid.layout_manager.row_spacing = 10;
+            grid.layout_manager.column_spacing = 6;
+            grid.layout_manager.row_spacing = 6;
         }
     }
 
