@@ -124,10 +124,31 @@ export class DashManager {
         this._settingsSignals.push(...followDockMaterial(this._settings, () => this.glass));
     }
 
+    _isD2DLite() {
+        if (!this.targetActor)
+            return false;
+        return this.targetActor.get_children().some(c => {
+            const name = c.get_name?.() ?? '';
+            return name === 'd2daBackground' || name === 'DockBackground';
+        });
+    }
+
+    _getEffectiveOpacity() {
+        let op = this.targetActor.opacity;
+        if (op <= 0) {
+            let dashChild = this.targetActor.get_children?.().find(c => c.get_name?.() === 'dash');
+            if (dashChild && dashChild.opacity > 0)
+                op = dashChild.opacity;
+            else if (this.targetActor.visible)
+                op = 255;
+        }
+        return op;
+    }
+
     // Moves the dock away from the screen edge it is closest to by
     // dock-margin-bottom.
     _applyMargin() {
-        if (!this.targetActor)
+        if (!this.targetActor || this._isD2DLite())
             return;
         let marginBottom = this._settings.get_int('dock-margin-bottom');
         let [w, h] = this.targetActor.get_size();
@@ -285,7 +306,7 @@ export class DashManager {
             return;
         }
         this.glass.show();
-        this.glass.opacity = this.targetActor.opacity;
+        this.glass.opacity = this._getEffectiveOpacity();
         this._syncDockVisibility(bounds, monitor);
         this._syncDockGlass(bounds, monitor);
     }
@@ -308,6 +329,7 @@ export class DashManager {
                 childName === 'DockBackground') {
                 children[i].opacity = 0;
                 sourceActor = children[i];
+                break;
             }
         }
         let [baseW, baseH] = sourceActor.get_size();
@@ -317,6 +339,9 @@ export class DashManager {
         // The uncorrected position, which _syncGlassGeometryLive() compares against.
         this._liveSource = { actor: sourceActor, rawX: absX, rawY: absY };
         const bounds = { absX, absY, baseW, baseH };
+        if (sourceActor !== this.targetActor && (sourceActor.get_name?.() === 'd2daBackground' || sourceActor.get_name?.() === 'DockBackground')) {
+            return bounds;
+        }
         return sourceActor === this.targetActor ? bounds : clipDockBounds(bounds, this._actorBounds(this.targetActor));
     }
 
@@ -342,6 +367,8 @@ export class DashManager {
     }
 
     _applyDockMargin(bounds, monitor, edges) {
+        if (this._isD2DLite())
+            return bounds;
         const marginValue = this._marginValue || 0;
         if (!monitor || !(marginValue > 0))
             return bounds;
@@ -389,7 +416,7 @@ export class DashManager {
                 this._lastHidden = false;
                 this._logger.log('[Liquid Glass][dock] glass visible again');
             }
-            this.glass.opacity = this.targetActor.opacity;
+            this.glass.opacity = this._getEffectiveOpacity();
         }
     }
 
@@ -481,7 +508,8 @@ export class DashManager {
             if (this._originalStyle !== undefined)
                 this.targetActor.set_style(this._originalStyle);
             for (const child of this.targetActor.get_children()) {
-                if (child.has_style_class_name('dash-background'))
+                const name = child.get_name?.() ?? '';
+                if (child.has_style_class_name('dash-background') || name === 'd2daBackground' || name === 'DockBackground')
                     child.opacity = 255;
             }
         }
@@ -632,6 +660,8 @@ function insetSpan(start, size, edge, stableSize, leading) {
     else if (start + size > edge) {
         size -= (start + size) - edge;
     }
+    if (size < 0)
+        size = 0;
     // Never grow past the last stable size.
     if (size > stableSize)
         size = stableSize;
