@@ -39,7 +39,7 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import {_} from '../i18n.js';
 import {settingsText, shellText} from '../compat/borrowedStrings.js';
 import {VolumeService} from '../services/volume.js';
-import {BrightnessService} from '../services/brightness.js';
+import {BrightnessService} from '../services/brightness.js?v=2';
 import {ConnectivityService} from '../services/connectivity.js';
 import {MediaService} from '../services/media.js';
 import {QuickSettingsBridge} from '../services/quickSettingsBridge.js';

@@ -302,19 +302,23 @@ export class PanelController {
 
     // ---- Control Center (Stage 6) -------------------------------------------
 
-    _addControlCenter() {
+    async _addControlCenter() {
         if (this._controlCenter)
             return;
-        // In native mode GNOME's own Quick Settings indicator stays in the bar
-        // and is the trigger. Mounting our glyph as well put two buttons for
-        // one popup side by side.
         if (!this._customControlCenterActive())
             return;
-        const cc = new ControlCenter(this._extension);
-        const right = PanelAdapter.rightBox;
-        const pos = right ? right.get_n_children() : 0;
-        PanelAdapter.addToStatusArea(CONTROL_CENTER_ROLE, cc, pos, 'right');
-        this._controlCenter = cc;
+        try {
+            const {ControlCenter} = await import(`./widgets/controlCenter.js?v=${Date.now()}`);
+            if (!this._enabled || this._controlCenter)
+                return;
+            const cc = new ControlCenter(this._extension);
+            const right = PanelAdapter.rightBox;
+            const pos = right ? right.get_n_children() : 0;
+            PanelAdapter.addToStatusArea(CONTROL_CENTER_ROLE, cc, pos, 'right');
+            this._controlCenter = cc;
+        } catch (e) {
+            logError(e, 'lintel: _addControlCenter');
+        }
     }
 
     _addStatusMenus() {
