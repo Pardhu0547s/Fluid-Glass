@@ -342,13 +342,13 @@ export default class FluidGlassExtension extends Extension {
                     continue;
                 }
                 if (child.has_style_class_name?.('quick-toggle-title') ||
-                    child.has_style_class_name?.('quick-toggle-subtitle') ||
                     child.has_style_class_name?.('quick-toggle-label')) {
-                    child.visible = false;
-                    if (!actor.has_style_class_name?.('quick-toggle') &&
-                        !this._isPowerItem(actor)) {
-                        actor.visible = false;
-                    }
+                    child.visible = true;
+                    actor.visible = true;
+                } else if (child.has_style_class_name?.('quick-toggle-subtitle')) {
+                    const hasText = Boolean(child.text && String(child.text).trim().length > 0);
+                    child.visible = hasText;
+                    actor.visible = true;
                 } else {
                     walk(child);
                 }
@@ -375,7 +375,6 @@ export default class FluidGlassExtension extends Extension {
             if (!actor || typeof actor.get_children !== 'function') return;
             if (actor.has_style_class_name?.('quick-toggle-has-menu') ||
                 actor.has_style_class_name?.('quick-menu-toggle')) {
-                actor.x_align = 2; // Clutter.ActorAlign.CENTER — keep 96px width inside full-width grid
                 const toggle = actor._toggleButton || findDescendant(actor, c => c.has_style_class_name?.('quick-toggle'));
                 const menuBtn = findDescendant(actor, c =>
                     c.has_style_class_name?.('quick-toggle-menu-button') ||
@@ -389,21 +388,25 @@ export default class FluidGlassExtension extends Extension {
                 if (toggle) {
                     const update = () => {
                         const isChecked = Boolean(actor.checked || toggle.checked);
+                        const dark = this._isDark();
+                        const inactiveBg = dark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.46)';
+                        const inactiveBorder = dark ? 'rgba(255, 255, 255, 0.20)' : 'rgba(255, 255, 255, 0.80)';
                         if (isChecked) {
                             actor.add_style_class_name?.('is-checked');
                             actor.add_style_pseudo_class?.('checked');
-                            actor.set_style?.('background-color: #3584e4 !important; border-radius: 99px !important;');
+                            actor.set_style?.('background-color: #287fe4 !important; border: 1px solid rgba(255, 255, 255, 0.55) !important; border-radius: 18px !important;');
                             toggle.add_style_class_name?.('is-checked');
                             menuBtn?.add_style_class_name?.('is-checked');
                         } else {
                             actor.remove_style_class_name?.('is-checked');
                             actor.remove_style_pseudo_class?.('checked');
-                            actor.set_style?.('background-color: rgba(58, 62, 72, 0.85) !important; border-radius: 99px !important;');
+                            actor.set_style?.(`background-color: ${inactiveBg} !important; border: 1px solid ${inactiveBorder} !important; border-radius: 18px !important;`);
                             toggle.remove_style_class_name?.('is-checked');
                             menuBtn?.remove_style_class_name?.('is-checked');
                         }
-                        toggle.set_style?.('background-color: transparent !important; border: none !important; box-shadow: none !important;');
-                        menuBtn?.set_style?.('background-color: transparent !important; border: none !important; box-shadow: none !important;');
+                        const arrowBg = isChecked ? 'rgba(255, 255, 255, 0.13)' : 'rgba(255, 255, 255, 0.08)';
+                        toggle.set_style?.('background-color: transparent !important; border: none !important; box-shadow: none !important; border-radius: 18px 0 0 18px !important;');
+                        menuBtn?.set_style?.(`background-color: ${arrowBg} !important; border-left: 1px solid rgba(255, 255, 255, 0.14) !important; box-shadow: none !important; border-radius: 0 18px 18px 0 !important;`);
                     };
                     update();
                     if (!actor._fluidGlassSyncSignal && typeof toggle.connect === 'function') {
@@ -416,12 +419,29 @@ export default class FluidGlassExtension extends Extension {
                         }
                     }
                 }
-            } else if (actor.has_style_class_name?.('quick-toggle') && !this._isPowerItem(actor)) {
-                const parent = actor.get_parent?.();
-                const inMenuToggle = parent?.has_style_class_name?.('quick-toggle-has-menu') ||
-                    parent?.has_style_class_name?.('quick-menu-toggle');
-                if (!inMenuToggle) {
-                    actor.x_align = 2; // Clutter.ActorAlign.CENTER — keep 96px width on standalone pills
+                return;
+            }
+            if (actor.has_style_class_name?.('quick-toggle') && !this._isPowerItem(actor)) {
+                const updateStandalone = () => {
+                    const isChecked = Boolean(actor.checked);
+                    const dark = this._isDark();
+                    const inactiveBg = dark ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.46)';
+                    const inactiveBorder = dark ? 'rgba(255, 255, 255, 0.20)' : 'rgba(255, 255, 255, 0.80)';
+                    if (isChecked) {
+                        actor.add_style_class_name?.('is-checked');
+                        actor.add_style_pseudo_class?.('checked');
+                        actor.set_style?.('background-color: #287fe4 !important; border: 1px solid rgba(255, 255, 255, 0.55) !important; border-radius: 18px !important;');
+                    } else {
+                        actor.remove_style_class_name?.('is-checked');
+                        actor.remove_style_pseudo_class?.('checked');
+                        actor.set_style?.(`background-color: ${inactiveBg} !important; border: 1px solid ${inactiveBorder} !important; border-radius: 18px !important;`);
+                    }
+                };
+                updateStandalone();
+                if (!actor._fluidGlassSyncSignal && typeof actor.connect === 'function') {
+                    const sigId = actor.connect('notify::checked', updateStandalone);
+                    actor._fluidGlassSyncSignal = sigId;
+                    this._toggleSignals.push({ actor, id: sigId });
                 }
             }
             for (const child of actor.get_children())
@@ -441,7 +461,6 @@ export default class FluidGlassExtension extends Extension {
                 actor.has_style_class_name?.('quick-toggle') ||
                 actor.has_style_class_name?.('quick-toggle-menu-button')) {
                 actor.set_style?.(null);
-                actor.x_align = 0;
             }
             for (const child of actor.get_children()) {
                 if (child.has_style_class_name?.('quick-toggle-title') ||
@@ -460,8 +479,8 @@ export default class FluidGlassExtension extends Extension {
     _applyGridSpacing() {
         const grid = Main.panel?.statusArea?.quickSettings?.menu?._grid;
         if (grid?.layout_manager) {
-            grid.layout_manager.column_spacing = 6;
-            grid.layout_manager.row_spacing = 6;
+            grid.layout_manager.column_spacing = 10;
+            grid.layout_manager.row_spacing = 10;
         }
     }
 

@@ -282,7 +282,7 @@
   box-shadow: 0 0 0 2px rgba(139, 184, 245, 0.72);
 }
 .quick-settings .quick-toggle > StBoxLayout {
-  spacing: 0 !important;
+  spacing: 10px !important;
   padding: 0 !important;
 }
 .quick-settings .quick-toggle-icon { icon-size: 18px; }
@@ -409,15 +409,13 @@
   color: #f6f9ff;
   background-color: rgba(20, 28, 42, 0.40);
   border-color: rgba(255, 255, 255, 0.26);
-  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.32),
-              inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.32);
 }
 .fluid-glass-root.fluid-glass-light .quick-settings {
   color: #18283d;
   background-color: rgba(232, 241, 253, 0.40);
   border-color: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 22px 58px rgba(21, 45, 78, 0.16),
-              inset 0 1px 0 rgba(255, 255, 255, 0.94);
+  box-shadow: 0 22px 58px rgba(21, 45, 78, 0.16);
 }
 
 /* Tile sizing follows a two-column Mac-like module layout; no margin-based
@@ -432,29 +430,25 @@
   color: #f6f9ff !important;
   background-color: rgba(255, 255, 255, 0.14) !important;
   border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10),
-              0 5px 16px rgba(0, 0, 0, 0.13) !important;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.13) !important;
 }
 .fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle {
   color: #18283d !important;
   background-color: rgba(255, 255, 255, 0.46) !important;
   border: 1px solid rgba(255, 255, 255, 0.80) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.94),
-              0 5px 16px rgba(30, 57, 92, 0.08) !important;
+  box-shadow: 0 5px 16px rgba(30, 57, 92, 0.08) !important;
 }
 .fluid-glass-root.fluid-glass-dark .quick-settings .quick-toggle-has-menu,
 .fluid-glass-root.fluid-glass-dark .quick-settings .quick-menu-toggle {
   background-color: rgba(255, 255, 255, 0.14) !important;
   border: 1px solid rgba(255, 255, 255, 0.20) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10),
-              0 5px 16px rgba(0, 0, 0, 0.13) !important;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.13) !important;
 }
 .fluid-glass-root.fluid-glass-light .quick-settings .quick-toggle-has-menu,
 .fluid-glass-root.fluid-glass-light .quick-settings .quick-menu-toggle {
   background-color: rgba(255, 255, 255, 0.46) !important;
   border: 1px solid rgba(255, 255, 255, 0.80) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.94),
-              0 5px 16px rgba(30, 57, 92, 0.08) !important;
+  box-shadow: 0 5px 16px rgba(30, 57, 92, 0.08) !important;
 }
 .fluid-glass-root .quick-settings .quick-toggle:checked,
 .fluid-glass-root .quick-settings .quick-toggle-has-menu:checked,
@@ -463,8 +457,7 @@
   color: #ffffff !important;
   background-color: #287fe4 !important;
   border-color: rgba(255, 255, 255, 0.55) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28),
-              0 0 18px rgba(40, 127, 228, 0.30) !important;
+  box-shadow: 0 0 18px rgba(40, 127, 228, 0.30) !important;
 }
 .fluid-glass-root .quick-settings .quick-toggle:checked .quick-toggle-label,
 .fluid-glass-root .quick-settings .quick-toggle:checked .quick-toggle-title,
@@ -530,6 +523,5 @@
 .fluid-glass-root .quick-settings .slider .handle {
   background-color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.92);
-  box-shadow: 0 3px 12px rgba(12, 30, 54, 0.24),
-              inset 0 1px 0 #ffffff;
+  box-shadow: 0 3px 12px rgba(12, 30, 54, 0.24);
 }
