@@ -1,0 +1,34 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install sassc
+        run: sudo apt-get update && sudo apt-get install -y sassc
+      - name: Build themes
+        run: ./build.sh -c all -s normal
+      - name: Package
+        run: |
+          mkdir -p out
+          tar -czf "out/Fluid-Glass-${GITHUB_REF_NAME:-dev}.tar.gz" \
+            --transform 's,^,Fluid-Glass/,' \
+            dist install.sh build.sh src COPYING README.md THIRD_PARTY_NOTICES.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: themes
+          path: out/*.tar.gz
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/*.tar.gz

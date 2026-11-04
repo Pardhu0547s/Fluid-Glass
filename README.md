@@ -1,72 +1,90 @@
-# Fluid Glass 2.0
+# Fluid Glass for Linux
 
-**An independent, Fedora-first glass interface for GNOME.**
+A translucent "glass" GTK3 / GTK4 (libadwaita) and GNOME Shell theme. It pairs
+macOS-style proportions (modeled on a 27" desktop at 2560×1440 logical pixels, 8 px grid)
+with a glass material layer: translucent tints, a bright top rim highlight,
+a faint perimeter edge, and soft ambient shadows.
 
-Status: **2.0.0-alpha.5**. This release refines the native Quick Settings panel toward the current macOS Control Center hierarchy: translucent tinted material, a responsive two-column module grid, readable wide tiles, native sliders and high-contrast blue active states. GNOME services continue to provide the real control behavior.
-
-## Design goals
-
-- Independent source tree and original styles; no MacTahoe or third-party Liquid Glass extension runtime dependency.
-- Fedora Workstation 44 / GNOME Shell 50 as the first supported target.
-- `src/design/tokens.json` generates GTK3, GTK4 and Shell color definitions.
-- GNOME Shell styling for panel, Quick Settings, calendar, notifications, OSD and overview.
-- Native Shell backdrop blur, configurable radius/brightness and CSS fallbacks.
-- Reversible per-user installation; no `sudo` and no overwrite of `~/.config/gtk-4.0/gtk.css`.
-
-## Alpha 4 status
-
-| Area | Alpha 4 status |
-|---|---|
-| GTK3 dark/light | Token-driven widget styles; visual QA pending |
-| GTK4 dark/light | Token-driven GTK4 styles; app support varies |
-| Shared tokens | Generated from one JSON source |
-| GNOME panel | Native backdrop blur + adaptive tint |
-| Quick Settings | Two-column native grid restyled as wide glass capsules |
-| Quick Settings sliders | Glass track and illuminated active slider styling |
-| Quick Settings actions | Native screenshot shortcut; GNOME settings/lock/power actions retained |
-| Quick Settings blur | Enabled by default; independently configurable |
-| Calendar blur | Separate opt-in setting |
-| Network/Bluetooth/power/night-light/DND | Uses GNOME's existing functional controls; no duplicate fake toggles |
-| Notifications/OSD/overview | CSS surface styling; visual QA pending |
-| Optical refraction/dispersion | GLSL prototype only; not integrated with GNOME |
-| Fedora 44/GNOME 50 runtime QA | Pending on a real session |
-
-## Design reference
-
-The supplied Quick Settings concept is retained at [`docs/design-reference/quick-settings-reference.png`](docs/design-reference/quick-settings-reference.png). The implementation intentionally styles GNOME's native Quick Settings grid and controls rather than replacing system services with decorative buttons.
+> **How the glass works.** A stylesheet can only make surfaces translucent; it
+> cannot blur what is behind them. For real blur and refraction, install the
+> optional [Liquid Glass extension](https://github.com/ryohsuke1231/liquid-glass).
+> Without it, the theme still works but panels are simply see-through, so the
+> **Normal** or **Frosted** styles are the better choice.
 
 ## Requirements
 
-- Fedora Workstation 44 / GNOME Shell 50 for the complete Shell experience.
-- `bash`, `python3`, `glib2` (`glib-compile-schemas`), `gsettings`, `gnome-shell` and `gnome-extensions`.
-- GTK3 and GTK4 applications that honor the selected GTK theme. Libadwaita applications may keep their own styling.
+| Needed for | Package |
+|---|---|
+| Shell theme | GNOME Shell 46–48 (newer versions work with small visual glitches), the **User Themes** extension |
+| Building from source | `sassc` |
+| Real blur (optional) | [Liquid Glass extension](https://github.com/ryohsuke1231/liquid-glass), installed separately |
 
-## Build and install
-
-```bash
-./scripts/validate.sh
-./build.sh
-./install.sh --variant dark
-```
-
-Use `./install.sh --variant light` for light mode, `--gtk-only` to skip the Shell extension, or `--extension-only` for the extension alone. Quick Settings blur is enabled by default to match the supplied design; calendar blur remains opt-in because background blur can be expensive. The screenshot shortcut can be disabled in extension preferences. The installer compiles the extension GSettings schema on Fedora before activation. Open settings with:
+## Install
 
 ```bash
-gnome-extensions prefs fluid-glass@fluidglass.dev
+git clone https://github.com/Pardhu0547s/Fluid-Glass.git
+cd Fluid-Glass
+./install.sh            # builds with sassc, installs to ~/.themes, applies the theme
 ```
 
-Uninstall and restore the previous GTK theme selection with `./uninstall.sh`. All files are installed per-user; do not use `sudo`.
+Release tarballs ship prebuilt themes, so `sassc` is not needed there.
 
-## Important GTK4 limitation
+```
+./install.sh [OPTIONS]
+  -c, --color   dark|light              Variant for GTK4/libadwaita apps (default: follows system)
+  -s, --style   clear|normal|frosted    Glass strength (default: normal)
+  -d, --dest    DIR                     Install directory (default: ~/.themes)
+      --laptop                          Compact laptop sizing
+      --rebuild                         Rebuild even if ./dist exists
+      --no-libadwaita                   Leave ~/.config/gtk-4.0 alone
+      --no-apply                        Install only; do not change GNOME settings
+  -e, --with-extension                  Enable the Liquid Glass extension if it is installed
+  -r, --remove                          Uninstall and restore your original GTK4 files
+```
 
-GTK4 theme CSS applies only to apps that honor the selected GTK theme. Libadwaita applications may retain Adwaita styling. Fluid Glass does not inject CSS into applications or overwrite the user's GTK4 config.
+What the installer does and does not do:
 
-## Rendering truth
+- It never writes into the repository and never downloads anything.
+- Before touching `~/.config/gtk-4.0`, it saves your original files once to
+  `~/.config/gtk-4.0/.fluid-glass-backup`. `--remove` restores exactly those.
+- It does not change the color scheme unless you pass `--color`.
+- It does not install or configure the Liquid Glass extension; `-e` only enables it.
 
-The extension uses GNOME Shell's native `Shell.BlurEffect` in background mode for supported Shell actors. GTK stylesheets do not sample the compositor or provide real window backdrop refraction. The standalone GLSL shader is a renderer prototype, not a live GNOME effect; it must not be described as integrated until the compositor texture path and performance are validated.
+## Build
 
-See [architecture](docs/ARCHITECTURE.md), [roadmap](docs/ROADMAP.md), [testing](docs/TESTING.md), [Quick Settings implementation](docs/QUICK-SETTINGS-DESIGN.md), [GTK4 notes](src/gtk4/README.md) and [build report](docs/BUILD-REPORT.md).
+```bash
+./build.sh -c all -s normal            # output goes to ./dist (git-ignored)
+./build.sh --shell-version 47          # target a specific GNOME Shell
+./build.sh --stock -o /tmp/stock       # stock MacTahoe geometry, no glass (for diffing)
+```
+
+## Key dimensions
+
+| Element | Size |
+|---|---|
+| Top bar | 32 px high, 16 px side margins |
+| Header bar | 52 px high |
+| Quick Settings / Control Center | 370 px wide, 20 px corner radius |
+| Sidebar | 240 px wide (200 px with `--laptop`) |
+| Window inner radius | 12 px |
+
+## Project layout
+
+```
+build.sh  install.sh  COPYING  THIRD_PARTY_NOTICES.md
+src/assets/             icons and window-button assets
+src/main/               SCSS entry templates
+src/sass/glass/         Fluid Glass material layer (_material, _shell, _gtk3, _gtk4)
+src/sass/gtk, gnome-shell   MacTahoe-derived widget styles
+```
+
+## Known limitations
+
+- The shell overlay relies heavily on `!important`, so a future GNOME release may need adjustments.
+- Shell widget styles stop at GNOME 48; 49+ is untested.
+- Style variants beyond Light/Dark (such as macOS-style Clear and Tinted) are not implemented yet.
 
 ## License
 
-GPL-3.0-or-later. See [LICENSE](LICENSE).
+GPL-3.0-or-later, see `COPYING`. This project is derived from MacTahoe and
+WhiteSur; their notices are in `THIRD_PARTY_NOTICES.md`.

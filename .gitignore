@@ -1,5 +1,14 @@
-dist/
-*.zip
-*.tar.gz
-*.log
+# OS files
 .DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Build output (published as release artifacts, never committed)
+/dist/
+/src/sass/glass/_options-temp.scss.bak
