@@ -404,20 +404,32 @@
  * has nothing behind it to sample, and the alternatives all mean compositing a
  * copy of the screen (see docs/DESIGN_QA.md, Pass 8-12). The modules rely on their
  * tint alone for contrast. */
-.lintel-cc-menu {
-    -arrow-background-color: transparent;
-    -arrow-border-color: transparent;
-    -arrow-border-width: 0;
-    -arrow-base: 0;
-    -arrow-rise: 0;
+.lintel-cc-menu,
+.popup-menu-boxpointer.lintel-cc-menu,
+.popup-menu.lintel-cc-menu,
+.lintel-cc-menu.popup-menu-boxpointer {
+    -arrow-background-color: transparent !important;
+    -arrow-border-color: transparent !important;
+    -arrow-border-width: 0 !important;
+    -arrow-base: 0 !important;
+    -arrow-rise: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
 }
 
-.lintel-cc-popup {
-    background-color: transparent;
-    border: 0 solid transparent;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 0;
+.lintel-cc-popup,
+.lintel-cc-popup.popup-menu-content,
+.lintel-cc-dark.lintel-cc-popup,
+.lintel-cc-light.lintel-cc-popup,
+.lintel-cc-menu .popup-menu-content {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
 }
 
 /* Widths measured off docs/audits/tahoe-reference/26-Tahoe-Finder-Control-Center.png
@@ -430,8 +442,12 @@
  * subtract padding from. Measured on a render: width 308 produced 308.4px of
  * module. 140 + 12 gutter + 140 = 292, so the grid columns fill it exactly. */
 .lintel-cc-content {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     spacing: 8px;
-    padding: 8px;
+    padding: 4px;
     width: 292px;
 }
 
@@ -603,32 +619,44 @@
     min-height: 0;
     padding: 0;
     border-radius: 999px;
-    background-color: rgba(255, 255, 255, 0.22);
-    border: 1.5px solid rgba(255, 255, 255, 0.45);
-    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.14), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.70);
+    background-color: rgba(255, 255, 255, 0.14) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.10), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40) !important;
+    transition-duration: 160ms;
 }
 
 .lintel-cc-tile.lintel-cc-tile-compact:hover {
-    background-color: rgba(255, 255, 255, 0.32);
-    border-color: rgba(255, 255, 255, 0.65);
-    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.18), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.24) !important;
+    border-color: rgba(255, 255, 255, 0.50) !important;
+    box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.14), inset 0 1px 1px 0 rgba(255, 255, 255, 0.55) !important;
 }
 
 .lintel-cc-tile.lintel-cc-tile-compact:checked {
-    background-color: #007aff !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
-    box-shadow: 0 0 24px 0 rgba(0, 122, 255, 0.50), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85) !important;
+    background-color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.18), inset 0 1px 1px 0 rgba(255, 255, 255, 0.90) !important;
+}
+
+.lintel-cc-tile.lintel-cc-tile-compact:checked:hover {
+    background-color: #f0f0f5 !important;
+}
+
+.lintel-cc-tile.lintel-cc-tile-compact:checked .lintel-cc-tile-icon,
+.lintel-cc-tile-compact .lintel-cc-tile-icon:checked {
+    color: #007aff !important;
+    background-color: transparent !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
 }
 
 .lintel-cc-tile-compact .lintel-cc-tile-box {
     spacing: 0;
 }
 
-.lintel-cc-tile-compact .lintel-cc-tile-icon,
-.lintel-cc-tile-compact .lintel-cc-tile-icon:checked {
+.lintel-cc-tile-compact .lintel-cc-tile-icon {
     icon-size: 22px;
     padding: 0;
-    color: #ffffff !important;
+    color: #ffffff;
     background-color: transparent !important;
     border-width: 0 !important;
     box-shadow: none !important;

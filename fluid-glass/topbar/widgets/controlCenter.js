@@ -203,7 +203,12 @@ class ControlCenter extends PanelMenu.Button {
 
     _buildPopup() {
         this.menu.actor.add_style_class_name('lintel-cc-menu');
+        this.menu.actor.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important;');
+        this.menu.box.remove_style_class_name('popup-menu-content');
         this.menu.box.add_style_class_name('lintel-cc-popup');
+        this.menu.box.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
+        if (this.menu._boxPointer?.bin)
+            this.menu._boxPointer.bin.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
         this._syncAppearance();
 
         const content = new St.BoxLayout({
@@ -729,10 +734,16 @@ class ControlCenter extends PanelMenu.Button {
         } catch (_e) {
             dark = true;
         }
+        this.menu.box.remove_style_class_name('popup-menu-content');
         this.menu.box.remove_style_class_name(
             dark ? 'lintel-cc-light' : 'lintel-cc-dark');
         this.menu.box.add_style_class_name(
             dark ? 'lintel-cc-dark' : 'lintel-cc-light');
+        this.menu.box.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
+        if (this.menu.actor)
+            this.menu.actor.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important;');
+        if (this.menu._boxPointer?.bin)
+            this.menu._boxPointer.bin.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
     }
 
     // ---- Sync UI from backends ----------------------------------------------
