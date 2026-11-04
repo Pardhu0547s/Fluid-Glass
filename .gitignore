@@ -12,3 +12,4 @@ Thumbs.db
 # Build output (published as release artifacts, never committed)
 /dist/
 /src/sass/glass/_options-temp.scss.bak
+*.zip

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00c6ff" />
+      <stop offset="50%" stop-color="#0072ff" />
+      <stop offset="100%" stop-color="#7928ca" />
+    </linearGradient>
+    <linearGradient id="glass" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45" />
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05" />
+    </linearGradient>
+    <linearGradient id="rim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+      <stop offset="50%" stop-color="#ffffff" stop-opacity="0.30" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.70" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+    <filter id="innerGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowDiff" />
+      <feFlood flood-color="#ffffff" flood-opacity="0.6" />
+      <feComposite in2="shadowDiff" operator="in" />
+      <feComposite in2="SourceGraphic" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Wallpaper Circle Simulation -->
+  <circle cx="256" cy="256" r="236" fill="url(#bg)" />
+
+  <!-- Backdrop Fluid Wave Decor -->
+  <path d="M 60,320 C 140,240 220,380 320,300 C 400,220 460,340 480,360 L 480,480 L 60,480 Z" fill="#ffffff" fill-opacity="0.12" />
+  <circle cx="360" cy="160" r="70" fill="#ffffff" fill-opacity="0.15" />
+
+  <!-- Main Floating Glass Squircle -->
+  <rect x="96" y="96" width="320" height="320" rx="72" ry="72"
+        fill="url(#glass)"
+        stroke="url(#rim)"
+        stroke-width="5"
+        filter="url(#shadow)" />
+
+  <!-- Specular Lens Light Arc -->
+  <path d="M 120,130 C 180,105 320,105 380,130" stroke="#ffffff" stroke-width="6" stroke-linecap="round" fill="none" opacity="0.85" />
+
+  <!-- Central Fluid Glass Emblem -->
+  <!-- Tahoe Capsule Grid Representation -->
+  <!-- Wi-Fi capsule -->
+  <rect x="144" y="160" width="100" height="44" rx="14" fill="#007aff" stroke="#ffffff" stroke-width="2" />
+  <circle cx="166" cy="182" r="12" fill="#ffffff" />
+  <path d="M 161,180 A 7,7 0 0,1 171,180 M 163,183 A 4,4 0 0,1 169,183 M 166,186 A 1,1 0 0,1 166,186" stroke="#007aff" stroke-width="2" stroke-linecap="round" fill="none" />
+  <rect x="186" y="177" width="46" height="5" rx="2.5" fill="#ffffff" />
+  <rect x="186" y="185" width="30" height="4" rx="2" fill="#ffffff" opacity="0.8" />
+
+  <!-- Media Tile (Large 2x2) -->
+  <rect x="268" y="160" width="100" height="100" rx="20" fill="#ffffff" fill-opacity="0.25" stroke="#ffffff" stroke-width="2" />
+  <circle cx="318" cy="198" r="18" fill="#ffffff" fill-opacity="0.8" />
+  <polygon points="314,190 326,198 314,206" fill="#007aff" />
+  <rect x="282" y="232" width="72" height="5" rx="2.5" fill="#ffffff" />
+  <rect x="294" y="243" width="48" height="4" rx="2" fill="#ffffff" opacity="0.8" />
+
+  <!-- Bluetooth Circle -->
+  <circle cx="166" cy="236" r="22" fill="#007aff" stroke="#ffffff" stroke-width="2" />
+  <path d="M 166,224 L 166,248 L 172,242 L 160,232 L 172,228 Z" stroke="#ffffff" stroke-width="2" fill="none" stroke-linejoin="round" />
+
+  <!-- AirDrop Circle -->
+  <circle cx="222" cy="236" r="22" fill="#ffffff" fill-opacity="0.25" stroke="#ffffff" stroke-width="2" />
+  <path d="M 215,242 A 8,8 0 0,1 229,242 M 218,238 A 4,4 0 0,1 226,238" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" />
+  <circle cx="222" cy="242" r="2" fill="#ffffff" />
+
+  <!-- Slider Bar (Sound / Display) -->
+  <rect x="144" y="284" width="224" height="32" rx="16" fill="#ffffff" fill-opacity="0.25" stroke="#ffffff" stroke-width="2" />
+  <rect x="144" y="284" width="150" height="32" rx="16" fill="#ffffff" fill-opacity="0.85" />
+  <circle cx="162" cy="300" r="9" fill="#007aff" />
+  <path d="M 160,296 L 162,298 L 165,294" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" />
+
+  <!-- 4 Action Dots -->
+  <circle cx="164" cy="348" r="16" fill="#ffffff" fill-opacity="0.25" stroke="#ffffff" stroke-width="1.5" />
+  <circle cx="212" cy="348" r="16" fill="#ffffff" fill-opacity="0.25" stroke="#ffffff" stroke-width="1.5" />
+  <circle cx="260" cy="348" r="16" fill="#ffffff" fill-opacity="0.25" stroke="#ffffff" stroke-width="1.5" />
+  <circle cx="308" cy="348" r="16" fill="#ffffff" fill-opacity="0.25" stroke="#ffffff" stroke-width="1.5" />
+</svg>

@@ -199,21 +199,31 @@ if [[ "${WITH_EXT}" == "true" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# GNOME settings
+# Fluid Glass Unified Extension & Customizer App
 # ---------------------------------------------------------------------------
-if [[ "${APPLY}" == "true" ]]; then
-  gsettings set org.gnome.desktop.interface gtk-theme "${THEME_NAME}" 2>/dev/null \
-    || warn "Could not set the GTK theme; select ${THEME_NAME} in Tweaks/Appearance."
-  if [[ -n "${COLOR}" ]]; then
-    [[ "${COLOR}" == "dark" ]] && scheme_val="prefer-dark" || scheme_val="prefer-light"
-    gsettings set org.gnome.desktop.interface color-scheme "${scheme_val}" 2>/dev/null || true
-  fi
-  if gsettings set org.gnome.shell.extensions.user-theme name "${THEME_NAME}" 2>/dev/null; then
-    :
-  else
-    warn "Shell theme not applied: the 'User Themes' extension is required (gnome-shell-extension-user-theme)."
-    warn "Then run: gsettings set org.gnome.shell.extensions.user-theme name '${THEME_NAME}'"
+if [[ -d "${REPO_DIR}/fluid-glass" ]]; then
+  info "Installing Fluid Glass Extension (fluid-glass@fedora)"
+  EXT_DEST="${HOME}/.local/share/gnome-shell/extensions/fluid-glass@fedora"
+  mkdir -p "${HOME}/.local/share/gnome-shell/extensions"
+  rm -rf "${EXT_DEST}"
+  cp -a "${REPO_DIR}/fluid-glass" "${EXT_DEST}"
+  if command -v glib-compile-schemas >/dev/null; then
+    glib-compile-schemas "${EXT_DEST}/schemas/" || true
+    mkdir -p "${HOME}/.local/share/glib-2.0/schemas/"
+    cp "${EXT_DEST}/schemas/"*.xml "${HOME}/.local/share/glib-2.0/schemas/" 2>/dev/null || true
+    glib-compile-schemas "${HOME}/.local/share/glib-2.0/schemas/" || true
   fi
 fi
 
-info "Done. Log out and back in if the shell theme does not update."
+if [[ -d "${REPO_DIR}/fluid-glass-app" ]]; then
+  info "Installing Fluid Glass Settings Customizer App"
+  mkdir -p "${HOME}/.local/bin" "${HOME}/.local/share/applications" "${HOME}/.local/share/icons/hicolor/scalable/apps"
+  cp -f "${REPO_DIR}/fluid-glass-app/main.py" "${HOME}/.local/bin/fluid-glass-settings"
+  chmod +x "${HOME}/.local/bin/fluid-glass-settings"
+  cp -f "${REPO_DIR}/fluid-glass-app/fluid-glass-settings.desktop" "${HOME}/.local/share/applications/"
+  cp -f "${REPO_DIR}/fluid-glass-app/fluid-glass.svg" "${HOME}/.local/share/icons/hicolor/scalable/apps/"
+  command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -f -t "${HOME}/.local/share/icons/hicolor/" 2>/dev/null || true
+  command -v update-desktop-database >/dev/null && update-desktop-database "${HOME}/.local/share/applications/" 2>/dev/null || true
+fi
+
+info "Done. Launch the customizer anytime by running 'fluid-glass-settings' or opening Fluid Glass from your app launcher."

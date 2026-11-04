@@ -1,90 +1,65 @@
-# Fluid Glass for Linux
+# Fluid Glass for Linux 
 
-A translucent "glass" GTK3 / GTK4 (libadwaita) and GNOME Shell theme. It pairs
-macOS-style proportions (modeled on a 27" desktop at 2560×1440 logical pixels, 8 px grid)
-with a glass material layer: translucent tints, a bright top rim highlight,
-a faint perimeter edge, and soft ambient shadows.
+A unified **macOS Tahoe Fluid Glass** suite for GNOME:
+1. **Fluid Glass Unified Extension (`fluid-glass@fedora`)**: Combines a macOS Top Bar & floating Tahoe Control Center, real-time GLSL Liquid Glass Shaders (refraction & blur), and an animated magnification Dock.
+2. **Fluid Glass Settings App**: A standalone native GTK4 & Libadwaita desktop application to customize glass effects, presets, accent colors, dock animations, and layout on the fly.
+3. **Fluid Glass GTK & Shell Theme**: Translucent glass styling with specular highlights, rim reflections, and soft ambient shadows.
 
-> **How the glass works.** A stylesheet can only make surfaces translucent; it
-> cannot blur what is behind them. For real blur and refraction, install the
-> optional [Liquid Glass extension](https://github.com/ryohsuke1231/liquid-glass).
-> Without it, the theme still works but panels are simply see-through, so the
-> **Normal** or **Frosted** styles are the better choice.
+---
 
-## Requirements
+## ✨ Features
 
-| Needed for | Package |
-|---|---|
-| Shell theme | GNOME Shell 46–48 (newer versions work with small visual glitches), the **User Themes** extension |
-| Building from source | `sassc` |
-| Real blur (optional) | [Liquid Glass extension](https://github.com/ryohsuke1231/liquid-glass), installed separately |
+- **Floating Tahoe Control Center**:
+  - Direct floating glass modules with **zero opaque outer card** over your wallpaper.
+  - Authentic 6-row Tahoe layout: Wi-Fi (wide capsule), Now Playing (large 2×2 tile), Bluetooth & AirDrop (1×1 compact discs), Focus Mode (wide capsule), Stage Manager & Screen Mirroring (1×1 compact discs), Display & Sound sliders, and 4 circular action quick toggles (Dark Mode, Night Light, Screenshot, Airplane Mode).
+  - Luminous glass styling (`rgba(255, 255, 255, 0.22)`) with a 1.5px specular rim (`rgba(255, 255, 255, 0.45)`), drop shadow, inset top highlight, and electric blue (`#007aff`) active states.
+- **GLSL Liquid Glass Shader Engine**:
+  - Multi-pass Kawase blur and physical light refraction.
+  - Real-time dock glass backdrop with dynamic wallpaper adaptation.
+- **Fluid Animated Dock**:
+  - Smooth hover magnification and window dodging.
+  - Transparent base allowing the liquid glass shader to refract the desktop background.
+- **Native Customizer Application (`fluid-glass-settings`)**:
+  - GTK4 + Libadwaita preferences window with an app launcher in your application grid.
+  - Switch presets in one click: **Tahoe Crystal (Recommended)**, **Deep Frosted Glass**, **Midnight Obsidian**, and **Electric Neon**.
+  - Accent color picker, slider adjustments, and live component toggles.
 
-## Install
+---
+
+## 🚀 Quick Install
 
 ```bash
 git clone https://github.com/Pardhu0547s/Fluid-Glass.git
 cd Fluid-Glass
-./install.sh            # builds with sassc, installs to ~/.themes, applies the theme
+./install.sh
 ```
 
-Release tarballs ship prebuilt themes, so `sassc` is not needed there.
+The installer will:
+1. Install the **Fluid Glass** extension to `~/.local/share/gnome-shell/extensions/fluid-glass@fedora`.
+2. Compile and install all GSettings schemas.
+3. Install the **Fluid Glass Settings** desktop app (`fluid-glass-settings`), icon, and `.desktop` launcher.
+4. Install and configure the GTK4 / Libadwaita themes.
 
-```
-./install.sh [OPTIONS]
-  -c, --color   dark|light              Variant for GTK4/libadwaita apps (default: follows system)
-  -s, --style   clear|normal|frosted    Glass strength (default: normal)
-  -d, --dest    DIR                     Install directory (default: ~/.themes)
-      --laptop                          Compact laptop sizing
-      --rebuild                         Rebuild even if ./dist exists
-      --no-libadwaita                   Leave ~/.config/gtk-4.0 alone
-      --no-apply                        Install only; do not change GNOME settings
-  -e, --with-extension                  Enable the Liquid Glass extension if it is installed
-  -r, --remove                          Uninstall and restore your original GTK4 files
-```
+---
 
-What the installer does and does not do:
+## 🎛 Launching the Customizer App
 
-- It never writes into the repository and never downloads anything.
-- Before touching `~/.config/gtk-4.0`, it saves your original files once to
-  `~/.config/gtk-4.0/.fluid-glass-backup`. `--remove` restores exactly those.
-- It does not change the color scheme unless you pass `--color`.
-- It does not install or configure the Liquid Glass extension; `-e` only enables it.
+Open the app from your application grid:
+- Search for **"Fluid Glass"** in your launcher.
+- Or run in terminal:
+  ```bash
+  fluid-glass-settings
+  ```
 
-## Build
+---
 
-```bash
-./build.sh -c all -s normal            # output goes to ./dist (git-ignored)
-./build.sh --shell-version 47          # target a specific GNOME Shell
-./build.sh --stock -o /tmp/stock       # stock MacTahoe geometry, no glass (for diffing)
-```
+## 📦 Requirements
 
-## Key dimensions
+- **Desktop**: GNOME Shell 45–51 (Wayland or X11, Fedora / Ubuntu / Arch / openSUSE)
+- **App Stack**: Python 3 with `PyGObject`, `GTK4`, and `Libadwaita` (preinstalled on standard GNOME desktops)
 
-| Element | Size |
-|---|---|
-| Top bar | 32 px high, 16 px side margins |
-| Header bar | 52 px high |
-| Quick Settings / Control Center | 370 px wide, 20 px corner radius |
-| Sidebar | 240 px wide (200 px with `--laptop`) |
-| Window inner radius | 12 px |
+---
 
-## Project layout
+## 📄 License
 
-```
-build.sh  install.sh  COPYING  THIRD_PARTY_NOTICES.md
-src/assets/             icons and window-button assets
-src/main/               SCSS entry templates
-src/sass/glass/         Fluid Glass material layer (_material, _shell, _gtk3, _gtk4)
-src/sass/gtk, gnome-shell   MacTahoe-derived widget styles
-```
-
-## Known limitations
-
-- The shell overlay relies heavily on `!important`, so a future GNOME release may need adjustments.
-- Shell widget styles stop at GNOME 48; 49+ is untested.
-- Style variants beyond Light/Dark (such as macOS-style Clear and Tinted) are not implemented yet.
-
-## License
-
-GPL-3.0-or-later, see `COPYING`. This project is derived from MacTahoe and
-WhiteSur; their notices are in `THIRD_PARTY_NOTICES.md`.
+GPL-3.0-or-later. See `COPYING` for details.

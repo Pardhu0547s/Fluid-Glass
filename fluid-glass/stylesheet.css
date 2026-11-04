@@ -1,0 +1,2601 @@
+/*
+ * Lintel — static fallback stylesheet.
+ *
+ * Panel styling is scoped under .lintel. Control Center lives in Shell's
+ * popup layer (outside the panel actor), so every popup selector has its own
+ * lintel-cc prefix and cannot leak into stock Quick Settings.
+ */
+
+/* ── Tahoe menu-bar metrics ───────────────────────────────────────────────
+ *
+ * Measured off a macOS Tahoe capture normalised to logical pixels (1 macOS
+ * point == 1 GNOME logical px); see docs/MACOS_REFERENCE.md for the table.
+ * The bar is 24px tall, menu titles and status glyphs sit ~8px apart on each
+ * side of their button, status glyphs are 16px, and the bar's own leading and
+ * trailing insets are 8px.
+ *
+ * Every selector is anchored on `#panel.lintel` rather than `.lintel`.
+ * Shell themes style the bar through `#panel .panel-button`, which outranks a
+ * class-only selector, so the class-only form silently lost its padding and
+ * icon metrics under any third-party theme. `!important` is used only for the
+ * three properties themes themselves mark important (panel height, button
+ * border, clock-label inset); everything else wins on specificity alone. */
+
+#panel.lintel .panel-button {
+    background-color: transparent;
+    border: 2px solid transparent !important;
+    border-radius: 99px;
+    transition-duration: 120ms;
+}
+
+#panel.lintel .panel-button:hover {
+    background-color: rgba(127, 127, 127, 0.12);
+}
+
+#panel.lintel .panel-button:active,
+#panel.lintel .panel-button:checked,
+#panel.lintel .panel-button:focus {
+    background-color: rgba(127, 127, 127, 0.20);
+}
+
+/* GNOME pads every status glyph by a further 6px + 4px margin (MacTahoe-style
+ * themes use 4px), on top of the button inset. Tahoe puts the whole gutter on
+ * the item, so zero the icon's own boxes and let -natural-hpadding own it. */
+#panel.lintel .panel-button .system-status-icon {
+    icon-size: 16px;
+    padding: 0;
+    margin: 0;
+}
+
+/* GNOME packs every Quick Settings glyph into ONE panel button, spaced 4px
+ * apart, so in native mode they collide while every other item in the bar sits
+ * ~20px from its neighbour (2 x the 10px button inset). No macOS reference
+ * exists for this — it has no combined indicator — so this is a judgement call:
+ * wide enough to read as separate glyphs, tighter than the gap between real
+ * items so the group still reads as one button. */
+#panel.lintel .panel-button .panel-status-indicators-box {
+    spacing: 12px;
+}
+
+/* Tahoe's leading/trailing screen inset: the Apple glyph's ink starts ~18px in
+ * (8px bar inset + 8px button inset + icon slack) and the clock ends ~17px
+ * from the right edge. */
+#panel.lintel #panelLeft {
+    padding-left: 8px;
+}
+
+#panel.lintel #panelRight {
+    padding-right: 8px;
+}
+
+/* Fixed-size, code-rendered Tahoe sliders glyph. Its paint color is inherited
+ * from the panel, so it remains visible on light, dark and wallpaper panels. */
+.lintel-control-center-icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* The clock is a plain label in Tahoe, but themes give `.clock` a pill of its
+ * own with a large !important inset (MacTahoe: 16px padding + 6px border),
+ * which pushes the time far away from the Control Center glyph. Reset it and
+ * let the button inset position the clock like every other status item. */
+#panel.lintel .panel-button .clock-display-box {
+    spacing: 6px;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#panel.lintel .panel-button .clock-display-box .clock {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 solid transparent !important;
+}
+
+/* Tabular figures. Adwaita Sans and Cantarell both ship proportional digits, so
+ * the stock clock changes width as the time ticks — measured at 13px, "11:11"
+ * is 24px wide against 36px for "00:00", shoving the whole trailing cluster
+ * sideways every minute. macOS never moves. */
+#panel.lintel .lintel-clock {
+    font-feature-settings: "tnum";
+}
+
+/* Tahoe's unread dot is a small solid circle, not a 16px glyph. */
+#panel.lintel .panel-button .clock-display-box .messages-indicator {
+    icon-size: 8px;
+}
+
+/* Only the application title is emphasised in the menu bar; every other item
+ * (menu titles, status text, clock) stays at the regular panel weight. The
+ * horizontal gutter belongs to the button, so the label adds none. */
+.lintel-active-app {
+    font-weight: 600;
+    padding: 0;
+}
+
+/* The logo reads a little larger than a status icon: ~13 x 15px of ink, against
+ * ~14px for a 16px symbolic status glyph. */
+.lintel-system-logo-icon {
+    icon-size: 17px;
+}
+
+/* The distributor logo is painted by hand (St.DrawingArea has no icon-size, so
+ * it needs explicit box dimensions) — see newLogoSilhouette() in systemMenu.js. */
+.lintel-system-logo-silhouette {
+    width: 17px;
+    height: 17px;
+}
+
+/* Emoji / symbol logo in the system menu (when the icon is a glyph, not an
+ * icon-theme name or file). Sized to sit like the default logo icon. */
+.lintel-system-logo-glyph {
+    font-size: 15px;
+    padding: 0 2px;
+}
+
+/* ── macOS Tahoe System Menu ──────────────────────────────────────────── */
+
+/* PopupMenu's BoxPointer and content actor live outside #panel, so both
+ * selectors carry their own lintel prefix.  The stock GNOME popup uses a
+ * 20px radius, 16px-ish icons and 9px vertical item padding; the Tahoe menu is
+ * a much denser 315px-wide material with ~14px icons and ~25px rows. */
+.lintel-system-menu {
+    min-width: 0;
+    color: #181a1e;
+    -arrow-background-color: transparent;
+    -arrow-border-color: transparent;
+    -arrow-border-width: 0;
+    -arrow-base: 0;
+    -arrow-rise: 0;
+    -boxpointer-gap: 4px;
+}
+
+.lintel-system-menu-content {
+    width: 304px;
+    padding: 7px 5px 1px 5px;
+    border-radius: 16px;
+    font-family: "Adwaita Sans";
+    font-size: 10.5pt;
+    font-weight: 400;
+    transition-duration: 120ms;
+}
+
+/* Fluid Glass Dark material (Default) */
+.lintel-system-menu-content,
+.lintel-system-menu-content.lintel-dark {
+    color: #ffffff;
+    background-color: rgba(22, 28, 38, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Fluid Glass Light material */
+.lintel-system-menu-content.lintel-light {
+    color: #181a1e;
+    background-color: rgba(244, 247, 252, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 10px 32px 0 rgba(0, 0, 0, 0.20);
+}
+
+.lintel-system-menu-content .popup-menu-item {
+    min-height: 19px;
+    padding: 3px 7px 3px 15px;
+    spacing: 9px;
+    color: inherit;
+    background-color: transparent;
+    border: 0 solid transparent;
+    border-radius: 6px;
+    box-shadow: none;
+    transition-duration: 80ms;
+}
+
+.lintel-system-menu-content .popup-menu-item:hover,
+.lintel-system-menu-content .popup-menu-item:selected,
+.lintel-system-menu-content .popup-menu-item:focus,
+.lintel-system-menu-content .popup-menu-item:active,
+.lintel-system-menu-content .popup-menu-item:checked {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.16);
+    border-radius: 6px;
+}
+
+.lintel-system-menu-content.lintel-light .popup-menu-item:hover,
+.lintel-system-menu-content.lintel-light .popup-menu-item:selected,
+.lintel-system-menu-content.lintel-light .popup-menu-item:focus,
+.lintel-system-menu-content.lintel-light .popup-menu-item:active,
+.lintel-system-menu-content.lintel-light .popup-menu-item:checked {
+    color: #111216;
+    background-color: rgba(54, 67, 82, 0.12);
+}
+
+.lintel-system-menu-content .popup-menu-item:active:hover,
+.lintel-system-menu-content .popup-menu-item:checked:hover {
+    background-color: rgba(255, 255, 255, 0.22);
+}
+
+.lintel-system-menu-content.lintel-light .popup-menu-item:active:hover,
+.lintel-system-menu-content.lintel-light .popup-menu-item:checked:hover {
+    background-color: rgba(54, 67, 82, 0.18);
+}
+
+.lintel-system-menu-content .popup-menu-item:insensitive {
+    color: rgba(255, 255, 255, 0.40);
+    background-color: transparent !important;
+}
+
+.lintel-system-menu-content.lintel-light .popup-menu-item:insensitive {
+    color: rgba(24, 26, 30, 0.42);
+}
+
+.lintel-system-menu-content .popup-menu-icon {
+    icon-size: 14px;
+    min-width: 14px;
+    color: rgba(255, 255, 255, 0.90);
+}
+
+.lintel-system-menu-content.lintel-light .popup-menu-icon {
+    color: rgba(34, 40, 47, 0.88);
+}
+
+.lintel-system-menu-content .popup-menu-arrow {
+    icon-size: 10px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.lintel-system-menu-content.lintel-light .popup-menu-arrow {
+    color: rgba(24, 28, 34, 0.88);
+}
+
+.lintel-system-menu-content .popup-separator-menu-item {
+    min-height: 0;
+    height: 12px;
+    padding: 0 11px;
+    background-color: transparent !important;
+    border-radius: 0;
+}
+
+.lintel-system-menu-content
+    .lintel-system-menu-about-separator {
+    height: 10px;
+}
+
+.lintel-system-menu-content .popup-separator-menu-item
+    .popup-separator-menu-item-separator {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.lintel-system-menu-content.lintel-light .popup-separator-menu-item
+    .popup-separator-menu-item-separator {
+    background-color: rgba(70, 82, 94, 0.19);
+}
+
+/* GNOME expands submenus in-place.  Keep the Recent Items disclosure visually
+ * continuous with the outer glass instead of exposing GNOME's opaque inset. */
+.lintel-system-menu-content .popup-sub-menu {
+    margin: 0 5px 3px 5px;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 0 solid transparent;
+    border-radius: 6px;
+}
+
+.lintel-system-menu-content.lintel-light .popup-sub-menu {
+    background-color: rgba(211, 223, 232, 0.46);
+}
+
+/* ── macOS Tahoe status menus ─────────────────────────────────────────── */
+
+.lintel-status-menu {
+    -arrow-background-color: transparent;
+    -arrow-border-color: transparent;
+    -arrow-border-width: 0;
+    -arrow-base: 0;
+    -arrow-rise: 0;
+}
+
+.lintel-system-menu-content.lintel-status-menu-content {
+    width: 280px;
+    padding: 7px 5px 5px 5px;
+}
+
+.lintel-status-menu-content .popup-menu-item {
+    min-height: 24px;
+    padding: 3px 10px;
+}
+
+.lintel-status-toggle {
+    font-weight: 600;
+}
+
+.lintel-status-section-title {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 8.25pt;
+    font-weight: 600;
+    padding-top: 7px;
+    padding-bottom: 2px;
+}
+
+.lintel-system-menu-content.lintel-light .lintel-status-section-title {
+    color: rgba(42, 49, 57, 0.62);
+}
+
+.lintel-status-empty {
+    color: rgba(255, 255, 255, 0.60);
+}
+
+.lintel-system-menu-content.lintel-light .lintel-status-empty {
+    color: rgba(42, 49, 57, 0.58);
+}
+
+.lintel-wifi-network-item {
+    spacing: 8px;
+}
+
+.lintel-wifi-secure-icon {
+    icon-size: 10px;
+    color: rgba(255, 255, 255, 0.60);
+}
+
+.lintel-system-menu-content.lintel-light .lintel-wifi-secure-icon {
+    color: rgba(42, 49, 57, 0.58);
+}
+
+.lintel-battery-indicator {
+    spacing: 3px;
+}
+
+.lintel-battery-percentage {
+    font-feature-settings: "tnum";
+}
+
+.lintel-status-menu-content .lintel-battery-summary {
+    spacing: 12px;
+    padding: 9px 11px 7px 11px;
+}
+
+.lintel-battery-summary-icon {
+    icon-size: 30px;
+    color: #ffffff;
+}
+
+.lintel-system-menu-content.lintel-light .lintel-battery-summary-icon {
+    color: rgba(22, 27, 32, 0.94);
+}
+
+.lintel-battery-summary-labels {
+    spacing: 0;
+}
+
+.lintel-battery-summary-percentage {
+    color: #ffffff;
+    font-size: 18pt;
+    font-weight: 650;
+    font-feature-settings: "tnum";
+}
+
+.lintel-system-menu-content.lintel-light .lintel-battery-summary-percentage {
+    color: rgba(22, 27, 32, 0.96);
+}
+
+.lintel-battery-summary-status {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 8.75pt;
+    font-weight: 600;
+}
+
+.lintel-system-menu-content.lintel-light .lintel-battery-summary-status {
+    color: rgba(42, 49, 57, 0.82);
+}
+
+.lintel-battery-summary-time,
+.lintel-status-menu-content .lintel-battery-source {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 8.25pt;
+}
+
+.lintel-system-menu-content.lintel-light .lintel-battery-summary-time,
+.lintel-system-menu-content.lintel-light .lintel-status-menu-content .lintel-battery-source {
+    color: rgba(42, 49, 57, 0.62);
+}
+
+/* ── macOS Tahoe Control Center ───────────────────────────────────────── */
+
+/* Remove the GNOME callout triangle. There is no backdrop blur: BoxPointer
+ * renders every popup into an offscreen framebuffer, so a BACKGROUND-mode blur
+ * has nothing behind it to sample, and the alternatives all mean compositing a
+ * copy of the screen (see docs/DESIGN_QA.md, Pass 8-12). The modules rely on their
+ * tint alone for contrast. */
+.lintel-cc-menu {
+    -arrow-background-color: transparent;
+    -arrow-border-color: transparent;
+    -arrow-border-width: 0;
+    -arrow-base: 0;
+    -arrow-rise: 0;
+}
+
+.lintel-cc-popup {
+    background-color: transparent;
+    border: 0 solid transparent;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+}
+
+/* Widths measured off docs/audits/tahoe-reference/26-Tahoe-Finder-Control-Center.png
+ * at 1pt = 2px, corroborated by four independent full-width modules (Display
+ * 293.0pt, Sound 292.5, Wi-Fi row 291.0, actions row 289.0): the module column
+ * is 292px wide, split into two 140px columns with a 12px gutter.
+ *
+ * `width` here is the CONTENT width — St adds `padding` outside it rather than
+ * inside, so this is the width the modules actually get, not a border box to
+ * subtract padding from. Measured on a render: width 308 produced 308.4px of
+ * module. 140 + 12 gutter + 140 = 292, so the grid columns fill it exactly. */
+.lintel-cc-content {
+    spacing: 8px;
+    padding: 8px;
+    width: 292px;
+}
+
+/* Module grid (src/widgets/ccGrid.js): four cells per row in two halves.
+ * 62 + 16 pair gap + 62 = 140 per half, 140 + 12 gutter + 140 = 292. The cell
+ * width is derived from the content width, so only the gaps are declared. */
+.lintel-cc-grid {
+    -lintel-grid-gutter: 12px;
+    -lintel-grid-pair-gap: 16px;
+    -lintel-grid-row-gap: 8px;
+}
+
+.lintel-cc-sliders {
+    spacing: 8px;
+}
+
+/* Connectivity and Focus capsules (Fluid Glass material). */
+.lintel-cc-tile {
+    min-height: 52px;
+    background-color: rgba(255, 255, 255, 0.22);
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    border-radius: 22px;
+    padding: 6px 10px;
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.16), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.70);
+    transition-duration: 160ms;
+}
+
+.lintel-cc-tile:hover {
+    background-color: rgba(255, 255, 255, 0.32);
+    border-color: rgba(255, 255, 255, 0.65);
+    box-shadow: 0 10px 28px 0 rgba(0, 0, 0, 0.20), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85);
+}
+
+.lintel-cc-tile:focus {
+    background-color: rgba(255, 255, 255, 0.30);
+    border-color: rgba(0, 122, 255, 0.90);
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.50);
+}
+
+.lintel-cc-tile:active {
+    background-color: rgba(255, 255, 255, 0.36);
+}
+
+/* An enabled toggle turns the WHOLE capsule electric blue with specular rim. */
+.lintel-cc-tile:checked {
+    background-color: #007aff !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+    box-shadow: 0 0 24px 0 rgba(0, 122, 255, 0.50), 0 8px 24px 0 rgba(0, 0, 0, 0.18), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85) !important;
+}
+
+.lintel-cc-tile:checked:hover {
+    background-color: #268aff !important;
+}
+
+.lintel-cc-tile-box {
+    spacing: 8px;
+}
+
+.lintel-cc-tile-icon {
+    icon-size: 16px;
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.24);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    padding: 7px;
+    transition-duration: 160ms;
+}
+
+/* Inside an active capsule the disc inverts: solid white fill, electric blue glyph. */
+.lintel-cc-tile-icon:checked {
+    color: #007aff !important;
+    background-color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.90) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.20);
+}
+
+.lintel-cc-tile-title,
+.lintel-cc-media-title,
+.lintel-cc-slider-title {
+    color: #ffffff;
+    font-family: "Adwaita Sans";
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.48);
+}
+
+.lintel-cc-tile-title {
+    font-size: 9.5pt;
+}
+
+.lintel-cc-tile-status {
+    color: rgba(255, 255, 255, 0.85);
+    font-family: "Adwaita Sans";
+    font-size: 8.25pt;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.48);
+}
+
+/* Artwork and metadata form one compact header; transport controls remain a
+ * separate, evenly distributed row like Tahoe's Now Playing module. */
+.lintel-cc-media {
+    height: 118px;
+    background-color: rgba(255, 255, 255, 0.22);
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    border-radius: 24px;
+    padding: 10px;
+    spacing: 8px;
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.16), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.70);
+}
+
+.lintel-cc-media-header {
+    spacing: 9px;
+}
+
+.lintel-cc-media-metadata {
+    spacing: 1px;
+}
+
+.lintel-cc-media-artwork {
+    icon-size: 24px;
+    width: 36px;
+    height: 36px;
+    background-color: rgba(255, 255, 255, 0.20);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.lintel-cc-media-title {
+    font-size: 9.25pt;
+}
+
+.lintel-cc-media-artist {
+    color: rgba(255, 255, 255, 0.88);
+    font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
+    font-size: 8pt;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
+}
+
+.lintel-cc-media-controls {
+    spacing: 3px;
+}
+
+.lintel-cc-media-control {
+    icon-size: 16px;
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.lintel-cc-media-button {
+    border-radius: 999px;
+    padding: 5px 7px;
+    transition-duration: 140ms;
+}
+
+.lintel-cc-media-play {
+    background-color: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.40);
+}
+
+.lintel-cc-media-button:hover {
+    background-color: rgba(255, 255, 255, 0.35);
+}
+
+.lintel-cc-media-button:focus {
+    background-color: rgba(0, 122, 255, 0.50);
+    box-shadow: 0 0 0 2px rgba(126, 190, 255, 0.78);
+}
+
+/* A control resized to one cell is a circle (Fluid Glass button). */
+.lintel-cc-tile.lintel-cc-tile-compact {
+    min-height: 0;
+    padding: 0;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.22);
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.14), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.70);
+}
+
+.lintel-cc-tile.lintel-cc-tile-compact:hover {
+    background-color: rgba(255, 255, 255, 0.32);
+    border-color: rgba(255, 255, 255, 0.65);
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.18), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85);
+}
+
+.lintel-cc-tile.lintel-cc-tile-compact:checked {
+    background-color: #007aff !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+    box-shadow: 0 0 24px 0 rgba(0, 122, 255, 0.50), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85) !important;
+}
+
+.lintel-cc-tile-compact .lintel-cc-tile-box {
+    spacing: 0;
+}
+
+.lintel-cc-tile-compact .lintel-cc-tile-icon,
+.lintel-cc-tile-compact .lintel-cc-tile-icon:checked {
+    icon-size: 22px;
+    padding: 0;
+    color: #ffffff !important;
+    background-color: transparent !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Labelled Display and Sound modules (Fluid Glass illuminated tracks). */
+.lintel-cc-slider {
+    min-height: 48px;
+    background-color: rgba(255, 255, 255, 0.22);
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    border-radius: 22px;
+    padding: 8px 10px 7px 10px;
+    spacing: 4px;
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.16), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.70);
+}
+
+.lintel-cc-slider:hover {
+    background-color: rgba(255, 255, 255, 0.28);
+    border-color: rgba(255, 255, 255, 0.60);
+}
+
+.lintel-cc-slider-title {
+    font-size: 9.25pt;
+}
+
+.lintel-cc-slider-row {
+    spacing: 7px;
+}
+
+.lintel-cc-slider-icon-button {
+    border-radius: 999px;
+    padding: 2px;
+    transition-duration: 140ms;
+}
+
+.lintel-cc-slider-icon-button:hover {
+    background-color: rgba(255, 255, 255, 0.20);
+}
+
+.lintel-cc-slider-icon-button:focus {
+    background-color: rgba(0, 122, 255, 0.50);
+    box-shadow: 0 0 0 2px rgba(126, 190, 255, 0.78);
+}
+
+.lintel-cc-slider-icon {
+    icon-size: 13px;
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.lintel-cc-slider-trailing-icon {
+    icon-size: 16px;
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.lintel-cc-track {
+    color: #ffffff;
+    height: 14px;
+    -barlevel-height: 8px;
+    -barlevel-background-color: rgba(255, 255, 255, 0.25);
+    -barlevel-active-background-color: #ffffff;
+    -barlevel-overdrive-color: #ffffff;
+    -barlevel-overdrive-separator-width: 0;
+    -barlevel-border-radius: 999px;
+    -slider-handle-radius: 8px;
+}
+
+/* Reference circles measure 61pt across; 62 keeps the pair on the 140px column. */
+
+.lintel-cc-edit-controls {
+    color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 999px;
+    padding: 5px 14px;
+    font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
+    font-size: 8.75pt;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
+    box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.16), inset 0 1px 1px 0 rgba(255, 255, 255, 0.65);
+    transition-duration: 160ms;
+}
+
+.lintel-cc-edit-controls:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.32);
+    border-color: rgba(255, 255, 255, 0.65);
+}
+
+.lintel-cc-edit-controls:focus {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.26);
+    border-color: rgba(0, 122, 255, 0.90);
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.50);
+}
+
+.lintel-cc-edit-controls.lintel-cc-edit-done {
+    color: #ffffff;
+    background-color: #007aff;
+    border-color: rgba(255, 255, 255, 0.38);
+    box-shadow: 0 0 18px 0 rgba(0, 122, 255, 0.45);
+    font-weight: 600;
+}
+
+/* ── Control Center Light Theme Variant ── */
+
+.lintel-cc-light .lintel-cc-tile {
+    background-color: rgba(255, 255, 255, 0.60);
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.10);
+}
+
+.lintel-cc-light .lintel-cc-tile:hover {
+    background-color: rgba(255, 255, 255, 0.78);
+    border-color: rgba(255, 255, 255, 0.98);
+}
+
+.lintel-cc-light .lintel-cc-tile-icon {
+    color: #1d1d1f;
+    background-color: rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+}
+
+.lintel-cc-light .lintel-cc-tile:checked .lintel-cc-tile-icon,
+.lintel-cc-light .lintel-cc-tile-icon:checked {
+    color: #007aff !important;
+    background-color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.90) !important;
+}
+
+.lintel-cc-light .lintel-cc-tile-title,
+.lintel-cc-light .lintel-cc-media-title,
+.lintel-cc-light .lintel-cc-slider-title {
+    color: #1d1d1f;
+    text-shadow: none;
+}
+
+.lintel-cc-light .lintel-cc-tile-status {
+    color: rgba(29, 29, 31, 0.70);
+    text-shadow: none;
+}
+
+.lintel-cc-light .lintel-cc-media {
+    background-color: rgba(255, 255, 255, 0.60);
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.10);
+}
+
+.lintel-cc-light .lintel-cc-media-artist {
+    color: rgba(29, 29, 31, 0.70);
+    text-shadow: none;
+}
+
+.lintel-cc-light .lintel-cc-media-button {
+    color: #1d1d1f;
+    background-color: rgba(0, 0, 0, 0.06);
+    border-color: rgba(255, 255, 255, 0.70);
+}
+
+.lintel-cc-light .lintel-cc-media-button:hover {
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
+.lintel-cc-light .lintel-cc-slider {
+    background-color: rgba(255, 255, 255, 0.60);
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.10);
+}
+
+.lintel-cc-light .lintel-cc-slider-icon {
+    color: #1d1d1f;
+}
+
+.lintel-cc-light .lintel-cc-slider-trailing-icon {
+    color: rgba(29, 29, 31, 0.65);
+}
+
+.lintel-cc-light .lintel-cc-track {
+    -barlevel-background-color: rgba(0, 0, 0, 0.12);
+    -barlevel-active-background-color: #007aff;
+}
+
+.lintel-cc-light .lintel-cc-edit-controls {
+    color: rgba(29, 29, 31, 0.80);
+    background-color: rgba(255, 255, 255, 0.60);
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    text-shadow: none;
+}
+
+/* Edit mode. Tahoe edits in place: a remove badge on every control's top-left
+ * corner, the popup otherwise unchanged. Selecting a control (the shield over
+ * it takes the click so the control itself is not operated) opens a toolbar to
+ * move or resize it; removed controls wait in the gallery below. */
+.lintel-cc-slot-shield {
+    border: 2px solid transparent;
+    border-radius: 22px;
+    transition-duration: 120ms;
+}
+
+.lintel-cc-slot-shield.lintel-cc-shape-small {
+    border-radius: 999px;
+}
+
+.lintel-cc-slot-shield.lintel-cc-shape-large {
+    border-radius: 24px;
+}
+
+.lintel-cc-slot-shield:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.lintel-cc-slot-shield:checked,
+.lintel-cc-slot-shield:focus {
+    border-color: #0a84ff;
+}
+
+.lintel-cc-slot-remove {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    color: #1d1d1f;
+    background-color: rgba(236, 236, 240, 0.97);
+    border-radius: 999px;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+.lintel-cc-slot-remove StIcon {
+    icon-size: 10px;
+}
+
+.lintel-cc-edit-toolbar,
+.lintel-cc-gallery {
+    background-color: rgba(35, 41, 48, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 22px;
+    box-shadow: 0 7px 20px 0 rgba(0, 0, 0, 0.18);
+}
+
+.lintel-cc-edit-toolbar {
+    padding: 6px 6px 6px 14px;
+    spacing: 4px;
+}
+
+.lintel-cc-edit-toolbar-title,
+.lintel-cc-gallery-title,
+.lintel-cc-gallery-item {
+    color: #ffffff;
+    font-family: "Adwaita Sans";
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.48);
+}
+
+.lintel-cc-edit-toolbar-title {
+    font-size: 9.25pt;
+    font-weight: 600;
+}
+
+.lintel-cc-edit-tool {
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    font-size: 8.25pt;
+    font-weight: 600;
+    transition-duration: 100ms;
+}
+
+.lintel-cc-edit-tool:hover,
+.lintel-cc-edit-tool:focus {
+    background-color: rgba(255, 255, 255, 0.24);
+}
+
+.lintel-cc-edit-tool:insensitive {
+    color: rgba(255, 255, 255, 0.35);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.lintel-cc-edit-tool StIcon {
+    icon-size: 12px;
+}
+
+.lintel-cc-gallery {
+    padding: 8px;
+    spacing: 2px;
+}
+
+.lintel-cc-gallery-title {
+    padding: 0 6px 4px 6px;
+    font-size: 9.25pt;
+    font-weight: 600;
+}
+
+.lintel-cc-gallery-item {
+    padding: 5px 6px;
+    border-radius: 14px;
+    font-size: 9pt;
+    transition-duration: 100ms;
+}
+
+.lintel-cc-gallery-item:hover,
+.lintel-cc-gallery-item:focus {
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.lintel-cc-gallery-item-box {
+    spacing: 10px;
+}
+
+.lintel-cc-gallery-icon {
+    icon-size: 16px;
+}
+
+.lintel-cc-gallery-add {
+    icon-size: 10px;
+    padding: 4px;
+    color: #ffffff;
+    background-color: #30d158;
+    border-radius: 999px;
+}
+
+/* ── macOS Tahoe Notification Center ───────────────────────────────────
+ *
+ * Measured off docs/audits/tahoe-reference/26-Tahoe-Notification-Center.png at
+ * 1pt = 2px, and 1pt == 1 logical px here. Type sizes are written in pt because
+ * St converts at 96 dpi: 13px of macOS type is 9.75pt.
+ *
+ *   column 345, right inset 15, gap between cards 15 (between stacked
+ *   notifications 8), notification radius 18, widget radius 24, app icon 32,
+ *   title/body 13px, heading 18px bold, clear button a 20px circle,
+ *   small widget 165 square (two per row), medium 345 x 165, large 345 x 345.
+ *
+ * The column has no plate of its own; every card owns its material, with the
+ * wallpaper visible in the gaps. Message rules are anchored on
+ * #lintelNotificationCenter: GNOME's theme styles messages through selectors
+ * like `.message .message-box .message-icon` and `.message-view .message
+ * { margin-bottom: 12px !important }`, which outrank any two-class selector.
+ * The previous `.lintel-notification-center .message-icon` rules lost to them
+ * silently — 48px icons, 12px gaps and identical cards in a collapsed stack.
+ *
+ * Material tint, like the Control Center's: there is no backdrop blur, so the
+ * plate alone carries contrast. Dark plates are rgba(30,32,36,0.76): white text
+ * over a WHITE wallpaper still reaches 7.5:1, and 70% secondary text 4.6:1. */
+
+.lintel-notification-center {
+    spacing: 8px;
+    font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
+    font-size: 9.75pt;
+}
+
+.lintel-nc-column-scroll {
+    padding: 0;
+    -st-vfade-offset: 22px;
+}
+
+/* Heading and clear button sit directly on the wallpaper in both appearances. */
+.lintel-nc-header {
+    min-height: 24px;
+    padding: 0 0 0 2px;
+    spacing: 8px;
+}
+
+.lintel-nc-heading {
+    color: #ffffff;
+    font-size: 13.5pt;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.lintel-nc-clear-button {
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition-duration: 120ms;
+}
+
+.lintel-nc-clear-button StIcon {
+    icon-size: 10px;
+}
+
+.lintel-nc-dark .lintel-nc-clear-button {
+    color: rgba(255, 255, 255, 0.95);
+    background-color: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
+}
+
+.lintel-nc-light .lintel-nc-clear-button {
+    color: rgba(29, 29, 31, 0.85);
+    background-color: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.08);
+}
+
+.lintel-nc-dark .lintel-nc-clear-button:hover {
+    background-color: rgba(255, 255, 255, 0.24);
+    border-color: rgba(255, 255, 255, 0.36);
+}
+
+.lintel-nc-light .lintel-nc-clear-button:hover {
+    background-color: rgba(255, 255, 255, 0.90);
+    border-color: rgba(255, 255, 255, 0.98);
+}
+
+.lintel-nc-clear-button:focus {
+    border-color: rgba(10, 132, 255, 0.90);
+}
+
+.lintel-nc-notifications {
+    padding: 0;
+    margin: 0;
+    -st-vfade-offset: 24px;
+}
+
+/* MessageView normally lives inside the opaque date menu and reserves space
+ * for that menu's scrollbar and border. */
+#lintelNotificationCenter .message-list,
+#lintelNotificationCenter .message-view {
+    width: 345px;
+    padding: 0;
+    margin: 0;
+    border-width: 0;
+    -st-vfade-offset: 24px;
+}
+
+#lintelNotificationCenter .message-notification-group {
+    spacing: 8px;
+}
+
+/* ── Notification cards ── */
+
+#lintelNotificationCenter .message {
+    margin: 0 0 8px 0 !important;
+    padding: 9px 10px 12px 12px;
+    border-radius: 18px;
+    border-width: 1px;
+    border-style: solid;
+    transition-duration: 140ms;
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message {
+    color: rgba(255, 255, 255, 0.96);
+    background-color: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.20);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message {
+    color: #1d1d1f;
+    background-color: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.90);
+    border-radius: 20px;
+    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.08);
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message:hover {
+    background-color: rgba(255, 255, 255, 0.20);
+    border-color: rgba(255, 255, 255, 0.32);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message:hover {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-color: rgba(255, 255, 255, 0.98);
+}
+
+#lintelNotificationCenter .message:focus {
+    border-color: rgba(0, 122, 255, 0.85);
+}
+
+/* A collapsed group shows the next cards peeking out underneath; they must
+ * read as further back, not as copies of the front card. */
+#lintelNotificationCenter.lintel-nc-dark .message:second-in-stack {
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.15);
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message:lower-in-stack {
+    background-color: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.12);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message:second-in-stack {
+    background-color: rgba(245, 247, 250, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.06);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message:lower-in-stack {
+    background-color: rgba(235, 238, 242, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.60);
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message.lintel-nc-collapsed-stack-front {
+    background-color: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message.lintel-nc-collapsed-stack-front:hover {
+    background-color: rgba(255, 255, 255, 0.22);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message.lintel-nc-collapsed-stack-front {
+    background-color: rgba(255, 255, 255, 0.70);
+    border: 1px solid rgba(255, 255, 255, 0.90);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message.lintel-nc-collapsed-stack-front:hover {
+    background-color: rgba(255, 255, 255, 0.90);
+}
+
+#lintelNotificationCenter .message .message-header {
+    padding: 0 0 0 2px;
+    spacing: 6px;
+}
+
+#lintelNotificationCenter .message .message-header .message-source-icon {
+    icon-size: 14px;
+}
+
+#lintelNotificationCenter .message .message-header .message-header-content {
+    min-height: 20px;
+    padding-bottom: 0;
+    spacing: 6px;
+    font-size: 8.25pt;
+}
+
+#lintelNotificationCenter .message .message-header .message-source-title {
+    font-weight: 600;
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message .message-header,
+#lintelNotificationCenter.lintel-nc-dark .message .message-header .event-time {
+    color: rgba(255, 255, 255, 0.70);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message .message-header,
+#lintelNotificationCenter.lintel-nc-light .message .message-header .event-time {
+    color: rgba(29, 29, 31, 0.58);
+}
+
+#lintelNotificationCenter .message .message-header .message-expand-button,
+#lintelNotificationCenter .message .message-header .message-close-button,
+#lintelNotificationCenter .message-notification-group .message-collapse-button {
+    min-height: 0;
+    padding: 4px !important;
+    margin: 0;
+    border: 0 solid transparent;
+    border-radius: 999px;
+    box-shadow: none;
+}
+
+#lintelNotificationCenter .message .message-header .message-expand-button StIcon,
+#lintelNotificationCenter .message .message-header .message-close-button StIcon,
+#lintelNotificationCenter .message-notification-group .message-collapse-button StIcon {
+    icon-size: 10px;
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button,
+#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button {
+    color: rgba(255, 255, 255, 0.82);
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button,
+#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button {
+    color: rgba(29, 29, 31, 0.70);
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button:hover,
+#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button:hover {
+    background-color: rgba(255, 255, 255, 0.20);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button:hover,
+#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button:hover {
+    background-color: rgba(0, 0, 0, 0.11);
+}
+
+#lintelNotificationCenter .message .message-box {
+    padding: 4px 0 0 0;
+    margin: 0;
+    spacing: 10px;
+}
+
+#lintelNotificationCenter .message .message-box:first-child {
+    margin-top: 0;
+}
+
+#lintelNotificationCenter .message .message-box .message-icon {
+    icon-size: 32px;
+    margin: 0;
+}
+
+#lintelNotificationCenter .message .message-box .message-icon.message-themed-icon {
+    icon-size: 16px;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 9px;
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message .message-box .message-icon.message-themed-icon {
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message .message-box .message-icon.message-themed-icon {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+#lintelNotificationCenter .message .message-box .message-content {
+    spacing: 1px;
+}
+
+#lintelNotificationCenter .message .message-box .message-content .message-title {
+    font-size: 9.75pt;
+    font-weight: 600;
+}
+
+#lintelNotificationCenter .message .message-body {
+    font-size: 9.75pt;
+}
+
+#lintelNotificationCenter.lintel-nc-dark .message .message-body {
+    color: rgba(255, 255, 255, 0.86);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message .message-body {
+    color: rgba(29, 29, 31, 0.86);
+}
+
+#lintelNotificationCenter .message .message-action-bin {
+    padding: 8px 0 0 0;
+    spacing: 6px;
+}
+
+#lintelNotificationCenter .notification-button {
+    min-height: 24px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 8.75pt;
+    font-weight: 600;
+}
+
+#lintelNotificationCenter.lintel-nc-dark .notification-button {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+#lintelNotificationCenter.lintel-nc-light .notification-button {
+    color: #1d1d1f;
+    background-color: rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.75);
+}
+
+#lintelNotificationCenter .notification-button:hover,
+#lintelNotificationCenter .notification-button:focus {
+    color: #ffffff;
+    background-color: #007aff;
+    border-color: rgba(255, 255, 255, 0.38);
+}
+
+/* An expanded group's title and collapse button sit on the wallpaper. */
+#lintelNotificationCenter .message-notification-group .message-group-header {
+    padding: 0 2px 2px 2px;
+}
+
+#lintelNotificationCenter .message-notification-group .message-group-header .message-group-title {
+    margin: 0;
+    color: #ffffff;
+    font-size: 11.25pt;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+#lintelNotificationCenter .message-notification-group .message-collapse-button {
+    color: rgba(255, 255, 255, 0.90);
+    background-color: rgba(58, 62, 68, 0.78);
+}
+
+/* ── Widgets ──
+ *
+ * St's `height` is the CONTENT height; padding and the 1px border are added
+ * outside it (see docs/DESIGN_QA.md, Pass 5). 165 = 135 + 2 x 14 + 2 x 1. */
+
+.lintel-nc-widgets {
+    spacing: 15px;
+}
+
+.lintel-nc-widget-pair {
+    spacing: 15px;
+}
+
+.lintel-nc-slot-small {
+    width: 165px;
+}
+
+.lintel-nc-widget-card {
+    padding: 14px 16px;
+    border-radius: 24px;
+    border-width: 1px;
+    border-style: solid;
+    transition-duration: 140ms;
+}
+
+.lintel-nc-widget-small,
+.lintel-nc-widget-medium {
+    height: 135px;
+}
+
+.lintel-nc-widget-large {
+    height: 315px;
+}
+
+.lintel-nc-dark .lintel-nc-widget-card,
+.lintel-nc-dark .lintel-nc-widget-gallery {
+    color: rgba(255, 255, 255, 0.96);
+    background-color: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.20);
+}
+
+.lintel-nc-light .lintel-nc-widget-card,
+.lintel-nc-light .lintel-nc-widget-gallery {
+    color: #1d1d1f;
+    background-color: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.90);
+    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.08);
+}
+
+.lintel-nc-widget-card:hover {
+    border-color: rgba(255, 255, 255, 0.38);
+}
+
+.lintel-nc-dark .lintel-nc-widget-card:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+.lintel-nc-light .lintel-nc-widget-card:hover {
+    background-color: rgba(255, 255, 255, 0.85);
+}
+
+.lintel-nc-widget-card:focus {
+    border-color: rgba(0, 122, 255, 0.85);
+}
+
+.lintel-nc-widget-title {
+    font-size: 10.5pt;
+    font-weight: 700;
+}
+
+.lintel-nc-widget-subtitle {
+    font-size: 8.75pt;
+    font-weight: 500;
+}
+
+.lintel-nc-dark .lintel-nc-widget-subtitle,
+.lintel-nc-dark .lintel-nc-calendar-weekday,
+.lintel-nc-dark .lintel-nc-calendar-year,
+.lintel-nc-dark .lintel-nc-forecast-time {
+    color: rgba(255, 255, 255, 0.70);
+}
+
+.lintel-nc-light .lintel-nc-widget-subtitle,
+.lintel-nc-light .lintel-nc-calendar-weekday,
+.lintel-nc-light .lintel-nc-calendar-year,
+.lintel-nc-light .lintel-nc-forecast-time {
+    color: rgba(29, 29, 31, 0.58);
+}
+
+/* Calendar — the small layout follows Tahoe's desktop calendar widget: red
+ * month caps, single-letter weekdays, dimmed weekends, a red disc for today. */
+
+.lintel-nc-widget-small.lintel-nc-calendar-widget {
+    padding: 11px 12px;
+    height: 141px;
+}
+
+.lintel-nc-calendar-month {
+    font-size: 8.25pt;
+    font-weight: 700;
+}
+
+.lintel-nc-dark .lintel-nc-calendar-month {
+    color: #ff453a;
+}
+
+.lintel-nc-light .lintel-nc-calendar-month {
+    color: #e0382e;
+}
+
+.lintel-nc-calendar-year {
+    font-size: 8.25pt;
+    font-weight: 700;
+}
+
+.lintel-nc-calendar-split {
+    spacing: 12px;
+}
+
+.lintel-nc-calendar-big-day {
+    font-size: 30pt;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-calendar-grid {
+    margin-top: 3px;
+}
+
+.lintel-nc-widget-medium .lintel-nc-calendar-grid {
+    width: 140px;
+    margin-top: 8px;
+}
+
+.lintel-nc-calendar-cell {
+    height: 17px;
+}
+
+.lintel-nc-calendar-weekday {
+    font-size: 7.25pt;
+    font-weight: 700;
+}
+
+.lintel-nc-calendar-day {
+    width: 17px;
+    height: 17px;
+    border-radius: 999px;
+}
+
+.lintel-nc-calendar-day-number {
+    font-size: 8pt;
+    font-weight: 600;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-dark .lintel-nc-calendar-day-number.lintel-nc-calendar-weekend,
+.lintel-nc-dark .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend {
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.lintel-nc-light .lintel-nc-calendar-day-number.lintel-nc-calendar-weekend,
+.lintel-nc-light .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend {
+    color: rgba(29, 29, 31, 0.40);
+}
+
+.lintel-nc-calendar-today {
+    background-color: #ff3b30;
+}
+
+.lintel-nc-calendar-today .lintel-nc-calendar-day-number {
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.lintel-nc-widget-large .lintel-nc-calendar-month,
+.lintel-nc-widget-large .lintel-nc-calendar-year {
+    font-size: 10.5pt;
+}
+
+.lintel-nc-widget-large .lintel-nc-calendar-grid {
+    margin-top: 8px;
+}
+
+.lintel-nc-widget-large .lintel-nc-calendar-cell {
+    height: 40px;
+}
+
+.lintel-nc-widget-large .lintel-nc-calendar-weekday {
+    font-size: 8.25pt;
+}
+
+.lintel-nc-widget-large .lintel-nc-calendar-day {
+    width: 32px;
+    height: 32px;
+}
+
+.lintel-nc-widget-large .lintel-nc-calendar-day-number {
+    font-size: 10.5pt;
+}
+
+/* Weather — Tahoe paints the sky behind the forecast. The clear-day gradient
+ * is sampled from the reference widget: #2d5285 at the top, #5e81ae below. */
+
+.lintel-nc-weather-location {
+    font-size: 11.25pt;
+    font-weight: 700;
+}
+
+.lintel-nc-weather-temperature {
+    font-size: 31pt;
+    font-weight: 300;
+}
+
+.lintel-nc-widget-large .lintel-nc-weather-temperature {
+    font-size: 42pt;
+}
+
+.lintel-nc-weather-icon {
+    icon-size: 18px;
+}
+
+.lintel-nc-widget-small .lintel-nc-weather-icon {
+    margin-bottom: 3px;
+}
+
+.lintel-nc-weather-conditions {
+    font-size: 9pt;
+    font-weight: 600;
+}
+
+.lintel-nc-forecast {
+    spacing: 4px;
+}
+
+.lintel-nc-forecast-time {
+    font-size: 8.25pt;
+    font-weight: 600;
+}
+
+.lintel-nc-forecast-icon {
+    icon-size: 18px;
+}
+
+.lintel-nc-forecast-temperature {
+    font-size: 9.75pt;
+    font-weight: 600;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-weather-sunny {
+    color: #ffd60a;
+}
+
+.lintel-nc-weather-placeholder {
+    spacing: 2px;
+}
+
+.lintel-nc-weather-placeholder-icon {
+    icon-size: 28px;
+    margin-bottom: 6px;
+}
+
+.lintel-notification-center .lintel-nc-weather-clear,
+.lintel-notification-center .lintel-nc-weather-night,
+.lintel-notification-center .lintel-nc-weather-cloudy {
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.22);
+    background-gradient-direction: vertical;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
+}
+
+.lintel-notification-center .lintel-nc-weather-clear {
+    background-gradient-start: #2d5285;
+    background-gradient-end: #5e81ae;
+}
+
+.lintel-notification-center .lintel-nc-weather-night {
+    background-gradient-start: #0c1830;
+    background-gradient-end: #2c3d60;
+}
+
+.lintel-notification-center .lintel-nc-weather-cloudy {
+    background-gradient-start: #46525f;
+    background-gradient-end: #7a8896;
+}
+
+.lintel-nc-weather-clear .lintel-nc-forecast-time,
+.lintel-nc-weather-night .lintel-nc-forecast-time,
+.lintel-nc-weather-cloudy .lintel-nc-forecast-time {
+    color: rgba(255, 255, 255, 0.80);
+}
+
+/* Batteries — Tahoe's ring gauge. The ring is painted in RingGauge's Cairo
+ * code, which reads these colours back through lookup_color(). */
+
+.lintel-nc-battery-ring {
+    width: 64px;
+    height: 64px;
+    -lintel-ring-fill: #30d158;
+    -lintel-ring-low: #ff453a;
+    -lintel-ring-track: rgba(255, 255, 255, 0.16);
+}
+
+.lintel-nc-light .lintel-nc-battery-ring {
+    -lintel-ring-fill: #28b446;
+    -lintel-ring-track: rgba(0, 0, 0, 0.10);
+}
+
+.lintel-nc-widget-medium .lintel-nc-battery-ring {
+    width: 100px;
+    height: 100px;
+}
+
+.lintel-nc-widget-large .lintel-nc-battery-ring {
+    width: 150px;
+    height: 150px;
+}
+
+.lintel-nc-battery-device {
+    icon-size: 24px;
+}
+
+.lintel-nc-widget-medium .lintel-nc-battery-device {
+    icon-size: 34px;
+}
+
+.lintel-nc-widget-large .lintel-nc-battery-device {
+    icon-size: 52px;
+}
+
+.lintel-nc-battery-row {
+    spacing: 18px;
+}
+
+.lintel-nc-battery-percentage {
+    font-size: 20pt;
+    font-weight: 600;
+    font-feature-settings: "tnum";
+}
+
+/* Clock — an analogue face, like Tahoe's Clock widget. */
+
+.lintel-nc-clock-face {
+    width: 128px;
+    height: 128px;
+    -lintel-clock-second: #ff9f0a;
+    -lintel-clock-face: rgba(0, 0, 0, 0.45);
+    -lintel-clock-tick: #ffffff;
+    -lintel-clock-hand: #ffffff;
+}
+
+.lintel-nc-light .lintel-nc-clock-face {
+    -lintel-clock-face: #ffffff;
+    -lintel-clock-tick: #1d1d1f;
+    -lintel-clock-hand: #1d1d1f;
+}
+
+.lintel-nc-widget-medium .lintel-nc-clock-face {
+    width: 124px;
+    height: 124px;
+}
+
+.lintel-nc-widget-large .lintel-nc-clock-face {
+    width: 230px;
+    height: 230px;
+}
+
+.lintel-nc-clock-row {
+    spacing: 18px;
+}
+
+.lintel-nc-clock-time {
+    font-size: 30pt;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+}
+
+/* Now Playing reuses CCMediaCard as content, so its own Control Center plate
+ * must not become a second card inside this one. */
+.lintel-nc-media-content {
+    spacing: 10px;
+}
+
+.lintel-nc-media-widget .lintel-cc-media-artwork {
+    width: 52px;
+    height: 52px;
+    icon-size: 26px;
+    border-radius: 12px;
+}
+
+.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-title,
+.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-artist,
+.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-control {
+    color: #1d1d1f;
+    text-shadow: none;
+}
+
+/* ── Editing ── controls float over the widget instead of shifting the column. */
+
+.lintel-nc-widget-edit-bar {
+    padding: 8px;
+}
+
+.lintel-nc-widget-remove {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    color: #1d1d1f;
+    background-color: rgba(236, 236, 240, 0.97);
+    border-radius: 999px;
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.30);
+}
+
+.lintel-nc-widget-remove:hover,
+.lintel-nc-widget-remove:focus {
+    color: #ffffff;
+    background-color: #ff453a;
+}
+
+.lintel-nc-widget-remove StIcon {
+    icon-size: 12px;
+}
+
+.lintel-nc-widget-edit-pill {
+    padding: 2px;
+    spacing: 2px;
+    background-color: rgba(20, 22, 26, 0.80);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.25);
+}
+
+.lintel-nc-widget-edit-control,
+.lintel-nc-widget-size-control {
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    color: #ffffff;
+    border-radius: 999px;
+    transition-duration: 100ms;
+}
+
+.lintel-nc-widget-edit-control:hover,
+.lintel-nc-widget-edit-control:focus {
+    background-color: rgba(255, 255, 255, 0.20);
+}
+
+.lintel-nc-widget-edit-control StIcon {
+    icon-size: 11px;
+}
+
+.lintel-nc-widget-size-control {
+    background-color: #0a84ff;
+    font-size: 7.5pt;
+    font-weight: 700;
+}
+
+.lintel-nc-widget-size-control:hover,
+.lintel-nc-widget-size-control:focus {
+    background-color: #2b95ff;
+}
+
+.lintel-nc-widget-placeholder {
+    font-weight: 600;
+}
+
+.lintel-nc-dark .lintel-nc-widget-placeholder {
+    color: rgba(255, 255, 255, 0.60);
+    background-color: rgba(30, 32, 36, 0.50);
+}
+
+.lintel-nc-light .lintel-nc-widget-placeholder {
+    color: rgba(29, 29, 31, 0.55);
+    background-color: rgba(246, 248, 250, 0.55);
+}
+
+.lintel-nc-widget-gallery {
+    padding: 12px;
+    spacing: 2px;
+    border-radius: 24px;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.lintel-nc-gallery-title {
+    padding: 0 4px 6px 4px;
+    font-size: 10.5pt;
+    font-weight: 700;
+}
+
+.lintel-nc-gallery-item {
+    padding: 6px 8px;
+    border-radius: 10px;
+    transition-duration: 100ms;
+}
+
+.lintel-nc-gallery-item-box {
+    spacing: 10px;
+}
+
+.lintel-nc-dark .lintel-nc-gallery-item:hover,
+.lintel-nc-dark .lintel-nc-gallery-item:focus {
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+.lintel-nc-light .lintel-nc-gallery-item:hover,
+.lintel-nc-light .lintel-nc-gallery-item:focus {
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+.lintel-nc-gallery-add {
+    icon-size: 12px;
+    padding: 4px;
+    color: #ffffff;
+    background-color: #30d158;
+    border-radius: 999px;
+}
+
+/* "Edit Widgets" is a small tinted-glass pill on the wallpaper, 22pt tall with
+ * 11px type in the reference — a quiet control, not a primary button. Its
+ * minimum height must come from the label: forcing min-height to zero lets an
+ * overflowing BoxLayout squash the whole button down to its 8px of chrome. */
+.lintel-nc-edit-button {
+    margin-top: 8px;
+    padding: 3px 12px;
+    color: rgba(255, 255, 255, 0.90);
+    background-color: rgba(40, 44, 50, 0.58);
+    border: 1px solid rgba(255, 255, 255, 0.20);
+    border-radius: 999px;
+    font-size: 8.25pt;
+    font-weight: 500;
+    transition-duration: 120ms;
+}
+
+.lintel-nc-edit-button:hover {
+    background-color: rgba(60, 64, 72, 0.76);
+}
+
+.lintel-nc-edit-button:focus {
+    border-color: rgba(10, 132, 255, 0.90);
+}
+
+.lintel-nc-edit-button.lintel-nc-edit-done {
+    color: #ffffff;
+    background-color: #0a84ff;
+    border-color: rgba(255, 255, 255, 0.30);
+    font-weight: 600;
+}
+
+/* Up Next — Tahoe's calendar widget: red weekday and day number, then the
+ * coming events, each marked by a calendar-coloured bar. */
+
+.lintel-nc-upnext-stack {
+    spacing: 8px;
+}
+
+.lintel-nc-upnext-split {
+    spacing: 16px;
+}
+
+.lintel-nc-upnext-split .lintel-nc-upnext-header {
+    width: 92px;
+}
+
+.lintel-nc-upnext-widget.lintel-nc-widget-small .lintel-nc-calendar-big-day {
+    font-size: 22pt;
+}
+
+.lintel-nc-upnext-list {
+    spacing: 6px;
+}
+
+.lintel-nc-event {
+    spacing: 8px;
+}
+
+.lintel-nc-event-bar {
+    width: 3px;
+    border-radius: 2px;
+    background-color: #ff453a;
+}
+
+.lintel-nc-light .lintel-nc-event-bar {
+    background-color: #e0382e;
+}
+
+.lintel-nc-event-title {
+    font-size: 9pt;
+    font-weight: 600;
+}
+
+.lintel-nc-event-time,
+.lintel-nc-upnext-empty {
+    font-size: 8.25pt;
+}
+
+.lintel-nc-upnext-section {
+    margin-top: 2px;
+    font-size: 8.25pt;
+    font-weight: 700;
+}
+
+.lintel-nc-dark .lintel-nc-event-time,
+.lintel-nc-dark .lintel-nc-upnext-empty,
+.lintel-nc-dark .lintel-nc-upnext-section,
+.lintel-nc-dark .lintel-nc-screentime-title,
+.lintel-nc-dark .lintel-nc-screentime-message,
+.lintel-nc-dark .lintel-nc-chart-axis-label {
+    color: rgba(255, 255, 255, 0.70);
+}
+
+.lintel-nc-light .lintel-nc-event-time,
+.lintel-nc-light .lintel-nc-upnext-empty,
+.lintel-nc-light .lintel-nc-upnext-section,
+.lintel-nc-light .lintel-nc-screentime-title,
+.lintel-nc-light .lintel-nc-screentime-message,
+.lintel-nc-light .lintel-nc-chart-axis-label {
+    color: rgba(29, 29, 31, 0.58);
+}
+
+/* Screen Time — today's total, a week of daily bars with a dashed line at the
+ * daily average and, on large, today hour by hour. Bars and meter are painted
+ * in Cairo from the -lintel-* colours below. */
+
+.lintel-nc-screentime-stack {
+    spacing: 4px;
+}
+
+.lintel-nc-screentime-split {
+    spacing: 16px;
+}
+
+.lintel-nc-screentime-summary {
+    width: 118px;
+    spacing: 4px;
+}
+
+.lintel-nc-screentime-title {
+    font-size: 8.25pt;
+    font-weight: 700;
+}
+
+.lintel-nc-screentime-total {
+    font-size: 20pt;
+    font-weight: 600;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-widget-large .lintel-nc-screentime-total {
+    font-size: 26pt;
+}
+
+.lintel-nc-screentime-message {
+    font-size: 8.75pt;
+    font-weight: 500;
+}
+
+.lintel-nc-chart {
+    spacing: 3px;
+}
+
+.lintel-nc-bar-chart {
+    -lintel-bar-fill: rgba(10, 132, 255, 0.55);
+    -lintel-bar-highlight: #0a84ff;
+    -lintel-bar-reference: rgba(255, 255, 255, 0.55);
+    -lintel-bar-baseline: rgba(255, 255, 255, 0.14);
+}
+
+.lintel-nc-light .lintel-nc-bar-chart {
+    -lintel-bar-fill: rgba(0, 122, 255, 0.45);
+    -lintel-bar-highlight: #007aff;
+    -lintel-bar-reference: rgba(0, 0, 0, 0.40);
+    -lintel-bar-baseline: rgba(0, 0, 0, 0.10);
+}
+
+.lintel-nc-week-chart {
+    height: 44px;
+}
+
+.lintel-nc-widget-large .lintel-nc-week-chart,
+.lintel-nc-hour-chart {
+    height: 80px;
+}
+
+.lintel-nc-chart-axis-label {
+    font-size: 7.25pt;
+    font-weight: 600;
+}
+
+.lintel-nc-limit-meter {
+    height: 5px;
+    margin: 2px 0;
+    -lintel-meter-fill: #30d158;
+    -lintel-meter-over: #ff9f0a;
+    -lintel-meter-track: rgba(255, 255, 255, 0.16);
+}
+
+.lintel-nc-light .lintel-nc-limit-meter {
+    -lintel-meter-fill: #28b446;
+    -lintel-meter-track: rgba(0, 0, 0, 0.10);
+}
+
+/* System — processor, memory, storage and temperature as ring gauges (the
+ * RingGauge Batteries uses), network rates and, on large, two minutes of
+ * processor and network history. A gauge turns red at 90% or 90 °C. */
+
+.lintel-nc-ring {
+    -lintel-ring-low: #ff453a;
+    -lintel-ring-track: rgba(255, 255, 255, 0.16);
+}
+
+.lintel-nc-light .lintel-nc-ring {
+    -lintel-ring-low: #e0382e;
+    -lintel-ring-track: rgba(0, 0, 0, 0.10);
+}
+
+.lintel-nc-system-ring {
+    width: 44px;
+    height: 44px;
+}
+
+.lintel-nc-widget-medium .lintel-nc-system-ring {
+    width: 70px;
+    height: 70px;
+}
+
+.lintel-nc-widget-large .lintel-nc-system-ring {
+    width: 64px;
+    height: 64px;
+}
+
+.lintel-nc-ring-cpu {
+    -lintel-ring-fill: #0a84ff;
+}
+
+.lintel-nc-ring-memory {
+    -lintel-ring-fill: #30d158;
+}
+
+.lintel-nc-ring-storage {
+    -lintel-ring-fill: #bf5af2;
+}
+
+.lintel-nc-ring-temperature {
+    -lintel-ring-fill: #ff9f0a;
+}
+
+.lintel-nc-light .lintel-nc-ring-cpu {
+    -lintel-ring-fill: #007aff;
+}
+
+.lintel-nc-light .lintel-nc-ring-memory {
+    -lintel-ring-fill: #28b446;
+}
+
+.lintel-nc-light .lintel-nc-ring-storage {
+    -lintel-ring-fill: #a550d8;
+}
+
+.lintel-nc-light .lintel-nc-ring-temperature {
+    -lintel-ring-fill: #f08c00;
+}
+
+.lintel-nc-ring-value {
+    font-size: 7.5pt;
+    font-weight: 700;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-widget-medium .lintel-nc-ring-value,
+.lintel-nc-widget-large .lintel-nc-ring-value {
+    font-size: 9.75pt;
+}
+
+.lintel-nc-gauge {
+    spacing: 3px;
+}
+
+.lintel-nc-gauge-caption,
+.lintel-nc-gauge-detail {
+    font-size: 7.25pt;
+    font-weight: 600;
+}
+
+.lintel-nc-gauge-detail {
+    font-weight: 500;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-system-stack {
+    spacing: 8px;
+}
+
+.lintel-nc-widget-large .lintel-nc-system-stack {
+    spacing: 10px;
+}
+
+.lintel-nc-system-header {
+    spacing: 8px;
+}
+
+.lintel-nc-system-title {
+    font-size: 8.25pt;
+    font-weight: 700;
+}
+
+.lintel-nc-system-rates {
+    font-size: 8.25pt;
+    font-weight: 600;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-system-row {
+    spacing: 6px;
+}
+
+.lintel-nc-system-chart {
+    spacing: 4px;
+}
+
+.lintel-nc-dark .lintel-nc-system-title,
+.lintel-nc-dark .lintel-nc-gauge-caption,
+.lintel-nc-dark .lintel-nc-gauge-detail,
+.lintel-nc-dark .lintel-nc-system-rates {
+    color: rgba(255, 255, 255, 0.70);
+}
+
+.lintel-nc-light .lintel-nc-system-title,
+.lintel-nc-light .lintel-nc-gauge-caption,
+.lintel-nc-light .lintel-nc-gauge-detail,
+.lintel-nc-light .lintel-nc-system-rates {
+    color: rgba(29, 29, 31, 0.58);
+}
+
+.lintel-nc-sparkline {
+    height: 56px;
+    -lintel-spark-primary: #0a84ff;
+    -lintel-spark-secondary: #ff9f0a;
+    -lintel-spark-baseline: rgba(255, 255, 255, 0.14);
+}
+
+.lintel-nc-sparkline-network {
+    -lintel-spark-primary: #30d158;
+}
+
+.lintel-nc-light .lintel-nc-sparkline {
+    -lintel-spark-primary: #007aff;
+    -lintel-spark-secondary: #f08c00;
+    -lintel-spark-baseline: rgba(0, 0, 0, 0.10);
+}
+
+.lintel-nc-light .lintel-nc-sparkline-network {
+    -lintel-spark-primary: #28b446;
+}
+
+/* --- Liquid Glass Transparent Overrides --- */
+
+/* Clears the shell's own background from a surface that gets glass. */
+.liquid-glass-transparent,
+.liquid-glass-transparent-keep-border {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    background-image: none !important;
+
+    /* The open and close animations are driven from JavaScript. */
+    transition: none !important;
+    transition-duration: 0ms !important;
+}
+
+.liquid-glass-transparent {
+    border: none !important;
+}
+
+.liquid-glass-transparent-keep-border {
+    border-color: transparent !important;
+}
+
+/* Dash to Dock and Dash2Dock Animated/Lite own background, only while it has glass. */
+#dashtodockDashContainer.liquid-glass-transparent,
+.liquid-glass-transparent #dashtodockContainer,
+#dashtodockContainer.liquid-glass-transparent,
+.liquid-glass-transparent .dash-background,
+.liquid-glass-transparent #d2daBackground,
+#d2daBackground.liquid-glass-transparent,
+.liquid-glass-transparent #DockBackground,
+#DockBackground.liquid-glass-transparent {
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Plain calendar days; today and interactive states keep their theme style. */
+.liquid-glass-transparent .calendar-day:not(.calendar-today):not(:hover):not(:active):not(:focus):not(:checked) {
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Calendar menu: the calendar sits on a translucent rounded card. */
+.liquid-glass-menu-root .calendar {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 24px !important;
+    padding: 12px !important;
+    margin: 4px !important;
+}
+
+.liquid-glass-menu-root StButton,
+.liquid-glass-menu-root StLabel {
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.liquid-glass-menu-root StButton:hover {
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.liquid-glass-menu-root StButton:active,
+.liquid-glass-menu-root StButton:checked,
+.liquid-glass-menu-root StButton:focus {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Today is drawn as a circle in every state. */
+.liquid-glass-menu-root .calendar-today,
+.liquid-glass-menu-root .calendar-today:hover,
+.liquid-glass-menu-root .calendar-today:active,
+.liquid-glass-menu-root .calendar-today:checked,
+.liquid-glass-menu-root .calendar-today:focus {
+    border-radius: 99px !important;
+}
+
+/* Notification, events and world clock cards. These come after the rules
+   above so they win over the transparent buttons. */
+.liquid-glass-menu-root .events-button,
+.liquid-glass-menu-root .world-clocks-button {
+    background-color: rgba(51, 51, 51, 0.8) !important;
+    border-radius: 16px !important;
+    margin-bottom: 6px !important;
+}
+
+.liquid-glass-menu-root .message {
+    background-color: rgba(51, 51, 51, 0.8) !important;
+    border-radius: 24px !important;
+    margin-bottom: 6px !important;
+}
+
+.liquid-glass-menu-root .message:hover,
+.liquid-glass-menu-root .message:focus,
+.liquid-glass-menu-root .events-button:hover,
+.liquid-glass-menu-root .events-button:focus,
+.liquid-glass-menu-root .world-clocks-button:hover,
+.liquid-glass-menu-root .world-clocks-button:focus {
+    background-color: rgba(65, 65, 65, 0.8) !important;
+}
+
+/* The cards' text is set here, as the adaptive colours do not reach it: they follow what is behind the glass,
+   and a card has its own background. */
+.liquid-glass-menu-root .events-button,
+.liquid-glass-menu-root .world-clocks-button,
+.liquid-glass-menu-root .message,
+.liquid-glass-menu-root .world-clocks-header.no-world-clocks,
+.liquid-glass-menu-root .message-expand-button,
+.liquid-glass-menu-root .message-close-button,
+.liquid-glass-menu-root .message-media-control {
+    color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.liquid-glass-menu-root .events-title,
+.liquid-glass-menu-root .event-time,
+.liquid-glass-menu-root .event-placeholder,
+.liquid-glass-menu-root .world-clocks-header,
+.liquid-glass-menu-root .world-clocks-timezone,
+.liquid-glass-menu-root .message-header {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* The same cards when the colour scheme is not dark: pale, under dark text. The text colours are set here
+   because the shell theme stays dark for the default scheme. */
+.liquid-glass-menu-root.liquid-glass-light StButton:hover {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.liquid-glass-menu-root.liquid-glass-light StButton:active,
+.liquid-glass-menu-root.liquid-glass-light StButton:checked,
+.liquid-glass-menu-root.liquid-glass-light StButton:focus {
+    background-color: rgba(0, 0, 0, 0.14) !important;
+}
+
+.liquid-glass-menu-root.liquid-glass-light .events-button,
+.liquid-glass-menu-root.liquid-glass-light .world-clocks-button,
+.liquid-glass-menu-root.liquid-glass-light .message {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+    color: rgba(0, 0, 0, 0.87) !important;
+}
+
+.liquid-glass-menu-root.liquid-glass-light .message:hover,
+.liquid-glass-menu-root.liquid-glass-light .message:focus,
+.liquid-glass-menu-root.liquid-glass-light .events-button:hover,
+.liquid-glass-menu-root.liquid-glass-light .events-button:focus,
+.liquid-glass-menu-root.liquid-glass-light .world-clocks-button:hover,
+.liquid-glass-menu-root.liquid-glass-light .world-clocks-button:focus {
+    background-color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.liquid-glass-menu-root.liquid-glass-light .events-title,
+.liquid-glass-menu-root.liquid-glass-light .event-time,
+.liquid-glass-menu-root.liquid-glass-light .event-placeholder,
+.liquid-glass-menu-root.liquid-glass-light .world-clocks-header,
+.liquid-glass-menu-root.liquid-glass-light .world-clocks-timezone,
+.liquid-glass-menu-root.liquid-glass-light .message-header {
+    color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.liquid-glass-menu-root.liquid-glass-light .world-clocks-header.no-world-clocks,
+.liquid-glass-menu-root.liquid-glass-light .message-expand-button,
+.liquid-glass-menu-root.liquid-glass-light .message-close-button,
+.liquid-glass-menu-root.liquid-glass-light .message-media-control {
+    color: rgba(0, 0, 0, 0.87) !important;
+}
+
+/* Desktop widgets. The card's glass is drawn behind it; the colours here are
+   the starting point that automatic text contrast adjusts. */
+.liquid-glass-desktop-card {
+    padding: 16px 18px;
+    spacing: 8px;
+    color: #ffffff;
+}
+
+.liquid-glass-desktop-card .lg-title {
+    font-weight: bold;
+    font-size: 11pt;
+}
+
+.liquid-glass-desktop-card .lg-big {
+    font-size: 30pt;
+    font-weight: 300;
+    padding: 0 10px;
+}
+
+.liquid-glass-desktop-card .lg-dim {
+    font-size: 10pt;
+}
+
+.liquid-glass-desktop-card .lg-small {
+    font-size: 9pt;
+}
+
+.liquid-glass-desktop-card .lg-row,
+.liquid-glass-desktop-card .lg-event {
+    spacing: 10px;
+}
+
+.liquid-glass-desktop-card .lg-hour,
+.liquid-glass-desktop-card .lg-list {
+    spacing: 4px;
+}
+
+.liquid-glass-desktop-card .lg-event-time {
+    font-feature-settings: "tnum";
+    min-width: 64px;
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+.liquid-glass-desktop-card .lg-heading {
+    padding-top: 6px;
+    font-weight: bold;
+}
+
+.liquid-glass-desktop-card .lg-controls {
+    spacing: 18px;
+}
+
+.liquid-glass-desktop-card .lg-control {
+    padding: 6px;
+    border-radius: 99px;
+}
+
+.liquid-glass-desktop-card .lg-control:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+.liquid-glass-clock-date {
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* The frame a desktop item is moved and resized with. */
+.liquid-glass-edit-frame {
+    border: 2px solid #3584e4;
+    border-radius: 12px;
+    background-color: rgba(53, 132, 228, 0.08);
+}
+
+.liquid-glass-edit-handle {
+    border: 2px solid #3584e4;
+    border-radius: 7px;
+    background-color: #ffffff;
+}
+
+.liquid-glass-edit-guide {
+    color: #ff4f8b;
+}
+
+.liquid-glass-edit-done {
+    padding: 6px 18px;
+    border-radius: 99px;
+    color: #ffffff;
+    font-weight: bold;
+    background-color: #3584e4;
+}
+
+.liquid-glass-edit-done:hover {
+    background-color: #4a90e8;
+}
+
+/* The launcher: a search field and its results on one sheet of glass. */
+.liquid-glass-launcher {
+    padding: 10px;
+    color: #ffffff;
+}
+
+.liquid-glass-launcher .lg-launcher-entry {
+    font-size: 16pt;
+    padding: 10px 14px;
+    border-radius: 18px;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    color: inherit;
+    caret-color: inherit;
+    selected-color: #ffffff;
+}
+
+.liquid-glass-launcher .lg-launcher-entry .hint-text {
+    color: inherit;
+}
+
+.liquid-glass-launcher .lg-launcher-entry-icon {
+    icon-size: 22px;
+    padding-right: 10px;
+}
+
+.liquid-glass-launcher .lg-launcher-list {
+    spacing: 2px;
+}
+
+.liquid-glass-launcher .lg-launcher-result {
+    padding: 8px 12px;
+    border-radius: 16px;
+    color: inherit;
+    background-color: transparent;
+}
+
+.liquid-glass-launcher .lg-launcher-result:selected {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.liquid-glass-launcher .lg-launcher-result-box {
+    spacing: 12px;
+}
+
+.liquid-glass-launcher .lg-launcher-badge {
+    font-size: 9pt;
+    font-weight: bold;
+    padding: 2px 10px;
+    border-radius: 99px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.liquid-glass-launcher .lg-launcher-name {
+    font-size: 12pt;
+    font-weight: bold;
+}
+
+.liquid-glass-launcher .lg-launcher-detail {
+    font-size: 9.5pt;
+}
+
+.liquid-glass-launcher .lg-launcher-page {
+    spacing: 6px;
+}
+
+.liquid-glass-launcher .lg-launcher-pin {
+    color: inherit;
+    padding: 2px;
+    border-radius: 6px;
+}
+
+.liquid-glass-launcher .lg-launcher-pin:hover {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
+.liquid-glass-launcher .lg-launcher-header {
+    spacing: 10px;
+    padding: 4px 4px 6px;
+}
+
+.liquid-glass-launcher .lg-launcher-back {
+    color: inherit;
+    padding: 8px;
+    border-radius: 99px;
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.liquid-glass-launcher .lg-launcher-back:hover {
+    background-color: rgba(255, 255, 255, 0.24);
+}
+
+.liquid-glass-launcher .lg-launcher-title {
+    font-size: 15pt;
+    font-weight: bold;
+}
+
+.liquid-glass-launcher .lg-launcher-section {
+    font-size: 10pt;
+    font-weight: bold;
+    padding: 6px 12px 2px;
+}
+
+.liquid-glass-launcher .lg-launcher-grid-row {
+    spacing: 8px;
+}
+
+.liquid-glass-launcher .lg-launcher-tile {
+    padding: 8px;
+    border-radius: 22px;
+    color: inherit;
+    background-color: transparent;
+}
+
+.liquid-glass-launcher .lg-launcher-tile:selected {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.liquid-glass-launcher .lg-launcher-tile-box {
+    spacing: 8px;
+}
+
+.liquid-glass-launcher .lg-launcher-tile-name {
+    font-size: 10pt;
+}
+
+.liquid-glass-launcher .lg-launcher-empty {
+    font-size: 11pt;
+    padding: 24px;
+}
+
+/* --- Dock Stylesheet --- */
+
+/* reminder: minimize styling overrides! */
+
+.hi {
+     border: 2px solid magenta !important;
+}
+
+#dashtodockcontainer.hi,
+#d2daDock.hi {
+  border: 2px solid red; 
+}
+
+#DockStruts.hi {
+  border: 2px solid yellow; 
+}
+
+#DockDwell.hi {
+  border: 2px solid yellow; 
+}
+
+#dashtodockcontainer *,
+#d2daDock * {
+ margin: 0px !important;
+ padding: 0px !important;
+}
+
+#d2daDock.hi #dash .dash-item-container {
+}
+
+#dash .dash-item-container {
+  /*border: 2px solid magenta;*/
+}

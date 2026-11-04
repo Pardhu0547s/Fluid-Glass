@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.fluid-glass"
+          path="/org/gnome/shell/extensions/fluid-glass/">
+
+    <key name="enable-topbar" type="b">
+      <default>true</default>
+      <summary>Enable Fluid Glass Top Bar (macOS menu bar layout)</summary>
+    </key>
+
+    <key name="enable-control-center" type="b">
+      <default>true</default>
+      <summary>Enable macOS Tahoe Control Center</summary>
+    </key>
+
+    <key name="enable-dock" type="b">
+      <default>true</default>
+      <summary>Enable Fluid Glass Animated Dock</summary>
+    </key>
+
+    <key name="enable-glass-shaders" type="b">
+      <default>true</default>
+      <summary>Enable GLSL Liquid Glass Refraction and Blur Shaders</summary>
+    </key>
+
+    <key name="glass-preset" type="s">
+      <default>'tahoe-crystal'</default>
+      <summary>Glass theme preset (tahoe-crystal, deep-frosted, midnight-glass, vibrant-neon)</summary>
+    </key>
+
+    <key name="accent-color" type="s">
+      <default>'#007aff'</default>
+      <summary>Active toggle accent color (hex format)</summary>
+    </key>
+
+    <key name="glass-opacity" type="d">
+      <default>0.22</default>
+      <summary>Luminous glass base opacity</summary>
+    </key>
+
+    <key name="glass-blur-radius" type="i">
+      <default>16</default>
+      <summary>Liquid glass blur radius in px</summary>
+    </key>
+
+    <key name="specular-rim-intensity" type="d">
+      <default>0.45</default>
+      <summary>Luminous rim highlight opacity</summary>
+    </key>
+
+  </schema>
+</schemalist>

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Fluid Glass
+GenericName=Fluid Glass Settings
+Comment=Customize macOS Tahoe Fluid Glass, Control Center, Dock, and Shaders
+Exec=fluid-glass-settings
+Icon=fluid-glass
+Terminal=false
+Type=Application
+Categories=GNOME;GTK;Settings;DesktopSettings;
+StartupNotify=true
+StartupWMClass=org.gnome.FluidGlass.Settings
+Keywords=glass;theme;macos;tahoe;dock;control-center;blur;refraction;
