@@ -115,18 +115,17 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   transition-duration: 0ms !important;
 }
 
-// Toggle lenses
+// Toggle lenses (macOS Tahoe Control Center capsules with circular icon badges)
 .quick-toggle,
 .quick-toggle-has-menu {
   color: $lg_fg !important;
   background-color: $lg_fill !important;
-  border: none !important;
+  border: 1px solid if($lg_light, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.26)) !important;
   border-radius: 9999px !important;
-  min-height: 44px !important;
-  height: 44px !important;
-  max-height: 44px !important;
+  min-height: 52px !important;
+  height: 52px !important;
+  max-height: 52px !important;
   min-width: 0 !important;
-  max-width: none !important;
   box-shadow: $lg_glow !important;
   transition: none !important;
   transition-duration: 0ms !important;
@@ -137,23 +136,34 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
   & .quick-toggle-title {
     font-size: 13px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
+    color: $lg_fg !important;
   }
   & .quick-toggle-subtitle {
     font-size: 11px !important;
-    font-weight: 400 !important;
+    font-weight: 500 !important;
     color: $lg_fg_dim !important;
   }
 
-  & StIcon {
+  & .quick-toggle-icon {
+    background-color: if($lg_light, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.20)) !important;
+    border: none !important;
+    border-radius: 9999px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+    width: 34px !important;
+    height: 34px !important;
     icon-size: 16px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    color: $lg_fg !important;
   }
 
   & > StBoxLayout,
   &:ltr > StBoxLayout,
   &:rtl > StBoxLayout {
     spacing: 10px !important;
-    padding: 0 6px !important;
+    padding: 0 4px !important;
     margin: 0 !important;
   }
 
@@ -166,84 +176,105 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
     background-color: $lg_fill_active !important;
   }
 
-  // Checked: brighter lens, accent-coloured symbol (as in Ryohsuke's shot)
+  // Checked: translucent glass capsule + solid white circle badge + electric blue icon + white title
   &:checked {
-    background-color: $lg_fill_checked !important;
-    color: $lg_accent !important;
+    background-color: if($lg_light, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.22)) !important;
+    border-color: if($lg_light, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.36)) !important;
+    color: $lg_fg !important;
     box-shadow: $lg_glow_strong !important;
 
-    & .quick-toggle-title,
-    & StIcon {
+    & .quick-toggle-title {
+      color: $lg_fg !important;
+    }
+    & .quick-toggle-subtitle {
+      color: $lg_fg_dim !important;
+    }
+    & .quick-toggle-icon {
+      background-color: #ffffff !important;
       color: $lg_accent !important;
     }
 
     &:hover {
-      background-color: $lg_fill_checked !important;
+      background-color: if($lg_light, rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.28)) !important;
     }
   }
 }
 
 .quick-toggle {
-  padding: 0 14px !important;
+  padding: 0 12px 0 8px !important;
 }
 
-// Toggle with a menu arrow: one lens, the inner button is see-through
+// Toggle with a menu arrow: one unified capsule lens, inner buttons see-through
 .quick-toggle-has-menu {
   padding: 0 !important;
   margin: 0 !important;
 
   & .quick-toggle {
     background: none !important;
+    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     border-radius: 9999px 0 0 9999px !important;
-    padding: 0 4px 0 14px !important;
+    padding: 0 4px 0 8px !important;
     margin: 0 !important;
-    min-height: 44px !important;
-    height: 44px !important;
-    max-height: 44px !important;
+    min-height: 52px !important;
+    height: 52px !important;
+    max-height: 52px !important;
 
     & > StBoxLayout,
     &:ltr > StBoxLayout,
     &:rtl > StBoxLayout {
       spacing: 10px !important;
-      padding: 0 4px !important;
+      padding: 0 2px !important;
       margin: 0 !important;
     }
 
     .quick-toggle-icon {
-      background-color: transparent !important;
+      background-color: if($lg_light, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.20)) !important;
       border: none !important;
+      border-radius: 9999px !important;
       box-shadow: none !important;
-      min-width: 16px !important;
-      min-height: 16px !important;
+      min-width: 34px !important;
+      min-height: 34px !important;
+      width: 34px !important;
+      height: 34px !important;
       icon-size: 16px !important;
       padding: 0 !important;
       margin: 0 !important;
       color: $lg_fg !important;
     }
 
-    &:checked .quick-toggle-icon,
-    &:checked .quick-toggle-title {
+    &:checked .quick-toggle-icon {
+      background-color: #ffffff !important;
       color: $lg_accent !important;
+    }
+    &:checked .quick-toggle-title {
+      color: $lg_fg !important;
     }
   }
 
   &:checked {
-    background-color: $lg_fill_checked !important;
+    background-color: if($lg_light, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.22)) !important;
+    border-color: if($lg_light, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.36)) !important;
+
+    & .quick-toggle .quick-toggle-icon {
+      background-color: #ffffff !important;
+      color: $lg_accent !important;
+    }
   }
 
   & .quick-toggle-menu-button {
     background: none !important;
+    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     border-radius: 0 9999px 9999px 0 !important;
     color: $lg_fg_dim !important;
-    padding: 0 10px 0 6px !important;
+    padding: 0 10px 0 4px !important;
     margin: 0 !important;
     min-width: 24px !important;
-    min-height: 44px !important;
-    height: 44px !important;
+    min-height: 52px !important;
+    height: 52px !important;
 
     StIcon {
       icon-size: 12px !important;
