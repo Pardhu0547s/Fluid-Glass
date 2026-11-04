@@ -2,7 +2,7 @@
 
 **An independent, Fedora-first glass interface for GNOME.**
 
-Status: **2.0.0-alpha.4**. This release adds a dedicated Quick Settings Control Center treatment based on the supplied visual reference, makes Quick Settings backdrop blur independently configurable, and adds a native GNOME screenshot shortcut to the system action row.
+Status: **2.0.0-alpha.5**. This release refines the native Quick Settings panel toward the current macOS Control Center hierarchy: translucent tinted material, a responsive two-column module grid, readable wide tiles, native sliders and high-contrast blue active states. GNOME services continue to provide the real control behavior.
 
 ## Design goals
 
