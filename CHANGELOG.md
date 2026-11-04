@@ -1,5 +1,16 @@
 # Changelog
 
+## 2.0.0-alpha.5 — macOS-inspired Control Center refinement
+
+- Reworked dark/light palette tokens to use lower-opacity Liquid Glass surfaces and clearer edge highlights.
+- Removed the forced 96px tile sizing and 36px margins that constrained labels and made the Quick Settings panel feel cramped.
+- Restored a two-column native module layout with full-width connection/menu tiles, readable labels, and separate arrow affordances.
+- Updated inactive tiles, battery pill, sliders and system actions to use translucent surfaces; active controls use a high-contrast blue state.
+- Documented GNOME-native equivalents and explicitly identified Apple-only features that do not have 1:1 GNOME services.
+- Added runtime visual QA requirements for 100/150/200% scaling, backdrop visibility, native system behavior and GPU cost.
+
+Validation note: static checks are required for this branch; final visual and interaction verification must be done in a real Fedora GNOME 50 session.
+
 ## 2.0.0-alpha.4 — 2026-11-02
 
 - Restyled GNOME's native Quick Settings surface as a rounded, two-column glass control center inspired by the supplied design reference.
