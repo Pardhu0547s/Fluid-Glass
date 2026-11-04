@@ -28,5 +28,15 @@ for expression in required_runtime:
 for key in ('quick-settings-blur', 'calendar-blur', 'screenshot-button'):
     assert key in prefs, f'Missing preferences row: {key}'
 
+# Alpha 5 regression checks: avoid the previous near-opaque material and narrow clipped pills.
+import json
+tokens = json.loads((root / 'src/design/tokens.json').read_text())
+assert '0.40' in tokens['dark']['popover_surface'], 'Dark popup must remain translucent'
+assert '0.40' in tokens['light']['popover_surface'], 'Light popup must remain translucent'
+assert 'rgba(58, 62, 72, 0.85)' not in css, 'Opaque charcoal tile fill regressed'
+assert 'min-width: 96px !important' not in css, 'Fixed 96px tile sizing regressed'
+assert 'margin-left: 36px !important' not in css, 'Margin-based grid sizing regressed'
+assert '12.5em' in css, 'Responsive wide tile sizing is missing'
+assert 'Alpha 5' in css, 'Alpha 5 material layer is missing'
 assert reference.is_file() and reference.stat().st_size > 100_000, 'Supplied design reference missing or incomplete'
 print('Quick Settings implementation check passed: native controls, glass selectors, preferences and reference image.')
