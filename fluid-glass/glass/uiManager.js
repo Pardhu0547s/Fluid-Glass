@@ -709,7 +709,7 @@ export class UIManager {
         glass.setTintColor(...hexToColorArray(tintColorStr));
         glass.setTintStrength(tintStrength);
         glass.setCornerRadius(this._cornerRadius);
-        glass.setIsDock(false);
+        glass.setIsDock(this._keyPrefix === 'dock');
         glass.setBrightness(brightness);
         glass.setContrast(contrast);
         glass.setSaturation(saturation);

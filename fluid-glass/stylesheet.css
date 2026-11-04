@@ -448,21 +448,21 @@
     spacing: 8px;
 }
 
-/* Connectivity and Focus capsules (Fluid Glass material). */
+/* Connectivity and Focus capsules (Fluid Glass material - matched to Dock). */
 .lintel-cc-tile {
     min-height: 52px;
-    background-color: rgba(255, 255, 255, 0.22);
-    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 22px;
     padding: 6px 10px;
-    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.16), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.70);
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.10), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40);
     transition-duration: 160ms;
 }
 
 .lintel-cc-tile:hover {
-    background-color: rgba(255, 255, 255, 0.32);
-    border-color: rgba(255, 255, 255, 0.65);
-    box-shadow: 0 10px 28px 0 rgba(0, 0, 0, 0.20), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.20);
+    border-color: rgba(255, 255, 255, 0.45);
+    box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.14), inset 0 1px 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .lintel-cc-tile:focus {
@@ -493,8 +493,8 @@
 .lintel-cc-tile-icon {
     icon-size: 16px;
     color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.24);
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    background-color: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 999px;
     padding: 7px;
     transition-duration: 160ms;
@@ -532,12 +532,12 @@
  * separate, evenly distributed row like Tahoe's Now Playing module. */
 .lintel-cc-media {
     height: 118px;
-    background-color: rgba(255, 255, 255, 0.22);
-    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 24px;
     padding: 10px;
     spacing: 8px;
-    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.16), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.70);
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.10), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40);
 }
 
 .lintel-cc-media-header {
@@ -637,17 +637,17 @@
 /* Labelled Display and Sound modules (Fluid Glass illuminated tracks). */
 .lintel-cc-slider {
     min-height: 48px;
-    background-color: rgba(255, 255, 255, 0.22);
-    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 22px;
     padding: 8px 10px 7px 10px;
     spacing: 4px;
-    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.16), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.70);
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.10), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40);
 }
 
 .lintel-cc-slider:hover {
-    background-color: rgba(255, 255, 255, 0.28);
-    border-color: rgba(255, 255, 255, 0.60);
+    background-color: rgba(255, 255, 255, 0.20);
+    border-color: rgba(255, 255, 255, 0.45);
 }
 
 .lintel-cc-slider-title {
@@ -699,14 +699,14 @@
 
 .lintel-cc-edit-controls {
     color: rgba(255, 255, 255, 0.95);
-    background-color: rgba(255, 255, 255, 0.22);
-    border: 1px solid rgba(255, 255, 255, 0.45);
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     border-radius: 999px;
     padding: 5px 14px;
     font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
     font-size: 8.75pt;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
-    box-shadow: 0 6px 18px 0 rgba(0, 0, 0, 0.16), inset 0 1px 1px 0 rgba(255, 255, 255, 0.65);
+    box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.10), inset 0 1px 1px 0 rgba(255, 255, 255, 0.40);
     transition-duration: 160ms;
 }
 
