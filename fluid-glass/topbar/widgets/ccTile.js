@@ -30,12 +30,9 @@ export const CCTile = GObject.registerClass({
             toggle_mode: true,
         });
 
+        const clearThemeStyle = 'background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;';
         const updateStyle = () => {
-            if (this.checked) {
-                this.set_style('background-color: rgba(0, 122, 255, 0.45) !important;');
-            } else {
-                this.set_style('background-color: transparent !important; background: transparent !important;');
-            }
+            this.set_style(clearThemeStyle);
         };
         this.connect('notify::checked', updateStyle);
         updateStyle();
@@ -49,6 +46,7 @@ export const CCTile = GObject.registerClass({
             icon_name: iconName,
             style_class: 'lintel-cc-tile-icon',
             y_align: Clutter.ActorAlign.CENTER,
+            style: clearThemeStyle,
         });
         // macOS Tahoe: icon on the left, title/status left-aligned right beside
         // it (not centred in the capsule).
@@ -129,12 +127,13 @@ export const CCMediaCard = GObject.registerClass({
 },
 class CCMediaCard extends St.BoxLayout {
     _init(styleClass = 'lintel-cc-media') {
+        const clearThemeStyle = 'background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;';
         super._init({
             orientation: Clutter.Orientation.VERTICAL,
             style_class: styleClass,
             accessible_name: _('Now Playing'),
             x_expand: true,
-            style: 'background-color: transparent !important; background: transparent !important;',
+            style: clearThemeStyle,
         });
 
         const header = new St.BoxLayout({
@@ -147,6 +146,7 @@ class CCMediaCard extends St.BoxLayout {
             style_class: 'lintel-cc-media-artwork',
             x_align: Clutter.ActorAlign.START,
             y_align: Clutter.ActorAlign.CENTER,
+            style: clearThemeStyle,
         });
         header.add_child(this._artwork);
 
@@ -200,6 +200,7 @@ class CCMediaCard extends St.BoxLayout {
                 can_focus: true,
                 x_expand: true,
                 child: icon,
+                style: clearThemeStyle,
             });
             button.connect('clicked', () => this.emit(signal));
             controls.add_child(button);
@@ -250,7 +251,7 @@ export const CCSlider = GObject.registerClass({
             style_class: 'lintel-cc-slider',
             accessible_name: title,
             x_expand: true,
-            style: 'background-color: transparent !important; background: transparent !important;',
+            style: 'background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;',
         });
 
         this._block = false;

@@ -372,7 +372,7 @@ export const ControlCenter = GObject.registerClass({
             label: _('Edit Controls'),
             can_focus: true,
             x_align: Clutter.ActorAlign.CENTER,
-            style: 'background-color: transparent !important; background: transparent !important;',
+            style: 'background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;',
         });
         this._editButton.connect('clicked',
             () => this._setEditing(!this._editing));

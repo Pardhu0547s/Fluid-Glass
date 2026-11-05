@@ -383,27 +383,15 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
             const rw = iw + (expand * 2) + (pad * 2);
             const rh = ih + (expand * 2) + (pad * 2);
 
-            let isChecked = false;
-            try {
-                isChecked = !!(
-                    item.checked ||
-                    item.get_first_child?.()?.checked ||
-                    (item.get_child_at_index && item.get_child_at_index(0)?.checked) ||
-                    item.has_style_pseudo_class?.('checked')
-                );
-            } catch (_e) {
-                isChecked = false;
-            }
-
             regions.push({
                 x: rx,
                 y: ry,
                 w: rw,
                 h: rh,
-                tintR: isChecked ? 0.0 : 1.0,
-                tintG: isChecked ? 0.48 : 1.0,
-                tintB: isChecked ? 1.0 : 1.0,
-                baseStrength: isChecked ? 0.45 : 0.0,
+                tintR: 1.0,
+                tintG: 1.0,
+                tintB: 1.0,
+                baseStrength: 0.0,
             });
 
             minX = Math.min(minX, rx);
