@@ -873,32 +873,41 @@
 }
 
 .lintel-nc-clear-button {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
     padding: 0;
     border-radius: 999px;
     border: none;
-    background-color: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.14) !important;
     box-shadow: none;
     transition-duration: 120ms;
 }
 
 .lintel-nc-clear-button StIcon {
-    icon-size: 10px;
+    icon-size: 14px;
 }
 
 .lintel-nc-dark .lintel-nc-clear-button,
 .lintel-nc-light .lintel-nc-clear-button {
-    color: rgba(255, 255, 255, 0.95);
-    background-color: transparent;
+    color: rgba(255, 255, 255, 0.90);
+    background-color: rgba(255, 255, 255, 0.14) !important;
     border: none;
     box-shadow: none;
 }
 
 .lintel-nc-dark .lintel-nc-clear-button:hover,
-.lintel-nc-light .lintel-nc-clear-button:hover {
-    background-color: transparent;
+.lintel-nc-light .lintel-nc-clear-button:hover,
+.lintel-nc-clear-button:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.28) !important;
     border: none;
+}
+
+.lintel-nc-clear-button:active {
+    background-color: rgba(255, 255, 255, 0.38) !important;
 }
 
 .lintel-nc-clear-button:focus {
@@ -1006,34 +1015,45 @@
 #lintelNotificationCenter .message .message-header .message-expand-button,
 #lintelNotificationCenter .message .message-header .message-close-button,
 #lintelNotificationCenter .message-notification-group .message-collapse-button {
-    min-height: 0;
-    padding: 4px !important;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    padding: 0 !important;
     margin: 0;
     border: none;
     border-radius: 999px;
-    background-color: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.14) !important;
     box-shadow: none;
+    transition-duration: 120ms;
 }
 
 #lintelNotificationCenter .message .message-header .message-expand-button StIcon,
 #lintelNotificationCenter .message .message-header .message-close-button StIcon,
 #lintelNotificationCenter .message-notification-group .message-collapse-button StIcon {
-    icon-size: 10px;
+    icon-size: 13px;
 }
 
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button,
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button,
 #lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button,
 #lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button {
-    color: rgba(255, 255, 255, 0.85);
-    background-color: transparent;
+    color: rgba(255, 255, 255, 0.90);
+    background-color: rgba(255, 255, 255, 0.14) !important;
 }
 
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button:hover,
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button:hover,
 #lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button:hover,
-#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button:hover {
-    background-color: transparent;
+#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button:hover,
+#lintelNotificationCenter .message .message-header .message-close-button:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+#lintelNotificationCenter .message .message-header .message-close-button:active {
+    background-color: rgba(255, 255, 255, 0.38) !important;
 }
 
 #lintelNotificationCenter .message .message-box {

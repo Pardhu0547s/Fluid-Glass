@@ -208,7 +208,6 @@ export class LintelNotificationCenter {
         this._clearButton = new St.Button({
             icon_name: 'window-close-symbolic',
             style_class: 'lintel-nc-clear-button',
-            style: CLEAR_THEME_STYLE,
             accessible_name: _('Clear all notifications'),
             can_focus: true,
             y_align: Clutter.ActorAlign.CENTER,
