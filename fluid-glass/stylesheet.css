@@ -589,6 +589,7 @@
 /* Labelled Display and Sound modules. */
 .lintel-cc-slider,
 .lintel-cc-slider:hover {
+    min-width: 272px;
     min-height: 48px;
     background: transparent !important;
     background-color: transparent !important;

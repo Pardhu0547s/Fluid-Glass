@@ -370,9 +370,32 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
         const pad = options.padding ?? SHADER_PADDING;
         const expand = options.expand ?? 0;
 
+        const lastGoodSizes = handle._lastGoodSizes ?? (handle._lastGoodSizes = new WeakMap());
+
         for (const item of items) {
             const [ix, iy] = item.get_transformed_position();
-            const [iw, ih] = item.get_transformed_size();
+            let [iw, ih] = item.get_transformed_size();
+            const box = item.get_allocation_box?.();
+            if (box) {
+                const bw = box.x2 - box.x1;
+                const bh = box.y2 - box.y1;
+                if (bw > iw)
+                    iw = bw;
+                if (bh > ih)
+                    ih = bh;
+            }
+            const parent = item.get_parent?.();
+            if (parent?.has_style_class_name?.('lintel-cc-sliders')) {
+                const [pw] = parent.get_transformed_size();
+                if (pw > iw)
+                    iw = pw;
+            }
+            const prev = lastGoodSizes.get(item);
+            if (prev && iw < prev.w * 0.6 && prev.w >= 120) {
+                iw = prev.w;
+            } else if (iw >= 40) {
+                lastGoodSizes.set(item, { w: iw, h: ih });
+            }
             if (Number.isNaN(ix) || Number.isNaN(iy) || !(iw >= 1) || !(ih >= 1))
                 continue;
 

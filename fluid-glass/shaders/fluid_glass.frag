@@ -105,7 +105,7 @@ uniform float dock_h;
 // Multi-region mode, for Quick Settings' toggle-button glass: up to
 // MAX_GLASS_REGIONS separate rounded rects drawn from the same blurred
 // texture. The regions must not overlap, and they get no drop shadow.
-#define MAX_GLASS_REGIONS 16
+#define MAX_GLASS_REGIONS 32
 uniform float multi_region_mode; // 0 = the single dock_* rect, 1 = regions
 uniform float region_count;
 uniform float region_x[MAX_GLASS_REGIONS]; // includes the padding

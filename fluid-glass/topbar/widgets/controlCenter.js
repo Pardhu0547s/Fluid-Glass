@@ -429,19 +429,17 @@ export const ControlCenter = GObject.registerClass({
         const modules = [];
         if (this._grid) {
             for (const child of this._grid.get_children()) {
-                if (child.visible)
+                if (child.visible && child.mapped)
                     modules.push(child);
             }
         }
         if (this._sliderBox) {
             for (const child of this._sliderBox.get_children()) {
-                if (!child.visible)
-                    continue;
-                const card = child.get_first_child?.() ?? child;
-                modules.push(card);
+                if (child.visible && child.mapped)
+                    modules.push(child);
             }
         }
-        if (this._editButton && this._editButton.visible && !this._editing)
+        if (this._editButton && this._editButton.visible && this._editButton.mapped && !this._editing)
             modules.push(this._editButton);
         return modules;
     }

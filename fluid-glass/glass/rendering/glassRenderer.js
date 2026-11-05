@@ -2,8 +2,8 @@ import Cogl from 'gi://Cogl';
 import { BlurRenderer, ShaderPipelines, configureSamplerLayer, SHAPE_LAYER, RenderPasses } from './pipelines.js';
 import { setUniformArray } from '../shellVersion.js';
 import { hexToColorArray } from '../animation.js';
-// Must match glass.frag's `#define MAX_GLASS_REGIONS 16`.
-export const MAX_GLASS_REGIONS = 16;
+// Must match glass.frag's `#define MAX_GLASS_REGIONS 32`.
+export const MAX_GLASS_REGIONS = 32;
 
 /**
  * What every glass draws with, whatever supplies its backdrop: the shader
