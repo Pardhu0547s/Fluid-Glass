@@ -115,6 +115,22 @@ export class GlassHandle {
             );
         }
 
+        if (this.options.menu) {
+            this._signals.push(
+                this.options.menu.connect('open-state-changed', (_m, isOpen) => {
+                    if (isOpen) {
+                        if (this.glass)
+                            this.glass.show();
+                        this.startLoop();
+                    } else {
+                        this.stopLoop();
+                        if (this.glass)
+                            this.glass.hide();
+                    }
+                })
+            );
+        }
+
         updateVisibility();
     }
 
@@ -351,6 +367,7 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
         let maxY = -Infinity;
 
         const regions = [];
+        const pad = options.padding ?? SHADER_PADDING;
         const expand = options.expand ?? 0;
 
         for (const item of items) {
@@ -359,10 +376,10 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
             if (Number.isNaN(ix) || Number.isNaN(iy) || !(iw >= 1) || !(ih >= 1))
                 continue;
 
-            const rx = ix - monitorX - expand;
-            const ry = iy - monitorY - expand;
-            const rw = iw + expand * 2;
-            const rh = ih + expand * 2;
+            const rx = (ix - monitorX) - expand - pad;
+            const ry = (iy - monitorY) - expand - pad;
+            const rw = iw + (expand * 2) + (pad * 2);
+            const rh = ih + (expand * 2) + (pad * 2);
 
             regions.push({
                 x: rx,
@@ -386,11 +403,10 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
             return;
         }
 
-        const pad = options.padding ?? SHADER_PADDING;
-        const unionW = (maxX - minX) + pad * 2;
-        const unionH = (maxY - minY) + pad * 2;
-        const unionX = minX - pad;
-        const unionY = minY - pad;
+        const unionW = maxX - minX;
+        const unionH = maxY - minY;
+        const unionX = minX;
+        const unionY = minY;
 
         handle.glass.setGlassRegions(regions);
         placeScreenGlass(handle.glass, monitorX, monitorY, screenW, screenH, {
