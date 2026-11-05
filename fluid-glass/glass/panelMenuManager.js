@@ -89,7 +89,8 @@ export class PanelMenuManager {
             for (const [menuName, menu] of menusOf(name, button)) {
                 // Dummy menus and custom non-popup actors cannot use UIManager.
                 // Calendar and Quick Settings already have their own managers.
-                if (!(menu instanceof PopupMenu.PopupMenu) || reserved.has(menu) || !menu.actor || !menu.box)
+                // Control Center uses floating individual modules (Tahoe design), not an enclosing outer background card.
+                if (!(menu instanceof PopupMenu.PopupMenu) || reserved.has(menu) || !menu.actor || !menu.box || menuName === 'lintel-control-center' || menuName.includes('control-center'))
                     continue;
                 detected.push(menuName);
                 const allowed = LEGACY_KEYS[menuName]
