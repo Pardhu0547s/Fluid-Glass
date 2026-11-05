@@ -167,9 +167,11 @@ export default class Dash2DockLiteExt extends Extension {
     Main.overview.d2dl = this;
 
     // Use UUID to avoid conflicting with other instances of this extensions (multi user setup)
-    if (!this.uuid) {
-      this.uuid = GLib.get_user_name();
-    }
+    try {
+      if (!this.uuid) {
+        this._customUuid = GLib.get_user_name();
+      }
+    } catch (_e) {}
 
     // three available timers
     // for persistent runs

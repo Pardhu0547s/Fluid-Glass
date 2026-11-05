@@ -9,8 +9,6 @@ class DockSubsystem extends Dash2DockLiteExt {
     constructor(parent) {
         super(parent.metadata);
         this._parent = parent;
-        this.dir = parent.dir;
-        this.uuid = parent.uuid;
     }
 
     getSettings(schemaId = 'org.gnome.shell.extensions.dash2dock-lite') {
