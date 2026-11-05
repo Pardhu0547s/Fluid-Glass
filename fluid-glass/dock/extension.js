@@ -1020,8 +1020,7 @@ export default class Dash2DockLiteExt extends Extension {
       }
       ss.push(`border-radius: ${r}px;`);
       this.computed_border_radius = r;
-      let rgba = this._style.rgba(this.background_color);
-      ss.push(`background: rgba(${rgba});`);
+      ss.push(`background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;`);
       styles.push(`#d2daBackground { ${ss.join(' ')}}`);
     }
 
@@ -1123,34 +1122,7 @@ export default class Dash2DockLiteExt extends Extension {
   }
 
   _updateBorderStyle() {
-    this._backgroundStyle = '';
-
-    // apply border as inline style... otherwise buggy and won't show at startup
-    // also add deferred bordering... otherwise rounder borders show with artifacts
-    // no longer necessary<<<?
-
-    let border_style = '';
-    if (this.border_thickness /* && !this._disable_borders */) {
-      let rgba = this._style.rgba(this.border_color);
-      border_style = `border: ${this.border_thickness}px solid rgba(${rgba}) !important;`;
-    }
-
-    let panel_borders = '';
-    if (this.panel_mode) {
-      panel_borders =
-        'border-left: 0px; border-right: 0px; border-bottom: 0px;';
-      // vertical border-left/right doesn;t seem to work
-      if (this._position == 'left') {
-        panel_borders =
-          'border-left: 0px; border-top: 0px; border-bottom: 0px;';
-      }
-      if (this._position == 'right') {
-        panel_borders =
-          'border-top: 0px; border-right: 0px; border-bottom: 0px;';
-      }
-    }
-
-    this._backgroundStyle = `${border_style} ${panel_borders}`;
+    this._backgroundStyle = 'background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;';
   }
 
   _updateLayout(disable) {

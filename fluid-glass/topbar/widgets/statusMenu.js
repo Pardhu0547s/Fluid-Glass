@@ -33,17 +33,25 @@ export function syncMenuTheme(actor) {
 }
 
 export function styleStatusMenu(menu, contentClass = '') {
+    const clearStyle = 'background: transparent !important; background-color: transparent !important; background-image: none !important; border: none !important; box-shadow: none !important; -boxpointer-gap: 0px;';
     menu.actor.add_style_class_name('lintel-system-menu');
     menu.actor.add_style_class_name('lintel-status-menu');
+    menu.actor.add_style_class_name('liquid-glass-transparent');
+    menu.actor.set_style(clearStyle);
     menu.box.add_style_class_name('lintel-system-menu-content');
     menu.box.add_style_class_name('lintel-status-menu-content');
+    menu.box.add_style_class_name('liquid-glass-transparent');
+    menu.box.set_style(clearStyle);
     if (contentClass)
         menu.box.add_style_class_name(contentClass);
 
     syncMenuTheme(menu.box);
     menu.connect('open-state-changed', (_m, open) => {
-        if (open)
+        if (open) {
+            menu.actor.set_style(clearStyle);
+            menu.box.set_style(clearStyle);
             syncMenuTheme(menu.box);
+        }
     });
 }
 

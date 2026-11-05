@@ -158,13 +158,13 @@ export class GlassRenderer {
         this.uniforms.set('isDock', isDock ? 1.0 : 0.0);
     }
 
-    setSurfaceLightEnabled(enabled) {
-        this.uniforms.set('surface_light_enabled', enabled ? 1.0 : 0.0);
+    setSurfaceLightEnabled(_enabled) {
+        this.uniforms.set('surface_light_enabled', 1.0);
         this._repaintIfDirty();
     }
 
-    setCornerSmoothingEnabled(enabled) {
-        this.uniforms.set('corner_smoothing_enabled', enabled ? 1.0 : 0.0);
+    setCornerSmoothingEnabled(_enabled) {
+        this.uniforms.set('corner_smoothing_enabled', 1.0);
         this._repaintIfDirty();
     }
 
@@ -180,19 +180,19 @@ export class GlassRenderer {
         this.blur.setBlurMethod(method);
     }
 
-    setBlurRadius(radius) {
-        this.blur.setBlurRadius(radius);
+    setBlurRadius(_radius) {
+        this.blur.setBlurRadius(24);
     }
 
-    setTintColor(r, g, b) {
-        this.uniforms.set('tint_r', r);
-        this.uniforms.set('tint_g', g);
-        this.uniforms.set('tint_b', b);
+    setTintColor(_r, _g, _b) {
+        this.uniforms.set('tint_r', 1.0);
+        this.uniforms.set('tint_g', 1.0);
+        this.uniforms.set('tint_b', 1.0);
         this._repaintIfDirty();
     }
 
-    setTintStrength(strength) {
-        this.uniforms.set('tint_strength', strength);
+    setTintStrength(_strength) {
+        this.uniforms.set('tint_strength', 0.0);
         this._repaintIfDirty();
     }
 
@@ -258,10 +258,10 @@ export class GlassRenderer {
             ry[i] = region.y;
             rw[i] = region.w;
             rh[i] = region.h;
-            rTintR[i] = region.tintR;
-            rTintG[i] = region.tintG;
-            rTintB[i] = region.tintB;
-            rBaseStrength[i] = Math.max(0.0, Math.min(1.0, region.baseStrength ?? 0.0));
+            rTintR[i] = 1.0;
+            rTintG[i] = 1.0;
+            rTintB[i] = 1.0;
+            rBaseStrength[i] = 0.0;
         });
         this.geometry.regions = clamped.map(r => [r.x, r.y, r.w, r.h]);
         this.uniforms.set('region_count', clamped.length);
@@ -276,18 +276,18 @@ export class GlassRenderer {
         this._repaintIfDirty();
     }
 
-    setBrightness(brightness) {
-        this.uniforms.set('brightness', brightness);
+    setBrightness(_brightness) {
+        this.uniforms.set('brightness', 1.0);
         this._repaintIfDirty();
     }
 
-    setContrast(contrast) {
-        this.uniforms.set('contrast', contrast);
+    setContrast(_contrast) {
+        this.uniforms.set('contrast', 1.0);
         this._repaintIfDirty();
     }
 
-    setSaturation(saturation) {
-        this.uniforms.set('saturation', saturation);
+    setSaturation(_saturation) {
+        this.uniforms.set('saturation', 1.0);
         this._repaintIfDirty();
     }
 }
@@ -647,6 +647,11 @@ export class MaterialSettings {
         this._uniforms.set('blur_tex_w', 0.0);
         this._uniforms.set('blur_tex_h', 0.0);
         this._uniforms.set('edge_taps_enabled', 1.0);
+        this._blur.setBlurRadius(24);
+        this._uniforms.set('tint_strength', 0.0);
+        this._uniforms.set('tint_r', 1.0);
+        this._uniforms.set('tint_g', 1.0);
+        this._uniforms.set('tint_b', 1.0);
         this._settingsIds = [];
         if (this._settings) {
             this._bindSettings();
@@ -789,12 +794,6 @@ export class OutlineBinding {
 
     initialize() {
         this._apply();
-        for (const suffix of ['enabled', 'width', 'color']) {
-            this._ids.push(this._settings.connect(`changed::${this._prefix}-outline-${suffix}`, () => {
-                this._apply();
-                this._repaintIfDirty();
-            }));
-        }
     }
 
     clear() {
@@ -803,12 +802,9 @@ export class OutlineBinding {
     }
 
     _apply() {
-        const s = this._settings;
-        const p = this._prefix;
-        const [r, g, b] = hexToColorArray(s.get_string(`${p}-outline-color`));
-        this._uniforms.set('outline_width', s.get_boolean(`${p}-outline-enabled`) ? s.get_double(`${p}-outline-width`) : 0.0);
-        this._uniforms.set('outline_r', r);
-        this._uniforms.set('outline_g', g);
-        this._uniforms.set('outline_b', b);
+        this._uniforms.set('outline_width', 0.0);
+        this._uniforms.set('outline_r', 1.0);
+        this._uniforms.set('outline_g', 1.0);
+        this._uniforms.set('outline_b', 1.0);
     }
 }

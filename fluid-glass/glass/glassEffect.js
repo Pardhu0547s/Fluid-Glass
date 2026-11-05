@@ -208,15 +208,13 @@ export class GlassHandle {
  * Configure shader properties on a BackdropGlass actor.
  */
 function applyGlassParameters(glass, options) {
-    const settings = options.settings ?? getDefaultSettings();
-
-    const cornerRadius = options.cornerRadius ?? (settings?.get_double('panel-menu-corner-radius') ?? 22.0);
-    const blurRadius = options.blurRadius ?? (settings?.get_int('panel-menu-blur-radius') ?? 24);
-    const tintColor = options.tintColor ?? (settings?.get_string('panel-menu-tint-color') ?? '#ffffff');
-    const tintStrength = options.tintStrength ?? (settings?.get_double('panel-menu-tint-strength') ?? 0.12);
-    const brightness = options.brightness ?? (settings?.get_double('panel-menu-brightness') ?? 1.0);
-    const contrast = options.contrast ?? (settings?.get_double('panel-menu-contrast') ?? 1.0);
-    const saturation = options.saturation ?? (settings?.get_double('panel-menu-saturation') ?? 1.0);
+    const cornerRadius = options.cornerRadius ?? 22.0;
+    const blurRadius = 24;
+    const tintColor = '#ffffff';
+    const tintStrength = 0.0;
+    const brightness = 1.0;
+    const contrast = 1.0;
+    const saturation = 1.0;
     const padding = options.padding ?? SHADER_PADDING;
 
     glass.setPadding(padding);

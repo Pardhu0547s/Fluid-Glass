@@ -284,12 +284,20 @@ export const LintelSystemMenu = GObject.registerClass({
     // ---- Menu ---------------------------------------------------------------
 
     _styleMenu() {
+        const clearStyle = 'background: transparent !important; background-color: transparent !important; background-image: none !important; border: none !important; box-shadow: none !important; -boxpointer-gap: 0px;';
         this.menu.actor.add_style_class_name('lintel-system-menu');
+        this.menu.actor.add_style_class_name('liquid-glass-transparent');
+        this.menu.actor.set_style(clearStyle);
         this.menu.box.add_style_class_name('lintel-system-menu-content');
+        this.menu.box.add_style_class_name('liquid-glass-transparent');
+        this.menu.box.set_style(clearStyle);
         syncMenuTheme(this.menu.box);
         this.menu.connect('open-state-changed', (_m, open) => {
-            if (open)
+            if (open) {
+                this.menu.actor.set_style(clearStyle);
+                this.menu.box.set_style(clearStyle);
                 syncMenuTheme(this.menu.box);
+            }
         });
 
         // Tahoe's menu is a single continuous translucent material; the CSS
