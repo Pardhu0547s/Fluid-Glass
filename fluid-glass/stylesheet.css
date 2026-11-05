@@ -910,7 +910,9 @@
     height: 18px;
     padding: 0;
     border-radius: 999px;
-    border: 1px solid transparent;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
     transition-duration: 120ms;
 }
 
@@ -918,32 +920,22 @@
     icon-size: 10px;
 }
 
-.lintel-nc-dark .lintel-nc-clear-button {
-    color: rgba(255, 255, 255, 0.95);
-    background-color: rgba(255, 255, 255, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.24);
-    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
-}
-
+.lintel-nc-dark .lintel-nc-clear-button,
 .lintel-nc-light .lintel-nc-clear-button {
-    color: rgba(29, 29, 31, 0.85);
-    background-color: rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.08);
+    color: rgba(255, 255, 255, 0.95);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
 }
 
-.lintel-nc-dark .lintel-nc-clear-button:hover {
-    background-color: rgba(255, 255, 255, 0.24);
-    border-color: rgba(255, 255, 255, 0.36);
-}
-
+.lintel-nc-dark .lintel-nc-clear-button:hover,
 .lintel-nc-light .lintel-nc-clear-button:hover {
-    background-color: rgba(255, 255, 255, 0.90);
-    border-color: rgba(255, 255, 255, 0.98);
+    background-color: transparent;
+    border: none;
 }
 
 .lintel-nc-clear-button:focus {
-    border-color: rgba(10, 132, 255, 0.90);
+    border: none;
 }
 
 .lintel-nc-notifications {
@@ -972,84 +964,49 @@
 #lintelNotificationCenter .message {
     margin: 0 0 8px 0 !important;
     padding: 9px 10px 12px 12px;
-    border-radius: 18px;
-    border-width: 1px;
-    border-style: solid;
+    border-radius: 24px;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
     transition-duration: 140ms;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message {
-    color: rgba(255, 255, 255, 0.96);
-    background-color: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 20px;
-    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.20);
-}
-
+#lintelNotificationCenter.lintel-nc-dark .message,
 #lintelNotificationCenter.lintel-nc-light .message {
-    color: #1d1d1f;
-    background-color: rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.90);
-    border-radius: 20px;
-    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.08);
+    color: rgba(255, 255, 255, 0.96);
+    background-color: transparent;
+    border: none;
+    border-radius: 24px;
+    box-shadow: none;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message:hover {
-    background-color: rgba(255, 255, 255, 0.20);
-    border-color: rgba(255, 255, 255, 0.32);
-}
-
+#lintelNotificationCenter.lintel-nc-dark .message:hover,
 #lintelNotificationCenter.lintel-nc-light .message:hover {
-    background-color: rgba(255, 255, 255, 0.85);
-    border-color: rgba(255, 255, 255, 0.98);
+    background-color: transparent;
+    border: none;
 }
 
 #lintelNotificationCenter .message:focus {
-    border-color: rgba(0, 122, 255, 0.85);
+    border: none;
 }
 
-/* A collapsed group shows the next cards peeking out underneath; they must
- * read as further back, not as copies of the front card. */
-#lintelNotificationCenter.lintel-nc-dark .message:second-in-stack {
-    background-color: rgba(255, 255, 255, 0.10);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.15);
-}
-
-#lintelNotificationCenter.lintel-nc-dark .message:lower-in-stack {
-    background-color: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 2px 10px 0 rgba(0, 0, 0, 0.12);
-}
-
-#lintelNotificationCenter.lintel-nc-light .message:second-in-stack {
-    background-color: rgba(245, 247, 250, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.75);
-    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.06);
-}
-
+/* A collapsed group hides stacked cards underneath so only the pure glass front card shows. */
+#lintelNotificationCenter.lintel-nc-dark .message:second-in-stack,
+#lintelNotificationCenter.lintel-nc-dark .message:lower-in-stack,
+#lintelNotificationCenter.lintel-nc-light .message:second-in-stack,
 #lintelNotificationCenter.lintel-nc-light .message:lower-in-stack {
-    background-color: rgba(235, 238, 242, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.60);
-    box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.04);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message.lintel-nc-collapsed-stack-front {
-    background-color: rgba(255, 255, 255, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.24);
-}
-
-#lintelNotificationCenter.lintel-nc-dark .message.lintel-nc-collapsed-stack-front:hover {
-    background-color: rgba(255, 255, 255, 0.22);
-}
-
-#lintelNotificationCenter.lintel-nc-light .message.lintel-nc-collapsed-stack-front {
-    background-color: rgba(255, 255, 255, 0.70);
-    border: 1px solid rgba(255, 255, 255, 0.90);
-}
-
+#lintelNotificationCenter.lintel-nc-dark .message.lintel-nc-collapsed-stack-front,
+#lintelNotificationCenter.lintel-nc-dark .message.lintel-nc-collapsed-stack-front:hover,
+#lintelNotificationCenter.lintel-nc-light .message.lintel-nc-collapsed-stack-front,
 #lintelNotificationCenter.lintel-nc-light .message.lintel-nc-collapsed-stack-front:hover {
-    background-color: rgba(255, 255, 255, 0.90);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 #lintelNotificationCenter .message .message-header {
@@ -1073,13 +1030,10 @@
 }
 
 #lintelNotificationCenter.lintel-nc-dark .message .message-header,
-#lintelNotificationCenter.lintel-nc-dark .message .message-header .event-time {
-    color: rgba(255, 255, 255, 0.70);
-}
-
+#lintelNotificationCenter.lintel-nc-dark .message .message-header .event-time,
 #lintelNotificationCenter.lintel-nc-light .message .message-header,
 #lintelNotificationCenter.lintel-nc-light .message .message-header .event-time {
-    color: rgba(29, 29, 31, 0.58);
+    color: rgba(255, 255, 255, 0.72);
 }
 
 #lintelNotificationCenter .message .message-header .message-expand-button,
@@ -1088,8 +1042,9 @@
     min-height: 0;
     padding: 4px !important;
     margin: 0;
-    border: 0 solid transparent;
+    border: none;
     border-radius: 999px;
+    background-color: transparent;
     box-shadow: none;
 }
 
@@ -1100,25 +1055,18 @@
 }
 
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button,
-#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button {
-    color: rgba(255, 255, 255, 0.82);
-    background-color: rgba(255, 255, 255, 0.10);
-}
-
+#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button,
 #lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button,
 #lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button {
-    color: rgba(29, 29, 31, 0.70);
-    background-color: rgba(0, 0, 0, 0.06);
+    color: rgba(255, 255, 255, 0.85);
+    background-color: transparent;
 }
 
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button:hover,
-#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button:hover {
-    background-color: rgba(255, 255, 255, 0.20);
-}
-
+#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button:hover,
 #lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button:hover,
 #lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button:hover {
-    background-color: rgba(0, 0, 0, 0.11);
+    background-color: transparent;
 }
 
 #lintelNotificationCenter .message .message-box {
@@ -1141,14 +1089,12 @@
     min-width: 32px;
     min-height: 32px;
     border-radius: 9px;
+    background-color: transparent;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message .message-box .message-icon.message-themed-icon {
-    background-color: rgba(255, 255, 255, 0.10);
-}
-
+#lintelNotificationCenter.lintel-nc-dark .message .message-box .message-icon.message-themed-icon,
 #lintelNotificationCenter.lintel-nc-light .message .message-box .message-icon.message-themed-icon {
-    background-color: rgba(0, 0, 0, 0.06);
+    background-color: transparent;
 }
 
 #lintelNotificationCenter .message .message-box .message-content {
@@ -1164,12 +1110,9 @@
     font-size: 9.75pt;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message .message-body {
-    color: rgba(255, 255, 255, 0.86);
-}
-
+#lintelNotificationCenter.lintel-nc-dark .message .message-body,
 #lintelNotificationCenter.lintel-nc-light .message .message-body {
-    color: rgba(29, 29, 31, 0.86);
+    color: rgba(255, 255, 255, 0.88);
 }
 
 #lintelNotificationCenter .message .message-action-bin {
@@ -1183,25 +1126,22 @@
     border-radius: 999px;
     font-size: 8.75pt;
     font-weight: 600;
+    background-color: transparent;
+    border: none;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .notification-button {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.16);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-}
-
+#lintelNotificationCenter.lintel-nc-dark .notification-button,
 #lintelNotificationCenter.lintel-nc-light .notification-button {
-    color: #1d1d1f;
-    background-color: rgba(0, 0, 0, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.75);
+    color: #ffffff;
+    background-color: transparent;
+    border: none;
 }
 
 #lintelNotificationCenter .notification-button:hover,
 #lintelNotificationCenter .notification-button:focus {
     color: #ffffff;
-    background-color: #007aff;
-    border-color: rgba(255, 255, 255, 0.38);
+    background-color: transparent;
+    border: none;
 }
 
 /* An expanded group's title and collapse button sit on the wallpaper. */
@@ -1219,7 +1159,7 @@
 
 #lintelNotificationCenter .message-notification-group .message-collapse-button {
     color: rgba(255, 255, 255, 0.90);
-    background-color: rgba(58, 62, 68, 0.78);
+    background-color: transparent;
 }
 
 /* ── Widgets ──
@@ -1240,10 +1180,11 @@
 }
 
 .lintel-nc-widget-card {
-    padding: 14px 16px;
+    padding: 15px 17px;
     border-radius: 24px;
-    border-width: 1px;
-    border-style: solid;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
     transition-duration: 140ms;
 }
 
@@ -1257,35 +1198,22 @@
 }
 
 .lintel-nc-dark .lintel-nc-widget-card,
-.lintel-nc-dark .lintel-nc-widget-gallery {
-    color: rgba(255, 255, 255, 0.96);
-    background-color: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.20);
-}
-
+.lintel-nc-dark .lintel-nc-widget-gallery,
 .lintel-nc-light .lintel-nc-widget-card,
 .lintel-nc-light .lintel-nc-widget-gallery {
-    color: #1d1d1f;
-    background-color: rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.90);
-    box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.08);
+    color: rgba(255, 255, 255, 0.96);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
-.lintel-nc-widget-card:hover {
-    border-color: rgba(255, 255, 255, 0.38);
-}
-
-.lintel-nc-dark .lintel-nc-widget-card:hover {
-    background-color: rgba(255, 255, 255, 0.18);
-}
-
-.lintel-nc-light .lintel-nc-widget-card:hover {
-    background-color: rgba(255, 255, 255, 0.85);
-}
-
+.lintel-nc-widget-card:hover,
+.lintel-nc-dark .lintel-nc-widget-card:hover,
+.lintel-nc-light .lintel-nc-widget-card:hover,
 .lintel-nc-widget-card:focus {
-    border-color: rgba(0, 122, 255, 0.85);
+    background-color: transparent;
+    border: none;
 }
 
 .lintel-nc-widget-title {
@@ -1301,22 +1229,19 @@
 .lintel-nc-dark .lintel-nc-widget-subtitle,
 .lintel-nc-dark .lintel-nc-calendar-weekday,
 .lintel-nc-dark .lintel-nc-calendar-year,
-.lintel-nc-dark .lintel-nc-forecast-time {
-    color: rgba(255, 255, 255, 0.70);
-}
-
+.lintel-nc-dark .lintel-nc-forecast-time,
 .lintel-nc-light .lintel-nc-widget-subtitle,
 .lintel-nc-light .lintel-nc-calendar-weekday,
 .lintel-nc-light .lintel-nc-calendar-year,
 .lintel-nc-light .lintel-nc-forecast-time {
-    color: rgba(29, 29, 31, 0.58);
+    color: rgba(255, 255, 255, 0.72);
 }
 
 /* Calendar — the small layout follows Tahoe's desktop calendar widget: red
  * month caps, single-letter weekdays, dimmed weekends, a red disc for today. */
 
 .lintel-nc-widget-small.lintel-nc-calendar-widget {
-    padding: 11px 12px;
+    padding: 12px 13px;
     height: 141px;
 }
 
@@ -1325,12 +1250,9 @@
     font-weight: 700;
 }
 
-.lintel-nc-dark .lintel-nc-calendar-month {
-    color: #ff453a;
-}
-
+.lintel-nc-dark .lintel-nc-calendar-month,
 .lintel-nc-light .lintel-nc-calendar-month {
-    color: #e0382e;
+    color: #ff453a;
 }
 
 .lintel-nc-calendar-year {
@@ -1379,13 +1301,10 @@
 }
 
 .lintel-nc-dark .lintel-nc-calendar-day-number.lintel-nc-calendar-weekend,
-.lintel-nc-dark .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend {
-    color: rgba(255, 255, 255, 0.45);
-}
-
+.lintel-nc-dark .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend,
 .lintel-nc-light .lintel-nc-calendar-day-number.lintel-nc-calendar-weekend,
 .lintel-nc-light .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend {
-    color: rgba(29, 29, 31, 0.40);
+    color: rgba(255, 255, 255, 0.50);
 }
 
 .lintel-nc-calendar-today {
@@ -1423,8 +1342,7 @@
     font-size: 10.5pt;
 }
 
-/* Weather — Tahoe paints the sky behind the forecast. The clear-day gradient
- * is sampled from the reference widget: #2d5285 at the top, #5e81ae below. */
+/* Weather — pure glass card without opaque sky gradient. */
 
 .lintel-nc-weather-location {
     font-size: 11.25pt;
@@ -1489,24 +1407,10 @@
 .lintel-notification-center .lintel-nc-weather-night,
 .lintel-notification-center .lintel-nc-weather-cloudy {
     color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.22);
-    background-gradient-direction: vertical;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
-}
-
-.lintel-notification-center .lintel-nc-weather-clear {
-    background-gradient-start: #2d5285;
-    background-gradient-end: #5e81ae;
-}
-
-.lintel-notification-center .lintel-nc-weather-night {
-    background-gradient-start: #0c1830;
-    background-gradient-end: #2c3d60;
-}
-
-.lintel-notification-center .lintel-nc-weather-cloudy {
-    background-gradient-start: #46525f;
-    background-gradient-end: #7a8896;
+    border: none;
+    background-color: transparent;
+    background-gradient-direction: none;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
 .lintel-nc-weather-clear .lintel-nc-forecast-time,
@@ -1523,12 +1427,12 @@
     height: 64px;
     -lintel-ring-fill: #30d158;
     -lintel-ring-low: #ff453a;
-    -lintel-ring-track: rgba(255, 255, 255, 0.16);
+    -lintel-ring-track: rgba(255, 255, 255, 0.22);
 }
 
 .lintel-nc-light .lintel-nc-battery-ring {
-    -lintel-ring-fill: #28b446;
-    -lintel-ring-track: rgba(0, 0, 0, 0.10);
+    -lintel-ring-fill: #30d158;
+    -lintel-ring-track: rgba(255, 255, 255, 0.22);
 }
 
 .lintel-nc-widget-medium .lintel-nc-battery-ring {
@@ -1569,15 +1473,15 @@
     width: 128px;
     height: 128px;
     -lintel-clock-second: #ff9f0a;
-    -lintel-clock-face: rgba(0, 0, 0, 0.45);
+    -lintel-clock-face: rgba(255, 255, 255, 0.14);
     -lintel-clock-tick: #ffffff;
     -lintel-clock-hand: #ffffff;
 }
 
 .lintel-nc-light .lintel-nc-clock-face {
-    -lintel-clock-face: #ffffff;
-    -lintel-clock-tick: #1d1d1f;
-    -lintel-clock-hand: #1d1d1f;
+    -lintel-clock-face: rgba(255, 255, 255, 0.14);
+    -lintel-clock-tick: #ffffff;
+    -lintel-clock-hand: #ffffff;
 }
 
 .lintel-nc-widget-medium .lintel-nc-clock-face {
@@ -1616,8 +1520,8 @@
 .lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-title,
 .lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-artist,
 .lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-control {
-    color: #1d1d1f;
-    text-shadow: none;
+    color: #ffffff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.30);
 }
 
 /* ── Editing ── controls float over the widget instead of shifting the column. */
@@ -1689,22 +1593,19 @@
     font-weight: 600;
 }
 
-.lintel-nc-dark .lintel-nc-widget-placeholder {
-    color: rgba(255, 255, 255, 0.60);
-    background-color: rgba(30, 32, 36, 0.50);
-}
-
+.lintel-nc-dark .lintel-nc-widget-placeholder,
 .lintel-nc-light .lintel-nc-widget-placeholder {
-    color: rgba(29, 29, 31, 0.55);
-    background-color: rgba(246, 248, 250, 0.55);
+    color: rgba(255, 255, 255, 0.70);
+    background-color: transparent;
 }
 
 .lintel-nc-widget-gallery {
-    padding: 12px;
+    padding: 13px;
     spacing: 2px;
     border-radius: 24px;
-    border-width: 1px;
-    border-style: solid;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
 }
 
 .lintel-nc-gallery-title {
@@ -1724,13 +1625,10 @@
 }
 
 .lintel-nc-dark .lintel-nc-gallery-item:hover,
-.lintel-nc-dark .lintel-nc-gallery-item:focus {
-    background-color: rgba(255, 255, 255, 0.10);
-}
-
+.lintel-nc-dark .lintel-nc-gallery-item:focus,
 .lintel-nc-light .lintel-nc-gallery-item:hover,
 .lintel-nc-light .lintel-nc-gallery-item:focus {
-    background-color: rgba(0, 0, 0, 0.06);
+    background-color: transparent;
 }
 
 .lintel-nc-gallery-add {
@@ -1741,35 +1639,28 @@
     border-radius: 999px;
 }
 
-/* "Edit Widgets" is a small tinted-glass pill on the wallpaper, 22pt tall with
- * 11px type in the reference — a quiet control, not a primary button. Its
- * minimum height must come from the label: forcing min-height to zero lets an
- * overflowing BoxLayout squash the whole button down to its 8px of chrome. */
+/* "Edit Widgets" is a small glass pill on the wallpaper. */
 .lintel-nc-edit-button {
     margin-top: 8px;
-    padding: 3px 12px;
-    color: rgba(255, 255, 255, 0.90);
-    background-color: rgba(40, 44, 50, 0.58);
-    border: 1px solid rgba(255, 255, 255, 0.20);
-    border-radius: 999px;
+    padding: 4px 14px;
+    color: rgba(255, 255, 255, 0.92);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 24px;
     font-size: 8.25pt;
     font-weight: 500;
     transition-duration: 120ms;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
-.lintel-nc-edit-button:hover {
-    background-color: rgba(60, 64, 72, 0.76);
-}
-
-.lintel-nc-edit-button:focus {
-    border-color: rgba(10, 132, 255, 0.90);
-}
-
+.lintel-nc-edit-button:hover,
+.lintel-nc-edit-button:focus,
 .lintel-nc-edit-button.lintel-nc-edit-done {
     color: #ffffff;
-    background-color: #0a84ff;
-    border-color: rgba(255, 255, 255, 0.30);
-    font-weight: 600;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
 }
 
 /* Up Next — Tahoe's calendar widget: red weekday and day number, then the
@@ -1830,17 +1721,14 @@
 .lintel-nc-dark .lintel-nc-upnext-section,
 .lintel-nc-dark .lintel-nc-screentime-title,
 .lintel-nc-dark .lintel-nc-screentime-message,
-.lintel-nc-dark .lintel-nc-chart-axis-label {
-    color: rgba(255, 255, 255, 0.70);
-}
-
+.lintel-nc-dark .lintel-nc-chart-axis-label,
 .lintel-nc-light .lintel-nc-event-time,
 .lintel-nc-light .lintel-nc-upnext-empty,
 .lintel-nc-light .lintel-nc-upnext-section,
 .lintel-nc-light .lintel-nc-screentime-title,
 .lintel-nc-light .lintel-nc-screentime-message,
 .lintel-nc-light .lintel-nc-chart-axis-label {
-    color: rgba(29, 29, 31, 0.58);
+    color: rgba(255, 255, 255, 0.72);
 }
 
 /* Screen Time — today's total, a week of daily bars with a dashed line at the
@@ -1884,18 +1772,12 @@
     spacing: 3px;
 }
 
-.lintel-nc-bar-chart {
+.lintel-nc-bar-chart,
+.lintel-nc-light .lintel-nc-bar-chart {
     -lintel-bar-fill: rgba(10, 132, 255, 0.55);
     -lintel-bar-highlight: #0a84ff;
     -lintel-bar-reference: rgba(255, 255, 255, 0.55);
-    -lintel-bar-baseline: rgba(255, 255, 255, 0.14);
-}
-
-.lintel-nc-light .lintel-nc-bar-chart {
-    -lintel-bar-fill: rgba(0, 122, 255, 0.45);
-    -lintel-bar-highlight: #007aff;
-    -lintel-bar-reference: rgba(0, 0, 0, 0.40);
-    -lintel-bar-baseline: rgba(0, 0, 0, 0.10);
+    -lintel-bar-baseline: rgba(255, 255, 255, 0.18);
 }
 
 .lintel-nc-week-chart {
@@ -1912,31 +1794,23 @@
     font-weight: 600;
 }
 
-.lintel-nc-limit-meter {
+.lintel-nc-limit-meter,
+.lintel-nc-light .lintel-nc-limit-meter {
     height: 5px;
     margin: 2px 0;
     -lintel-meter-fill: #30d158;
     -lintel-meter-over: #ff9f0a;
-    -lintel-meter-track: rgba(255, 255, 255, 0.16);
-}
-
-.lintel-nc-light .lintel-nc-limit-meter {
-    -lintel-meter-fill: #28b446;
-    -lintel-meter-track: rgba(0, 0, 0, 0.10);
+    -lintel-meter-track: rgba(255, 255, 255, 0.22);
 }
 
 /* System — processor, memory, storage and temperature as ring gauges (the
  * RingGauge Batteries uses), network rates and, on large, two minutes of
  * processor and network history. A gauge turns red at 90% or 90 °C. */
 
-.lintel-nc-ring {
-    -lintel-ring-low: #ff453a;
-    -lintel-ring-track: rgba(255, 255, 255, 0.16);
-}
-
+.lintel-nc-ring,
 .lintel-nc-light .lintel-nc-ring {
-    -lintel-ring-low: #e0382e;
-    -lintel-ring-track: rgba(0, 0, 0, 0.10);
+    -lintel-ring-low: #ff453a;
+    -lintel-ring-track: rgba(255, 255, 255, 0.22);
 }
 
 .lintel-nc-system-ring {
@@ -1954,36 +1828,24 @@
     height: 64px;
 }
 
-.lintel-nc-ring-cpu {
+.lintel-nc-ring-cpu,
+.lintel-nc-light .lintel-nc-ring-cpu {
     -lintel-ring-fill: #0a84ff;
 }
 
-.lintel-nc-ring-memory {
+.lintel-nc-ring-memory,
+.lintel-nc-light .lintel-nc-ring-memory {
     -lintel-ring-fill: #30d158;
 }
 
-.lintel-nc-ring-storage {
+.lintel-nc-ring-storage,
+.lintel-nc-light .lintel-nc-ring-storage {
     -lintel-ring-fill: #bf5af2;
 }
 
-.lintel-nc-ring-temperature {
-    -lintel-ring-fill: #ff9f0a;
-}
-
-.lintel-nc-light .lintel-nc-ring-cpu {
-    -lintel-ring-fill: #007aff;
-}
-
-.lintel-nc-light .lintel-nc-ring-memory {
-    -lintel-ring-fill: #28b446;
-}
-
-.lintel-nc-light .lintel-nc-ring-storage {
-    -lintel-ring-fill: #a550d8;
-}
-
+.lintel-nc-ring-temperature,
 .lintel-nc-light .lintel-nc-ring-temperature {
-    -lintel-ring-fill: #f08c00;
+    -lintel-ring-fill: #ff9f0a;
 }
 
 .lintel-nc-ring-value {
@@ -2046,36 +1908,25 @@
 .lintel-nc-dark .lintel-nc-system-title,
 .lintel-nc-dark .lintel-nc-gauge-caption,
 .lintel-nc-dark .lintel-nc-gauge-detail,
-.lintel-nc-dark .lintel-nc-system-rates {
-    color: rgba(255, 255, 255, 0.70);
-}
-
+.lintel-nc-dark .lintel-nc-system-rates,
 .lintel-nc-light .lintel-nc-system-title,
 .lintel-nc-light .lintel-nc-gauge-caption,
 .lintel-nc-light .lintel-nc-gauge-detail,
 .lintel-nc-light .lintel-nc-system-rates {
-    color: rgba(29, 29, 31, 0.58);
+    color: rgba(255, 255, 255, 0.72);
 }
 
-.lintel-nc-sparkline {
+.lintel-nc-sparkline,
+.lintel-nc-light .lintel-nc-sparkline {
     height: 56px;
     -lintel-spark-primary: #0a84ff;
     -lintel-spark-secondary: #ff9f0a;
-    -lintel-spark-baseline: rgba(255, 255, 255, 0.14);
+    -lintel-spark-baseline: rgba(255, 255, 255, 0.18);
 }
 
-.lintel-nc-sparkline-network {
-    -lintel-spark-primary: #30d158;
-}
-
-.lintel-nc-light .lintel-nc-sparkline {
-    -lintel-spark-primary: #007aff;
-    -lintel-spark-secondary: #f08c00;
-    -lintel-spark-baseline: rgba(0, 0, 0, 0.10);
-}
-
+.lintel-nc-sparkline-network,
 .lintel-nc-light .lintel-nc-sparkline-network {
-    -lintel-spark-primary: #28b446;
+    -lintel-spark-primary: #30d158;
 }
 
 /* --- Liquid Glass Transparent Overrides --- */

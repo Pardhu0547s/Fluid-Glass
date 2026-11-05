@@ -153,6 +153,8 @@ function _tickWhileMapped(actor, callback) {
     sync();
 }
 
+const CLEAR_THEME_STYLE = 'background: transparent !important; background-color: transparent !important; background-gradient-direction: none !important; border: none !important; box-shadow: none !important;';
+
 const WidgetCard = GObject.registerClass({
     GTypeName: 'FluidGlass_WidgetCard',
 }, class WidgetCard extends St.Button {
@@ -160,6 +162,7 @@ const WidgetCard = GObject.registerClass({
         super._init({
             style_class: `lintel-nc-widget-card lintel-nc-widget-${size} ` +
                 `lintel-nc-${kind}-widget`,
+            style: CLEAR_THEME_STYLE,
             can_focus: true,
             x_expand: true,
             clip_to_allocation: true,
@@ -619,6 +622,7 @@ export const MediaWidget = GObject.registerClass({
         super._init({
             style_class: `lintel-nc-widget-card lintel-nc-widget-${size} ` +
                 'lintel-nc-media-widget',
+            style: CLEAR_THEME_STYLE,
             orientation: Clutter.Orientation.VERTICAL,
             x_expand: true,
         });

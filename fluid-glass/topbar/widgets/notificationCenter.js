@@ -32,6 +32,9 @@ import {
     UpNextWidget,
     WeatherWidget,
 } from './ncWidgets.js';
+import {attachMultiRegionGlass} from '../../glassEffect.js';
+
+const CLEAR_THEME_STYLE = 'background: transparent !important; background-color: transparent !important; background-gradient-direction: none !important; border: none !important; box-shadow: none !important;';
 
 const COLUMN_WIDTH = 345;
 const SCREEN_INSET = 15;
@@ -85,6 +88,7 @@ export class LintelNotificationCenter {
         this._gallery = null;
         this._editButton = null;
         this._widgetRows = new Map();
+        this._glassHandle = null;
         this._hookedDateMenu = null;
         this._nativeClickGesture = null;
         this._nativeClickEnabled = true;
@@ -204,6 +208,7 @@ export class LintelNotificationCenter {
         this._clearButton = new St.Button({
             icon_name: 'window-close-symbolic',
             style_class: 'lintel-nc-clear-button',
+            style: CLEAR_THEME_STYLE,
             accessible_name: _('Clear all notifications'),
             can_focus: true,
             y_align: Clutter.ActorAlign.CENTER,
@@ -248,6 +253,7 @@ export class LintelNotificationCenter {
 
         this._gallery = new St.BoxLayout({
             style_class: 'lintel-nc-widget-gallery',
+            style: CLEAR_THEME_STYLE,
             orientation: Clutter.Orientation.VERTICAL,
             x_expand: true,
             visible: false,
@@ -257,6 +263,7 @@ export class LintelNotificationCenter {
         this._editButton = new St.Button({
             label: _('Edit Widgets'),
             style_class: 'lintel-nc-edit-button',
+            style: CLEAR_THEME_STYLE,
             accessible_name: _('Edit Widgets'),
             can_focus: true,
             x_align: Clutter.ActorAlign.CENTER,
@@ -276,6 +283,55 @@ export class LintelNotificationCenter {
         this._rebuildWidgets();
         this._syncNotifications();
         this._position();
+
+        try {
+            this._glassHandle = attachMultiRegionGlass(
+                this._column,
+                () => this._getVisibleGlassTargets(),
+                {
+                    owner: 'notificationCenter',
+                    cornerRadius: 24.0,
+                    blurRadius: 24,
+                    tintColor: '#ffffff',
+                    tintStrength: 0.0,
+                }
+            );
+        } catch (e) {
+            logError(e, 'lintel: attachMultiRegionGlass notificationCenter');
+        }
+    }
+
+    _getVisibleGlassTargets() {
+        const targets = [];
+
+        if (this._notificationScroll?.visible) {
+            for (const message of this._notificationMessages.keys()) {
+                if (!message.visible || !message.mapped)
+                    continue;
+                if (message.has_style_pseudo_class('second-in-stack') ||
+                    message.has_style_pseudo_class('lower-in-stack'))
+                    continue;
+                targets.push(message);
+            }
+        }
+
+        for (const slot of this._widgetRows.values()) {
+            if (!slot.visible)
+                continue;
+            const card = slot._lintelWidget?.visible
+                ? slot._lintelWidget
+                : slot._lintelPlaceholder;
+            if (card && card.visible)
+                targets.push(card);
+        }
+
+        if (this._gallery?.visible)
+            targets.push(this._gallery);
+
+        if (this._editButton?.visible)
+            targets.push(this._editButton);
+
+        return targets;
     }
 
     _trackNotificationGroup(group) {
@@ -312,6 +368,7 @@ export class LintelNotificationCenter {
         if (this._notificationMessages.has(message))
             return;
 
+        message.set_style(CLEAR_THEME_STYLE);
         const content = message.get_child?.();
         if (!content)
             return;
@@ -341,6 +398,7 @@ export class LintelNotificationCenter {
         const stacked = message.has_style_pseudo_class('second-in-stack') ||
             message.has_style_pseudo_class('lower-in-stack');
         record.content.opacity = stacked ? 0 : record.opacity;
+        message.opacity = stacked ? 0 : 255;
 
         // Mask the translucent background layers underneath the front card.
         // The class is absent while expanded, so individual cards keep their
@@ -671,6 +729,7 @@ export class LintelNotificationCenter {
         const placeholder = new St.Bin({
             style_class: `lintel-nc-widget-card lintel-nc-widget-${size} ` +
                 'lintel-nc-widget-placeholder',
+            style: CLEAR_THEME_STYLE,
             child: new St.Label({
                 text: title,
                 x_align: Clutter.ActorAlign.CENTER,
@@ -910,6 +969,7 @@ export class LintelNotificationCenter {
         this._column.remove_all_transitions();
         this._root.reactive = true;
         this._root.show();
+        this._glassHandle?.show();
         this._column.opacity = 0;
         this._column.translation_x = 34;
         this._hookedDateMenu?.add_style_pseudo_class('active');
@@ -969,6 +1029,7 @@ export class LintelNotificationCenter {
             if (this._open || !this._root)
                 return;
             this._closing = false;
+            this._glassHandle?.hide();
             this._root.hide();
             this._root.reactive = true;
             this._column.opacity = 255;
@@ -998,6 +1059,8 @@ export class LintelNotificationCenter {
             return;
         this._enabled = false;
         this.close(false);
+        this._glassHandle?.destroy();
+        this._glassHandle = null;
         this._removeClockHook();
 
         for (const id of this._settingsIds)
