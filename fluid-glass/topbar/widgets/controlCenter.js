@@ -411,6 +411,8 @@ export const ControlCenter = GObject.registerClass({
                     modules.push(child);
             }
         }
+        if (this._editButton && this._editButton.visible && !this._editing)
+            modules.push(this._editButton);
         return modules;
     }
 

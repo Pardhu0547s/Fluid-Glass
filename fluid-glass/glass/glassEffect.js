@@ -306,6 +306,8 @@ export function attachGlass(targetActor, options = {}) {
         handle.glass.setResolution(screenW, screenH);
         handle.glass.setGlassGeometry(localBgX, localBgY, bgW, bgH);
         handle.glass.syncSources();
+        if (!handle.glass.visible)
+            handle.glass.show();
     };
 
     const handle = new GlassHandle(glass, targetActor, options, syncFn);
@@ -419,6 +421,8 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
         handle.glass.setResolution(screenW, screenH);
         handle.glass.setGlassGeometry(unionX, unionY, unionW, unionH);
         handle.glass.syncSources();
+        if (!handle.glass.visible)
+            handle.glass.show();
     };
 
     const handle = new GlassHandle(glass, containerActor, options, syncFn);
