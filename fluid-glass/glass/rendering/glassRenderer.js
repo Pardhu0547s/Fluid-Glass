@@ -2,8 +2,8 @@ import Cogl from 'gi://Cogl';
 import { BlurRenderer, ShaderPipelines, configureSamplerLayer, SHAPE_LAYER, RenderPasses } from './pipelines.js';
 import { setUniformArray } from '../shellVersion.js';
 import { hexToColorArray } from '../animation.js';
-// Must match glass.frag's `#define MAX_GLASS_REGIONS 32`.
-export const MAX_GLASS_REGIONS = 32;
+// Must match glass.frag's `#define MAX_GLASS_REGIONS 64`.
+export const MAX_GLASS_REGIONS = 64;
 
 /**
  * What every glass draws with, whatever supplies its backdrop: the shader
@@ -244,6 +244,9 @@ export class GlassRenderer {
     }
 
     setGlassRegions(regions) {
+        if (regions.length > MAX_GLASS_REGIONS) {
+            log(`[Fluid Glass] Warning: region count ${regions.length} exceeds MAX_GLASS_REGIONS (${MAX_GLASS_REGIONS})`);
+        }
         const clamped = regions.slice(0, MAX_GLASS_REGIONS);
         const rx = new Array(MAX_GLASS_REGIONS).fill(0.0);
         const ry = new Array(MAX_GLASS_REGIONS).fill(0.0);

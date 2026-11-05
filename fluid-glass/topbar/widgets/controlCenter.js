@@ -781,8 +781,11 @@ export const ControlCenter = GObject.registerClass({
         }
 
         // Mirrored third-party toggles follow the user's controls as capsules.
-        for (const key of this._extensionOrder)
-            grid.push({actor: this._extensionTiles.get(key), shape: 'wide'});
+        for (const key of this._extensionOrder) {
+            const tile = this._extensionTiles.get(key);
+            if (tile && tile.visible)
+                grid.push({actor: tile, shape: 'wide'});
+        }
         this._grid.setModules(grid);
     }
 
