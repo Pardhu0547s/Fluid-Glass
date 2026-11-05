@@ -493,13 +493,13 @@
 
 /* An enabled toggle turns the WHOLE capsule electric blue with specular rim. */
 .lintel-cc-tile:checked {
-    background-color: #007aff !important;
+    background-color: rgba(0, 122, 255, 0.45) !important;
     border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
     box-shadow: 0 0 24px 0 rgba(0, 122, 255, 0.50), 0 8px 24px 0 rgba(0, 0, 0, 0.18), inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.85) !important;
 }
 
 .lintel-cc-tile:checked:hover {
-    background-color: #268aff !important;
+    background-color: rgba(38, 138, 255, 0.55) !important;
 }
 
 .lintel-cc-tile-box {

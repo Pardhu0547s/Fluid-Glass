@@ -30,6 +30,16 @@ export const CCTile = GObject.registerClass({
             toggle_mode: true,
         });
 
+        const updateStyle = () => {
+            if (this.checked) {
+                this.set_style('background-color: rgba(0, 122, 255, 0.45) !important;');
+            } else {
+                this.set_style('background-color: transparent !important; background: transparent !important;');
+            }
+        };
+        this.connect('notify::checked', updateStyle);
+        updateStyle();
+
         const box = new St.BoxLayout({
             style_class: 'lintel-cc-tile-box',
             x_expand: true,
@@ -124,6 +134,7 @@ class CCMediaCard extends St.BoxLayout {
             style_class: styleClass,
             accessible_name: _('Now Playing'),
             x_expand: true,
+            style: 'background-color: transparent !important; background: transparent !important;',
         });
 
         const header = new St.BoxLayout({
@@ -239,6 +250,7 @@ export const CCSlider = GObject.registerClass({
             style_class: 'lintel-cc-slider',
             accessible_name: title,
             x_expand: true,
+            style: 'background-color: transparent !important; background: transparent !important;',
         });
 
         this._block = false;
