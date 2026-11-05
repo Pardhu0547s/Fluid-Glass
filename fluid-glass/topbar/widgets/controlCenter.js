@@ -439,7 +439,11 @@ export const ControlCenter = GObject.registerClass({
                     modules.push(child);
             }
         }
-        if (this._editButton && this._editButton.visible && this._editButton.mapped && !this._editing)
+        if (this._toolbar && this._toolbar.visible && this._toolbar.mapped)
+            modules.push(this._toolbar);
+        if (this._gallery && this._gallery.visible && this._gallery.mapped)
+            modules.push(this._gallery);
+        if (this._editButton && this._editButton.visible && this._editButton.mapped)
             modules.push(this._editButton);
         return modules;
     }
