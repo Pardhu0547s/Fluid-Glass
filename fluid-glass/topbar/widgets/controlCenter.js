@@ -524,9 +524,13 @@ export const ControlCenter = GObject.registerClass({
             () => this._moveControl(this._selected, -1));
         this._moveLater = this._editTool({icon_name: 'go-next-symbolic'},
             () => this._moveControl(this._selected, 1));
+        this._moveUp = this._editTool({icon_name: 'go-up-symbolic'},
+            () => this._moveControlVertical(this._selected, -1));
+        this._moveDown = this._editTool({icon_name: 'go-down-symbolic'},
+            () => this._moveControlVertical(this._selected, 1));
         this._sizeTool = this._editTool({label: ''},
             () => this._cycleSize(this._selected));
-        for (const tool of [this._moveEarlier, this._moveLater, this._sizeTool])
+        for (const tool of [this._moveEarlier, this._moveLater, this._moveUp, this._moveDown, this._sizeTool])
             this._toolbar.add_child(tool);
         content.add_child(this._toolbar);
 
@@ -607,6 +611,14 @@ export const ControlCenter = GObject.registerClass({
                 _('Move %s earlier').format(selected.title);
             this._moveLater.accessible_name =
                 _('Move %s later').format(selected.title);
+
+            const canUp = this._canMoveVertical(selected, -1);
+            const canDown = this._canMoveVertical(selected, 1);
+            this._moveUp.reactive = canUp;
+            this._moveDown.reactive = canDown;
+            this._moveUp.accessible_name = _('Move %s up').format(selected.title);
+            this._moveDown.accessible_name = _('Move %s down').format(selected.title);
+
             this._sizeTool.visible = selected.sizes.length > 1;
             this._sizeTool.label = SIZE_LABELS[selected.shape] ?? '';
             this._sizeTool.accessible_name =
@@ -665,6 +677,21 @@ export const ControlCenter = GObject.registerClass({
         });
     }
 
+    _canMoveVertical(control, dir) {
+        if (!control)
+            return false;
+        const order = this._controlOrder();
+        const peers = this._peers(order, control);
+        const index = peers.indexOf(control.id);
+        if (index < 0)
+            return false;
+        if (control.slider)
+            return (dir < 0 && index > 0) || (dir > 0 && index < peers.length - 1);
+        const step = 2; // Two capsules / half-columns per grid row
+        const targetIndex = index + dir * step;
+        return targetIndex >= 0 && targetIndex < peers.length;
+    }
+
     _moveControl(id, delta) {
         const control = this._controls.get(id);
         if (!control)
@@ -672,6 +699,32 @@ export const ControlCenter = GObject.registerClass({
         const order = this._controlOrder();
         const peers = this._peers(order, control);
         const target = peers[peers.indexOf(id) + delta];
+        if (!target)
+            return;
+        const from = order.indexOf(id);
+        const to = order.indexOf(target);
+        [order[from], order[to]] = [order[to], order[from]];
+        this._setControlOrder(order);
+    }
+
+    _moveControlVertical(id, dir) {
+        const control = this._controls.get(id);
+        if (!control)
+            return;
+        const order = this._controlOrder();
+        const peers = this._peers(order, control);
+        const currentIndex = peers.indexOf(id);
+        if (currentIndex < 0)
+            return;
+        const step = control.slider ? 1 : 2;
+        let targetIndex = currentIndex + dir * step;
+        if (targetIndex < 0)
+            targetIndex = 0;
+        if (targetIndex >= peers.length)
+            targetIndex = peers.length - 1;
+        if (targetIndex === currentIndex)
+            return;
+        const target = peers[targetIndex];
         if (!target)
             return;
         const from = order.indexOf(id);
