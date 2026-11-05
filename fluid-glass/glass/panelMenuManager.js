@@ -89,7 +89,7 @@ export class PanelMenuManager {
             for (const [menuName, menu] of menusOf(name, button)) {
                 // Dummy menus and custom non-popup actors cannot use UIManager.
                 // Calendar and Quick Settings already have their own managers.
-                if (!(menu instanceof PopupMenu.PopupMenu) || reserved.has(menu) || !menu.actor || !menu.box || menuName === 'lintel-control-center' || menuName.includes('control-center'))
+                if (!(menu instanceof PopupMenu.PopupMenu) || reserved.has(menu) || !menu.actor || !menu.box)
                     continue;
                 detected.push(menuName);
                 const allowed = LEGACY_KEYS[menuName]
@@ -137,11 +137,11 @@ export class PanelMenuManager {
     // way UIManager expects; such a menu is skipped instead of stopping the scan.
     _attachWanted(wanted) {
         for (const [menu, { name }] of wanted) {
-            const prefix = (name === 'lintel-control-center' || name.includes('control-center')) ? 'dock' : PANEL_MENU_PREFIX;
-            const manager = new UIManager(this._path, this._settings, this._logger, { menu }, false, 'enable-extra-menu-glass', prefix, `menu:${name}`, false);
+            const manager = new UIManager(this._path, this._settings, this._logger, { menu }, false, 'enable-extra-menu-glass', PANEL_MENU_PREFIX, `menu:${name}`, false);
             try {
                 manager.setup();
                 this._menus.set(menu, { name, manager });
+                this._logger.log(`[Liquid Glass] Extra panel menu glass attached to "${name}"`);
             }
             catch (e) {
                 manager.cleanup();
