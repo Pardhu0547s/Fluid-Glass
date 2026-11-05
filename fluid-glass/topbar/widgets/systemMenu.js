@@ -27,6 +27,7 @@ import St from 'gi://St';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
+import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 import {_} from '../i18n.js';
 import {syncMenuTheme} from './statusMenu.js';
 

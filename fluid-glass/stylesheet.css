@@ -485,15 +485,16 @@
 /* Artwork and metadata form one compact header; transport controls remain a
  * separate, evenly distributed row like Tahoe's Now Playing module. */
 .lintel-cc-media {
+    width: 140px;
     min-width: 140px;
-    min-height: 118px;
+    max-width: 140px;
     height: 118px;
+    min-height: 118px;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     border-radius: 24px;
     padding: 10px;
-    spacing: 8px;
     box-shadow: none !important;
 }
 
@@ -505,10 +506,21 @@
     spacing: 1px;
 }
 
+.lintel-cc-media-artwork-bin {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    max-width: 36px;
+    max-height: 36px;
+}
+
 .lintel-cc-media-artwork {
     icon-size: 24px;
     width: 36px;
     height: 36px;
+    max-width: 36px;
+    max-height: 36px;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;

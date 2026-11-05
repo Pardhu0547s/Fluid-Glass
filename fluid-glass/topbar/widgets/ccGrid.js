@@ -75,9 +75,10 @@ export function packModules(modules) {
         }
     }
 
-    // A half-width module next to an empty half takes the whole row.
+    // A single half-width 1-row capsule next to an empty half takes the whole row.
+    // Multi-row modules (like Now Playing: rows: 2) must never expand across all 4 columns.
     for (const placement of placements) {
-        if (placement.columns !== 2)
+        if (placement.columns !== 2 || placement.rows !== 1)
             continue;
         const other = placement.column === 0 ? 2 : 0;
         if (!free(placement.row, other, 2, placement.rows))

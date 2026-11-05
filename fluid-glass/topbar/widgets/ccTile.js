@@ -136,6 +136,8 @@ class CCMediaCard extends St.BoxLayout {
             style: clearThemeStyle,
         });
 
+        this._currentArtUrl = null;
+
         const header = new St.BoxLayout({
             style_class: 'lintel-cc-media-header',
             x_expand: true,
@@ -144,11 +146,22 @@ class CCMediaCard extends St.BoxLayout {
         this._artwork = new St.Icon({
             icon_name: 'audio-x-generic-symbolic',
             style_class: 'lintel-cc-media-artwork',
-            x_align: Clutter.ActorAlign.START,
+            icon_size: 24,
+            width: 36,
+            height: 36,
+            x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
             style: clearThemeStyle,
         });
-        header.add_child(this._artwork);
+        const artBin = new St.Bin({
+            style_class: 'lintel-cc-media-artwork-bin',
+            width: 36,
+            height: 36,
+            x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER,
+            child: this._artwork,
+        });
+        header.add_child(artBin);
 
         const metadata = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
@@ -175,10 +188,17 @@ class CCMediaCard extends St.BoxLayout {
         header.add_child(metadata);
         this.add_child(header);
 
+        // Flexible spacer keeps header at top and controls pinned neatly to bottom
+        const spacer = new St.Widget({
+            y_expand: true,
+        });
+        this.add_child(spacer);
+
         const controls = new St.BoxLayout({
             style_class: 'lintel-cc-media-controls',
             x_expand: true,
             x_align: Clutter.ActorAlign.FILL,
+            y_align: Clutter.ActorAlign.END,
         });
         const actions = [
             ['media-skip-backward-symbolic', _('Previous'), 'previous'],
@@ -225,20 +245,24 @@ class CCMediaCard extends St.BoxLayout {
         if (this._playIcon.icon_name !== nextPlayIcon)
             this._playIcon.icon_name = nextPlayIcon;
 
-        if (artUrl) {
-            try {
-                this._artwork.gicon = new Gio.FileIcon({
-                    file: Gio.File.new_for_uri(artUrl),
-                });
-                return;
-            } catch (_e) {
-                // Fall through to the neutral media glyph.
+        const nextArtUrl = artUrl || '';
+        if (this._currentArtUrl !== nextArtUrl) {
+            this._currentArtUrl = nextArtUrl;
+            if (nextArtUrl) {
+                try {
+                    this._artwork.gicon = new Gio.FileIcon({
+                        file: Gio.File.new_for_uri(nextArtUrl),
+                    });
+                    return;
+                } catch (_e) {
+                    // Fall through to the neutral media glyph.
+                }
             }
+            if (this._artwork.gicon)
+                this._artwork.gicon = null;
+            if (this._artwork.icon_name !== 'audio-x-generic-symbolic')
+                this._artwork.icon_name = 'audio-x-generic-symbolic';
         }
-        if (this._artwork.gicon)
-            this._artwork.gicon = null;
-        if (this._artwork.icon_name !== 'audio-x-generic-symbolic')
-            this._artwork.icon_name = 'audio-x-generic-symbolic';
     }
 });
 
