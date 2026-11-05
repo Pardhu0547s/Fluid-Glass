@@ -213,6 +213,12 @@ if [[ -d "${REPO_DIR}/fluid-glass" ]]; then
     cp "${EXT_DEST}/schemas/"*.xml "${HOME}/.local/share/glib-2.0/schemas/" 2>/dev/null || true
     glib-compile-schemas "${HOME}/.local/share/glib-2.0/schemas/" || true
   fi
+  if [[ -d "${REPO_DIR}/fluid-glass/presets" ]] && command -v dconf >/dev/null; then
+    info "Applying unified Fluid Glass default theme presets..."
+    [[ -f "${REPO_DIR}/fluid-glass/presets/lintel.dconf" ]] && dconf load /org/gnome/shell/extensions/lintel/ < "${REPO_DIR}/fluid-glass/presets/lintel.dconf" || true
+    [[ -f "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" ]] && dconf load /org/gnome/shell/extensions/liquid-glass/ < "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" || true
+    [[ -f "${REPO_DIR}/fluid-glass/presets/dock.dconf" ]] && dconf load /org/gnome/shell/extensions/dash2dock-lite/ < "${REPO_DIR}/fluid-glass/presets/dock.dconf" || true
+  fi
 fi
 
 if [[ -d "${REPO_DIR}/fluid-glass-app" ]]; then

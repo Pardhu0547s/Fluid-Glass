@@ -1,0 +1,11 @@
+[/]
+appearance='tahoe-transparent'
+clock-on-right=true
+clock-show-seconds=false
+control-center-control-sizes={'wifi': 'wide', 'media': 'large', 'bluetooth': 'small', 'airdrop': 'small', 'focus': 'wide', 'stage-manager': 'small', 'screen-mirroring': 'small', 'dark-mode': 'small', 'night-light': 'small', 'screenshot': 'small', 'airplane': 'small'}
+control-center-controls=['wifi', 'media', 'bluetooth', 'airdrop', 'focus', 'stage-manager', 'screen-mirroring', 'dark-mode', 'night-light', 'airplane', 'display', 'sound', 'screenshot']
+control-center-mode='custom'
+fullscreen-reveal=true
+notification-center-widgets=['calendar', 'weather', 'system']
+show-active-app=false
+show-menu-background=true

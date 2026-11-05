@@ -29,29 +29,7 @@ export default class FluidGlassExtension extends Extension {
 
         const extensionPath = this.dir.get_path();
 
-        // 1. Fluid Animated Dock Subsystem
-        if (this._masterSettings.get_boolean('enable-dock')) {
-            try {
-                this._dock = new DockSubsystem(this);
-                this._dock.enable();
-                console.log('[FluidGlass] Dock subsystem enabled');
-            } catch (err) {
-                console.error('[FluidGlass] Failed to initialize Dock:', err);
-            }
-        }
-
-        // 2. Liquid Glass GLSL Shader Engine Subsystem
-        if (this._masterSettings.get_boolean('enable-glass-shaders')) {
-            try {
-                this._glass = new GlassEngine(extensionPath, this._glassSettings, () => this.openPreferences());
-                this._glass.enable();
-                console.log('[FluidGlass] GLSL Glass Shader engine enabled');
-            } catch (err) {
-                console.error('[FluidGlass] Failed to initialize Glass Engine:', err);
-            }
-        }
-
-        // 3. Topbar & Tahoe Control Center Subsystem
+        // 1. Topbar & Tahoe Control Center Subsystem (Lintel)
         if (this._masterSettings.get_boolean('enable-topbar')) {
             try {
                 const topbarAdapter = {
@@ -71,12 +49,34 @@ export default class FluidGlassExtension extends Extension {
             }
         }
 
+        // 2. Liquid Glass GLSL Shader Engine Subsystem
+        if (this._masterSettings.get_boolean('enable-glass-shaders')) {
+            try {
+                this._glass = new GlassEngine(extensionPath, this._glassSettings, () => this.openPreferences());
+                this._glass.enable();
+                console.log('[FluidGlass] GLSL Glass Shader engine enabled');
+            } catch (err) {
+                console.error('[FluidGlass] Failed to initialize Glass Engine:', err);
+            }
+        }
+
+        // 3. Fluid Animated Dock Subsystem
+        if (this._masterSettings.get_boolean('enable-dock')) {
+            try {
+                this._dock = new DockSubsystem(this);
+                this._dock.enable();
+                console.log('[FluidGlass] Dock subsystem enabled');
+            } catch (err) {
+                console.error('[FluidGlass] Failed to initialize Dock:', err);
+            }
+        }
+
         // Master settings dynamic reaction
         this._settingsSignals = [];
         this._settingsSignals.push(
-            this._masterSettings.connect('changed::enable-dock', () => this._syncDockState()),
+            this._masterSettings.connect('changed::enable-topbar', () => this._syncTopbarState()),
             this._masterSettings.connect('changed::enable-glass-shaders', () => this._syncGlassState()),
-            this._masterSettings.connect('changed::enable-topbar', () => this._syncTopbarState())
+            this._masterSettings.connect('changed::enable-dock', () => this._syncDockState())
         );
 
         console.log('[FluidGlass] All subsystems initialized successfully.');
@@ -135,13 +135,14 @@ export default class FluidGlassExtension extends Extension {
             this._settingsSignals = [];
         }
 
-        if (this._topbar) {
+        // Disable in exact reverse order: Dock -> Glass -> Topbar
+        if (this._dock) {
             try {
-                this._topbar.destroy();
+                this._dock.disable();
             } catch (err) {
-                console.error('[FluidGlass] Error destroying topbar:', err);
+                console.error('[FluidGlass] Error disabling dock:', err);
             }
-            this._topbar = null;
+            this._dock = null;
         }
 
         if (this._glass) {
@@ -153,13 +154,13 @@ export default class FluidGlassExtension extends Extension {
             this._glass = null;
         }
 
-        if (this._dock) {
+        if (this._topbar) {
             try {
-                this._dock.disable();
+                this._topbar.destroy();
             } catch (err) {
-                console.error('[FluidGlass] Error disabling dock:', err);
+                console.error('[FluidGlass] Error destroying topbar:', err);
             }
-            this._dock = null;
+            this._topbar = null;
         }
 
         this._masterSettings = null;
