@@ -485,6 +485,8 @@
 /* Artwork and metadata form one compact header; transport controls remain a
  * separate, evenly distributed row like Tahoe's Now Playing module. */
 .lintel-cc-media {
+    min-width: 140px;
+    min-height: 118px;
     height: 118px;
     background: transparent !important;
     background-color: transparent !important;

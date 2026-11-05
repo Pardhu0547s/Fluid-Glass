@@ -234,7 +234,15 @@ export const ControlCenter = GObject.registerClass({
                     this._layoutControls();
             })]);
         }
-        for (const svc of [this._net, this._media,
+        if (this._media && typeof this._media.connect === 'function') {
+            this._serviceIds.push([this._media, this._media.connect('changed', () => {
+                if (this._disposed)
+                    return;
+                this._mediaCard.setTrack(this._media.title, this._media.artist,
+                    this._media.artUrl, this._media.playing);
+            })]);
+        }
+        for (const svc of [this._net,
             this._powerProfiles, this._qsBridge, this._adapters]) {
             if (svc && typeof svc.connect === 'function')
                 this._serviceIds.push([svc, svc.connect('changed', () => this._sync())]);

@@ -209,14 +209,21 @@ class CCMediaCard extends St.BoxLayout {
     }
 
     setTrack(title, artist, artUrl, playing) {
-        this._title.text = title || _('Not Playing');
-        // Read the argument, not the label back: an emptied St.Label reports
-        // `text` as null, which threw here and aborted the rest of _sync().
-        this._artist.text = artist || '';
-        this._artist.visible = Boolean(artist);
-        this._playIcon.icon_name = playing
+        const nextTitle = title || _('Not Playing');
+        if (this._title.text !== nextTitle)
+            this._title.text = nextTitle;
+
+        const nextArtist = artist || '';
+        if (this._artist.text !== nextArtist) {
+            this._artist.text = nextArtist;
+            this._artist.visible = Boolean(artist);
+        }
+
+        const nextPlayIcon = playing
             ? 'media-playback-pause-symbolic'
             : 'media-playback-start-symbolic';
+        if (this._playIcon.icon_name !== nextPlayIcon)
+            this._playIcon.icon_name = nextPlayIcon;
 
         if (artUrl) {
             try {
@@ -228,8 +235,10 @@ class CCMediaCard extends St.BoxLayout {
                 // Fall through to the neutral media glyph.
             }
         }
-        this._artwork.gicon = null;
-        this._artwork.icon_name = 'audio-x-generic-symbolic';
+        if (this._artwork.gicon)
+            this._artwork.gicon = null;
+        if (this._artwork.icon_name !== 'audio-x-generic-symbolic')
+            this._artwork.icon_name = 'audio-x-generic-symbolic';
     }
 });
 
