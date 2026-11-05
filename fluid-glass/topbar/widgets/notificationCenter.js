@@ -291,9 +291,9 @@ export class LintelNotificationCenter {
                 {
                     owner: 'notificationCenter',
                     cornerRadius: 24.0,
-                    blurRadius: 24,
+                    blurRadius: 10,
                     tintColor: '#ffffff',
-                    tintStrength: 0.0,
+                    tintStrength: 0.12,
                 }
             );
         } catch (e) {

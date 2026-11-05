@@ -122,11 +122,11 @@
       <summary>Tint color (Hex)</summary>
     </key>
     <key name="menu-tint-strength" type="d">
-      <default>0.20</default>
+      <default>0.12</default>
       <summary>Tint strength</summary>
     </key>
     <key name="menu-blur-radius" type="i">
-      <default>8</default>
+      <default>10</default>
       <summary>Blur radius</summary>
     </key>
     <key name="enable-keyboard-menu-glass" type="b">
@@ -241,11 +241,11 @@
       <summary>Tint color (Hex)</summary>
     </key>
     <key name="panel-menu-tint-strength" type="d">
-      <default>0.50</default>
+      <default>0.12</default>
       <summary>Tint strength</summary>
     </key>
     <key name="panel-menu-blur-radius" type="i">
-      <default>8</default>
+      <default>10</default>
       <summary>Blur radius</summary>
     </key>
     <key name="panel-menu-brightness" type="d">
@@ -261,7 +261,7 @@
       <summary>Saturation</summary>
     </key>
     <key name="panel-menu-corner-radius" type="d">
-      <default>16.0</default>
+      <default>26.0</default>
       <summary>Corner radius</summary>
     </key>
     <key name="panel-menu-glass-expand" type="i">

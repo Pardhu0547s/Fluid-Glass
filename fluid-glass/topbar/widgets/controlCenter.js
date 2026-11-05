@@ -423,9 +423,9 @@ export const ControlCenter = GObject.registerClass({
                     owner: 'controlCenter',
                     menu: this.menu,
                     cornerRadius: 22.0,
-                    blurRadius: 24,
+                    blurRadius: 10,
                     tintColor: '#ffffff',
-                    tintStrength: 0.0,
+                    tintStrength: 0.12,
                 }
             );
         } catch (e) {

@@ -180,19 +180,19 @@ export class GlassRenderer {
         this.blur.setBlurMethod(method);
     }
 
-    setBlurRadius(_radius) {
-        this.blur.setBlurRadius(24);
+    setBlurRadius(radius) {
+        this.blur.setBlurRadius(radius);
     }
 
-    setTintColor(_r, _g, _b) {
-        this.uniforms.set('tint_r', 1.0);
-        this.uniforms.set('tint_g', 1.0);
-        this.uniforms.set('tint_b', 1.0);
+    setTintColor(r, g, b) {
+        this.uniforms.set('tint_r', r);
+        this.uniforms.set('tint_g', g);
+        this.uniforms.set('tint_b', b);
         this._repaintIfDirty();
     }
 
-    setTintStrength(_strength) {
-        this.uniforms.set('tint_strength', 0.0);
+    setTintStrength(strength) {
+        this.uniforms.set('tint_strength', strength);
         this._repaintIfDirty();
     }
 

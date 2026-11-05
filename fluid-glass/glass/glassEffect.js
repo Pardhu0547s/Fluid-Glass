@@ -209,12 +209,12 @@ export class GlassHandle {
  */
 function applyGlassParameters(glass, options) {
     const cornerRadius = options.cornerRadius ?? 22.0;
-    const blurRadius = 24;
-    const tintColor = '#ffffff';
-    const tintStrength = 0.0;
-    const brightness = 1.0;
-    const contrast = 1.0;
-    const saturation = 1.0;
+    const blurRadius = options.blurRadius ?? 10;
+    const tintColor = options.tintColor ?? '#ffffff';
+    const tintStrength = options.tintStrength ?? 0.12;
+    const brightness = options.brightness ?? 1.0;
+    const contrast = options.contrast ?? 1.0;
+    const saturation = options.saturation ?? 1.5;
     const padding = options.padding ?? SHADER_PADDING;
 
     glass.setPadding(padding);

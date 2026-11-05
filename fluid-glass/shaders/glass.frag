@@ -636,9 +636,9 @@ void main() {
     // Two early exits for the regions where everything below collapses to a
     // constant. Together they cover most of every surface.
 
-    // Beyond the shadow's reach nothing is drawn. Multi-region mode has no
-    // shadow, so there it starts right at the edge.
-    float shadowReach = (multi_region_mode > 0.5) ? 0.0 : max(shadow_max_radius, 5.0);
+    // Beyond the shadow's reach nothing is drawn. In multi-region mode, a compact
+    // 14px shadow gives each floating capsule gentle depth.
+    float shadowReach = (multi_region_mode > 0.5) ? 14.0 : max(shadow_max_radius, 5.0);
     if (early_exit_enabled > 0.5 && debug_view < 0.5 && d >= max(shadowReach, edgeFeather)) {
         cogl_color_out = vec4(0.0);
         return;
@@ -750,7 +750,7 @@ void main() {
         shadowAlpha = max(shadowAlpha + ditherLSB(pixel_coord + vec2(37.0, 17.0)), 0.0);
 
     if (multi_region_mode > 0.5) {
-        shadowAlpha = 0.0;
+        shadowAlpha = min(shadowAlpha * 0.7, 0.45);
     }
 
     if (debug_view > 0.5) {
