@@ -49,6 +49,7 @@ export function isRepresentableQuickSettingsItem(item) {
 }
 
 export const QuickSettingsBridge = GObject.registerClass({
+    GTypeName: 'FluidGlass_QuickSettingsBridge',
     Signals: {'changed': {}},
 }, class QuickSettingsBridge extends GObject.Object {
     _init() {

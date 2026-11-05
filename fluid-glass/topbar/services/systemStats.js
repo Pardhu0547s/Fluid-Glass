@@ -149,6 +149,7 @@ function _push(history, value) {
 }
 
 const SystemStatsStore = GObject.registerClass({
+    GTypeName: 'FluidGlass_SystemStatsStore',
     Signals: {'changed': {}},
 }, class SystemStatsStore extends GObject.Object {
     _init() {
@@ -337,6 +338,7 @@ export function shutdownSystemStats() {
 }
 
 export const SystemStatsService = GObject.registerClass({
+    GTypeName: 'FluidGlass_SystemStatsService',
     Signals: {'changed': {}},
 }, class SystemStatsService extends GObject.Object {
     _init() {

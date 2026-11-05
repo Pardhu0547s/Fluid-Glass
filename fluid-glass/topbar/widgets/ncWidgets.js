@@ -153,8 +153,9 @@ function _tickWhileMapped(actor, callback) {
     sync();
 }
 
-const WidgetCard = GObject.registerClass(
-class WidgetCard extends St.Button {
+const WidgetCard = GObject.registerClass({
+    GTypeName: 'FluidGlass_WidgetCard',
+}, class WidgetCard extends St.Button {
     _init(kind, size, onActivated) {
         super._init({
             style_class: `lintel-nc-widget-card lintel-nc-widget-${size} ` +
@@ -197,8 +198,9 @@ class WidgetCard extends St.Button {
     }
 });
 
-export const CalendarWidget = GObject.registerClass(
-class CalendarWidget extends WidgetCard {
+export const CalendarWidget = GObject.registerClass({
+    GTypeName: 'FluidGlass_CalendarWidget',
+}, class CalendarWidget extends WidgetCard {
     _init(size, onActivated) {
         super._init('calendar', size, onActivated);
         this.refresh();
@@ -317,8 +319,9 @@ class CalendarWidget extends WidgetCard {
     }
 });
 
-export const WeatherWidget = GObject.registerClass(
-class WeatherWidget extends WidgetCard {
+export const WeatherWidget = GObject.registerClass({
+    GTypeName: 'FluidGlass_WeatherWidget',
+}, class WeatherWidget extends WidgetCard {
     _init(size, onActivated, {settings = null, openPreferences = null} = {}) {
         super._init('weather', size, onActivated);
         this._sky = '';
@@ -462,8 +465,9 @@ class WeatherWidget extends WidgetCard {
 
 // Tahoe's ring gauge, shared by Batteries and System. Its size and colours
 // (-lintel-ring-fill, -low, -track) come from the stylesheet.
-const RingGauge = GObject.registerClass(
-class RingGauge extends St.Widget {
+const RingGauge = GObject.registerClass({
+    GTypeName: 'FluidGlass_RingGauge',
+}, class RingGauge extends St.Widget {
     _init(styleClass, center = null) {
         super._init({
             style_class: `lintel-nc-ring ${styleClass}`,
@@ -530,8 +534,9 @@ class RingGauge extends St.Widget {
     }
 });
 
-export const BatteryWidget = GObject.registerClass(
-class BatteryWidget extends WidgetCard {
+export const BatteryWidget = GObject.registerClass({
+    GTypeName: 'FluidGlass_BatteryWidget',
+}, class BatteryWidget extends WidgetCard {
     _init(size, onActivated) {
         super._init('battery', size, onActivated);
         this._ring = new RingGauge('lintel-nc-battery-ring', new St.Icon({
@@ -607,8 +612,9 @@ class BatteryWidget extends WidgetCard {
     }
 });
 
-export const MediaWidget = GObject.registerClass(
-class MediaWidget extends St.BoxLayout {
+export const MediaWidget = GObject.registerClass({
+    GTypeName: 'FluidGlass_MediaWidget',
+}, class MediaWidget extends St.BoxLayout {
     _init(size) {
         super._init({
             style_class: `lintel-nc-widget-card lintel-nc-widget-${size} ` +
@@ -659,8 +665,9 @@ class MediaWidget extends St.BoxLayout {
     }
 });
 
-export const ClockWidget = GObject.registerClass(
-class ClockWidget extends WidgetCard {
+export const ClockWidget = GObject.registerClass({
+    GTypeName: 'FluidGlass_ClockWidget',
+}, class ClockWidget extends WidgetCard {
     _init(size, onActivated) {
         super._init('clock', size, onActivated);
         this._timerId = 0;
@@ -821,8 +828,9 @@ function _dayName(day, format) {
         Math.floor(day.date.getTime() / 1000)).format(format) ?? '');
 }
 
-export const UpNextWidget = GObject.registerClass(
-class UpNextWidget extends WidgetCard {
+export const UpNextWidget = GObject.registerClass({
+    GTypeName: 'FluidGlass_UpNextWidget',
+}, class UpNextWidget extends WidgetCard {
     _init(size, onActivated) {
         super._init('upnext', size, onActivated);
         this._service = new UpNextService();
@@ -942,8 +950,9 @@ class UpNextWidget extends WidgetCard {
     }
 });
 
-const BarChart = GObject.registerClass(
-class BarChart extends St.DrawingArea {
+const BarChart = GObject.registerClass({
+    GTypeName: 'FluidGlass_BarChart',
+}, class BarChart extends St.DrawingArea {
     _init(styleClass) {
         super._init({
             style_class: `lintel-nc-bar-chart ${styleClass}`,
@@ -1023,8 +1032,9 @@ class BarChart extends St.DrawingArea {
     }
 });
 
-const LimitMeter = GObject.registerClass(
-class LimitMeter extends St.DrawingArea {
+const LimitMeter = GObject.registerClass({
+    GTypeName: 'FluidGlass_LimitMeter',
+}, class LimitMeter extends St.DrawingArea {
     _init() {
         super._init({style_class: 'lintel-nc-limit-meter', x_expand: true});
         this._fraction = 0;
@@ -1076,8 +1086,9 @@ function _axis(texts, align = Clutter.ActorAlign.CENTER) {
     return row;
 }
 
-export const ScreenTimeWidget = GObject.registerClass(
-class ScreenTimeWidget extends WidgetCard {
+export const ScreenTimeWidget = GObject.registerClass({
+    GTypeName: 'FluidGlass_ScreenTimeWidget',
+}, class ScreenTimeWidget extends WidgetCard {
     _init(size, onActivated) {
         super._init('screentime', size, onActivated);
         this._service = new ScreenTimeService();
@@ -1250,8 +1261,9 @@ function _ratesText(network) {
     return `↓ ${rate(network.rx)}   ↑ ${rate(network.tx)}`;
 }
 
-const Sparkline = GObject.registerClass(
-class Sparkline extends St.DrawingArea {
+const Sparkline = GObject.registerClass({
+    GTypeName: 'FluidGlass_Sparkline',
+}, class Sparkline extends St.DrawingArea {
     _init(styleClass) {
         super._init({
             style_class: `lintel-nc-sparkline ${styleClass}`,
@@ -1323,8 +1335,9 @@ class Sparkline extends St.DrawingArea {
     }
 });
 
-export const SystemWidget = GObject.registerClass(
-class SystemWidget extends WidgetCard {
+export const SystemWidget = GObject.registerClass({
+    GTypeName: 'FluidGlass_SystemWidget',
+}, class SystemWidget extends WidgetCard {
     _init(size, onActivated) {
         super._init('system', size, onActivated);
         this._rates = null;

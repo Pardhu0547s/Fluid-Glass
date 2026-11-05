@@ -6,7 +6,8 @@ import St from 'gi://St';
 import { Drawing } from '../drawing.js';
 
 export const Calendar = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_Calendar',},
   class Calendar extends St.Widget {
     _init(x, settings = {}) {
       super._init();
@@ -33,7 +34,8 @@ export const Calendar = GObject.registerClass(
 );
 
 const CalendarCanvas = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_CalendarCanvas',},
   class CalendarCanvas extends St.DrawingArea {
     _init(settings = {}) {
       super._init();

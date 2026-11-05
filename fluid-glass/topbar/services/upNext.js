@@ -18,6 +18,7 @@ import {HORIZON_DAYS, buildAgenda} from './agenda.js';
 export {formatEventTime};
 
 export const UpNextService = GObject.registerClass({
+    GTypeName: 'FluidGlass_UpNextService',
     Signals: {'changed': {}},
 }, class UpNextService extends GObject.Object {
     _init() {

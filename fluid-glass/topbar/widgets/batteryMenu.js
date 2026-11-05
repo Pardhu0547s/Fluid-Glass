@@ -17,8 +17,9 @@ import {
 } from '../services/powerProfiles.js';
 import {styleStatusMenu} from './statusMenu.js';
 
-export const LintelBatteryMenu = GObject.registerClass(
-class LintelBatteryMenu extends PanelMenu.Button {
+export const LintelBatteryMenu = GObject.registerClass({
+    GTypeName: 'FluidGlass_LintelBatteryMenu',
+}, class LintelBatteryMenu extends PanelMenu.Button {
     _init() {
         super._init(0.0, _('Battery'), false);
         this.add_style_class_name('lintel-status-button');

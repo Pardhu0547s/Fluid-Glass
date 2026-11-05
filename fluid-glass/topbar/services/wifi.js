@@ -19,6 +19,7 @@ const SECURITY_TYPES = Object.values(NM.UtilsSecurityType)
     .sort((a, b) => b - a);
 
 export const WifiService = GObject.registerClass({
+    GTypeName: 'FluidGlass_WifiService',
     Signals: {'changed': {}},
 }, class WifiService extends GObject.Object {
     _init() {

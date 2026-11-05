@@ -30,6 +30,7 @@ import {ExtensionState} from 'resource:///org/gnome/shell/misc/extensionUtils.js
 import {EXTENSION_ADAPTERS} from '../adapters/index.js';
 
 export const ExtensionAdapters = GObject.registerClass({
+    GTypeName: 'FluidGlass_ExtensionAdapters',
     Signals: {'changed': {}},
 }, class ExtensionAdapters extends GObject.Object {
     _init(adapters = EXTENSION_ADAPTERS) {

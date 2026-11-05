@@ -135,6 +135,7 @@ export function historyPath() {
 }
 
 export const ScreenTimeService = GObject.registerClass({
+    GTypeName: 'FluidGlass_ScreenTimeService',
     Signals: {'changed': {}},
 }, class ScreenTimeService extends GObject.Object {
     _init() {

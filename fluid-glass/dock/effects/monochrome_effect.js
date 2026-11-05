@@ -33,7 +33,8 @@ const getMonochromeShaderSource = (extensionDir) => {
 /// GJS Doc:
 /// https://gjs-docs.gnome.org/clutter10~10_api/clutter.shadereffect
 export const MonochromeEffect = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_D2DAMonochromeEffect',},
   class D2DAMonochromeEffect extends Clutter.ShaderEffect {
     _init(params) {
       this._red = null;

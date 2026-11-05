@@ -17,8 +17,9 @@ import {styleStatusMenu} from './statusMenu.js';
 
 const MAX_VISIBLE_NETWORKS = 8;
 
-export const LintelWifiMenu = GObject.registerClass(
-class LintelWifiMenu extends PanelMenu.Button {
+export const LintelWifiMenu = GObject.registerClass({
+    GTypeName: 'FluidGlass_LintelWifiMenu',
+}, class LintelWifiMenu extends PanelMenu.Button {
     _init() {
         super._init(0.0, _('Wi-Fi'), false);
         this.add_style_class_name('lintel-status-button');

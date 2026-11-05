@@ -21,7 +21,8 @@ const getBlurShaderSource = (extensionDir) => {
 };
 
 export const BlurEffect = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_D2DABlurEffect',},
   class D2DABlurEffect extends Clutter.ShaderEffect {
     _init(params) {
       this._red = null;

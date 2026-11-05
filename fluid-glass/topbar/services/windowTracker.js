@@ -16,6 +16,7 @@ import Shell from 'gi://Shell';
 const DEBOUNCE_MS = 80;
 
 export const WindowTracker = GObject.registerClass({
+    GTypeName: 'FluidGlass_WindowTracker',
     Signals: {'app-changed': {}},
 }, class WindowTracker extends GObject.Object {
     _init() {

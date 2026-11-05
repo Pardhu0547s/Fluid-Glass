@@ -23,6 +23,7 @@ const XML = `
 const Proxy = Gio.DBusProxy.makeProxyWrapper(XML);
 
 export const BatteryService = GObject.registerClass({
+    GTypeName: 'FluidGlass_BatteryService',
     Signals: {'changed': {}},
 }, class BatteryService extends GObject.Object {
     _init() {

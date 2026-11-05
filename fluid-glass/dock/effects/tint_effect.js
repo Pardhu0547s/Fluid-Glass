@@ -32,7 +32,8 @@ const getTintShaderSource = (extensionDir) => {
 /// GJS Doc:
 /// https://gjs-docs.gnome.org/clutter10~10_api/clutter.shadereffect
 export const TintEffect = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_D2DATintEffect',},
   class D2DATintEffect extends Clutter.ShaderEffect {
     _init(params) {
       this._red = null;

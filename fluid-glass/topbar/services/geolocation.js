@@ -40,6 +40,7 @@ function _nearestCityName(latitude, longitude) {
 }
 
 export const GeoLocator = GObject.registerClass({
+    GTypeName: 'FluidGlass_GeoLocator',
     Signals: {'changed': {}},
 }, class GeoLocator extends GObject.Object {
     _init() {

@@ -9,7 +9,8 @@ import St from 'gi://St';
 import { Drawing } from '../drawing.js';
 
 export const Dot = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_Dot',},
   class Dot extends St.Widget {
     _init(x, settings = {}) {
       super._init();
@@ -32,7 +33,8 @@ export const Dot = GObject.registerClass(
 );
 
 const DotCanvas = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_DotCanvas',},
   class DotCanvas extends St.DrawingArea {
     _init(settings = {}) {
       super._init();

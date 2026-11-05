@@ -65,7 +65,8 @@ class DockItemMenu extends PopupMenu.PopupMenu {
 }
 
 const DockItemOverlay = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_DockItemOverlay',},
   class DockItemOverlay extends St.Widget {
     _init(renderer, params) {
       super._init({
@@ -82,7 +83,8 @@ const DockItemOverlay = GObject.registerClass(
 );
 
 export const DockItemDotsOverlay = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_DockItemDotsOverlay',},
   class DockItemDotsOverlay extends DockItemOverlay {
     update(icon, data) {
       let renderer = this.renderer;
@@ -141,7 +143,8 @@ export const DockItemDotsOverlay = GObject.registerClass(
 );
 
 export const DockItemBadgeOverlay = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_DockItemBadgeOverlay',},
   class DockItemBadgeOverlay extends DockItemOverlay {
     update(icon, data) {
       let renderer = this.renderer;
@@ -172,7 +175,8 @@ export const DockItemBadgeOverlay = GObject.registerClass(
 );
 
 export const DockIcon = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_DockIcon',},
   class DockIcon extends DashIcon {
     _init(app) {
       super._init(app);
@@ -240,7 +244,8 @@ export const DockIcon = GObject.registerClass(
 );
 
 export const DockItemContainer = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_DockItemContainer',},
   class DockItemContainer extends DashItemContainer {
     _init(params) {
       super._init({
@@ -327,7 +332,8 @@ export const DockItemContainer = GObject.registerClass(
 );
 
 export const DockBackground = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_DockBackground',},
   class DockBackground extends St.Widget {
     _init(params) {
       super._init({

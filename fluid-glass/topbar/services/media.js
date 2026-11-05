@@ -23,6 +23,7 @@ const PLAYER_XML = `
 const PlayerProxy = Gio.DBusProxy.makeProxyWrapper(PLAYER_XML);
 
 export const MediaService = GObject.registerClass({
+    GTypeName: 'FluidGlass_MediaService',
     Signals: {'changed': {}},
 }, class MediaService extends GObject.Object {
     _init() {

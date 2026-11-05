@@ -65,6 +65,7 @@ function _formatTemperature(value) {
 }
 
 const WeatherStore = GObject.registerClass({
+    GTypeName: 'FluidGlass_WeatherStore',
     Signals: {'changed': {}},
 }, class WeatherStore extends GObject.Object {
     _init(settings) {
@@ -318,6 +319,7 @@ export function shutdownWeather() {
 }
 
 export const WeatherService = GObject.registerClass({
+    GTypeName: 'FluidGlass_WeatherService',
     Signals: {'changed': {}},
 }, class WeatherService extends GObject.Object {
     _init(settings = null) {

@@ -197,8 +197,9 @@ function newLogoSilhouette(path) {
     return area;
 }
 
-export const LintelSystemMenu = GObject.registerClass(
-class LintelSystemMenu extends PanelMenu.Button {
+export const LintelSystemMenu = GObject.registerClass({
+    GTypeName: 'FluidGlass_LintelSystemMenu',
+}, class LintelSystemMenu extends PanelMenu.Button {
     _init(extension) {
         super._init(0.0, _('Lintel System Menu'), false);
 

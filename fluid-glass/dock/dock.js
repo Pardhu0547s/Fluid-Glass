@@ -50,7 +50,8 @@ const MIN_SCROLL_RESOLUTION = 4;
 const MAX_SCROLL_RESOLUTION = 10;
 
 export let Dock = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_DashToDock',},
   class DashToDock extends St.Widget {
     _init(params) {
       super._init({

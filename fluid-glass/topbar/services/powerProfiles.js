@@ -20,6 +20,7 @@ const XML = `
 const Proxy = Gio.DBusProxy.makeProxyWrapper(XML);
 
 export const PowerProfilesService = GObject.registerClass({
+    GTypeName: 'FluidGlass_PowerProfilesService',
     Signals: {'changed': {}},
 }, class PowerProfilesService extends GObject.Object {
     _init() {

@@ -18,8 +18,9 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import {_} from '../i18n.js';
 import {WindowTracker} from '../services/windowTracker.js';
 
-export const ActiveApp = GObject.registerClass(
-class ActiveApp extends PanelMenu.Button {
+export const ActiveApp = GObject.registerClass({
+    GTypeName: 'FluidGlass_ActiveApp',
+}, class ActiveApp extends PanelMenu.Button {
     _init(extension) {
         super._init(0.0, _('Active Application'), true /* dontCreateMenu */);
 

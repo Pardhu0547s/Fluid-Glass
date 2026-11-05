@@ -6,6 +6,7 @@ import GObject from 'gi://GObject';
 // from Dash-to-Dock
 export const MonitorsConfig = GObject.registerClass(
   {
+    GTypeName: 'FluidGlass_Dock_MonitorsConfig',
     Signals: {
       updated: {},
     },

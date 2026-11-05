@@ -19,7 +19,8 @@ import { Vector } from './vector.js';
 const ANIM_POSITION_PER_SEC = 450 / 1000;
 
 export const DockItemList = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_DockItemList',},
   class DockItemList extends St.Widget {
     _init(renderer, params) {
       super._init({

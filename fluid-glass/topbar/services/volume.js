@@ -8,6 +8,7 @@ import GObject from 'gi://GObject';
 import Gvc from 'gi://Gvc';
 
 export const VolumeService = GObject.registerClass({
+    GTypeName: 'FluidGlass_VolumeService',
     Signals: {'changed': {}},
 }, class VolumeService extends GObject.Object {
     _init() {

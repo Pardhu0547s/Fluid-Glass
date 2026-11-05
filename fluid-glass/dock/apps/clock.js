@@ -123,7 +123,8 @@ function _drawClock(ctx, date, x, y, size, settings) {
 }
 
 export const Clock = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_Clock',},
   class Clock extends St.Widget {
     _init(x, settings = {}) {
       super._init();
@@ -149,7 +150,8 @@ export const Clock = GObject.registerClass(
 );
 
 const ClockCanvas = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_ClockCanvas',},
   class ClockCanvas extends St.DrawingArea {
     _init(settings = {}) {
       super._init();

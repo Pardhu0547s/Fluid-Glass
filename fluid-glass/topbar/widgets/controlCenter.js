@@ -105,8 +105,9 @@ const AIRDROP_APP_IDS = [
     'bluetooth-sendto.desktop',
 ];
 
-export const ControlCenter = GObject.registerClass(
-class ControlCenter extends PanelMenu.Button {
+export const ControlCenter = GObject.registerClass({
+    GTypeName: 'FluidGlass_ControlCenter',
+}, class ControlCenter extends PanelMenu.Button {
     _init(extension) {
         super._init(0.0, _('Control Center'), false);
         this.add_style_class_name('lintel-control-center-button');

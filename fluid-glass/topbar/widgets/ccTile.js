@@ -16,8 +16,9 @@ import * as Slider from 'resource:///org/gnome/shell/ui/slider.js';
 import {_} from '../i18n.js';
 
 /** A horizontal network/focus capsule with a circular state icon. */
-export const CCTile = GObject.registerClass(
-class CCTile extends St.Button {
+export const CCTile = GObject.registerClass({
+    GTypeName: 'FluidGlass_CCTile',
+}, class CCTile extends St.Button {
     _init(iconName, title, styleClass = '') {
         const classes = ['lintel-cc-tile', styleClass]
             .filter(Boolean).join(' ');
@@ -109,6 +110,7 @@ class CCTile extends St.Button {
 
 /** The large Now Playing module from the right side of Control Center. */
 export const CCMediaCard = GObject.registerClass({
+    GTypeName: 'FluidGlass_CCMediaCard',
     Signals: {
         previous: {},
         'play-pause': {},
@@ -225,6 +227,7 @@ class CCMediaCard extends St.BoxLayout {
  * indicator. Output selection is intentionally not faked without a backend.
  */
 export const CCSlider = GObject.registerClass({
+    GTypeName: 'FluidGlass_CCSlider',
     Signals: {
         'moved': {param_types: [GObject.TYPE_DOUBLE]},
         'icon-clicked': {},

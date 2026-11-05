@@ -90,8 +90,9 @@ export function packModules(modules) {
     return placements;
 }
 
-const CCGridLayout = GObject.registerClass(
-class CCGridLayout extends Clutter.LayoutManager {
+const CCGridLayout = GObject.registerClass({
+    GTypeName: 'FluidGlass_CCGridLayout',
+}, class CCGridLayout extends Clutter.LayoutManager {
     _init() {
         super._init();
         this._placements = [];
@@ -185,8 +186,9 @@ class CCGridLayout extends Clutter.LayoutManager {
     }
 });
 
-export const CCGrid = GObject.registerClass(
-class CCGrid extends St.Widget {
+export const CCGrid = GObject.registerClass({
+    GTypeName: 'FluidGlass_CCGrid',
+}, class CCGrid extends St.Widget {
     _init() {
         super._init({
             style_class: 'lintel-cc-grid',

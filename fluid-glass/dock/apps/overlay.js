@@ -8,7 +8,8 @@ import Cairo from 'gi://cairo';
 import { Drawing } from '../drawing.js';
 
 export const DebugOverlay = GObject.registerClass(
-  {},
+  {
+    GTypeName: 'FluidGlass_Dock_D2DLDebugOverlay',},
   class D2DLDebugOverlay extends Clutter.Actor {
     _init(x, y) {
       super._init();
