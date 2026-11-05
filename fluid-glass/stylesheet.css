@@ -727,8 +727,9 @@
 }
 
 .lintel-cc-edit-toolbar {
-    padding: 6px 6px 6px 14px;
-    spacing: 4px;
+    padding: 6px 8px 6px 12px;
+    spacing: 3px;
+    max-width: 292px;
 }
 
 .lintel-cc-edit-toolbar-title,
@@ -740,34 +741,34 @@
 }
 
 .lintel-cc-edit-toolbar-title {
-    font-size: 9.25pt;
+    font-size: 8.75pt;
     font-weight: 600;
 }
 
 .lintel-cc-edit-tool {
-    min-width: 28px;
-    height: 28px;
-    padding: 0 6px;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 4px;
     color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: rgba(255, 255, 255, 0.14);
     border-radius: 999px;
-    font-size: 8.25pt;
+    font-size: 7.75pt;
     font-weight: 600;
     transition-duration: 100ms;
 }
 
 .lintel-cc-edit-tool:hover,
 .lintel-cc-edit-tool:focus {
-    background-color: rgba(255, 255, 255, 0.24);
+    background-color: rgba(255, 255, 255, 0.28);
 }
 
 .lintel-cc-edit-tool:insensitive {
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.30);
     background-color: rgba(255, 255, 255, 0.05);
 }
 
 .lintel-cc-edit-tool StIcon {
-    icon-size: 12px;
+    icon-size: 11px;
 }
 
 .lintel-cc-gallery {
