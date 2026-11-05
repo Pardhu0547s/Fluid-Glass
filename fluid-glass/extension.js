@@ -4,6 +4,7 @@ import GLib from 'gi://GLib';
 import {PanelController} from './topbar/panelController.js';
 import {GlassEngine} from './glassEngine.js';
 import Dash2DockLiteExt from './dock/extension.js';
+import {initGlassResources} from './glassEffect.js';
 
 class DockSubsystem extends Dash2DockLiteExt {
     constructor(parent) {
@@ -52,6 +53,7 @@ export default class FluidGlassExtension extends Extension {
             try {
                 this._glass = new GlassEngine(extensionPath, this._glassSettings, () => this.openPreferences());
                 this._glass.enable();
+                initGlassResources(extensionPath, this._glassSettings, this._glass?._logger);
                 console.log('[FluidGlass] GLSL Glass Shader engine enabled');
             } catch (err) {
                 console.error('[FluidGlass] Failed to initialize Glass Engine:', err);
