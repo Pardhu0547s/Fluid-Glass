@@ -226,15 +226,5 @@ if [[ -d "${REPO_DIR}/fluid-glass" ]]; then
   fi
 fi
 
-if [[ -d "${REPO_DIR}/fluid-glass-app" ]]; then
-  info "Installing Fluid Glass Settings Customizer App"
-  mkdir -p "${HOME}/.local/bin" "${HOME}/.local/share/applications" "${HOME}/.local/share/icons/hicolor/scalable/apps"
-  cp -f "${REPO_DIR}/fluid-glass-app/main.py" "${HOME}/.local/bin/fluid-glass-settings"
-  chmod +x "${HOME}/.local/bin/fluid-glass-settings"
-  cp -f "${REPO_DIR}/fluid-glass-app/fluid-glass-settings.desktop" "${HOME}/.local/share/applications/"
-  cp -f "${REPO_DIR}/fluid-glass-app/fluid-glass.svg" "${HOME}/.local/share/icons/hicolor/scalable/apps/"
-  command -v gtk-update-icon-cache >/dev/null && gtk-update-icon-cache -f -t "${HOME}/.local/share/icons/hicolor/" 2>/dev/null || true
-  command -v update-desktop-database >/dev/null && update-desktop-database "${HOME}/.local/share/applications/" 2>/dev/null || true
-fi
+info "Done. Configure Fluid Glass anytime via GNOME Extensions or by running: gnome-extensions prefs fluid-glass@fedora"
 
-info "Done. Launch the customizer anytime by running 'fluid-glass-settings' or opening Fluid Glass from your app launcher."

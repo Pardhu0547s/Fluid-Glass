@@ -19,10 +19,10 @@ A unified **macOS Tahoe Fluid Glass** suite for GNOME:
 - **Fluid Animated Dock**:
   - Smooth hover magnification and window dodging.
   - Transparent base allowing the liquid glass shader to refract the desktop background.
-- **Native Customizer Application (`fluid-glass-settings`)**:
-  - GTK4 + Libadwaita preferences window with an app launcher in your application grid.
+- **Native Extension Preferences (GTK4 + Libadwaita)**:
+  - Accessible directly via the Extensions app, Extension Manager, or `gnome-extensions prefs fluid-glass@fedora`.
   - Switch presets in one click: **Tahoe Crystal (Recommended)**, **Deep Frosted Glass**, **Midnight Obsidian**, and **Electric Neon**.
-  - Accent color picker, slider adjustments, and live component toggles.
+  - Custom accent color picker, real-time glass shader sliders, and component toggles.
 
 ---
 
@@ -37,19 +37,16 @@ cd Fluid-Glass
 The installer will:
 1. Install the **Fluid Glass** extension to `~/.local/share/gnome-shell/extensions/fluid-glass@fedora`.
 2. Compile and install all GSettings schemas.
-3. Install the **Fluid Glass Settings** desktop app (`fluid-glass-settings`), icon, and `.desktop` launcher.
-4. Install and configure the GTK4 / Libadwaita themes.
+3. Install and configure the GTK4 / Libadwaita themes.
 
 ---
 
-## 🎛 Launching the Customizer App
+## 🎛 Opening Extension Settings
 
-Open the app from your application grid:
-- Search for **"Fluid Glass"** in your launcher.
-- Or run in terminal:
-  ```bash
-  fluid-glass-settings
-  ```
+Open settings from the GNOME **Extensions** or **Extension Manager** app, or run:
+```bash
+gnome-extensions prefs fluid-glass@fedora
+```
 
 ---
 
