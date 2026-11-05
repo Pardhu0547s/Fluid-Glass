@@ -31,6 +31,7 @@ REBUILD="false"
 LIBADWAITA="true"
 APPLY="true"
 WITH_EXT="false"
+WITH_PRESETS="false"
 REMOVE="false"
 
 GTK4_CONF="${HOME}/.config/gtk-4.0"
@@ -64,6 +65,7 @@ while [[ $# -gt 0 ]]; do
     --no-libadwaita)   LIBADWAITA="false"; shift ;;
     --no-apply)        APPLY="false"; shift ;;
     -e|--with-extension) WITH_EXT="true"; shift ;;
+    -p|--with-presets)   WITH_PRESETS="true"; shift ;;
     -r|--remove|--uninstall) REMOVE="true"; shift ;;
     -h|--help) usage; exit 0 ;;
     *) warn "Unknown option '$1'"; usage; exit 1 ;;
@@ -209,11 +211,14 @@ if [[ -d "${REPO_DIR}/fluid-glass" ]]; then
   cp -a "${REPO_DIR}/fluid-glass" "${EXT_DEST}"
   if command -v glib-compile-schemas >/dev/null; then
     glib-compile-schemas "${EXT_DEST}/schemas/" || true
-    mkdir -p "${HOME}/.local/share/glib-2.0/schemas/"
-    cp "${EXT_DEST}/schemas/"*.xml "${HOME}/.local/share/glib-2.0/schemas/" 2>/dev/null || true
-    glib-compile-schemas "${HOME}/.local/share/glib-2.0/schemas/" || true
   fi
-  if [[ -d "${REPO_DIR}/fluid-glass/presets" ]] && command -v dconf >/dev/null; then
+  if [[ "${WITH_PRESETS}" == "true" && -d "${REPO_DIR}/fluid-glass/presets" ]] && command -v dconf >/dev/null; then
+    info "Backing up existing GNOME extensions settings before applying presets..."
+    mkdir -p "${HOME}/.config/fluid-glass-backup"
+    BACKUP_FILE="${HOME}/.config/fluid-glass-backup/extensions-backup-$(date +%s).dconf"
+    dconf dump /org/gnome/shell/extensions/ > "${BACKUP_FILE}" 2>/dev/null || true
+    info "Backup saved to ${BACKUP_FILE}"
+
     info "Applying unified Fluid Glass default theme presets..."
     [[ -f "${REPO_DIR}/fluid-glass/presets/lintel.dconf" ]] && dconf load /org/gnome/shell/extensions/lintel/ < "${REPO_DIR}/fluid-glass/presets/lintel.dconf" || true
     [[ -f "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" ]] && dconf load /org/gnome/shell/extensions/liquid-glass/ < "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" || true
