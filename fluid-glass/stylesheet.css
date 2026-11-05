@@ -415,27 +415,28 @@
     spacing: 8px;
 }
 
-/* Connectivity and Focus capsules (pure Liquid Glass — no CSS theme overlay). */
+/* Connectivity and Focus capsules (inside unified Liquid Glass popup card). */
 .lintel-cc-tile {
     min-height: 52px;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 22px;
     padding: 6px 10px;
-    box-shadow: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     transition-duration: 160ms;
 }
 
 .lintel-cc-tile:hover,
-.lintel-cc-tile:focus,
+.lintel-cc-tile:focus {
+    background-color: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
 .lintel-cc-tile:active,
 .lintel-cc-tile:checked,
 .lintel-cc-tile:checked:hover {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.16);
 }
 
 .lintel-cc-tile-box {
@@ -445,21 +446,17 @@
 .lintel-cc-tile-icon {
     icon-size: 16px;
     color: #ffffff;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    background-color: rgba(255, 255, 255, 0.12);
+    border: none;
     border-radius: 999px;
     padding: 7px;
     transition-duration: 160ms;
 }
 
-.lintel-cc-tile-icon:checked {
-    color: #007aff !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+.lintel-cc-tile-icon:checked,
+.lintel-cc-tile:checked .lintel-cc-tile-icon {
+    color: #ffffff !important;
+    background-color: #007aff !important;
 }
 
 .lintel-cc-tile-title,
@@ -490,12 +487,11 @@
     max-width: 140px;
     height: 118px;
     min-height: 118px;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 24px;
     padding: 10px;
-    box-shadow: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .lintel-cc-media-header {
@@ -521,10 +517,8 @@
     height: 36px;
     max-width: 36px;
     max-height: 36px;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: none;
     border-radius: 12px;
     color: rgba(255, 255, 255, 0.90);
 }
@@ -550,40 +544,44 @@
 }
 
 .lintel-cc-media-button,
-.lintel-cc-media-play,
-.lintel-cc-media-button:hover,
-.lintel-cc-media-button:focus {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+.lintel-cc-media-play {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: none;
     border-radius: 999px;
     padding: 5px 7px;
     transition-duration: 140ms;
 }
 
+.lintel-cc-media-button:hover,
+.lintel-cc-media-button:focus {
+    background-color: rgba(255, 255, 255, 0.18);
+}
+
 /* A control resized to one cell (compact button). */
-.lintel-cc-tile.lintel-cc-tile-compact,
-.lintel-cc-tile.lintel-cc-tile-compact:hover,
-.lintel-cc-tile.lintel-cc-tile-compact:checked,
-.lintel-cc-tile.lintel-cc-tile-compact:checked:hover {
+.lintel-cc-tile.lintel-cc-tile-compact {
     min-height: 0;
     padding: 0;
     border-radius: 22px;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     transition-duration: 160ms;
+}
+
+.lintel-cc-tile.lintel-cc-tile-compact:hover {
+    background-color: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+.lintel-cc-tile.lintel-cc-tile-compact:checked {
+    background-color: rgba(255, 255, 255, 0.20);
+    border-color: rgba(255, 255, 255, 0.18);
 }
 
 .lintel-cc-tile.lintel-cc-tile-compact:checked .lintel-cc-tile-icon,
 .lintel-cc-tile-compact .lintel-cc-tile-icon:checked {
-    color: #007aff !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    color: #ffffff !important;
+    background-color: #007aff !important;
 }
 
 .lintel-cc-tile-compact .lintel-cc-tile-box {
@@ -601,17 +599,20 @@
 }
 
 /* Labelled Display and Sound modules. */
-.lintel-cc-slider,
-.lintel-cc-slider:hover {
+.lintel-cc-slider {
     min-width: 272px;
     min-height: 48px;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 22px;
     padding: 8px 10px 7px 10px;
     spacing: 4px;
-    box-shadow: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.lintel-cc-slider:hover {
+    background-color: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
 .lintel-cc-slider-title {
@@ -650,45 +651,47 @@
     -barlevel-height: 8px;
     -barlevel-background-color: rgba(255, 255, 255, 0.25);
     -barlevel-active-background-color: #ffffff;
-    -barlevel-overdrive-color: #ffffff;
+    -barlevel-overdrive-color: #ff3b30;
     -barlevel-overdrive-separator-width: 0;
     -barlevel-border-radius: 999px;
     -slider-handle-radius: 8px;
 }
 
-.lintel-cc-edit-controls,
-.lintel-cc-edit-controls:hover,
-.lintel-cc-edit-controls:focus,
-.lintel-cc-edit-controls.lintel-cc-edit-done {
+.lintel-cc-edit-controls {
     color: rgba(255, 255, 255, 0.95);
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 999px;
     padding: 5px 14px;
     font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
     font-size: 8.75pt;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
-    box-shadow: none !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     transition-duration: 160ms;
+}
+
+.lintel-cc-edit-controls:hover,
+.lintel-cc-edit-controls:focus,
+.lintel-cc-edit-controls.lintel-cc-edit-done {
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.14);
 }
 
 /* ── Control Center Light Theme Variant ── */
 
 .lintel-cc-light .lintel-cc-tile,
-.lintel-cc-light .lintel-cc-tile:hover,
 .lintel-cc-light .lintel-cc-media,
 .lintel-cc-light .lintel-cc-slider,
-.lintel-cc-light .lintel-cc-edit-controls,
-.lintel-cc-light .lintel-cc-tile-icon,
-.lintel-cc-light .lintel-cc-tile:checked .lintel-cc-tile-icon,
-.lintel-cc-light .lintel-cc-tile-icon:checked,
-.lintel-cc-light .lintel-cc-media-button,
-.lintel-cc-light .lintel-cc-media-button:hover {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+.lintel-cc-light .lintel-cc-edit-controls {
+    background-color: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+
+.lintel-cc-light .lintel-cc-tile:hover,
+.lintel-cc-light .lintel-cc-media:hover,
+.lintel-cc-light .lintel-cc-slider:hover,
+.lintel-cc-light .lintel-cc-edit-controls:hover {
+    background-color: rgba(0, 0, 0, 0.10);
 }
 
 /* Edit mode. Tahoe edits in place: a remove badge on every control's top-left
@@ -848,7 +851,8 @@
  * over a WHITE wallpaper still reaches 7.5:1, and 70% secondary text 4.6:1. */
 
 .lintel-notification-center {
-    spacing: 8px;
+    spacing: 10px;
+    padding: 10px;
     font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
     font-size: 9.75pt;
 }
@@ -950,20 +954,20 @@
 #lintelNotificationCenter.lintel-nc-dark .message,
 #lintelNotificationCenter.lintel-nc-light .message {
     color: rgba(255, 255, 255, 0.96);
-    background-color: transparent;
-    border: none;
-    border-radius: 24px;
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 #lintelNotificationCenter.lintel-nc-dark .message:hover,
 #lintelNotificationCenter.lintel-nc-light .message:hover {
-    background-color: transparent;
-    border: none;
+    background-color: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.14);
 }
 
 #lintelNotificationCenter .message:focus {
-    border: none;
+    border-color: rgba(255, 255, 255, 0.20);
 }
 
 /* A collapsed group hides stacked cards underneath so only the pure glass front card shows. */
@@ -1169,9 +1173,9 @@
 .lintel-nc-widget-card {
     padding: 15px 17px;
     border-radius: 24px;
-    border: none;
-    background-color: transparent;
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     transition-duration: 140ms;
 }
 
@@ -1189,9 +1193,9 @@
 .lintel-nc-light .lintel-nc-widget-card,
 .lintel-nc-light .lintel-nc-widget-gallery {
     color: rgba(255, 255, 255, 0.96);
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
@@ -1199,8 +1203,8 @@
 .lintel-nc-dark .lintel-nc-widget-card:hover,
 .lintel-nc-light .lintel-nc-widget-card:hover,
 .lintel-nc-widget-card:focus {
-    background-color: transparent;
-    border: none;
+    background-color: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.14);
 }
 
 .lintel-nc-widget-title {
@@ -1629,13 +1633,13 @@
 /* "Edit Widgets" is a small glass pill on the wallpaper. */
 .lintel-nc-edit-button {
     margin-top: 8px;
-    padding: 4px 14px;
+    padding: 6px 16px;
     color: rgba(255, 255, 255, 0.92);
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
-    border-radius: 24px;
-    font-size: 8.25pt;
+    background-color: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    font-size: 8.75pt;
     font-weight: 500;
     transition-duration: 120ms;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
@@ -1645,9 +1649,8 @@
 .lintel-nc-edit-button:focus,
 .lintel-nc-edit-button.lintel-nc-edit-done {
     color: #ffffff;
-    background-color: transparent;
-    border: none;
-    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.14);
 }
 
 /* Up Next — Tahoe's calendar widget: red weekday and day number, then the

@@ -304,6 +304,8 @@ export function attachGlass(targetActor, options = {}) {
         handle.glass.setResolution(screenW, screenH);
         handle.glass.setGlassGeometry(localBgX, localBgY, bgW, bgH);
         handle.glass.syncSources();
+        if (handle.glass && actor)
+            handle.glass.opacity = actor.opacity;
         if (!handle.glass.visible)
             handle.glass.show();
     };

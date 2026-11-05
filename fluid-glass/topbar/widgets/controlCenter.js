@@ -54,7 +54,6 @@ import {
     CCTile,
 } from './ccTile.js';
 import {CCGrid} from './ccGrid.js';
-import {attachMultiRegionGlass} from '../../glassEffect.js';
 
 const ORDER_KEY = 'control-center-controls';
 const SIZES_KEY = 'control-center-control-sizes';
@@ -130,7 +129,6 @@ export const ControlCenter = GObject.registerClass({
         this._galleryKey = null;
         this._syncing = false;
         this._disposed = false;
-        this._glassHandle = null;
 
         // When the Shell tears the stage down, Clutter destroys these actors
         // from C without calling destroy() below, and a service can still emit
@@ -414,46 +412,6 @@ export const ControlCenter = GObject.registerClass({
         content.add_child(this._editButton);
 
         this.menu.box.add_child(content);
-
-        try {
-            this._glassHandle = attachMultiRegionGlass(
-                this.menu.box,
-                () => this._getVisibleModules(),
-                {
-                    owner: 'controlCenter',
-                    menu: this.menu,
-                    cornerRadius: 22.0,
-                    blurRadius: 10,
-                    tintColor: '#ffffff',
-                    tintStrength: 0.12,
-                }
-            );
-        } catch (e) {
-            logError(e, 'lintel: attachMultiRegionGlass');
-        }
-    }
-
-    _getVisibleModules() {
-        const modules = [];
-        if (this._grid) {
-            for (const child of this._grid.get_children()) {
-                if (child.visible && child.mapped)
-                    modules.push(child);
-            }
-        }
-        if (this._sliderBox) {
-            for (const child of this._sliderBox.get_children()) {
-                if (child.visible && child.mapped)
-                    modules.push(child);
-            }
-        }
-        if (this._toolbar && this._toolbar.visible && this._toolbar.mapped)
-            modules.push(this._toolbar);
-        if (this._gallery && this._gallery.visible && this._gallery.mapped)
-            modules.push(this._gallery);
-        if (this._editButton && this._editButton.visible && this._editButton.mapped)
-            modules.push(this._editButton);
-        return modules;
     }
 
     _tile(iconName, title, onClick, toggleMode = true) {
@@ -1139,10 +1097,6 @@ export const ControlCenter = GObject.registerClass({
         this._adapters = null;
         this._iface = this._notif = null;
         this._extension = null;
-        if (this._glassHandle) {
-            this._glassHandle.destroy();
-            this._glassHandle = null;
-        }
 
         super.destroy();
     }

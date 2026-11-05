@@ -32,11 +32,11 @@ import {
     UpNextWidget,
     WeatherWidget,
 } from './ncWidgets.js';
-import {attachMultiRegionGlass} from '../../glassEffect.js';
+import {attachGlass} from '../../glassEffect.js';
 
 const CLEAR_THEME_STYLE = 'background: transparent !important; background-color: transparent !important; background-gradient-direction: none !important; border: none !important; box-shadow: none !important;';
 
-const COLUMN_WIDTH = 345;
+const COLUMN_WIDTH = 365;
 const SCREEN_INSET = 15;
 const TOP_INSET = 50;
 const BOTTOM_INSET = 15;
@@ -284,53 +284,19 @@ export class LintelNotificationCenter {
         this._position();
 
         try {
-            this._glassHandle = attachMultiRegionGlass(
+            this._glassHandle = attachGlass(
                 this._column,
-                () => this._getVisibleGlassTargets(),
                 {
                     owner: 'notificationCenter',
-                    cornerRadius: 24.0,
+                    cornerRadius: 26.0,
                     blurRadius: 10,
                     tintColor: '#ffffff',
                     tintStrength: 0.12,
                 }
             );
         } catch (e) {
-            logError(e, 'lintel: attachMultiRegionGlass notificationCenter');
+            logError(e, 'lintel: attachGlass notificationCenter');
         }
-    }
-
-    _getVisibleGlassTargets() {
-        const targets = [];
-
-        if (this._notificationScroll?.visible) {
-            for (const message of this._notificationMessages.keys()) {
-                if (!message.visible || !message.mapped)
-                    continue;
-                if (message.has_style_pseudo_class('second-in-stack') ||
-                    message.has_style_pseudo_class('lower-in-stack'))
-                    continue;
-                targets.push(message);
-            }
-        }
-
-        for (const slot of this._widgetRows.values()) {
-            if (!slot.visible)
-                continue;
-            const card = slot._lintelWidget?.visible
-                ? slot._lintelWidget
-                : slot._lintelPlaceholder;
-            if (card && card.visible)
-                targets.push(card);
-        }
-
-        if (this._gallery?.visible)
-            targets.push(this._gallery);
-
-        if (this._editButton?.visible)
-            targets.push(this._editButton);
-
-        return targets;
     }
 
     _trackNotificationGroup(group) {
