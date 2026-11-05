@@ -140,15 +140,54 @@ class ControlCenter extends PanelMenu.Button {
     }
 
     _buildCustom() {
-        this._volume = new VolumeService();
-        this._brightness = new BrightnessService();
-        this._net = new ConnectivityService();
-        this._media = new MediaService();
-        this._powerProfiles = new PowerProfilesService();
-        this._qsBridge = new QuickSettingsBridge();
-        this._qsBridge.enable();
-        this._adapters = new ExtensionAdapters();
-        this._adapters.enable();
+        // In Tahoe the Control Center glyph, Wi-Fi and battery are three
+        // independent menu-bar items. PanelController owns the latter two.
+        this.add_child(_newControlCenterIcon());
+
+        try {
+            this._volume = new VolumeService();
+        } catch (e) {
+            logError(e, 'lintel: VolumeService');
+            this._volume = { available: false, level: 0, setLevel() {}, inputAvailable: false, inputLevel: 0, setInputLevel() {}, toggleMute() {}, connect() { return 0; }, disconnect() {} };
+        }
+        try {
+            this._brightness = new BrightnessService();
+        } catch (e) {
+            logError(e, 'lintel: BrightnessService');
+            this._brightness = { available: false, level: 0, setLevel() {}, refresh() {}, connect() { return 0; }, disconnect() {} };
+        }
+        try {
+            this._net = new ConnectivityService();
+        } catch (e) {
+            logError(e, 'lintel: ConnectivityService');
+            this._net = { connect() { return 0; }, disconnect() {} };
+        }
+        try {
+            this._media = new MediaService();
+        } catch (e) {
+            logError(e, 'lintel: MediaService');
+            this._media = { connect() { return 0; }, disconnect() {} };
+        }
+        try {
+            this._powerProfiles = new PowerProfilesService();
+        } catch (e) {
+            logError(e, 'lintel: PowerProfilesService');
+            this._powerProfiles = { connect() { return 0; }, disconnect() {} };
+        }
+        try {
+            this._qsBridge = new QuickSettingsBridge();
+            this._qsBridge.enable();
+        } catch (e) {
+            logError(e, 'lintel: QuickSettingsBridge');
+            this._qsBridge = { items: [], enable() {}, destroy() {}, connect() { return 0; }, disconnect() {} };
+        }
+        try {
+            this._adapters = new ExtensionAdapters();
+            this._adapters.enable();
+        } catch (e) {
+            logError(e, 'lintel: ExtensionAdapters');
+            this._adapters = { entries: [], enable() {}, destroy() {}, connect() { return 0; }, disconnect() {} };
+        }
 
         this._iface = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
         this._notif = new Gio.Settings({schema_id: 'org.gnome.desktop.notifications'});
@@ -165,15 +204,13 @@ class ControlCenter extends PanelMenu.Button {
             this._settings = null;
         }
 
-        // In Tahoe the Control Center glyph, Wi-Fi and battery are three
-        // independent menu-bar items. PanelController owns the latter two.
-        this.add_child(_newControlCenterIcon());
-
         this._buildPopup();
 
         for (const svc of [this._volume, this._brightness, this._net, this._media,
-            this._powerProfiles, this._qsBridge, this._adapters])
-            this._serviceIds.push([svc, svc.connect('changed', () => this._sync())]);
+            this._powerProfiles, this._qsBridge, this._adapters]) {
+            if (svc && typeof svc.connect === 'function')
+                this._serviceIds.push([svc, svc.connect('changed', () => this._sync())]);
+        }
         for (const s of [this._iface, this._notif, this._color].filter(Boolean))
             this._gsettingsIds.push([s, s.connect('changed', () => this._sync())]);
         const appSystem = Shell.AppSystem.get_default();

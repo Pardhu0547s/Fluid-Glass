@@ -302,15 +302,12 @@ export class PanelController {
 
     // ---- Control Center (Stage 6) -------------------------------------------
 
-    async _addControlCenter() {
+    _addControlCenter() {
         if (this._controlCenter)
             return;
         if (!this._customControlCenterActive())
             return;
         try {
-            const {ControlCenter} = await import(`./widgets/controlCenter.js?v=${Date.now()}`);
-            if (!this._enabled || this._controlCenter)
-                return;
             const cc = new ControlCenter(this._extension);
             const right = PanelAdapter.rightBox;
             const pos = right ? right.get_n_children() : 0;

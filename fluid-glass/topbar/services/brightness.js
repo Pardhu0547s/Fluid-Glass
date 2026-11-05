@@ -35,11 +35,15 @@ export const BrightnessService = GObject.registerClass({
         this._currentScale = null;
 
         if (this._manager) {
-            this._managerChangedId = this._manager.connect('changed', () => {
+            try {
+                this._managerChangedId = this._manager.connect('changed', () => {
+                    this._bindScale();
+                    this.emit('changed');
+                });
                 this._bindScale();
-                this.emit('changed');
-            });
-            this._bindScale();
+            } catch (e) {
+                logError(e, 'lintel: BrightnessService Main.brightnessManager');
+            }
         }
 
         this._ctl = GLib.find_program_in_path('brightnessctl');
