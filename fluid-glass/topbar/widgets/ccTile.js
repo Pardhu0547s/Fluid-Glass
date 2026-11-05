@@ -251,6 +251,7 @@ export const CCSlider = GObject.registerClass({
             style_class: 'lintel-cc-slider',
             accessible_name: title,
             x_expand: true,
+            x_align: Clutter.ActorAlign.FILL,
             style: 'background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;',
         });
 
@@ -264,6 +265,7 @@ export const CCSlider = GObject.registerClass({
         const row = new St.BoxLayout({
             style_class: 'lintel-cc-slider-row',
             x_expand: true,
+            x_align: Clutter.ActorAlign.FILL,
             y_align: Clutter.ActorAlign.CENTER,
         });
         this._icon = new St.Icon({
@@ -284,6 +286,7 @@ export const CCSlider = GObject.registerClass({
         this._slider.add_style_class_name('lintel-cc-track');
         this._slider.accessible_name = _('%s level').format(title);
         this._slider.x_expand = true;
+        this._slider.x_align = Clutter.ActorAlign.FILL;
         this._slider.connect('notify::value', () => {
             if (!this._block)
                 this.emit('moved', this._slider.value);
@@ -300,13 +303,17 @@ export const CCSlider = GObject.registerClass({
     }
 
     setValue(fraction) {
+        const clamped = Math.max(0, Math.min(1, fraction));
+        if (Math.abs(this._slider.value - clamped) < 0.001)
+            return;
         this._block = true;
-        this._slider.value = Math.max(0, Math.min(1, fraction));
+        this._slider.value = clamped;
         this._block = false;
     }
 
     setIcon(name) {
-        this._icon.icon_name = name;
+        if (this._icon.icon_name !== name)
+            this._icon.icon_name = name;
     }
 
     setAvailable(available) {

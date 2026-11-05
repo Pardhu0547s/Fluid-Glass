@@ -209,7 +209,32 @@ export const ControlCenter = GObject.registerClass({
 
         this._buildPopup();
 
-        for (const svc of [this._volume, this._brightness, this._net, this._media,
+        if (this._volume && typeof this._volume.connect === 'function') {
+            this._serviceIds.push([this._volume, this._volume.connect('changed', () => {
+                if (this._disposed)
+                    return;
+                const prevVolAvail = this._controls.get('sound')?.available;
+                const prevMicAvail = this._controls.get('microphone')?.available;
+                this._setCard('sound', this._volume.available,
+                    this._volume.level, this._volume.iconName);
+                this._setCard('microphone', this._volume.inputAvailable,
+                    this._volume.inputLevel, this._volume.inputIconName);
+                if (prevVolAvail !== this._volume.available || prevMicAvail !== this._volume.inputAvailable)
+                    this._layoutControls();
+            })]);
+        }
+        if (this._brightness && typeof this._brightness.connect === 'function') {
+            this._serviceIds.push([this._brightness, this._brightness.connect('changed', () => {
+                if (this._disposed)
+                    return;
+                const prevAvail = this._controls.get('display')?.available;
+                this._setCard('display', this._brightness.available,
+                    this._brightness.level, 'display-brightness-symbolic');
+                if (prevAvail !== this._brightness.available)
+                    this._layoutControls();
+            })]);
+        }
+        for (const svc of [this._net, this._media,
             this._powerProfiles, this._qsBridge, this._adapters]) {
             if (svc && typeof svc.connect === 'function')
                 this._serviceIds.push([svc, svc.connect('changed', () => this._sync())]);
@@ -362,6 +387,8 @@ export const ControlCenter = GObject.registerClass({
         this._sliderBox = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
             style_class: 'lintel-cc-sliders',
+            x_expand: true,
+            x_align: Clutter.ActorAlign.FILL,
         });
         content.add_child(this._sliderBox);
         this._buildEditor(content);
@@ -408,8 +435,10 @@ export const ControlCenter = GObject.registerClass({
         }
         if (this._sliderBox) {
             for (const child of this._sliderBox.get_children()) {
-                if (child.visible)
-                    modules.push(child);
+                if (!child.visible)
+                    continue;
+                const card = child.get_first_child?.() ?? child;
+                modules.push(card);
             }
         }
         if (this._editButton && this._editButton.visible && !this._editing)
@@ -438,11 +467,13 @@ export const ControlCenter = GObject.registerClass({
         const slot = new St.Widget({
             layout_manager: new Clutter.BinLayout(),
             x_expand: true,
+            x_align: Clutter.ActorAlign.FILL,
         });
         // BinLayout fills a child only along axes it expands on; y_align FILL
         // alone left a circle at its 24px natural height inside a 62px cell.
         control.actor.x_expand = true;
         control.actor.y_expand = true;
+        control.actor.x_align = Clutter.ActorAlign.FILL;
         slot.add_child(control.actor);
 
         control.shield = new St.Button({
