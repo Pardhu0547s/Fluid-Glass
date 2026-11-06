@@ -786,9 +786,9 @@ void main() {
     vec3 shadowColor = vec3(0.03, 0.04, 0.08);
 
 #ifdef LG_SHAPE_TEXTURE
-    vec2 gradH = shapeHeightGradient(local_pos, box_size, max_z, resolution);
+    vec2 gradH = (max_z <= 0.0) ? vec2(0.0) : shapeHeightGradient(local_pos, box_size, max_z, resolution);
 #else
-    vec2 gradH = heightGradient(local_pos, box_size, corner, lensBand, max_z * lensScale, resolution);
+    vec2 gradH = (max_z <= 0.0) ? vec2(0.0) : heightGradient(local_pos, box_size, corner, lensBand, max_z * lensScale, resolution);
 #endif
     vec3 normal = getNormal(gradH);
 
