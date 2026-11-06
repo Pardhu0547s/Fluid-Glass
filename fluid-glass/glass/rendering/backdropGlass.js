@@ -315,6 +315,8 @@ export const GlassActor = GObject.registerClass(class GlassActor extends Clutter
 
     setInnerGlowIntensity(intensity) { this._renderer.setInnerGlowIntensity(intensity); }
 
+    setLiquidDistortionScale(scale) { this._renderer.setLiquidDistortionScale(scale); }
+
     syncThemeGlassValues() { this._renderer.syncThemeGlassValues(); }
 
     setCornerRadius(radius) { this._renderer.setCornerRadius(radius); }

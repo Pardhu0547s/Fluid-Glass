@@ -1,5 +1,6 @@
 import Cogl from 'gi://Cogl';
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import St from 'gi://St';
 import { BlurRenderer, ShaderPipelines, configureSamplerLayer, SHAPE_LAYER, RenderPasses } from './pipelines.js';
 import { setUniformArray } from '../shellVersion.js';
@@ -80,6 +81,7 @@ export class GlassRenderer {
         this.uniforms.set('blur_rect_y', blurRect[1]);
         this.uniforms.set('blur_rect_w', blurRect[2]);
         this.uniforms.set('blur_rect_h', blurRect[3]);
+        this.uniforms.set('time', (GLib.get_monotonic_time() / 1e6) % 3600.0);
         // Both layers get the same texture, so one UV range fits both. glass.frag
         // samples only layer 1; if it ever read layer 0 separately, the layers
         // would need their own ranges.
@@ -232,48 +234,54 @@ export class GlassRenderer {
         this._repaintIfDirty();
     }
 
+    setLiquidDistortionScale(scale) {
+        this.uniforms.set('liquid_distortion_scale', scale);
+        this._repaintIfDirty();
+    }
+
     syncThemeGlassValues() {
         const isDark = getIsDarkTheme();
         if (isDark) {
             // Dark Theme:
-            // background: rgba(255, 255, 255, 0.05);
-            // backdrop-filter: blur(5px);
-            // border: 1px solid rgba(255, 255, 255, 0.3);
-            // box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            // inset 0 0 0px 0px rgba(255, 255, 255, 0);
-            this.blur.setBlurRadius(5);
-            this.uniforms.set('tint_strength', 0.05);
+            // background: rgba(255, 255, 255, 0.08);
+            // backdrop-filter: blur(12px) url(#liquid-distortion);
+            // border: 1px solid rgba(255, 255, 255, 0.25);
+            // box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            this.blur.setBlurRadius(12);
+            this.uniforms.set('tint_strength', 0.08);
             this.uniforms.set('tint_r', 1.0);
             this.uniforms.set('tint_g', 1.0);
             this.uniforms.set('tint_b', 1.0);
             this.uniforms.set('inner_glow_intensity', 0.0);
             this.uniforms.set('outline_width', 1.0);
-            this.uniforms.set('outline_alpha', 0.3);
+            this.uniforms.set('outline_alpha', 0.25);
             this.uniforms.set('outline_r', 1.0);
             this.uniforms.set('outline_g', 1.0);
             this.uniforms.set('outline_b', 1.0);
-            this.uniforms.set('shadow_radius', 32.0);
-            this.uniforms.set('shadow_intensity', 0.10);
+            this.uniforms.set('shadow_radius', 40.0);
+            this.uniforms.set('shadow_intensity', 0.25);
+            this.uniforms.set('liquid_distortion_scale', 18.0);
         } else {
             // Light Theme:
             // background: rgba(255, 255, 255, 0.15);
-            // backdrop-filter: blur(20px);
-            // border: 1px solid rgba(255, 255, 255, 0.3);
-            // box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            // backdrop-filter: blur(16px) url(#liquid-distortion);
+            // border: 1px solid rgba(255, 255, 255, 0.25);
+            // box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
             // inset 0 0 20px 10px rgba(255, 255, 255, 1);
-            this.blur.setBlurRadius(20);
+            this.blur.setBlurRadius(16);
             this.uniforms.set('tint_strength', 0.15);
             this.uniforms.set('tint_r', 1.0);
             this.uniforms.set('tint_g', 1.0);
             this.uniforms.set('tint_b', 1.0);
             this.uniforms.set('inner_glow_intensity', 0.30);
             this.uniforms.set('outline_width', 1.0);
-            this.uniforms.set('outline_alpha', 0.3);
+            this.uniforms.set('outline_alpha', 0.25);
             this.uniforms.set('outline_r', 1.0);
             this.uniforms.set('outline_g', 1.0);
             this.uniforms.set('outline_b', 1.0);
-            this.uniforms.set('shadow_radius', 32.0);
-            this.uniforms.set('shadow_intensity', 0.10);
+            this.uniforms.set('shadow_radius', 40.0);
+            this.uniforms.set('shadow_intensity', 0.25);
+            this.uniforms.set('liquid_distortion_scale', 18.0);
         }
         this._repaintIfDirty();
     }
@@ -706,13 +714,15 @@ export class MaterialSettings {
         this._uniforms.set('surface_light_enabled', 1.0);
         // Application windows turn continuous corners off to match the window.
         this._uniforms.set('corner_smoothing_enabled', 1.0);
-        // Default 1px outline with 0.3 opacity matching theme requirements.
+        // Default 1px outline with 0.25 opacity matching theme requirements.
         this._uniforms.set('outline_width', 1.0);
-        this._uniforms.set('outline_alpha', 0.3);
+        this._uniforms.set('outline_alpha', 0.25);
         this._uniforms.set('outline_r', 1.0);
         this._uniforms.set('outline_g', 1.0);
         this._uniforms.set('outline_b', 1.0);
         this._uniforms.set('inner_glow_intensity', 0.0);
+        this._uniforms.set('liquid_distortion_scale', 18.0);
+        this._uniforms.set('time', 0.0);
         // Where the glass sits inside the actor, which for the UI glass covers
         // the monitor.
         this._uniforms.set('dock_x', 0.0);
@@ -890,7 +900,7 @@ export class OutlineBinding {
 
     _apply() {
         this._uniforms.set('outline_width', 1.0);
-        this._uniforms.set('outline_alpha', 0.3);
+        this._uniforms.set('outline_alpha', 0.25);
         this._uniforms.set('outline_r', 1.0);
         this._uniforms.set('outline_g', 1.0);
         this._uniforms.set('outline_b', 1.0);
