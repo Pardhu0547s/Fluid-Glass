@@ -392,7 +392,7 @@ vec2 shapeHeightGradient(vec2 p, vec2 b, float zScale, vec2 resolution) {
 
 // UV displacement from refraction through the surface.
 vec2 getDisplacement(float d, vec3 normal, vec2 resolution) {
-    if (d > 0.0)
+    if (d > 0.0 || displacement_scale <= 0.0)
         return vec2(0.0);
 
     // Looking straight into the screen, from air (1.0) into glass (ior).
