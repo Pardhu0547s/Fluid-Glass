@@ -28,8 +28,6 @@ uniform float outline_width;
 uniform float outline_r;
 uniform float outline_g;
 uniform float outline_b;
-uniform float outline_alpha;
-uniform float inner_glow_intensity;
 // On/off for the rim, specular and sheen. Application windows turn it off and
 // keep only the drop shadow and the inner AO.
 uniform float surface_light_enabled;
@@ -392,7 +390,7 @@ vec2 shapeHeightGradient(vec2 p, vec2 b, float zScale, vec2 resolution) {
 
 // UV displacement from refraction through the surface.
 vec2 getDisplacement(float d, vec3 normal, vec2 resolution) {
-    if (d > 0.0 || displacement_scale <= 0.0)
+    if (d > 0.0)
         return vec2(0.0);
 
     // Looking straight into the screen, from air (1.0) into glass (ior).
@@ -660,10 +658,6 @@ void main() {
         max(lensBand + gradientStep(resolution) + smoothZoneEarly,
             edgeFeather * 4.0),
         max(max(ao_radius, rim_width), outline_width + 1.0));
-    if (inner_glow_intensity > 0.0) {
-        interiorThreshold = max(interiorThreshold, 24.0);
-    }
-
     if (early_exit_enabled > 0.5 && debug_view < 0.5 && -d >= interiorThreshold) {
         vec2 uvFlat = stabilizedUV(uv, uv);
 
@@ -680,16 +674,6 @@ void main() {
         flatRgb = mix(flatRgb, activeTint, activeBaseStrength);
         flatRgb = mix(flatRgb, vec3(tint_r, tint_g, tint_b), tint_strength);
 
-        // Specular reflection sweep matching .glass-glare (135deg linear gradient from top-left)
-        vec2 normPosEarly = clamp(local_pos / max(box_size, vec2(1.0)), -1.0, 1.0);
-        float diagGlareTEarly = clamp((normPosEarly.x + normPosEarly.y + 2.0) * 0.25, 0.0, 1.0);
-        float glareEarly = 0.0;
-        if (diagGlareTEarly < 0.40) {
-            glareEarly = mix(0.25, 0.05, diagGlareTEarly / 0.40);
-        } else if (diagGlareTEarly < 0.60) {
-            glareEarly = mix(0.05, 0.0, (diagGlareTEarly - 0.40) / 0.20);
-        }
-
         // Specular and sheen at N = (0, 0, 1): both reduce to the light's z,
         // and specMask to 0.65.
         vec3 lightDirFlat = normalize(vec3(cos(radians(light_angle_deg)),
@@ -697,7 +681,7 @@ void main() {
         float facing = max(lightDirFlat.z, 0.0);
         float specFlat = pow(facing, max(shininess, 1.0)) * specular_intensity * 0.65;
         float sheenFlat = pow(facing, 1.65) * sheen_intensity;
-        float lightFlat = (specFlat + sheenFlat + glareEarly) * surface_light_enabled;
+        float lightFlat = (specFlat + sheenFlat) * surface_light_enabled;
 
         vec3 litFlat = flatRgb + lightFlat - (flatRgb * lightFlat);
         float maxChannelFlat = max(litFlat.r, max(litFlat.g, litFlat.b));
@@ -786,17 +770,13 @@ void main() {
     vec3 shadowColor = vec3(0.03, 0.04, 0.08);
 
 #ifdef LG_SHAPE_TEXTURE
-    vec2 gradH = (max_z <= 0.0) ? vec2(0.0) : shapeHeightGradient(local_pos, box_size, max_z, resolution);
+    vec2 gradH = shapeHeightGradient(local_pos, box_size, max_z, resolution);
 #else
-    vec2 gradH = (max_z <= 0.0) ? vec2(0.0) : heightGradient(local_pos, box_size, corner, lensBand, max_z * lensScale, resolution);
+    vec2 gradH = heightGradient(local_pos, box_size, corner, lensBand, max_z * lensScale, resolution);
 #endif
     vec3 normal = getNormal(gradH);
 
-    vec2 edgeDir = sdRoundRectDir(local_pos, box_size, corner);
     vec2 disp = getDisplacement(d, normal, resolution);
-    if (max_z <= 0.0 && displacement_scale > 0.0 && d <= 0.0) {
-        disp = -edgeDir * (displacement_scale / max(resolution, vec2(1.0)));
-    }
 
     // Edge lensing. `disp` points inward, and the weight grows towards the
     // rim, so the displacement bends one way across the whole bevel:
@@ -869,12 +849,6 @@ void main() {
     vec3 insideBaseColor = mix(refracted, activeTint, activeBaseStrength);
     insideBaseColor = mix(insideBaseColor, vec3(tint_r, tint_g, tint_b), tint_strength);
 
-    // Inner frosted / milky white radiance glow (for light theme requirement: inset 0 0 20px 10px rgba(255, 255, 255, 1))
-    if (inner_glow_intensity > 0.0 && d < 0.0) {
-        float innerGlow = smoothstep(-24.0, 0.0, d) * inner_glow_intensity;
-        insideBaseColor = mix(insideBaseColor, vec3(1.0, 1.0, 1.0), innerGlow);
-    }
-
     // Not multiplied by insideMask: the final composite applies the coverage
     // once, and applying it twice darkens the antialiased edge.
     vec3 baseColor = insideBaseColor;
@@ -922,45 +896,9 @@ void main() {
     surfaceSheen *= mix(1.0, 0.55, edgeBand);
     float sheenLight = surfaceSheen * sheen_intensity;
 
-    // Directional edge specular highlights matching CSS requirements:
-    // ::before: Top edge 1px linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent) + inset 0 1px 0 rgba(255, 255, 255, 0.5)
-    // ::after: Left edge 1px linear-gradient(180deg, rgba(255, 255, 255, 0.8), transparent, rgba(255, 255, 255, 0.3))
-    // Bottom edge: inset 0 -1px 0 rgba(255, 255, 255, 0.1)
-    float edgeSpecular = 0.0;
-    if (d >= -2.5 && d <= 0.0) {
-        float edgeBand1px = 1.0 - smoothstep(0.0, 1.8, abs(d + 0.5));
-        vec2 normPos = clamp(local_pos / max(box_size, vec2(1.0)), -1.0, 1.0);
-
-        // Top edge: brightest at horizontal center (normPos.x = 0)
-        float isTop = clamp(-edgeDir.y, 0.0, 1.0);
-        float topGrad = clamp(1.0 - abs(normPos.x), 0.0, 1.0);
-        float topSpec = (topGrad * 0.8 + 0.5) * isTop;
-
-        // Left edge: 0.8 at top (normPos.y = -1), fades in middle, 0.3 at bottom (normPos.y = +1)
-        float isLeft = clamp(-edgeDir.x, 0.0, 1.0);
-        float leftGrad = (normPos.y < 0.0) ? mix(0.5, 0.8, -normPos.y) : mix(0.5, 0.3, normPos.y);
-        float leftSpec = leftGrad * isLeft;
-
-        // Bottom edge: 0.1
-        float isBottom = clamp(edgeDir.y, 0.0, 1.0);
-        float bottomSpec = 0.1 * isBottom;
-
-        edgeSpecular = edgeBand1px * max(max(topSpec, leftSpec), bottomSpec);
-    }
-
     float alpha = insideMask;
 
-    // Specular reflection sweep matching .glass-glare (135deg linear gradient from top-left)
-    vec2 normPosGlare = clamp(local_pos / max(box_size, vec2(1.0)), -1.0, 1.0);
-    float diagGlareT = clamp((normPosGlare.x + normPosGlare.y + 2.0) * 0.25, 0.0, 1.0);
-    float glare = 0.0;
-    if (diagGlareT < 0.40) {
-        glare = mix(0.25, 0.05, diagGlareT / 0.40);
-    } else if (diagGlareT < 0.60) {
-        glare = mix(0.05, 0.0, (diagGlareT - 0.40) / 0.20);
-    }
-
-    float addedLight = (specularLight + finalRimLight + idleRim + sheenLight + edgeSpecular + glare) * surface_light_enabled;
+    float addedLight = (specularLight + finalRimLight + idleRim + sheenLight) * surface_light_enabled;
 
     // Screen blend, which cannot blow out a white background the way adding
     // does.
@@ -982,8 +920,7 @@ void main() {
     // is blended here; the outer one is the glass's own coverage.
     if (outline_width > 0.0) {
         float outlineMask = smoothstep(-outline_width - 0.5, -outline_width + 0.5, d);
-        float outlineAlpha = clamp(outline_alpha, 0.0, 1.0);
-        litColor = mix(litColor, vec3(outline_r, outline_g, outline_b), outlineMask * outlineAlpha);
+        litColor = mix(litColor, vec3(outline_r, outline_g, outline_b), outlineMask);
     }
 
     // Glass over shadow in premultiplied alpha. Cogl adds src.rgb regardless

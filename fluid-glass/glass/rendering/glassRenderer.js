@@ -1,22 +1,8 @@
-import Cogl from 'gi://Cogl';
-import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import St from 'gi://St';
+import Cogl from 'gi://Cogl';
 import { BlurRenderer, ShaderPipelines, configureSamplerLayer, SHAPE_LAYER, RenderPasses } from './pipelines.js';
 import { setUniformArray } from '../shellVersion.js';
 import { hexToColorArray } from '../animation.js';
-
-function getIsDarkTheme() {
-    try {
-        if (St.Settings?.get?.()) {
-            return St.Settings.get().color_scheme === St.SystemColorScheme.PREFER_DARK;
-        }
-        const iface = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
-        return iface.get_string('color-scheme') === 'prefer-dark';
-    } catch (_e) {
-        return false;
-    }
-}
 // Must match glass.frag's `#define MAX_GLASS_REGIONS 64`.
 export const MAX_GLASS_REGIONS = 64;
 
@@ -36,7 +22,7 @@ export class GlassRenderer {
     _outline = null;
     _repaint;
     _shapeTexture = null;
-    _themeSignalId = 0;
+    _pointerTrackCancel = null;
 
     constructor(params) {
         this._repaint = params.repaint;
@@ -51,11 +37,6 @@ export class GlassRenderer {
             this._outline = new OutlineBinding(params.settings, params.outline, this.uniforms, () => this._repaintIfDirty());
             this._outline.initialize();
         }
-        try {
-            const stSettings = St.Settings.get();
-            this._themeSignalId = stSettings.connect('notify::color-scheme', () => this.syncThemeGlassValues());
-        } catch (_e) {}
-        this.syncThemeGlassValues();
     }
 
     // Compiles the pipelines on the first paint, once a Cogl context exists,
@@ -125,11 +106,9 @@ export class GlassRenderer {
     }
 
     cleanup() {
-        if (this._themeSignalId) {
-            try {
-                St.Settings.get().disconnect(this._themeSignalId);
-            } catch (_e) {}
-            this._themeSignalId = 0;
+        if (this._pointerTrackCancel) {
+            this._pointerTrackCancel();
+            this._pointerTrackCancel = null;
         }
         this._shapeTexture = null;
         this._outline?.clear();
@@ -220,85 +199,6 @@ export class GlassRenderer {
 
     setTintStrength(strength) {
         this.uniforms.set('tint_strength', strength);
-        this._repaintIfDirty();
-    }
-
-    setOutlineAlpha(alpha) {
-        this.uniforms.set('outline_alpha', alpha);
-        this._repaintIfDirty();
-    }
-
-    setInnerGlowIntensity(intensity) {
-        this.uniforms.set('inner_glow_intensity', intensity);
-        this._repaintIfDirty();
-    }
-
-    setDisplacementScale(scale) {
-        if (!getIsDarkTheme()) {
-            this.uniforms.set('displacement_scale', scale);
-            this._repaintIfDirty();
-        }
-    }
-
-    setMaxZ(z) {
-        if (!getIsDarkTheme()) {
-            this.uniforms.set('max_z', z);
-            this._repaintIfDirty();
-        }
-    }
-
-    syncThemeGlassValues() {
-        const isDark = getIsDarkTheme();
-        if (isDark) {
-            // Dark Theme clear glass:
-            // background: rgba(255, 255, 255, 0.05);
-            // backdrop-filter: blur(5px);
-            // border: 1px solid rgba(255, 255, 255, 0.3);
-            // box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
-            // refraction: 0.05, depth: 0
-            this.blur.setBlurRadius(5);
-            this.uniforms.set('displacement_scale', 1.0);
-            this.uniforms.set('max_z', 0.0);
-            this.uniforms.set('ao_intensity', 0.0);
-            this.uniforms.set('tint_strength', 0.05);
-            this.uniforms.set('tint_r', 1.0);
-            this.uniforms.set('tint_g', 1.0);
-            this.uniforms.set('tint_b', 1.0);
-            this.uniforms.set('inner_glow_intensity', 0.0);
-            this.uniforms.set('outline_width', 1.0);
-            this.uniforms.set('outline_alpha', 0.30);
-            this.uniforms.set('outline_r', 1.0);
-            this.uniforms.set('outline_g', 1.0);
-            this.uniforms.set('outline_b', 1.0);
-            this.uniforms.set('shadow_radius', 32.0);
-            this.uniforms.set('shadow_intensity', 0.10);
-        } else {
-            // Light Theme clear glass:
-            // background: rgba(255, 255, 255, 0.15);
-            // backdrop-filter: blur(20px);
-            // border: 1px solid rgba(255, 255, 255, 0.3);
-            // inset 0 0 20px 10px rgba(255, 255, 255, 1);
-            // box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            this.blur.setBlurRadius(20);
-            const disp = this.material?._settings ? this.material._settings.get_double('glass-displacement-scale') : 10.5;
-            this.uniforms.set('displacement_scale', disp > 0 ? disp : 10.5);
-            const maxZ = this.material?._settings ? this.material._settings.get_double('glass-max-z') : 88.0;
-            this.uniforms.set('max_z', maxZ > 0 ? maxZ : 88.0);
-            const ao = this.material?._settings ? this.material._settings.get_double('glass-ao-intensity') : 0.65;
-            this.uniforms.set('ao_intensity', ao);
-            this.uniforms.set('tint_strength', 0.15);
-            this.uniforms.set('tint_r', 1.0);
-            this.uniforms.set('tint_g', 1.0);
-            this.uniforms.set('tint_b', 1.0);
-            this.uniforms.set('inner_glow_intensity', 0.30);
-            this.uniforms.set('outline_width', 1.0);
-            this.uniforms.set('outline_alpha', 0.30);
-            this.uniforms.set('outline_r', 1.0);
-            this.uniforms.set('outline_g', 1.0);
-            this.uniforms.set('outline_b', 1.0);
-            this.uniforms.set('shadow_radius', 32.0);
-            this.uniforms.set('shadow_intensity', 0.10);
-        }
         this._repaintIfDirty();
     }
 
@@ -398,6 +298,74 @@ export class GlassRenderer {
     setSaturation(_saturation) {
         this.uniforms.set('saturation', 1.0);
         this._repaintIfDirty();
+    }
+
+    setLightAngleDeg(angle) {
+        this.uniforms.set('light_angle_deg', angle);
+        this._repaintIfDirty();
+    }
+
+    enablePointerLightTracking(actor) {
+        if (this._pointerTrackCancel) {
+            this._pointerTrackCancel();
+            this._pointerTrackCancel = null;
+        }
+        if (!actor)
+            return null;
+
+        let currentAngle = this.uniforms.get('light_angle_deg') ?? 90.0;
+        let targetAngle = currentAngle;
+        let lastPx = -1;
+        let lastPy = -1;
+
+        const updateId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 16, () => {
+            if (!actor || !actor.mapped)
+                return GLib.SOURCE_CONTINUE;
+
+            const [px, py] = global.get_pointer();
+            const [ax, ay] = actor.get_transformed_position();
+            const [aw, ah] = actor.get_transformed_size();
+
+            if (aw <= 0 || ah <= 0)
+                return GLib.SOURCE_CONTINUE;
+
+            const cx = ax + aw * 0.5;
+            const cy = ay + ah * 0.5;
+
+            // Calculate angle in degrees from actor center to pointer
+            const rad = Math.atan2(py - cy, px - cx);
+            targetAngle = (rad * 180.0) / Math.PI;
+
+            // Shortest-path angular lerp for smooth fluid inertia
+            let delta = ((targetAngle - currentAngle + 540.0) % 360.0) - 180.0;
+            if (Math.abs(delta) < 0.05 && px === lastPx && py === lastPy) {
+                return GLib.SOURCE_CONTINUE;
+            }
+
+            lastPx = px;
+            lastPy = py;
+            currentAngle = (currentAngle + delta * 0.12 + 360.0) % 360.0;
+
+            this.setLightAngleDeg(currentAngle);
+            return GLib.SOURCE_CONTINUE;
+        });
+
+        const destroyId = actor.connect('destroy', () => {
+            if (updateId)
+                GLib.source_remove(updateId);
+            this._pointerTrackCancel = null;
+        });
+
+        const cancelFn = () => {
+            if (updateId)
+                GLib.source_remove(updateId);
+            try {
+                actor.disconnect(destroyId);
+            } catch (_e) {}
+            this._pointerTrackCancel = null;
+        };
+        this._pointerTrackCancel = cancelFn;
+        return cancelFn;
     }
 }
 
@@ -577,6 +545,10 @@ export class UniformState {
 
     get values() { return this._pendingUniforms; }
 
+    get(name) {
+        return this._pendingUniforms.get(name);
+    }
+
     attach(pipeline) {
         this._pipeline = pipeline;
         this._compUniforms.clear();
@@ -730,13 +702,11 @@ export class MaterialSettings {
         this._uniforms.set('surface_light_enabled', 1.0);
         // Application windows turn continuous corners off to match the window.
         this._uniforms.set('corner_smoothing_enabled', 1.0);
-        // Default 1px outline with 0.25 opacity matching theme requirements.
-        this._uniforms.set('outline_width', 1.0);
-        this._uniforms.set('outline_alpha', 0.25);
+        // No outline until a surface's settings ask for one.
+        this._uniforms.set('outline_width', 0.0);
         this._uniforms.set('outline_r', 1.0);
         this._uniforms.set('outline_g', 1.0);
         this._uniforms.set('outline_b', 1.0);
-        this._uniforms.set('inner_glow_intensity', 0.0);
         // Where the glass sits inside the actor, which for the UI glass covers
         // the monitor.
         this._uniforms.set('dock_x', 0.0);
@@ -758,7 +728,7 @@ export class MaterialSettings {
         this._uniforms.set('blur_tex_w', 0.0);
         this._uniforms.set('blur_tex_h', 0.0);
         this._uniforms.set('edge_taps_enabled', 1.0);
-        this._blur.setBlurRadius(0);
+        this._blur.setBlurRadius(24);
         this._uniforms.set('tint_strength', 0.0);
         this._uniforms.set('tint_r', 1.0);
         this._uniforms.set('tint_g', 1.0);
@@ -769,8 +739,8 @@ export class MaterialSettings {
         }
         else {
             // Without settings, the schema's defaults.
-            this._uniforms.set('max_z', getIsDarkTheme() ? 0.0 : 88.0);
-            this._uniforms.set('displacement_scale', getIsDarkTheme() ? 1.0 : 10.5);
+            this._uniforms.set('max_z', 88.0);
+            this._uniforms.set('displacement_scale', 10.5);
             this._uniforms.set('edge_smoothing', 0.5);
             this._uniforms.set('profile_shape_n', 3.6);
             this._uniforms.set('ior', 2.40);
@@ -786,9 +756,9 @@ export class MaterialSettings {
             this._uniforms.set('rim_light_color_intensity', 1.0);
             this._uniforms.set('sheen_intensity', 0.0);
             this._uniforms.set('light_angle_deg', 90.0);
-            this._uniforms.set('shadow_radius', 32.0);
-            this._uniforms.set('shadow_intensity', 0.10);
-            this._uniforms.set('ao_intensity', getIsDarkTheme() ? 0.0 : 0.65);
+            this._uniforms.set('shadow_radius', 50.0);
+            this._uniforms.set('shadow_intensity', 0.22);
+            this._uniforms.set('ao_intensity', 0.65);
             this._uniforms.set('ao_radius', 1.0);
             this._uniforms.set('tint_strength', 0.0);
             this._uniforms.set('tint_r', 1.0);
@@ -830,23 +800,11 @@ export class MaterialSettings {
         if (!settings)
             return;
         mappings.forEach(map => {
-            if (map.uniform === 'displacement_scale' && getIsDarkTheme()) {
-                this._uniforms.set('displacement_scale', 1.0);
-            } else if ((map.uniform === 'max_z' || map.uniform === 'ao_intensity') && getIsDarkTheme()) {
-                this._uniforms.set(map.uniform, 0.0);
-            } else {
-                this._uniforms.set(map.uniform, settings.get_double(map.key));
-            }
+            this._uniforms.set(map.uniform, settings.get_double(map.key));
             // Without a repaint only the parts of the glass that something else
             // damaged would pick up the new value.
             const id = settings.connect(`changed::${map.key}`, () => {
-                if (map.uniform === 'displacement_scale' && getIsDarkTheme()) {
-                    this._uniforms.set('displacement_scale', 1.0);
-                } else if ((map.uniform === 'max_z' || map.uniform === 'ao_intensity') && getIsDarkTheme()) {
-                    this._uniforms.set(map.uniform, 0.0);
-                } else {
-                    this._uniforms.set(map.uniform, settings.get_double(map.key));
-                }
+                this._uniforms.set(map.uniform, settings.get_double(map.key));
                 this._repaintIfDirty();
             });
             this._settingsIds.push(id);
@@ -890,13 +848,8 @@ export class MaterialSettings {
         const settings = this._settings;
         if (!settings)
             return false;
-        if (getIsDarkTheme()) {
-            this._uniforms.set('displacement_scale', 1.0);
-            this._uniforms.set('max_z', 0.0);
-        } else {
-            this._uniforms.set('displacement_scale', settings.get_double('glass-displacement-scale') * scale);
-            this._uniforms.set('max_z', settings.get_double('glass-max-z') * scale);
-        }
+        this._uniforms.set('displacement_scale', settings.get_double('glass-displacement-scale') * scale);
+        this._uniforms.set('max_z', settings.get_double('glass-max-z') * scale);
         // The color separation is a fraction of the displacement, so it already
         // scales with it.
         return true;
@@ -930,8 +883,7 @@ export class OutlineBinding {
     }
 
     _apply() {
-        this._uniforms.set('outline_width', 1.0);
-        this._uniforms.set('outline_alpha', 0.25);
+        this._uniforms.set('outline_width', 0.0);
         this._uniforms.set('outline_r', 1.0);
         this._uniforms.set('outline_g', 1.0);
         this._uniforms.set('outline_b', 1.0);

@@ -311,16 +311,6 @@ export const GlassActor = GObject.registerClass(class GlassActor extends Clutter
 
     setTintStrength(strength) { this._renderer.setTintStrength(strength); }
 
-    setOutlineAlpha(alpha) { this._renderer.setOutlineAlpha(alpha); }
-
-    setInnerGlowIntensity(intensity) { this._renderer.setInnerGlowIntensity(intensity); }
-
-    setDisplacementScale(scale) { this._renderer.setDisplacementScale(scale); }
-
-    setMaxZ(z) { this._renderer.setMaxZ(z); }
-
-    syncThemeGlassValues() { this._renderer.syncThemeGlassValues(); }
-
     setCornerRadius(radius) { this._renderer.setCornerRadius(radius); }
 
     setAnimationScale(scale) { this._renderer.setAnimationScale(scale); }
@@ -343,6 +333,10 @@ export const GlassActor = GObject.registerClass(class GlassActor extends Clutter
     setContrast(contrast) { this._renderer.setContrast(contrast); }
 
     setSaturation(saturation) { this._renderer.setSaturation(saturation); }
+    setLightAngleDeg(angle) { this._renderer.setLightAngleDeg(angle); }
+    enablePointerLightTracking(targetActor = this) {
+        return this._renderer.enablePointerLightTracking(targetActor);
+    }
 });
 
 /**
