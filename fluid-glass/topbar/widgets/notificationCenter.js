@@ -581,11 +581,11 @@ export class LintelNotificationCenter {
     _syncAppearance() {
         if (!this._column)
             return;
-        let dark = false;
+        let dark = true;
         try {
             dark = this._desktop?.get_string('color-scheme') === 'prefer-dark';
         } catch (_e) {
-            dark = false;
+            dark = true;
         }
         this._column.remove_style_class_name(
             dark ? 'lintel-nc-light' : 'lintel-nc-dark');

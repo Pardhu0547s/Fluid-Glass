@@ -12,7 +12,7 @@
 import Gio from 'gi://Gio';
 
 let ifaceSettings = null;
-function getIface() {
+export function getIface() {
     if (!ifaceSettings) {
         try {
             ifaceSettings = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
@@ -45,12 +45,30 @@ export function styleStatusMenu(menu, contentClass = '') {
     if (contentClass)
         menu.box.add_style_class_name(contentClass);
 
-    syncMenuTheme(menu.box);
+    const syncAll = () => {
+        syncMenuTheme(menu.box);
+        syncMenuTheme(menu.actor);
+    };
+
+    syncAll();
+
+    const iface = getIface();
+    let ifaceId = 0;
+    if (iface) {
+        ifaceId = iface.connect('changed::color-scheme', () => syncAll());
+        menu.connect('destroy', () => {
+            if (ifaceId) {
+                iface.disconnect(ifaceId);
+                ifaceId = 0;
+            }
+        });
+    }
+
     menu.connect('open-state-changed', (_m, open) => {
         if (open) {
             menu.actor.set_style(clearStyle);
             menu.box.set_style(clearStyle);
-            syncMenuTheme(menu.box);
+            syncAll();
         }
     });
 }

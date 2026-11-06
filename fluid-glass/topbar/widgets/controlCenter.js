@@ -912,6 +912,12 @@ export const ControlCenter = GObject.registerClass({
             dark ? 'lintel-cc-light' : 'lintel-cc-dark');
         this.menu.box.add_style_class_name(
             dark ? 'lintel-cc-dark' : 'lintel-cc-light');
+        if (this.menu.actor) {
+            this.menu.actor.remove_style_class_name(
+                dark ? 'lintel-cc-light' : 'lintel-cc-dark');
+            this.menu.actor.add_style_class_name(
+                dark ? 'lintel-cc-dark' : 'lintel-cc-light');
+        }
         this.menu.box.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
         if (this.menu.actor)
             this.menu.actor.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important;');

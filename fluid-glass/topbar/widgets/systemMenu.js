@@ -29,7 +29,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 import {_} from '../i18n.js';
-import {syncMenuTheme} from './statusMenu.js';
+import {getIface, syncMenuTheme} from './statusMenu.js';
 
 const FALLBACK_LOGO = 'start-here-symbolic';
 
@@ -291,13 +291,22 @@ export const LintelSystemMenu = GObject.registerClass({
         this.menu.actor.set_style(clearStyle);
         this.menu.box.add_style_class_name('lintel-system-menu-content');
         this.menu.box.add_style_class_name('liquid-glass-transparent');
-        this.menu.box.set_style(clearStyle);
-        syncMenuTheme(this.menu.box);
+        const syncAll = () => {
+            syncMenuTheme(this.menu.box);
+            syncMenuTheme(this.menu.actor);
+        };
+        syncAll();
+
+        const iface = getIface();
+        if (iface) {
+            this._ifaceId = iface.connect('changed::color-scheme', () => syncAll());
+        }
+
         this.menu.connect('open-state-changed', (_m, open) => {
             if (open) {
                 this.menu.actor.set_style(clearStyle);
                 this.menu.box.set_style(clearStyle);
-                syncMenuTheme(this.menu.box);
+                syncAll();
             }
         });
 
@@ -471,6 +480,12 @@ export const LintelSystemMenu = GObject.registerClass({
         for (const id of this._saNotifyIds)
             this._systemActions.disconnect(id);
         this._saNotifyIds = [];
+        if (this._ifaceId) {
+            const iface = getIface();
+            if (iface)
+                iface.disconnect(this._ifaceId);
+            this._ifaceId = 0;
+        }
         this._forceQuitItem = null;
         this._extension = null;
 

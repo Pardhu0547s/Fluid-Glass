@@ -273,14 +273,11 @@ export class ThemeManager {
         const textMode = gs('text-mode', 'auto');
         const isDark = this._isDark();
 
-        let fg = isDark ? '255, 255, 255' : '34, 34, 38';
-        if (textMode === 'auto' && this._panelIsTransparentNow() &&
-            this._autoTextIsDark !== null)
-            fg = this._autoTextIsDark ? '34, 34, 38' : '255, 255, 255';
-        else if (textMode === 'light')
+        let fg = isDark ? '255, 255, 255' : '0, 0, 0';
+        if (textMode === 'light')
             fg = '255, 255, 255';
         else if (textMode === 'dark')
-            fg = '34, 34, 38';
+            fg = '0, 0, 0';
 
         const lines = [];
         const panel = [];
@@ -295,7 +292,7 @@ export class ThemeManager {
             panel.push(`background-color: ${isDark ? '#000000' : '#FAFAFB'};`);
         // follow-gnome: emit no background line.
 
-        panel.push(`color: rgb(${fg});`);
+        panel.push(`color: rgb(${fg}) !important;`);
 
         // Tahoe's bar is a fixed 24px. Shell themes routinely set the panel
         // height with !important (MacTahoe uses 40px), so an explicit height
@@ -323,25 +320,25 @@ export class ThemeManager {
         // Both GNOME and third-party themes set the weight on the button as
         // well as on #panel, so the panel-level declaration alone leaves every
         // menu title bold. In Tahoe only the app title is emphasised.
-        const buttonText = [];
+        const buttonText = [`color: rgb(${fg}) !important;`];
         if (fs > 0)
             buttonText.push(`font-size: ${fs}pt;`);
         if (fw)
             buttonText.push(`font-weight: ${fw};`);
-        if (buttonText.length) {
-            lines.push(`#panel.lintel .panel-button { ${buttonText.join(' ')} }`);
-            lines.push('#panel.lintel .panel-button .lintel-active-app ' +
-                '{ font-weight: 600; }');
-        }
+        lines.push(`#panel.lintel .panel-button { ${buttonText.join(' ')} }`);
+        lines.push('#panel.lintel .panel-button .lintel-active-app ' +
+            `{ font-weight: 600; color: rgb(${fg}) !important; }`);
+        lines.push(`#panel.lintel .system-status-icon, #panel.lintel StIcon { color: rgb(${fg}) !important; }`);
+        lines.push(`#panel.lintel .clock-display-box .clock { color: rgb(${fg}) !important; }`);
+        lines.push(`#panel.lintel .lintel-battery-percentage { color: rgb(${fg}) !important; }`);
+        lines.push(`.lintel-control-center-icon { color: rgb(${fg}) !important; }`);
 
         // Readability over the wallpaper in fully-transparent mode.
-        if (appearance === 'tahoe-transparent') {
-            const shadow = fg === '255, 255, 255'
-                ? 'rgba(0, 0, 0, 0.28)'
-                : 'rgba(255, 255, 255, 0.20)';
-            lines.push(`#panel.lintel { text-shadow: 0 1px 2px ${shadow}; }`);
-            lines.push(`#panel.lintel StIcon { icon-shadow: 0 1px 2px ${shadow}; }`);
-        }
+        const shadow = fg === '255, 255, 255'
+            ? '0 1px 2px rgba(0, 0, 0, 0.40)'
+            : 'none';
+        lines.push(`#panel.lintel { text-shadow: ${shadow}; }`);
+        lines.push(`#panel.lintel StIcon { icon-shadow: ${shadow}; }`);
 
         // Overview: zero the background when our class is present.
         lines.push(`#panel.lintel.${OVERVIEW_CLASS} { background-color: transparent; }`);

@@ -161,13 +161,20 @@
 
 /* Fluid Glass Pure Liquid Glass material */
 .lintel-system-menu-content,
-.lintel-system-menu-content.lintel-dark,
-.lintel-system-menu-content.lintel-light {
+.lintel-system-menu-content.lintel-dark {
     color: #ffffff;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.lintel-system-menu-content.lintel-light {
+    color: #000000;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    text-shadow: none;
 }
 
 .lintel-system-menu-content .popup-menu-item {
@@ -187,40 +194,71 @@
 .lintel-system-menu-content .popup-menu-item:focus,
 .lintel-system-menu-content .popup-menu-item:active,
 .lintel-system-menu-content .popup-menu-item:checked,
-.lintel-system-menu-content.lintel-light .popup-menu-item:hover,
-.lintel-system-menu-content.lintel-light .popup-menu-item:selected,
-.lintel-system-menu-content.lintel-light .popup-menu-item:focus,
-.lintel-system-menu-content.lintel-light .popup-menu-item:active,
-.lintel-system-menu-content.lintel-light .popup-menu-item:checked {
+.lintel-system-menu-content.lintel-dark .popup-menu-item:hover,
+.lintel-system-menu-content.lintel-dark .popup-menu-item:selected,
+.lintel-system-menu-content.lintel-dark .popup-menu-item:focus,
+.lintel-system-menu-content.lintel-dark .popup-menu-item:active,
+.lintel-system-menu-content.lintel-dark .popup-menu-item:checked {
     color: #ffffff;
     background-color: rgba(255, 255, 255, 0.16);
     border-radius: 6px;
 }
 
+.lintel-system-menu-content.lintel-light .popup-menu-item:hover,
+.lintel-system-menu-content.lintel-light .popup-menu-item:selected,
+.lintel-system-menu-content.lintel-light .popup-menu-item:focus,
+.lintel-system-menu-content.lintel-light .popup-menu-item:active,
+.lintel-system-menu-content.lintel-light .popup-menu-item:checked {
+    color: #000000;
+    background-color: rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+}
+
 .lintel-system-menu-content .popup-menu-item:active:hover,
 .lintel-system-menu-content .popup-menu-item:checked:hover,
-.lintel-system-menu-content.lintel-light .popup-menu-item:active:hover,
-.lintel-system-menu-content.lintel-light .popup-menu-item:checked:hover {
+.lintel-system-menu-content.lintel-dark .popup-menu-item:active:hover,
+.lintel-system-menu-content.lintel-dark .popup-menu-item:checked:hover {
     background-color: rgba(255, 255, 255, 0.22);
 }
 
+.lintel-system-menu-content.lintel-light .popup-menu-item:active:hover,
+.lintel-system-menu-content.lintel-light .popup-menu-item:checked:hover {
+    background-color: rgba(0, 0, 0, 0.14);
+}
+
 .lintel-system-menu-content .popup-menu-item:insensitive,
-.lintel-system-menu-content.lintel-light .popup-menu-item:insensitive {
+.lintel-system-menu-content.lintel-dark .popup-menu-item:insensitive {
     color: rgba(255, 255, 255, 0.45);
     background-color: transparent !important;
 }
 
+.lintel-system-menu-content.lintel-light .popup-menu-item:insensitive {
+    color: rgba(0, 0, 0, 0.35);
+    background-color: transparent !important;
+}
+
 .lintel-system-menu-content .popup-menu-icon,
-.lintel-system-menu-content.lintel-light .popup-menu-icon {
+.lintel-system-menu-content.lintel-dark .popup-menu-icon {
     icon-size: 14px;
     min-width: 14px;
     color: rgba(255, 255, 255, 0.92);
 }
 
+.lintel-system-menu-content.lintel-light .popup-menu-icon {
+    icon-size: 14px;
+    min-width: 14px;
+    color: rgba(0, 0, 0, 0.88);
+}
+
 .lintel-system-menu-content .popup-menu-arrow,
-.lintel-system-menu-content.lintel-light .popup-menu-arrow {
+.lintel-system-menu-content.lintel-dark .popup-menu-arrow {
     icon-size: 10px;
     color: rgba(255, 255, 255, 0.78);
+}
+
+.lintel-system-menu-content.lintel-light .popup-menu-arrow {
+    icon-size: 10px;
+    color: rgba(0, 0, 0, 0.60);
 }
 
 .lintel-system-menu-content .popup-separator-menu-item {
@@ -238,15 +276,22 @@
 
 .lintel-system-menu-content .popup-separator-menu-item
     .popup-separator-menu-item-separator,
-.lintel-system-menu-content.lintel-light .popup-separator-menu-item
+.lintel-system-menu-content.lintel-dark .popup-separator-menu-item
     .popup-separator-menu-item-separator {
     height: 1px;
     background-color: rgba(255, 255, 255, 0.18);
 }
 
+.lintel-system-menu-content.lintel-light .popup-separator-menu-item
+    .popup-separator-menu-item-separator {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.12);
+}
+
 /* GNOME expands submenus in-place. Keep the Recent Items disclosure visually
  * continuous with the outer glass instead of exposing GNOME's opaque inset. */
 .lintel-system-menu-content .popup-sub-menu,
+.lintel-system-menu-content.lintel-dark .popup-sub-menu,
 .lintel-system-menu-content.lintel-light .popup-sub-menu {
     margin: 0 5px 3px 5px;
     background-color: transparent;
@@ -279,7 +324,7 @@
 }
 
 .lintel-status-section-title,
-.lintel-system-menu-content.lintel-light .lintel-status-section-title {
+.lintel-system-menu-content.lintel-dark .lintel-status-section-title {
     color: rgba(255, 255, 255, 0.70);
     font-size: 8.25pt;
     font-weight: 600;
@@ -287,9 +332,21 @@
     padding-bottom: 2px;
 }
 
+.lintel-system-menu-content.lintel-light .lintel-status-section-title {
+    color: rgba(0, 0, 0, 0.60);
+    font-size: 8.25pt;
+    font-weight: 600;
+    padding-top: 7px;
+    padding-bottom: 2px;
+}
+
 .lintel-status-empty,
-.lintel-system-menu-content.lintel-light .lintel-status-empty {
+.lintel-system-menu-content.lintel-dark .lintel-status-empty {
     color: rgba(255, 255, 255, 0.65);
+}
+
+.lintel-system-menu-content.lintel-light .lintel-status-empty {
+    color: rgba(0, 0, 0, 0.50);
 }
 
 .lintel-wifi-network-item,
@@ -298,9 +355,14 @@
 }
 
 .lintel-wifi-secure-icon,
-.lintel-system-menu-content.lintel-light .lintel-wifi-secure-icon {
+.lintel-system-menu-content.lintel-dark .lintel-wifi-secure-icon {
     icon-size: 10px;
     color: rgba(255, 255, 255, 0.65);
+}
+
+.lintel-system-menu-content.lintel-light .lintel-wifi-secure-icon {
+    icon-size: 10px;
+    color: rgba(0, 0, 0, 0.60);
 }
 
 .lintel-battery-indicator {
@@ -317,9 +379,14 @@
 }
 
 .lintel-battery-summary-icon,
-.lintel-system-menu-content.lintel-light .lintel-battery-summary-icon {
+.lintel-system-menu-content.lintel-dark .lintel-battery-summary-icon {
     icon-size: 30px;
     color: #ffffff;
+}
+
+.lintel-system-menu-content.lintel-light .lintel-battery-summary-icon {
+    icon-size: 30px;
+    color: #000000;
 }
 
 .lintel-battery-summary-labels {
@@ -327,25 +394,44 @@
 }
 
 .lintel-battery-summary-percentage,
-.lintel-system-menu-content.lintel-light .lintel-battery-summary-percentage {
+.lintel-system-menu-content.lintel-dark .lintel-battery-summary-percentage {
     color: #ffffff;
     font-size: 18pt;
     font-weight: 650;
     font-feature-settings: "tnum";
 }
 
+.lintel-system-menu-content.lintel-light .lintel-battery-summary-percentage {
+    color: #000000;
+    font-size: 18pt;
+    font-weight: 650;
+    font-feature-settings: "tnum";
+}
+
 .lintel-battery-summary-status,
-.lintel-system-menu-content.lintel-light .lintel-battery-summary-status {
+.lintel-system-menu-content.lintel-dark .lintel-battery-summary-status {
     color: rgba(255, 255, 255, 0.88);
+    font-size: 8.75pt;
+    font-weight: 600;
+}
+
+.lintel-system-menu-content.lintel-light .lintel-battery-summary-status {
+    color: rgba(0, 0, 0, 0.75);
     font-size: 8.75pt;
     font-weight: 600;
 }
 
 .lintel-battery-summary-time,
 .lintel-status-menu-content .lintel-battery-source,
+.lintel-system-menu-content.lintel-dark .lintel-battery-summary-time,
+.lintel-system-menu-content.lintel-dark .lintel-status-menu-content .lintel-battery-source {
+    color: rgba(255, 255, 255, 0.70);
+    font-size: 8.25pt;
+}
+
 .lintel-system-menu-content.lintel-light .lintel-battery-summary-time,
 .lintel-system-menu-content.lintel-light .lintel-status-menu-content .lintel-battery-source {
-    color: rgba(255, 255, 255, 0.70);
+    color: rgba(0, 0, 0, 0.60);
     font-size: 8.25pt;
 }
 
@@ -693,6 +779,55 @@
     box-shadow: none !important;
 }
 
+.lintel-cc-light .lintel-cc-tile-title,
+.lintel-cc-light .lintel-cc-media-title,
+.lintel-cc-light .lintel-cc-slider-title {
+    color: #000000;
+    text-shadow: none;
+}
+
+.lintel-cc-light .lintel-cc-tile-status {
+    color: rgba(0, 0, 0, 0.65);
+    text-shadow: none;
+}
+
+.lintel-cc-light .lintel-cc-tile-icon {
+    color: #000000;
+}
+
+.lintel-cc-light .lintel-cc-tile-icon:checked,
+.lintel-cc-light .lintel-cc-tile:checked .lintel-cc-tile-icon {
+    color: #007aff !important;
+}
+
+.lintel-cc-light .lintel-cc-media-artist {
+    color: rgba(0, 0, 0, 0.65);
+    text-shadow: none;
+}
+
+.lintel-cc-light .lintel-cc-media-control {
+    color: rgba(0, 0, 0, 0.85);
+}
+
+.lintel-cc-light .lintel-cc-slider-icon,
+.lintel-cc-light .lintel-cc-slider-trailing-icon {
+    color: rgba(0, 0, 0, 0.85);
+}
+
+.lintel-cc-light .lintel-cc-track {
+    color: #000000;
+    -barlevel-background-color: rgba(0, 0, 0, 0.15);
+    -barlevel-active-background-color: #000000;
+}
+
+.lintel-cc-light .lintel-cc-edit-controls,
+.lintel-cc-light .lintel-cc-edit-controls:hover,
+.lintel-cc-light .lintel-cc-edit-controls:focus,
+.lintel-cc-light .lintel-cc-edit-controls.lintel-cc-edit-done {
+    color: #000000;
+    text-shadow: none;
+}
+
 /* Edit mode. Tahoe edits in place: a remove badge on every control's top-left
  * corner, the popup otherwise unchanged. Selecting a control (the shield over
  * it takes the click so the control itself is not operated) opens a toolbar to
@@ -868,14 +1003,23 @@
     spacing: 8px;
 }
 
-.lintel-nc-heading {
+.lintel-nc-heading,
+.lintel-nc-dark .lintel-nc-heading {
     color: #ffffff;
     font-size: 13.5pt;
     font-weight: 700;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
-.lintel-nc-clear-button {
+.lintel-nc-light .lintel-nc-heading {
+    color: #000000;
+    font-size: 13.5pt;
+    font-weight: 700;
+    text-shadow: none;
+}
+
+.lintel-nc-clear-button,
+.lintel-nc-dark .lintel-nc-clear-button {
     width: 22px;
     height: 22px;
     min-width: 22px;
@@ -883,8 +1027,22 @@
     padding: 0;
     border-radius: 999px;
     border: none;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.90);
     background-color: rgba(255, 255, 255, 0.14) !important;
+    box-shadow: none;
+    transition-duration: 120ms;
+}
+
+.lintel-nc-light .lintel-nc-clear-button {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    padding: 0;
+    border-radius: 999px;
+    border: none;
+    color: rgba(0, 0, 0, 0.85);
+    background-color: rgba(0, 0, 0, 0.08) !important;
     box-shadow: none;
     transition-duration: 120ms;
 }
@@ -893,19 +1051,16 @@
     icon-size: 14px;
 }
 
-.lintel-nc-dark .lintel-nc-clear-button,
-.lintel-nc-light .lintel-nc-clear-button {
-    color: rgba(255, 255, 255, 0.90);
-    background-color: rgba(255, 255, 255, 0.14) !important;
-    border: none;
-    box-shadow: none;
-}
-
 .lintel-nc-dark .lintel-nc-clear-button:hover,
-.lintel-nc-light .lintel-nc-clear-button:hover,
 .lintel-nc-clear-button:hover {
     color: #ffffff;
     background-color: rgba(255, 255, 255, 0.28) !important;
+    border: none;
+}
+
+.lintel-nc-light .lintel-nc-clear-button:hover {
+    color: #000000;
+    background-color: rgba(0, 0, 0, 0.16) !important;
     border: none;
 }
 
@@ -950,9 +1105,16 @@
     transition-duration: 140ms;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message,
-#lintelNotificationCenter.lintel-nc-light .message {
+#lintelNotificationCenter.lintel-nc-dark .message {
     color: rgba(255, 255, 255, 0.96);
+    background-color: transparent;
+    border: none;
+    border-radius: 24px;
+    box-shadow: none;
+}
+
+#lintelNotificationCenter.lintel-nc-light .message {
+    color: #000000;
     background-color: transparent;
     border: none;
     border-radius: 24px;
@@ -1009,10 +1171,13 @@
 }
 
 #lintelNotificationCenter.lintel-nc-dark .message .message-header,
-#lintelNotificationCenter.lintel-nc-dark .message .message-header .event-time,
+#lintelNotificationCenter.lintel-nc-dark .message .message-header .event-time {
+    color: rgba(255, 255, 255, 0.72);
+}
+
 #lintelNotificationCenter.lintel-nc-light .message .message-header,
 #lintelNotificationCenter.lintel-nc-light .message .message-header .event-time {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(0, 0, 0, 0.65);
 }
 
 #lintelNotificationCenter .message .message-header .message-expand-button,
@@ -1026,8 +1191,6 @@
     margin: 0;
     border: none;
     border-radius: 999px;
-    color: rgba(255, 255, 255, 0.85);
-    background-color: rgba(255, 255, 255, 0.14) !important;
     box-shadow: none;
     transition-duration: 120ms;
 }
@@ -1040,19 +1203,29 @@
 
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button,
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button,
-#lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button,
-#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button {
+#lintelNotificationCenter.lintel-nc-dark .message-notification-group .message-collapse-button {
     color: rgba(255, 255, 255, 0.90);
     background-color: rgba(255, 255, 255, 0.14) !important;
 }
 
+#lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button,
+#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button,
+#lintelNotificationCenter.lintel-nc-light .message-notification-group .message-collapse-button {
+    color: rgba(0, 0, 0, 0.80);
+    background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button:hover,
 #lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button:hover,
-#lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button:hover,
-#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button:hover,
 #lintelNotificationCenter .message .message-header .message-close-button:hover {
     color: #ffffff;
     background-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+#lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button:hover,
+#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button:hover {
+    color: #000000;
+    background-color: rgba(0, 0, 0, 0.16) !important;
 }
 
 #lintelNotificationCenter .message .message-header .message-close-button:active {
@@ -1100,9 +1273,12 @@
     font-size: 9.75pt;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message .message-body,
-#lintelNotificationCenter.lintel-nc-light .message .message-body {
+#lintelNotificationCenter.lintel-nc-dark .message .message-body {
     color: rgba(255, 255, 255, 0.88);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message .message-body {
+    color: rgba(0, 0, 0, 0.85);
 }
 
 #lintelNotificationCenter .message .message-action-bin {
@@ -1120,16 +1296,30 @@
     border: none;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .notification-button,
-#lintelNotificationCenter.lintel-nc-light .notification-button {
+#lintelNotificationCenter.lintel-nc-dark .notification-button {
     color: #ffffff;
     background-color: transparent;
     border: none;
 }
 
+#lintelNotificationCenter.lintel-nc-light .notification-button {
+    color: #000000;
+    background-color: transparent;
+    border: none;
+}
+
+#lintelNotificationCenter.lintel-nc-dark .notification-button:hover,
+#lintelNotificationCenter.lintel-nc-dark .notification-button:focus,
 #lintelNotificationCenter .notification-button:hover,
 #lintelNotificationCenter .notification-button:focus {
     color: #ffffff;
+    background-color: transparent;
+    border: none;
+}
+
+#lintelNotificationCenter.lintel-nc-light .notification-button:hover,
+#lintelNotificationCenter.lintel-nc-light .notification-button:focus {
+    color: #000000;
     background-color: transparent;
     border: none;
 }
@@ -1139,12 +1329,21 @@
     padding: 0 2px 2px 2px;
 }
 
+#lintelNotificationCenter.lintel-nc-dark .message-notification-group .message-group-header .message-group-title,
 #lintelNotificationCenter .message-notification-group .message-group-header .message-group-title {
     margin: 0;
     color: #ffffff;
     font-size: 11.25pt;
     font-weight: 700;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+#lintelNotificationCenter.lintel-nc-light .message-notification-group .message-group-header .message-group-title {
+    margin: 0;
+    color: #000000;
+    font-size: 11.25pt;
+    font-weight: 700;
+    text-shadow: none;
 }
 
 #lintelNotificationCenter .message-notification-group .message-collapse-button {
@@ -1188,14 +1387,21 @@
 }
 
 .lintel-nc-dark .lintel-nc-widget-card,
-.lintel-nc-dark .lintel-nc-widget-gallery,
-.lintel-nc-light .lintel-nc-widget-card,
-.lintel-nc-light .lintel-nc-widget-gallery {
+.lintel-nc-dark .lintel-nc-widget-gallery {
     color: rgba(255, 255, 255, 0.96);
     background-color: transparent;
     border: none;
     box-shadow: none;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.lintel-nc-light .lintel-nc-widget-card,
+.lintel-nc-light .lintel-nc-widget-gallery {
+    color: #000000;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    text-shadow: none;
 }
 
 .lintel-nc-widget-card:hover,
@@ -1206,7 +1412,15 @@
     border: none;
 }
 
-.lintel-nc-widget-title {
+.lintel-nc-widget-title,
+.lintel-nc-dark .lintel-nc-widget-title {
+    color: #ffffff;
+    font-size: 10.5pt;
+    font-weight: 700;
+}
+
+.lintel-nc-light .lintel-nc-widget-title {
+    color: #000000;
     font-size: 10.5pt;
     font-weight: 700;
 }
@@ -1219,12 +1433,15 @@
 .lintel-nc-dark .lintel-nc-widget-subtitle,
 .lintel-nc-dark .lintel-nc-calendar-weekday,
 .lintel-nc-dark .lintel-nc-calendar-year,
-.lintel-nc-dark .lintel-nc-forecast-time,
+.lintel-nc-dark .lintel-nc-forecast-time {
+    color: rgba(255, 255, 255, 0.72);
+}
+
 .lintel-nc-light .lintel-nc-widget-subtitle,
 .lintel-nc-light .lintel-nc-calendar-weekday,
 .lintel-nc-light .lintel-nc-calendar-year,
 .lintel-nc-light .lintel-nc-forecast-time {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(0, 0, 0, 0.65);
 }
 
 /* Calendar — the small layout follows Tahoe's desktop calendar widget: red
@@ -1254,7 +1471,16 @@
     spacing: 12px;
 }
 
-.lintel-nc-calendar-big-day {
+.lintel-nc-calendar-big-day,
+.lintel-nc-dark .lintel-nc-calendar-big-day {
+    color: #ffffff;
+    font-size: 30pt;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-light .lintel-nc-calendar-big-day {
+    color: #000000;
     font-size: 30pt;
     font-weight: 300;
     font-feature-settings: "tnum";
@@ -1291,10 +1517,13 @@
 }
 
 .lintel-nc-dark .lintel-nc-calendar-day-number.lintel-nc-calendar-weekend,
-.lintel-nc-dark .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend,
+.lintel-nc-dark .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend {
+    color: rgba(255, 255, 255, 0.50);
+}
+
 .lintel-nc-light .lintel-nc-calendar-day-number.lintel-nc-calendar-weekend,
 .lintel-nc-light .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend {
-    color: rgba(255, 255, 255, 0.50);
+    color: rgba(0, 0, 0, 0.40);
 }
 
 .lintel-nc-calendar-today {
@@ -1395,7 +1624,10 @@
 
 .lintel-notification-center .lintel-nc-weather-clear,
 .lintel-notification-center .lintel-nc-weather-night,
-.lintel-notification-center .lintel-nc-weather-cloudy {
+.lintel-notification-center .lintel-nc-weather-cloudy,
+.lintel-nc-dark .lintel-nc-weather-clear,
+.lintel-nc-dark .lintel-nc-weather-night,
+.lintel-nc-dark .lintel-nc-weather-cloudy {
     color: #ffffff;
     border: none;
     background-color: transparent;
@@ -1403,16 +1635,40 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
+.lintel-nc-light .lintel-nc-weather-clear,
+.lintel-nc-light .lintel-nc-weather-night,
+.lintel-nc-light .lintel-nc-weather-cloudy,
+.lintel-nc-light .lintel-nc-weather-location,
+.lintel-nc-light .lintel-nc-weather-temperature,
+.lintel-nc-light .lintel-nc-weather-conditions,
+.lintel-nc-light .lintel-nc-forecast-temperature {
+    color: #000000;
+    border: none;
+    background-color: transparent;
+    background-gradient-direction: none;
+    text-shadow: none;
+}
+
 .lintel-nc-weather-clear .lintel-nc-forecast-time,
 .lintel-nc-weather-night .lintel-nc-forecast-time,
-.lintel-nc-weather-cloudy .lintel-nc-forecast-time {
+.lintel-nc-weather-cloudy .lintel-nc-forecast-time,
+.lintel-nc-dark .lintel-nc-weather-clear .lintel-nc-forecast-time,
+.lintel-nc-dark .lintel-nc-weather-night .lintel-nc-forecast-time,
+.lintel-nc-dark .lintel-nc-weather-cloudy .lintel-nc-forecast-time {
     color: rgba(255, 255, 255, 0.80);
+}
+
+.lintel-nc-light .lintel-nc-weather-clear .lintel-nc-forecast-time,
+.lintel-nc-light .lintel-nc-weather-night .lintel-nc-forecast-time,
+.lintel-nc-light .lintel-nc-weather-cloudy .lintel-nc-forecast-time {
+    color: rgba(0, 0, 0, 0.65);
 }
 
 /* Batteries — Tahoe's ring gauge. The ring is painted in RingGauge's Cairo
  * code, which reads these colours back through lookup_color(). */
 
-.lintel-nc-battery-ring {
+.lintel-nc-battery-ring,
+.lintel-nc-dark .lintel-nc-battery-ring {
     width: 64px;
     height: 64px;
     -lintel-ring-fill: #30d158;
@@ -1421,8 +1677,11 @@
 }
 
 .lintel-nc-light .lintel-nc-battery-ring {
+    width: 64px;
+    height: 64px;
     -lintel-ring-fill: #30d158;
-    -lintel-ring-track: rgba(255, 255, 255, 0.22);
+    -lintel-ring-low: #ff453a;
+    -lintel-ring-track: rgba(0, 0, 0, 0.15);
 }
 
 .lintel-nc-widget-medium .lintel-nc-battery-ring {
@@ -1451,7 +1710,16 @@
     spacing: 18px;
 }
 
-.lintel-nc-battery-percentage {
+.lintel-nc-battery-percentage,
+.lintel-nc-dark .lintel-nc-battery-percentage {
+    color: #ffffff;
+    font-size: 20pt;
+    font-weight: 600;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-light .lintel-nc-battery-percentage {
+    color: #000000;
     font-size: 20pt;
     font-weight: 600;
     font-feature-settings: "tnum";
@@ -1459,7 +1727,8 @@
 
 /* Clock — an analogue face, like Tahoe's Clock widget. */
 
-.lintel-nc-clock-face {
+.lintel-nc-clock-face,
+.lintel-nc-dark .lintel-nc-clock-face {
     width: 128px;
     height: 128px;
     -lintel-clock-second: #ff9f0a;
@@ -1469,9 +1738,12 @@
 }
 
 .lintel-nc-light .lintel-nc-clock-face {
-    -lintel-clock-face: rgba(255, 255, 255, 0.14);
-    -lintel-clock-tick: #ffffff;
-    -lintel-clock-hand: #ffffff;
+    width: 128px;
+    height: 128px;
+    -lintel-clock-second: #ff9f0a;
+    -lintel-clock-face: rgba(0, 0, 0, 0.08);
+    -lintel-clock-tick: #000000;
+    -lintel-clock-hand: #000000;
 }
 
 .lintel-nc-widget-medium .lintel-nc-clock-face {
@@ -1488,7 +1760,16 @@
     spacing: 18px;
 }
 
-.lintel-nc-clock-time {
+.lintel-nc-clock-time,
+.lintel-nc-dark .lintel-nc-clock-time {
+    color: #ffffff;
+    font-size: 30pt;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-light .lintel-nc-clock-time {
+    color: #000000;
     font-size: 30pt;
     font-weight: 300;
     font-feature-settings: "tnum";
@@ -1507,11 +1788,18 @@
     border-radius: 12px;
 }
 
-.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-title,
-.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-artist,
+.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-title {
+    color: #000000;
+    text-shadow: none;
+}
+
+.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-artist {
+    color: rgba(0, 0, 0, 0.65);
+    text-shadow: none;
+}
+
 .lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-control {
-    color: #ffffff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.30);
+    color: rgba(0, 0, 0, 0.85);
 }
 
 /* ── Editing ── controls float over the widget instead of shifting the column. */
@@ -1630,7 +1918,8 @@
 }
 
 /* "Edit Widgets" is a small glass pill on the wallpaper. */
-.lintel-nc-edit-button {
+.lintel-nc-edit-button,
+.lintel-nc-dark .lintel-nc-edit-button {
     margin-top: 8px;
     padding: 6px 16px;
     color: rgba(255, 255, 255, 0.92);
@@ -1644,10 +1933,36 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
+.lintel-nc-light .lintel-nc-edit-button {
+    margin-top: 8px;
+    padding: 6px 16px;
+    color: rgba(0, 0, 0, 0.85);
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 999px;
+    font-size: 8.75pt;
+    font-weight: 500;
+    transition-duration: 120ms;
+    text-shadow: none;
+}
+
 .lintel-nc-edit-button:hover,
 .lintel-nc-edit-button:focus,
-.lintel-nc-edit-button.lintel-nc-edit-done {
+.lintel-nc-edit-button.lintel-nc-edit-done,
+.lintel-nc-dark .lintel-nc-edit-button:hover,
+.lintel-nc-dark .lintel-nc-edit-button:focus,
+.lintel-nc-dark .lintel-nc-edit-button.lintel-nc-edit-done {
     color: #ffffff;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.lintel-nc-light .lintel-nc-edit-button:hover,
+.lintel-nc-light .lintel-nc-edit-button:focus,
+.lintel-nc-light .lintel-nc-edit-button.lintel-nc-edit-done {
+    color: #000000;
     background-color: transparent;
     border: none;
     box-shadow: none;
@@ -1690,7 +2005,15 @@
     background-color: #e0382e;
 }
 
-.lintel-nc-event-title {
+.lintel-nc-event-title,
+.lintel-nc-dark .lintel-nc-event-title {
+    color: #ffffff;
+    font-size: 9pt;
+    font-weight: 600;
+}
+
+.lintel-nc-light .lintel-nc-event-title {
+    color: #000000;
     font-size: 9pt;
     font-weight: 600;
 }
@@ -1711,14 +2034,17 @@
 .lintel-nc-dark .lintel-nc-upnext-section,
 .lintel-nc-dark .lintel-nc-screentime-title,
 .lintel-nc-dark .lintel-nc-screentime-message,
-.lintel-nc-dark .lintel-nc-chart-axis-label,
+.lintel-nc-dark .lintel-nc-chart-axis-label {
+    color: rgba(255, 255, 255, 0.72);
+}
+
 .lintel-nc-light .lintel-nc-event-time,
 .lintel-nc-light .lintel-nc-upnext-empty,
 .lintel-nc-light .lintel-nc-upnext-section,
 .lintel-nc-light .lintel-nc-screentime-title,
 .lintel-nc-light .lintel-nc-screentime-message,
 .lintel-nc-light .lintel-nc-chart-axis-label {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(0, 0, 0, 0.65);
 }
 
 /* Screen Time — today's total, a week of daily bars with a dashed line at the
@@ -1743,7 +2069,16 @@
     font-weight: 700;
 }
 
-.lintel-nc-screentime-total {
+.lintel-nc-screentime-total,
+.lintel-nc-dark .lintel-nc-screentime-total {
+    color: #ffffff;
+    font-size: 20pt;
+    font-weight: 600;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-light .lintel-nc-screentime-total {
+    color: #000000;
     font-size: 20pt;
     font-weight: 600;
     font-feature-settings: "tnum";
@@ -1763,11 +2098,18 @@
 }
 
 .lintel-nc-bar-chart,
-.lintel-nc-light .lintel-nc-bar-chart {
+.lintel-nc-dark .lintel-nc-bar-chart {
     -lintel-bar-fill: rgba(10, 132, 255, 0.55);
     -lintel-bar-highlight: #0a84ff;
     -lintel-bar-reference: rgba(255, 255, 255, 0.55);
     -lintel-bar-baseline: rgba(255, 255, 255, 0.18);
+}
+
+.lintel-nc-light .lintel-nc-bar-chart {
+    -lintel-bar-fill: rgba(10, 132, 255, 0.55);
+    -lintel-bar-highlight: #0a84ff;
+    -lintel-bar-reference: rgba(0, 0, 0, 0.40);
+    -lintel-bar-baseline: rgba(0, 0, 0, 0.15);
 }
 
 .lintel-nc-week-chart {
@@ -1785,7 +2127,7 @@
 }
 
 .lintel-nc-limit-meter,
-.lintel-nc-light .lintel-nc-limit-meter {
+.lintel-nc-dark .lintel-nc-limit-meter {
     height: 5px;
     margin: 2px 0;
     -lintel-meter-fill: #30d158;
@@ -1793,14 +2135,27 @@
     -lintel-meter-track: rgba(255, 255, 255, 0.22);
 }
 
+.lintel-nc-light .lintel-nc-limit-meter {
+    height: 5px;
+    margin: 2px 0;
+    -lintel-meter-fill: #30d158;
+    -lintel-meter-over: #ff9f0a;
+    -lintel-meter-track: rgba(0, 0, 0, 0.15);
+}
+
 /* System — processor, memory, storage and temperature as ring gauges (the
  * RingGauge Batteries uses), network rates and, on large, two minutes of
  * processor and network history. A gauge turns red at 90% or 90 °C. */
 
 .lintel-nc-ring,
-.lintel-nc-light .lintel-nc-ring {
+.lintel-nc-dark .lintel-nc-ring {
     -lintel-ring-low: #ff453a;
     -lintel-ring-track: rgba(255, 255, 255, 0.22);
+}
+
+.lintel-nc-light .lintel-nc-ring {
+    -lintel-ring-low: #ff453a;
+    -lintel-ring-track: rgba(0, 0, 0, 0.15);
 }
 
 .lintel-nc-system-ring {
@@ -1838,7 +2193,16 @@
     -lintel-ring-fill: #ff9f0a;
 }
 
-.lintel-nc-ring-value {
+.lintel-nc-ring-value,
+.lintel-nc-dark .lintel-nc-ring-value {
+    color: #ffffff;
+    font-size: 7.5pt;
+    font-weight: 700;
+    font-feature-settings: "tnum";
+}
+
+.lintel-nc-light .lintel-nc-ring-value {
+    color: #000000;
     font-size: 7.5pt;
     font-weight: 700;
     font-feature-settings: "tnum";
@@ -1898,20 +2262,30 @@
 .lintel-nc-dark .lintel-nc-system-title,
 .lintel-nc-dark .lintel-nc-gauge-caption,
 .lintel-nc-dark .lintel-nc-gauge-detail,
-.lintel-nc-dark .lintel-nc-system-rates,
+.lintel-nc-dark .lintel-nc-system-rates {
+    color: rgba(255, 255, 255, 0.72);
+}
+
 .lintel-nc-light .lintel-nc-system-title,
 .lintel-nc-light .lintel-nc-gauge-caption,
 .lintel-nc-light .lintel-nc-gauge-detail,
 .lintel-nc-light .lintel-nc-system-rates {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(0, 0, 0, 0.65);
 }
 
 .lintel-nc-sparkline,
-.lintel-nc-light .lintel-nc-sparkline {
+.lintel-nc-dark .lintel-nc-sparkline {
     height: 56px;
     -lintel-spark-primary: #0a84ff;
     -lintel-spark-secondary: #ff9f0a;
     -lintel-spark-baseline: rgba(255, 255, 255, 0.18);
+}
+
+.lintel-nc-light .lintel-nc-sparkline {
+    height: 56px;
+    -lintel-spark-primary: #0a84ff;
+    -lintel-spark-secondary: #ff9f0a;
+    -lintel-spark-baseline: rgba(0, 0, 0, 0.15);
 }
 
 .lintel-nc-sparkline-network,
