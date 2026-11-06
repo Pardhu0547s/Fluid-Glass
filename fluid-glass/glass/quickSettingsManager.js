@@ -537,8 +537,6 @@ export class QuickSettingsManager {
         this.glass = glass;
         glass.set_size(1.0, 1.0);
         glass.set_pivot_point(0.0, 0.0);
-        if (this.targetActor)
-            glass.enablePointerLightTracking(this.targetActor);
         return glass;
     }
 

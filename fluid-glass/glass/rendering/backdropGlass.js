@@ -333,10 +333,6 @@ export const GlassActor = GObject.registerClass(class GlassActor extends Clutter
     setContrast(contrast) { this._renderer.setContrast(contrast); }
 
     setSaturation(saturation) { this._renderer.setSaturation(saturation); }
-    setLightAngleDeg(angle) { this._renderer.setLightAngleDeg(angle); }
-    enablePointerLightTracking(targetActor = this) {
-        return this._renderer.enablePointerLightTracking(targetActor);
-    }
 });
 
 /**

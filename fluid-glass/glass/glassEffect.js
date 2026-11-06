@@ -81,7 +81,6 @@ export class GlassHandle {
         this._signals = [];
         this._destroyed = false;
         this._active = false;
-        this._pointerCancel = null;
     }
 
     get _frameSlot() {
@@ -132,10 +131,6 @@ export class GlassHandle {
             );
         }
 
-        if (this.options.pointerTracking !== false && this.glass && this.targetActor) {
-            this._pointerCancel = this.glass.enablePointerLightTracking(this.targetActor);
-        }
-
         updateVisibility();
     }
 
@@ -184,11 +179,6 @@ export class GlassHandle {
             return;
         this._destroyed = true;
         this._active = false;
-
-        if (this._pointerCancel) {
-            this._pointerCancel();
-            this._pointerCancel = null;
-        }
 
         this.stopLoop();
 

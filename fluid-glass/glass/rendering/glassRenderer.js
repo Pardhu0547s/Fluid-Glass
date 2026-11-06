@@ -1,4 +1,3 @@
-import GLib from 'gi://GLib';
 import Cogl from 'gi://Cogl';
 import { BlurRenderer, ShaderPipelines, configureSamplerLayer, SHAPE_LAYER, RenderPasses } from './pipelines.js';
 import { setUniformArray } from '../shellVersion.js';
@@ -22,7 +21,6 @@ export class GlassRenderer {
     _outline = null;
     _repaint;
     _shapeTexture = null;
-    _pointerTrackCancel = null;
 
     constructor(params) {
         this._repaint = params.repaint;
@@ -106,10 +104,6 @@ export class GlassRenderer {
     }
 
     cleanup() {
-        if (this._pointerTrackCancel) {
-            this._pointerTrackCancel();
-            this._pointerTrackCancel = null;
-        }
         this._shapeTexture = null;
         this._outline?.clear();
         this._outline = null;
@@ -299,74 +293,6 @@ export class GlassRenderer {
         this.uniforms.set('saturation', 1.0);
         this._repaintIfDirty();
     }
-
-    setLightAngleDeg(angle) {
-        this.uniforms.set('light_angle_deg', angle);
-        this._repaintIfDirty();
-    }
-
-    enablePointerLightTracking(actor) {
-        if (this._pointerTrackCancel) {
-            this._pointerTrackCancel();
-            this._pointerTrackCancel = null;
-        }
-        if (!actor)
-            return null;
-
-        let currentAngle = this.uniforms.get('light_angle_deg') ?? 90.0;
-        let targetAngle = currentAngle;
-        let lastPx = -1;
-        let lastPy = -1;
-
-        const updateId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 16, () => {
-            if (!actor || !actor.mapped)
-                return GLib.SOURCE_CONTINUE;
-
-            const [px, py] = global.get_pointer();
-            const [ax, ay] = actor.get_transformed_position();
-            const [aw, ah] = actor.get_transformed_size();
-
-            if (aw <= 0 || ah <= 0)
-                return GLib.SOURCE_CONTINUE;
-
-            const cx = ax + aw * 0.5;
-            const cy = ay + ah * 0.5;
-
-            // Calculate angle in degrees from actor center to pointer
-            const rad = Math.atan2(py - cy, px - cx);
-            targetAngle = (rad * 180.0) / Math.PI;
-
-            // Shortest-path angular lerp for smooth fluid inertia
-            let delta = ((targetAngle - currentAngle + 540.0) % 360.0) - 180.0;
-            if (Math.abs(delta) < 0.05 && px === lastPx && py === lastPy) {
-                return GLib.SOURCE_CONTINUE;
-            }
-
-            lastPx = px;
-            lastPy = py;
-            currentAngle = (currentAngle + delta * 0.12 + 360.0) % 360.0;
-
-            this.setLightAngleDeg(currentAngle);
-            return GLib.SOURCE_CONTINUE;
-        });
-
-        const destroyId = actor.connect('destroy', () => {
-            if (updateId)
-                GLib.source_remove(updateId);
-            this._pointerTrackCancel = null;
-        });
-
-        const cancelFn = () => {
-            if (updateId)
-                GLib.source_remove(updateId);
-            try {
-                actor.disconnect(destroyId);
-            } catch (_e) {}
-            this._pointerTrackCancel = null;
-        };
-        this._pointerTrackCancel = cancelFn;
-        return cancelFn;
-    }
 }
 
 export class GlassGeometry {
@@ -544,10 +470,6 @@ export class UniformState {
     _pipeline = null;
 
     get values() { return this._pendingUniforms; }
-
-    get(name) {
-        return this._pendingUniforms.get(name);
-    }
 
     attach(pipeline) {
         this._pipeline = pipeline;

@@ -114,7 +114,6 @@ export class TopBarManager {
         glass.setIsDock(false);
         glass.setMultiRegionMode(this._style === 'islands');
         glass.setShadowMaxRadius(SHADOW_ROOM - 8);
-        glass.enablePointerLightTracking(panelBox);
         // Draw the glass below the panel.
         Main.layoutManager.uiGroup.insert_child_below(glass, panelBox);
         this._applyMaterial();
