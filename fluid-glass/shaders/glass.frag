@@ -620,6 +620,12 @@ void main() {
     float d = sdRoundRect(local_pos, box_size, corner);
 
     float lensBand = lensBandFor(min(box_size.x, box_size.y));
+    if (multi_region_mode > 0.5) {
+        // Multi-region capsules are compact floating UI modules (36-140px).
+        // Cap the lens band to a sleek 7.0px rim so 85-90% of the capsule
+        // is pristine flat Dual Kawase blurred backdrop without center collision.
+        lensBand = min(lensBand, 7.0);
+    }
 
 #ifdef LG_SHAPE_TEXTURE
     d = shapeTextureSD(local_pos);

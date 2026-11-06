@@ -261,10 +261,10 @@ export class GlassRenderer {
             ry[i] = region.y;
             rw[i] = region.w;
             rh[i] = region.h;
-            rTintR[i] = 1.0;
-            rTintG[i] = 1.0;
-            rTintB[i] = 1.0;
-            rBaseStrength[i] = 0.0;
+            rTintR[i] = region.tintR ?? 1.0;
+            rTintG[i] = region.tintG ?? 1.0;
+            rTintB[i] = region.tintB ?? 1.0;
+            rBaseStrength[i] = region.baseStrength ?? 0.0;
         });
         this.geometry.regions = clamped.map(r => [r.x, r.y, r.w, r.h]);
         this.uniforms.set('region_count', clamped.length);

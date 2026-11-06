@@ -436,6 +436,8 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
         handle.glass.setResolution(screenW, screenH);
         handle.glass.setGlassGeometry(unionX, unionY, unionW, unionH);
         handle.glass.syncSources();
+        if (handle.glass && containerActor)
+            handle.glass.opacity = containerActor.opacity;
         if (!handle.glass.visible)
             handle.glass.show();
     };

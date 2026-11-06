@@ -32,11 +32,11 @@ import {
     UpNextWidget,
     WeatherWidget,
 } from './ncWidgets.js';
-import {attachGlass} from '../../glassEffect.js';
+import {attachMultiRegionGlass} from '../../glassEffect.js';
 
 const CLEAR_THEME_STYLE = 'background: transparent !important; background-color: transparent !important; background-gradient-direction: none !important; border: none !important; box-shadow: none !important;';
 
-const COLUMN_WIDTH = 365;
+const COLUMN_WIDTH = 345;
 const SCREEN_INSET = 15;
 const TOP_INSET = 50;
 const BOTTOM_INSET = 15;
@@ -252,7 +252,6 @@ export class LintelNotificationCenter {
 
         this._gallery = new St.BoxLayout({
             style_class: 'lintel-nc-widget-gallery',
-            style: CLEAR_THEME_STYLE,
             orientation: Clutter.Orientation.VERTICAL,
             x_expand: true,
             visible: false,
@@ -262,7 +261,6 @@ export class LintelNotificationCenter {
         this._editButton = new St.Button({
             label: _('Edit Widgets'),
             style_class: 'lintel-nc-edit-button',
-            style: CLEAR_THEME_STYLE,
             accessible_name: _('Edit Widgets'),
             can_focus: true,
             x_align: Clutter.ActorAlign.CENTER,
@@ -284,19 +282,53 @@ export class LintelNotificationCenter {
         this._position();
 
         try {
-            this._glassHandle = attachGlass(
+            this._glassHandle = attachMultiRegionGlass(
                 this._column,
+                () => this._getVisibleGlassTargets(),
                 {
                     owner: 'notificationCenter',
-                    cornerRadius: 26.0,
+                    cornerRadius: 24.0,
                     blurRadius: 10,
                     tintColor: '#ffffff',
                     tintStrength: 0.12,
                 }
             );
         } catch (e) {
-            logError(e, 'lintel: attachGlass notificationCenter');
+            logError(e, 'lintel: attachMultiRegionGlass notificationCenter');
         }
+    }
+
+    _getVisibleGlassTargets() {
+        const targets = [];
+
+        if (this._notificationScroll?.visible) {
+            for (const message of this._notificationMessages.keys()) {
+                if (!message.visible || !message.mapped)
+                    continue;
+                if (message.has_style_pseudo_class('second-in-stack') ||
+                    message.has_style_pseudo_class('lower-in-stack'))
+                    continue;
+                targets.push(message);
+            }
+        }
+
+        for (const slot of this._widgetRows.values()) {
+            if (!slot.visible)
+                continue;
+            const card = slot._lintelWidget?.visible
+                ? slot._lintelWidget
+                : slot._lintelPlaceholder;
+            if (card && card.visible)
+                targets.push(card);
+        }
+
+        if (this._gallery?.visible)
+            targets.push(this._gallery);
+
+        if (this._editButton?.visible)
+            targets.push(this._editButton);
+
+        return targets;
     }
 
     _trackNotificationGroup(group) {
@@ -333,7 +365,6 @@ export class LintelNotificationCenter {
         if (this._notificationMessages.has(message))
             return;
 
-        message.set_style(CLEAR_THEME_STYLE);
         const content = message.get_child?.();
         if (!content)
             return;
@@ -694,7 +725,6 @@ export class LintelNotificationCenter {
         const placeholder = new St.Bin({
             style_class: `lintel-nc-widget-card lintel-nc-widget-${size} ` +
                 'lintel-nc-widget-placeholder',
-            style: CLEAR_THEME_STYLE,
             child: new St.Label({
                 text: title,
                 x_align: Clutter.ActorAlign.CENTER,
