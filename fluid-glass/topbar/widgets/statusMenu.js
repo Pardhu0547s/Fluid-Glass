@@ -33,7 +33,7 @@ export function syncMenuTheme(actor) {
 }
 
 export function styleStatusMenu(menu, contentClass = '') {
-    const clearStyle = 'background: transparent !important; background-color: transparent !important; background-image: none !important; border: none !important; box-shadow: none !important; -boxpointer-gap: 0px;';
+    const clearStyle = 'background: transparent !important; background-color: transparent !important; background-image: none !important; border: none !important; box-shadow: none !important; -boxpointer-gap: 4px;';
     menu.actor.add_style_class_name('lintel-system-menu');
     menu.actor.add_style_class_name('lintel-status-menu');
     menu.actor.add_style_class_name('liquid-glass-transparent');

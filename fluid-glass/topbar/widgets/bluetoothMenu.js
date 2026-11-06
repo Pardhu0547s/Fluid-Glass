@@ -22,7 +22,7 @@ export const LintelBluetoothMenu = GObject.registerClass({
 }, class LintelBluetoothMenu extends PanelMenu.Button {
     _init() {
         console.log('[FluidGlass] Initializing LintelBluetoothMenu...');
-        super._init(0.0, _('Bluetooth'), false);
+        super._init(0.5, _('Bluetooth'), false);
         this.add_style_class_name('lintel-status-button');
 
         this._bluetooth = new BluetoothService();

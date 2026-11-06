@@ -21,7 +21,7 @@ export const LintelWifiMenu = GObject.registerClass({
     GTypeName: 'FluidGlass_LintelWifiMenu',
 }, class LintelWifiMenu extends PanelMenu.Button {
     _init() {
-        super._init(0.0, _('Wi-Fi'), false);
+        super._init(0.5, _('Wi-Fi'), false);
         this.add_style_class_name('lintel-status-button');
 
         this._wifi = new WifiService();

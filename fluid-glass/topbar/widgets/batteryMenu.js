@@ -21,7 +21,7 @@ export const LintelBatteryMenu = GObject.registerClass({
     GTypeName: 'FluidGlass_LintelBatteryMenu',
 }, class LintelBatteryMenu extends PanelMenu.Button {
     _init() {
-        super._init(0.0, _('Battery'), false);
+        super._init(0.5, _('Battery'), false);
         this.add_style_class_name('lintel-status-button');
 
         this._battery = new BatteryService();
