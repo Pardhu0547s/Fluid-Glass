@@ -108,28 +108,37 @@ export class GlassHandle {
             }
         };
 
+        const connectSignal = (target, event, callback) => {
+            if (!target) return;
+            const id = target.connect(event, callback);
+            this._signals.push({ target, id });
+        };
+
         if (this.targetActor) {
-            this._signals.push(
-                this.targetActor.connect('notify::mapped', updateVisibility),
-                this.targetActor.connect('destroy', () => this.destroy())
-            );
+            connectSignal(this.targetActor, 'notify::mapped', updateVisibility);
+            connectSignal(this.targetActor, 'destroy', () => this.destroy());
         }
 
         if (this.options.menu) {
-            this._signals.push(
-                this.options.menu.connect('open-state-changed', (_m, isOpen) => {
-                    if (isOpen) {
-                        if (this.glass)
-                            this.glass.show();
-                        this.startLoop();
-                    } else {
-                        this.stopLoop();
-                        if (this.glass)
-                            this.glass.hide();
-                    }
-                })
-            );
+            connectSignal(this.options.menu, 'open-state-changed', (_m, isOpen) => {
+                if (isOpen) {
+                    if (this.glass)
+                        this.glass.show();
+                    this.startLoop();
+                } else {
+                    this.stopLoop();
+                    if (this.glass)
+                        this.glass.hide();
+                }
+            });
         }
+
+        try {
+            const stSettings = St.Settings.get();
+            connectSignal(stSettings, 'notify::color-scheme', () => {
+                this.update();
+            });
+        } catch (_e) {}
 
         updateVisibility();
     }
@@ -182,10 +191,14 @@ export class GlassHandle {
 
         this.stopLoop();
 
-        for (const id of this._signals) {
-            if (this.targetActor && id) {
+        for (const item of this._signals) {
+            if (item?.target && item?.id) {
                 try {
-                    this.targetActor.disconnect(id);
+                    item.target.disconnect(item.id);
+                } catch (_e) {}
+            } else if (this.targetActor && typeof item === 'number') {
+                try {
+                    this.targetActor.disconnect(item);
                 } catch (_e) {}
             }
         }
@@ -208,13 +221,25 @@ export class GlassHandle {
  * Configure shader properties on a BackdropGlass actor.
  */
 function applyGlassParameters(glass, options) {
+    let isDark = false;
+    try {
+        if (St.Settings?.get?.()) {
+            isDark = (St.Settings.get().color_scheme === St.SystemColorScheme.PREFER_DARK);
+        } else {
+            const iface = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+            isDark = (iface.get_string('color-scheme') === 'prefer-dark');
+        }
+    } catch (_e) {
+        isDark = false;
+    }
+
     const cornerRadius = options.cornerRadius ?? 22.0;
-    const blurRadius = options.blurRadius ?? 10;
+    const blurRadius = options.blurRadius ?? (isDark ? 5 : 20);
     const tintColor = options.tintColor ?? '#ffffff';
-    const tintStrength = options.tintStrength ?? 0.12;
+    const tintStrength = options.tintStrength ?? (isDark ? 0.05 : 0.15);
     const brightness = options.brightness ?? 1.0;
     const contrast = options.contrast ?? 1.0;
-    const saturation = options.saturation ?? 1.5;
+    const saturation = options.saturation ?? 1.0;
     const padding = options.padding ?? SHADER_PADDING;
 
     glass.setPadding(padding);
@@ -225,6 +250,7 @@ function applyGlassParameters(glass, options) {
     glass.setBrightness(brightness);
     glass.setContrast(contrast);
     glass.setSaturation(saturation);
+    glass.syncThemeGlassValues?.();
 }
 
 /**

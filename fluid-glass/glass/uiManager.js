@@ -1566,6 +1566,7 @@ export class UIManager {
             this.animActor.add_style_class_name('liquid-glass-light');
         else
             this.animActor.remove_style_class_name('liquid-glass-light');
+        this.glass?.syncThemeGlassValues?.();
     }
 
     _restoreMenuActors() {

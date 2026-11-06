@@ -1,7 +1,21 @@
 import Cogl from 'gi://Cogl';
+import Gio from 'gi://Gio';
+import St from 'gi://St';
 import { BlurRenderer, ShaderPipelines, configureSamplerLayer, SHAPE_LAYER, RenderPasses } from './pipelines.js';
 import { setUniformArray } from '../shellVersion.js';
 import { hexToColorArray } from '../animation.js';
+
+function getIsDarkTheme() {
+    try {
+        if (St.Settings?.get?.()) {
+            return St.Settings.get().color_scheme === St.SystemColorScheme.PREFER_DARK;
+        }
+        const iface = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+        return iface.get_string('color-scheme') === 'prefer-dark';
+    } catch (_e) {
+        return false;
+    }
+}
 // Must match glass.frag's `#define MAX_GLASS_REGIONS 64`.
 export const MAX_GLASS_REGIONS = 64;
 
@@ -21,6 +35,7 @@ export class GlassRenderer {
     _outline = null;
     _repaint;
     _shapeTexture = null;
+    _themeSignalId = 0;
 
     constructor(params) {
         this._repaint = params.repaint;
@@ -35,6 +50,11 @@ export class GlassRenderer {
             this._outline = new OutlineBinding(params.settings, params.outline, this.uniforms, () => this._repaintIfDirty());
             this._outline.initialize();
         }
+        try {
+            const stSettings = St.Settings.get();
+            this._themeSignalId = stSettings.connect('notify::color-scheme', () => this.syncThemeGlassValues());
+        } catch (_e) {}
+        this.syncThemeGlassValues();
     }
 
     // Compiles the pipelines on the first paint, once a Cogl context exists,
@@ -104,6 +124,12 @@ export class GlassRenderer {
     }
 
     cleanup() {
+        if (this._themeSignalId) {
+            try {
+                St.Settings.get().disconnect(this._themeSignalId);
+            } catch (_e) {}
+            this._themeSignalId = 0;
+        }
         this._shapeTexture = null;
         this._outline?.clear();
         this._outline = null;
@@ -193,6 +219,62 @@ export class GlassRenderer {
 
     setTintStrength(strength) {
         this.uniforms.set('tint_strength', strength);
+        this._repaintIfDirty();
+    }
+
+    setOutlineAlpha(alpha) {
+        this.uniforms.set('outline_alpha', alpha);
+        this._repaintIfDirty();
+    }
+
+    setInnerGlowIntensity(intensity) {
+        this.uniforms.set('inner_glow_intensity', intensity);
+        this._repaintIfDirty();
+    }
+
+    syncThemeGlassValues() {
+        const isDark = getIsDarkTheme();
+        if (isDark) {
+            // Dark Theme:
+            // background: rgba(255, 255, 255, 0.05);
+            // backdrop-filter: blur(5px);
+            // border: 1px solid rgba(255, 255, 255, 0.3);
+            // box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            // inset 0 0 0px 0px rgba(255, 255, 255, 0);
+            this.blur.setBlurRadius(5);
+            this.uniforms.set('tint_strength', 0.05);
+            this.uniforms.set('tint_r', 1.0);
+            this.uniforms.set('tint_g', 1.0);
+            this.uniforms.set('tint_b', 1.0);
+            this.uniforms.set('inner_glow_intensity', 0.0);
+            this.uniforms.set('outline_width', 1.0);
+            this.uniforms.set('outline_alpha', 0.3);
+            this.uniforms.set('outline_r', 1.0);
+            this.uniforms.set('outline_g', 1.0);
+            this.uniforms.set('outline_b', 1.0);
+            this.uniforms.set('shadow_radius', 32.0);
+            this.uniforms.set('shadow_intensity', 0.10);
+        } else {
+            // Light Theme:
+            // background: rgba(255, 255, 255, 0.15);
+            // backdrop-filter: blur(20px);
+            // border: 1px solid rgba(255, 255, 255, 0.3);
+            // box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            // inset 0 0 20px 10px rgba(255, 255, 255, 1);
+            this.blur.setBlurRadius(20);
+            this.uniforms.set('tint_strength', 0.15);
+            this.uniforms.set('tint_r', 1.0);
+            this.uniforms.set('tint_g', 1.0);
+            this.uniforms.set('tint_b', 1.0);
+            this.uniforms.set('inner_glow_intensity', 0.30);
+            this.uniforms.set('outline_width', 1.0);
+            this.uniforms.set('outline_alpha', 0.3);
+            this.uniforms.set('outline_r', 1.0);
+            this.uniforms.set('outline_g', 1.0);
+            this.uniforms.set('outline_b', 1.0);
+            this.uniforms.set('shadow_radius', 32.0);
+            this.uniforms.set('shadow_intensity', 0.10);
+        }
         this._repaintIfDirty();
     }
 
@@ -624,11 +706,13 @@ export class MaterialSettings {
         this._uniforms.set('surface_light_enabled', 1.0);
         // Application windows turn continuous corners off to match the window.
         this._uniforms.set('corner_smoothing_enabled', 1.0);
-        // No outline until a surface's settings ask for one.
-        this._uniforms.set('outline_width', 0.0);
+        // Default 1px outline with 0.3 opacity matching theme requirements.
+        this._uniforms.set('outline_width', 1.0);
+        this._uniforms.set('outline_alpha', 0.3);
         this._uniforms.set('outline_r', 1.0);
         this._uniforms.set('outline_g', 1.0);
         this._uniforms.set('outline_b', 1.0);
+        this._uniforms.set('inner_glow_intensity', 0.0);
         // Where the glass sits inside the actor, which for the UI glass covers
         // the monitor.
         this._uniforms.set('dock_x', 0.0);
@@ -678,8 +762,8 @@ export class MaterialSettings {
             this._uniforms.set('rim_light_color_intensity', 1.0);
             this._uniforms.set('sheen_intensity', 0.0);
             this._uniforms.set('light_angle_deg', 90.0);
-            this._uniforms.set('shadow_radius', 50.0);
-            this._uniforms.set('shadow_intensity', 0.22);
+            this._uniforms.set('shadow_radius', 32.0);
+            this._uniforms.set('shadow_intensity', 0.10);
             this._uniforms.set('ao_intensity', 0.65);
             this._uniforms.set('ao_radius', 1.0);
             this._uniforms.set('tint_strength', 0.0);
@@ -805,7 +889,8 @@ export class OutlineBinding {
     }
 
     _apply() {
-        this._uniforms.set('outline_width', 0.0);
+        this._uniforms.set('outline_width', 1.0);
+        this._uniforms.set('outline_alpha', 0.3);
         this._uniforms.set('outline_r', 1.0);
         this._uniforms.set('outline_g', 1.0);
         this._uniforms.set('outline_b', 1.0);
