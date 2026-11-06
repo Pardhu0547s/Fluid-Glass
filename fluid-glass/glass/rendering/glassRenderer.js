@@ -208,7 +208,7 @@ export class GlassRenderer {
     }
 
     setBlurRadius(radius) {
-        this.blur.setBlurRadius(0);
+        this.blur.setBlurRadius(radius);
     }
 
     setTintColor(r, g, b) {
@@ -250,26 +250,36 @@ export class GlassRenderer {
     syncThemeGlassValues() {
         const isDark = getIsDarkTheme();
         if (isDark) {
-            // Dark Theme: pure crystal glass without blur, turbulence, refraction, or depth (depth = 0)
-            this.blur.setBlurRadius(0);
-            this.uniforms.set('displacement_scale', 0.0);
+            // Dark Theme clear glass:
+            // background: rgba(255, 255, 255, 0.05);
+            // backdrop-filter: blur(5px);
+            // border: 1px solid rgba(255, 255, 255, 0.3);
+            // box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+            // refraction: 0.05, depth: 0
+            this.blur.setBlurRadius(5);
+            this.uniforms.set('displacement_scale', 1.0);
             this.uniforms.set('max_z', 0.0);
             this.uniforms.set('ao_intensity', 0.0);
-            this.uniforms.set('tint_strength', 0.08);
+            this.uniforms.set('tint_strength', 0.05);
             this.uniforms.set('tint_r', 1.0);
             this.uniforms.set('tint_g', 1.0);
             this.uniforms.set('tint_b', 1.0);
             this.uniforms.set('inner_glow_intensity', 0.0);
             this.uniforms.set('outline_width', 1.0);
-            this.uniforms.set('outline_alpha', 0.25);
+            this.uniforms.set('outline_alpha', 0.30);
             this.uniforms.set('outline_r', 1.0);
             this.uniforms.set('outline_g', 1.0);
             this.uniforms.set('outline_b', 1.0);
-            this.uniforms.set('shadow_radius', 40.0);
-            this.uniforms.set('shadow_intensity', 0.25);
+            this.uniforms.set('shadow_radius', 32.0);
+            this.uniforms.set('shadow_intensity', 0.10);
         } else {
-            // Light Theme: pure crystal glass without blur or turbulence, retaining natural refraction and depth
-            this.blur.setBlurRadius(0);
+            // Light Theme clear glass:
+            // background: rgba(255, 255, 255, 0.15);
+            // backdrop-filter: blur(20px);
+            // border: 1px solid rgba(255, 255, 255, 0.3);
+            // inset 0 0 20px 10px rgba(255, 255, 255, 1);
+            // box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            this.blur.setBlurRadius(20);
             const disp = this.material?._settings ? this.material._settings.get_double('glass-displacement-scale') : 10.5;
             this.uniforms.set('displacement_scale', disp > 0 ? disp : 10.5);
             const maxZ = this.material?._settings ? this.material._settings.get_double('glass-max-z') : 88.0;
@@ -282,12 +292,12 @@ export class GlassRenderer {
             this.uniforms.set('tint_b', 1.0);
             this.uniforms.set('inner_glow_intensity', 0.30);
             this.uniforms.set('outline_width', 1.0);
-            this.uniforms.set('outline_alpha', 0.25);
+            this.uniforms.set('outline_alpha', 0.30);
             this.uniforms.set('outline_r', 1.0);
             this.uniforms.set('outline_g', 1.0);
             this.uniforms.set('outline_b', 1.0);
-            this.uniforms.set('shadow_radius', 40.0);
-            this.uniforms.set('shadow_intensity', 0.25);
+            this.uniforms.set('shadow_radius', 32.0);
+            this.uniforms.set('shadow_intensity', 0.10);
         }
         this._repaintIfDirty();
     }
@@ -760,7 +770,7 @@ export class MaterialSettings {
         else {
             // Without settings, the schema's defaults.
             this._uniforms.set('max_z', getIsDarkTheme() ? 0.0 : 88.0);
-            this._uniforms.set('displacement_scale', getIsDarkTheme() ? 0.0 : 10.5);
+            this._uniforms.set('displacement_scale', getIsDarkTheme() ? 1.0 : 10.5);
             this._uniforms.set('edge_smoothing', 0.5);
             this._uniforms.set('profile_shape_n', 3.6);
             this._uniforms.set('ior', 2.40);
@@ -820,7 +830,9 @@ export class MaterialSettings {
         if (!settings)
             return;
         mappings.forEach(map => {
-            if ((map.uniform === 'displacement_scale' || map.uniform === 'max_z' || map.uniform === 'ao_intensity') && getIsDarkTheme()) {
+            if (map.uniform === 'displacement_scale' && getIsDarkTheme()) {
+                this._uniforms.set('displacement_scale', 1.0);
+            } else if ((map.uniform === 'max_z' || map.uniform === 'ao_intensity') && getIsDarkTheme()) {
                 this._uniforms.set(map.uniform, 0.0);
             } else {
                 this._uniforms.set(map.uniform, settings.get_double(map.key));
@@ -828,7 +840,9 @@ export class MaterialSettings {
             // Without a repaint only the parts of the glass that something else
             // damaged would pick up the new value.
             const id = settings.connect(`changed::${map.key}`, () => {
-                if ((map.uniform === 'displacement_scale' || map.uniform === 'max_z' || map.uniform === 'ao_intensity') && getIsDarkTheme()) {
+                if (map.uniform === 'displacement_scale' && getIsDarkTheme()) {
+                    this._uniforms.set('displacement_scale', 1.0);
+                } else if ((map.uniform === 'max_z' || map.uniform === 'ao_intensity') && getIsDarkTheme()) {
                     this._uniforms.set(map.uniform, 0.0);
                 } else {
                     this._uniforms.set(map.uniform, settings.get_double(map.key));
@@ -877,7 +891,7 @@ export class MaterialSettings {
         if (!settings)
             return false;
         if (getIsDarkTheme()) {
-            this._uniforms.set('displacement_scale', 0.0);
+            this._uniforms.set('displacement_scale', 1.0);
             this._uniforms.set('max_z', 0.0);
         } else {
             this._uniforms.set('displacement_scale', settings.get_double('glass-displacement-scale') * scale);

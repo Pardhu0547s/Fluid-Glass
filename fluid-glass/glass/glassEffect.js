@@ -234,9 +234,9 @@ function applyGlassParameters(glass, options) {
     }
 
     const cornerRadius = options.cornerRadius ?? 22.0;
-    const blurRadius = options.blurRadius ?? 0;
+    const blurRadius = options.blurRadius ?? (isDark ? 5 : 20);
     const tintColor = options.tintColor ?? '#ffffff';
-    const tintStrength = options.tintStrength ?? (isDark ? 0.08 : 0.15);
+    const tintStrength = options.tintStrength ?? (isDark ? 0.05 : 0.15);
     const brightness = options.brightness ?? 1.0;
     const contrast = options.contrast ?? 1.0;
     const saturation = options.saturation ?? 1.0;

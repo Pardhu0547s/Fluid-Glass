@@ -792,7 +792,11 @@ void main() {
 #endif
     vec3 normal = getNormal(gradH);
 
+    vec2 edgeDir = sdRoundRectDir(local_pos, box_size, corner);
     vec2 disp = getDisplacement(d, normal, resolution);
+    if (max_z <= 0.0 && displacement_scale > 0.0 && d <= 0.0) {
+        disp = -edgeDir * (displacement_scale / max(resolution, vec2(1.0)));
+    }
 
     // Edge lensing. `disp` points inward, and the weight grows towards the
     // rim, so the displacement bends one way across the whole bevel:
@@ -923,22 +927,22 @@ void main() {
     // ::after: Left edge 1px linear-gradient(180deg, rgba(255, 255, 255, 0.8), transparent, rgba(255, 255, 255, 0.3))
     // Bottom edge: inset 0 -1px 0 rgba(255, 255, 255, 0.1)
     float edgeSpecular = 0.0;
-    if (d >= -2.0 && d <= 0.0) {
-        float edgeBand1px = 1.0 - smoothstep(0.0, 1.8, abs(d));
+    if (d >= -2.5 && d <= 0.0) {
+        float edgeBand1px = 1.0 - smoothstep(0.0, 1.8, abs(d + 0.5));
         vec2 normPos = clamp(local_pos / max(box_size, vec2(1.0)), -1.0, 1.0);
 
         // Top edge: brightest at horizontal center (normPos.x = 0)
-        float isTop = clamp(-normal.y, 0.0, 1.0);
+        float isTop = clamp(-edgeDir.y, 0.0, 1.0);
         float topGrad = clamp(1.0 - abs(normPos.x), 0.0, 1.0);
-        float topSpec = (topGrad * 0.8 + 0.3) * isTop;
+        float topSpec = (topGrad * 0.8 + 0.5) * isTop;
 
         // Left edge: 0.8 at top (normPos.y = -1), fades in middle, 0.3 at bottom (normPos.y = +1)
-        float isLeft = clamp(-normal.x, 0.0, 1.0);
-        float leftGrad = (normPos.y < 0.0) ? mix(0.0, 0.8, -normPos.y) : mix(0.0, 0.3, normPos.y);
+        float isLeft = clamp(-edgeDir.x, 0.0, 1.0);
+        float leftGrad = (normPos.y < 0.0) ? mix(0.5, 0.8, -normPos.y) : mix(0.5, 0.3, normPos.y);
         float leftSpec = leftGrad * isLeft;
 
         // Bottom edge: 0.1
-        float isBottom = clamp(normal.y, 0.0, 1.0);
+        float isBottom = clamp(edgeDir.y, 0.0, 1.0);
         float bottomSpec = 0.1 * isBottom;
 
         edgeSpecular = edgeBand1px * max(max(topSpec, leftSpec), bottomSpec);
