@@ -621,10 +621,9 @@ void main() {
 
     float lensBand = lensBandFor(min(box_size.x, box_size.y));
     if (multi_region_mode > 0.5) {
-        // Multi-region capsules are compact floating UI modules (36-140px).
-        // Cap the lens band to a sleek 7.0px rim so 85-90% of the capsule
-        // is pristine flat Dual Kawase blurred backdrop without center collision.
-        lensBand = min(lensBand, 7.0);
+        // Multi-region capsules are clean floating glass modules: eliminate the lens band
+        // so the glass is completely flat from edge to edge with no border distortion.
+        lensBand = 0.0;
     }
 
 #ifdef LG_SHAPE_TEXTURE
@@ -642,9 +641,8 @@ void main() {
     // Two early exits for the regions where everything below collapses to a
     // constant. Together they cover most of every surface.
 
-    // Beyond the shadow's reach nothing is drawn. In multi-region mode, a compact
-    // 14px shadow gives each floating capsule gentle depth.
-    float shadowReach = (multi_region_mode > 0.5) ? 14.0 : max(shadow_max_radius, 5.0);
+    // Beyond the shadow's reach nothing is drawn. Multi-region capsules get no drop shadow.
+    float shadowReach = (multi_region_mode > 0.5) ? 0.0 : max(shadow_max_radius, 5.0);
     if (early_exit_enabled > 0.5 && debug_view < 0.5 && d >= max(shadowReach, edgeFeather)) {
         cogl_color_out = vec4(0.0);
         return;
@@ -756,7 +754,7 @@ void main() {
         shadowAlpha = max(shadowAlpha + ditherLSB(pixel_coord + vec2(37.0, 17.0)), 0.0);
 
     if (multi_region_mode > 0.5) {
-        shadowAlpha = min(shadowAlpha * 0.7, 0.45);
+        shadowAlpha = 0.0;
     }
 
     if (debug_view > 0.5) {
@@ -784,7 +782,7 @@ void main() {
     //     D(u) = D_raw(u) * (1 - u/bevel)^falloff
     // The mapping may fold, as a thick glass edge does; sampleBackdrop()
     // pays for that with the footprint computed below.
-    float bevelPx = lensBand;
+    float bevelPx = max(lensBand, 0.001);
     float depthPx = max(-d, 0.0);
     float edgeT = clamp(1.0 - depthPx / bevelPx, 0.0, 1.0);
 
@@ -875,6 +873,9 @@ void main() {
     // The inner shadow falls where the rim light does not, as on macOS. With
     // the surface light off it runs all the way round.
     float aoLight = mix(1.0, 1.0 - lightMask, surface_light_enabled);
+    if (multi_region_mode > 0.5) {
+        aoLight = 0.0;
+    }
     baseColor *= (1.0 - aoMask * ao_intensity * aoLight);
 
     float rimShape = mix(pow(edgeBand, 0.85), rimFresnel, 0.55) * edgeBand;
@@ -897,6 +898,9 @@ void main() {
     float alpha = insideMask;
 
     float addedLight = (specularLight + finalRimLight + idleRim + sheenLight) * surface_light_enabled;
+    if (multi_region_mode > 0.5) {
+        addedLight = 0.0;
+    }
 
     // Screen blend, which cannot blow out a white background the way adding
     // does.
