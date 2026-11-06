@@ -25,6 +25,7 @@ import {LintelSystemMenu} from './widgets/systemMenu.js';
 import {ActiveApp} from './widgets/activeApp.js';
 import {ControlCenter} from './widgets/controlCenter.js';
 import {LintelWifiMenu} from './widgets/wifiMenu.js';
+import {LintelBluetoothMenu} from './widgets/bluetoothMenu.js';
 import {LintelBatteryMenu} from './widgets/batteryMenu.js';
 import {LintelClock} from './widgets/clock.js';
 import {LintelNotificationCenter} from './widgets/notificationCenter.js';
@@ -37,6 +38,7 @@ const PANEL_STYLE_CLASS = 'lintel';
 const SYSTEM_MENU_ROLE = 'lintel-system-menu';
 const ACTIVE_APP_ROLE = 'lintel-active-app';
 const WIFI_ROLE = 'lintel-wifi';
+const BLUETOOTH_ROLE = 'lintel-bluetooth';
 const BATTERY_ROLE = 'lintel-battery';
 const CONTROL_CENTER_ROLE = 'lintel-control-center';
 const CLOCK_STYLE_CLASS = 'lintel-clock-button';
@@ -71,6 +73,7 @@ export class PanelController {
         this._systemMenu = null;
         this._activeApp = null;
         this._wifiMenu = null;
+        this._bluetoothMenu = null;
         this._batteryMenu = null;
         this._controlCenter = null;
         this._settings = null;
@@ -329,16 +332,21 @@ export class PanelController {
             PanelAdapter.addToStatusArea(WIFI_ROLE, menu, pos, 'right');
             this._wifiMenu = menu;
         }
+        if (!this._bluetoothMenu) {
+            const menu = new LintelBluetoothMenu();
+            PanelAdapter.addToStatusArea(BLUETOOTH_ROLE, menu, pos + 1, 'right');
+            this._bluetoothMenu = menu;
+        }
         if (!this._batteryMenu) {
             const menu = new LintelBatteryMenu();
-            PanelAdapter.addToStatusArea(BATTERY_ROLE, menu, pos + 1, 'right');
+            PanelAdapter.addToStatusArea(BATTERY_ROLE, menu, pos + 2, 'right');
             this._batteryMenu = menu;
         }
     }
 
     /**
-     * Keep the Tahoe controls as three independent hit targets immediately
-     * left of the clock: Wi-Fi, battery, then Control Center.
+     * Keep the Tahoe controls as independent hit targets immediately
+     * left of the clock: Wi-Fi, Bluetooth, battery, then Control Center.
      */
     _positionRightControls() {
         const right = PanelAdapter.rightBox;
@@ -348,6 +356,7 @@ export class PanelController {
         const clock = PanelAdapter.containerOf(PanelAdapter.dateMenu);
         const controls = [
             this._wifiMenu,
+            this._bluetoothMenu,
             this._batteryMenu,
             this._controlCenter,
         ].map(widget => PanelAdapter.containerOf(widget))
@@ -367,8 +376,10 @@ export class PanelController {
 
     _removeStatusMenus() {
         this._wifiMenu?.destroy();
+        this._bluetoothMenu?.destroy();
         this._batteryMenu?.destroy();
         this._wifiMenu = null;
+        this._bluetoothMenu = null;
         this._batteryMenu = null;
     }
 
