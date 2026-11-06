@@ -30,8 +30,6 @@ uniform float outline_g;
 uniform float outline_b;
 uniform float outline_alpha;
 uniform float inner_glow_intensity;
-uniform float time;
-uniform float liquid_distortion_scale;
 // On/off for the rim, specular and sheen. Application windows turn it off and
 // keep only the drop shadow and the inner AO.
 uniform float surface_light_enabled;
@@ -426,53 +424,6 @@ vec2 getDisplacement(float d, vec3 normal, vec2 resolution) {
     return displacement;
 }
 
-// Procedural pseudo-random hash for SVG feTurbulence emulation
-float liquidHash(vec2 p) {
-    p = fract(p * vec2(127.1, 311.7));
-    p += dot(p, p + 31.41);
-    return fract(p.x * p.y);
-}
-
-// 2D value noise with cubic Hermite interpolation
-float liquidValueNoise(vec2 p) {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
-    vec2 u = f * f * (3.0 - 2.0 * f);
-    float a = liquidHash(i);
-    float b = liquidHash(i + vec2(1.0, 0.0));
-    float c = liquidHash(i + vec2(0.0, 1.0));
-    float d = liquidHash(i + vec2(1.0, 1.0));
-    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
-}
-
-// 2-octave fractal turbulence matching SVG feTurbulence (baseFrequency="0.02 0.05", numOctaves="2", 12s animation)
-// coupled with feDisplacementMap (scale="18", xChannelSelector="R", yChannelSelector="G")
-vec2 computeLiquidDistortion(vec2 coord, float t, float scale) {
-    if (scale <= 0.0)
-        return vec2(0.0);
-
-    // 12s cycle modulating base frequency between (0.02, 0.05) and (0.03, 0.08)
-    float cycle = sin(t * 0.52359877) * 0.5 + 0.5;
-    vec2 freq = mix(vec2(0.02, 0.05), vec2(0.03, 0.08), cycle);
-    vec2 animOffset = vec2(t * 0.25, t * 0.18);
-
-    // Octave 1
-    vec2 p1 = coord * freq + animOffset;
-    float n1_r = liquidValueNoise(p1);
-    float n1_g = liquidValueNoise(p1 + vec2(17.3, 31.7));
-
-    // Octave 2
-    vec2 p2 = p1 * 2.0 + animOffset * 0.5;
-    float n2_r = liquidValueNoise(p2);
-    float n2_g = liquidValueNoise(p2 + vec2(43.1, 19.8));
-
-    float r = n1_r * 0.65 + n2_r * 0.35;
-    float g = n1_g * 0.65 + n2_g * 0.35;
-
-    // feDisplacementMap: in2="noise" scale="18" xChannel="R" yChannel="G"
-    return vec2(r - 0.5, g - 0.5) * scale;
-}
-
 // Pulls UVs near the texture edge back inside, so bilinear filtering never
 // reads the black outside it.
 vec2 stabilizedUV(vec2 candidate, vec2 fallback) {
@@ -713,11 +664,8 @@ void main() {
         interiorThreshold = max(interiorThreshold, 24.0);
     }
 
-    vec2 liquidDispPx = computeLiquidDistortion(pixel_coord, time, liquid_distortion_scale);
-    vec2 liquidDispUV = liquidDispPx / max(resolution, vec2(1.0));
-
     if (early_exit_enabled > 0.5 && debug_view < 0.5 && -d >= interiorThreshold) {
-        vec2 uvFlat = stabilizedUV(uv + liquidDispUV, uv);
+        vec2 uvFlat = stabilizedUV(uv, uv);
 
         // The same RGSS taps and spread as the full path away from the edge.
         vec2 texelFlat = vec2(0.75) / resolution;
@@ -877,8 +825,7 @@ void main() {
         ? dispDirPx * (min(footprintPx, 64.0) * 0.5) / resolution
         : vec2(0.0);
 
-    vec2 totalDisp = disp + liquidDispUV * insideMask;
-    vec2 refractedUv = stabilizedUV(uv + totalDisp, uv);
+    vec2 refractedUv = stabilizedUV(uv + disp, uv);
 
     // Chromatic aberration as dispersion: blue bends more than red, by a
     // fraction of the refraction, so the colours part only where the glass

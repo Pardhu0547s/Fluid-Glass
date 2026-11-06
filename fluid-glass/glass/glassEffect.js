@@ -156,7 +156,6 @@ export class GlassHandle {
                     return;
                 ensureGlassAllocated(this.glass);
                 this._syncFn(this);
-                this.glass.queue_redraw();
             },
         });
     }
@@ -235,10 +234,9 @@ function applyGlassParameters(glass, options) {
     }
 
     const cornerRadius = options.cornerRadius ?? 22.0;
-    const blurRadius = options.blurRadius ?? (isDark ? 12 : 16);
+    const blurRadius = options.blurRadius ?? 0;
     const tintColor = options.tintColor ?? '#ffffff';
     const tintStrength = options.tintStrength ?? (isDark ? 0.08 : 0.15);
-    const liquidScale = options.liquidScale ?? 18.0;
     const brightness = options.brightness ?? 1.0;
     const contrast = options.contrast ?? 1.0;
     const saturation = options.saturation ?? 1.0;
@@ -249,7 +247,6 @@ function applyGlassParameters(glass, options) {
     glass.setBlurRadius(blurRadius);
     glass.setTintColor(...hexToColorArray(tintColor));
     glass.setTintStrength(tintStrength);
-    glass.setLiquidDistortionScale?.(liquidScale);
     glass.setBrightness(brightness);
     glass.setContrast(contrast);
     glass.setSaturation(saturation);
