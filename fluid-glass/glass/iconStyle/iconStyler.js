@@ -11,7 +11,6 @@ import Shell from 'gi://Shell';
 import St from 'gi://St';
 import GObject from 'gi://GObject';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
 import { hexToColorArray, startSyncLoop, stopStageLoop } from '../animation.js';
 import { accentColors, watchAccentColor, coglContext } from '../shellVersion.js';
 import { iconStyleColors, iconStyleUniforms } from './styleColors.js';
@@ -423,24 +422,12 @@ export class IconStyler {
         this._maps.prepare(files);
     }
 
-    _notify(busy) {
-        this._notification?.destroy();
-        this._notification = null;
-        const notification = new MessageTray.Notification({
-            source: MessageTray.getSystemSource(),
-            title: busy ? 'Making glass icons' : 'Glass icons are ready',
-            body: busy ? 'Liquid Glass is making glass versions of your application icons. They are kept in a cache, so you will not have to wait for them next time.'
-                : null,
-            isTransient: true,
-        });
-        if (busy) {
-            this._notification = notification;
-            notification.connect('destroy', () => {
-                if (this._notification === notification)
-                    this._notification = null;
-            });
+    _notify(_busy) {
+        // Silenced: do not show intrusive notifications on startup or when preparing icon cache
+        if (this._notification) {
+            this._notification.destroy();
+            this._notification = null;
         }
-        notification.source.addNotification(notification);
     }
 
     _colors() {
