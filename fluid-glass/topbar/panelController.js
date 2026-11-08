@@ -281,21 +281,38 @@ export class PanelController {
     _addSystemMenu() {
         if (!this._settingBool('show-system-menu', true))
             return;
-        if (this._systemMenu)
-            return; // persists across sessionMode; ordering handled centrally.
-        const menu = new LintelSystemMenu(this._extension);
-        PanelAdapter.addToStatusArea(SYSTEM_MENU_ROLE, menu, 0, 'left');
-        this._systemMenu = menu;
+        if (!this._systemMenu) {
+            const menu = new LintelSystemMenu(this._extension);
+            PanelAdapter.addToStatusArea(SYSTEM_MENU_ROLE, menu, 0, 'left');
+            this._systemMenu = menu;
+        }
+        this._systemMenu.syncSessionMode();
+        const container = PanelAdapter.containerOf(this._systemMenu);
+        const isLockScreen = !!(Main.sessionMode.isLocked && !Main.sessionMode.isGreeter);
+        if (container) {
+            if (isLockScreen)
+                container.hide();
+            else
+                container.show();
+        }
     }
 
     _addActiveApp() {
         if (!this._settingBool('show-active-app', true))
             return;
-        if (this._activeApp)
-            return;
-        const widget = new ActiveApp(this._extension);
-        PanelAdapter.addToStatusArea(ACTIVE_APP_ROLE, widget, 1, 'left');
-        this._activeApp = widget;
+        if (!this._activeApp) {
+            const widget = new ActiveApp(this._extension);
+            PanelAdapter.addToStatusArea(ACTIVE_APP_ROLE, widget, 1, 'left');
+            this._activeApp = widget;
+        }
+        const container = PanelAdapter.containerOf(this._activeApp);
+        const isLockedOrGreeter = !!(Main.sessionMode.isLocked || Main.sessionMode.isGreeter);
+        if (container) {
+            if (isLockedOrGreeter)
+                container.hide();
+            else
+                container.show();
+        }
     }
 
     /**

@@ -24,6 +24,7 @@ import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.js';
@@ -213,6 +214,7 @@ export const LintelSystemMenu = GObject.registerClass({
         this.add_child(this._buildLogo());
         this._styleMenu();
         this._buildMenu();
+        this.syncSessionMode();
 
         this._openStateId = this.menu.connect(
             'open-state-changed', (_menu, open) => {
@@ -321,23 +323,40 @@ export const LintelSystemMenu = GObject.registerClass({
     _buildMenu() {
         // The visible labels and group boundaries follow the Tahoe system menu.
         // Actions still resolve to their GNOME equivalents.
-        const aboutItem = this._addProgramItem(_('About This System'),
+        this._userOnlyItems = [];
+        this._lockHiddenItems = [];
+
+        const addUserOnly = item => {
+            if (item)
+                this._userOnlyItems.push(item);
+            return item;
+        };
+        const addLockHidden = item => {
+            if (item)
+                this._lockHiddenItems.push(item);
+            return item;
+        };
+
+        const aboutItem = addUserOnly(this._addProgramItem(_('About This System'),
             'computer-symbolic',
-            'gnome-control-center', ['system', 'about']);
+            'gnome-control-center', ['system', 'about']));
         if (aboutItem) {
             const separator = new PopupMenu.PopupSeparatorMenuItem();
             separator.add_style_class_name(
                 'lintel-system-menu-about-separator');
             this.menu.addMenuItem(separator);
+            addUserOnly(separator);
         }
-        this._addProgramItem(_('System Settings…'),
+        addUserOnly(this._addProgramItem(_('System Settings…'),
             'preferences-system-symbolic',
-            'gnome-control-center');
-        this._addUriItem(_('App Center…'),
+            'gnome-control-center'));
+        addUserOnly(this._addUriItem(_('App Center…'),
             this._menuIcon('app-store', 'software-store-symbolic'),
-            'appstream:///');
+            'appstream:///'));
 
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        const sep1 = new PopupMenu.PopupSeparatorMenuItem();
+        this.menu.addMenuItem(sep1);
+        addUserOnly(sep1);
 
         // A submenu affordance is part of the original menu.  GNOME does not
         // expose macOS' application/document/server history model, so its first
@@ -351,36 +370,44 @@ export const LintelSystemMenu = GObject.registerClass({
                 this._launchUri('recent:///');
             }));
         this.menu.addMenuItem(recent);
+        addUserOnly(recent);
 
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        const sep2 = new PopupMenu.PopupSeparatorMenuItem();
+        this.menu.addMenuItem(sep2);
+        addUserOnly(sep2);
 
         // Force Quit the focused window (sensitivity refreshed on open).
-        this._forceQuitItem = this._addItem(_('Force Quit…'),
+        this._forceQuitItem = addUserOnly(this._addItem(_('Force Quit…'),
             'process-stop-symbolic',
-            () => this._forceQuitFocused());
+            () => this._forceQuitFocused()));
 
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        const sep3 = new PopupMenu.PopupSeparatorMenuItem();
+        this.menu.addMenuItem(sep3);
+        addUserOnly(sep3);
 
         // Power / session — via GNOME's SystemActions.
-        this._addActionItem(_('Sleep'), 'weather-clear-night-symbolic',
+        // Hidden on the lock screen (isLocked && !isGreeter), kept on login screen (isGreeter) and unlocked desktop.
+        addLockHidden(this._addActionItem(_('Sleep'), 'weather-clear-night-symbolic',
             'canSuspend', 'can-suspend',
-            () => this._systemActions.activateSuspend());
-        this._addActionItem(_('Restart…'), 'view-refresh-symbolic',
+            () => this._systemActions.activateSuspend()));
+        addLockHidden(this._addActionItem(_('Restart…'), 'view-refresh-symbolic',
             'canRestart', 'can-restart',
-            () => this._systemActions.activateRestart());
-        this._addActionItem(_('Shut Down…'), 'system-shutdown-symbolic',
+            () => this._systemActions.activateRestart()));
+        addLockHidden(this._addActionItem(_('Shut Down…'), 'system-shutdown-symbolic',
             'canPowerOff', 'can-power-off',
-            () => this._systemActions.activatePowerOff());
+            () => this._systemActions.activatePowerOff()));
 
-        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+        const sep4 = new PopupMenu.PopupSeparatorMenuItem();
+        this.menu.addMenuItem(sep4);
+        addUserOnly(sep4);
 
-        this._addActionItem(_('Lock Screen'), 'system-lock-screen-symbolic',
+        addUserOnly(this._addActionItem(_('Lock Screen'), 'system-lock-screen-symbolic',
             'canLockScreen', 'can-lock-screen',
-            () => this._systemActions.activateLockScreen());
-        this._addActionItem(_('Log Out %s…').format(this._displayName()),
+            () => this._systemActions.activateLockScreen()));
+        addUserOnly(this._addActionItem(_('Log Out %s…').format(this._displayName()),
             'avatar-default-symbolic',
             'canLogout', 'can-logout',
-            () => this._systemActions.activateLogout());
+            () => this._systemActions.activateLogout()));
     }
 
     _menuIcon(name, fallback) {
@@ -464,10 +491,39 @@ export const LintelSystemMenu = GObject.registerClass({
     }
 
     _onOpen() {
+        this.syncSessionMode();
         if (!this._forceQuitItem)
             return;
         const win = global.display.get_focus_window();
         this._forceQuitItem.sensitive = win != null;
+    }
+
+    syncSessionMode() {
+        const isLockScreen = !!(Main.sessionMode.isLocked && !Main.sessionMode.isGreeter);
+        const isLoginScreen = !!Main.sessionMode.isGreeter;
+        const isUserSession = !isLockScreen && !isLoginScreen;
+
+        for (const item of this._userOnlyItems ?? []) {
+            if (item.actor)
+                item.actor.visible = isUserSession;
+            else
+                item.visible = isUserSession;
+        }
+        for (const item of this._lockHiddenItems ?? []) {
+            const show = !isLockScreen;
+            if (item.actor)
+                item.actor.visible = show;
+            else
+                item.visible = show;
+        }
+
+        // On the lock screen (not login screen), all items have no use and are hidden,
+        // so hide the menu button container or disable opening empty menu.
+        if (isLockScreen && this.menu?.isOpen)
+            this.menu.close();
+        this.reactive = !isLockScreen;
+        this.can_focus = !isLockScreen;
+        this.track_hover = !isLockScreen;
     }
 
     // ---- Teardown -----------------------------------------------------------
@@ -486,6 +542,8 @@ export const LintelSystemMenu = GObject.registerClass({
                 iface.disconnect(this._ifaceId);
             this._ifaceId = 0;
         }
+        this._userOnlyItems = null;
+        this._lockHiddenItems = null;
         this._forceQuitItem = null;
         this._extension = null;
 

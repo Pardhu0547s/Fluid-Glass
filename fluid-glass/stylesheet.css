@@ -2853,14 +2853,15 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* Authentication prompt & container */
+/* Authentication prompt & container — float cleanly over blurred wallpaper */
 .login-dialog .login-dialog-prompt-layout,
 .unlock-dialog .login-dialog-prompt-layout {
-    background-color: rgba(28, 28, 32, 0.52) !important;
-    border: 1px solid rgba(255, 255, 255, 0.22) !important;
-    border-radius: 28px !important;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
-    padding: 32px 36px !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: auto !important;
+    padding: 16px 24px !important;
 }
 
 /* Password / PIN input field */
@@ -2868,10 +2869,10 @@
 .unlock-dialog .login-dialog-prompt-entry,
 .login-dialog StEntry.login-dialog-prompt-entry,
 .unlock-dialog StEntry.login-dialog-prompt-entry {
-    background-color: rgba(255, 255, 255, 0.16) !important;
-    border: 1px solid rgba(255, 255, 255, 0.32) !important;
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.35) !important;
     border-radius: 99px !important;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.22) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28) !important;
     color: #ffffff !important;
     caret-color: #ffffff !important;
     font-size: 1.15em !important;
@@ -2883,9 +2884,9 @@
 .unlock-dialog .login-dialog-prompt-entry:focus,
 .login-dialog StEntry.login-dialog-prompt-entry:focus,
 .unlock-dialog StEntry.login-dialog-prompt-entry:focus {
-    background-color: rgba(255, 255, 255, 0.26) !important;
-    border-color: rgba(255, 255, 255, 0.68) !important;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3), 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+    background-color: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.72) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35) !important;
 }
 
 /* User avatar and typography */
@@ -2939,19 +2940,41 @@
     border-color: rgba(255, 255, 255, 0.75) !important;
 }
 
-/* Lock screen notifications */
+/* Lock screen notifications & media card */
+#unlockDialogNotifications,
+#unlockDialogNotifications StScrollView,
+.unlock-dialog-notifications-container,
+.unlock-dialog-notifications-container .summary-notification-stack-scrollview {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    -st-vfade-offset: 0px !important;
+    -st-hfade-offset: 0px !important;
+}
+
 .unlock-dialog-notifications-container .message,
+.unlock-dialog-notifications-container .media-message,
+.unlock-dialog-notifications-container .notification,
 .unlock-dialog-notifications-container .unlock-dialog-notification-source {
-    background-color: rgba(28, 28, 32, 0.55) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-    border-radius: 18px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    background-color: rgba(28, 28, 32, 0.58) !important;
+    background-image: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 22px !important;
+    box-shadow: none !important;
+    margin: 4px 0 !important;
+    padding: 12px 16px !important;
     color: #ffffff !important;
 }
 
 .unlock-dialog-notifications-container .message:hover,
+.unlock-dialog-notifications-container .media-message:hover,
+.unlock-dialog-notifications-container .notification:hover,
 .unlock-dialog-notifications-container .unlock-dialog-notification-source:hover {
-    background-color: rgba(40, 40, 48, 0.65) !important;
-    border-color: rgba(255, 255, 255, 0.32) !important;
+    background-color: rgba(40, 40, 48, 0.68) !important;
+    border-color: rgba(255, 255, 255, 0.34) !important;
+    box-shadow: none !important;
 }
+
 

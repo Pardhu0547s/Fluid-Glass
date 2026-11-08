@@ -138,6 +138,8 @@ export class PanelMenuManager {
     // way UIManager expects; such a menu is skipped instead of stopping the scan.
     _attachWanted(wanted) {
         for (const [menu, { name }] of wanted) {
+            if (this._menus.has(menu))
+                continue;
             const manager = new UIManager(this._path, this._settings, this._logger, { menu }, false, 'enable-extra-menu-glass', PANEL_MENU_PREFIX, `menu:${name}`, false);
             try {
                 manager.setup();
