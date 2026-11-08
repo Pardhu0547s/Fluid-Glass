@@ -55,13 +55,11 @@ export class NotificationAlignment {
 
     /** Put the original alignment back. No-op if we never captured one. */
     restore() {
-        if (!this._captured)
-            return;
         const tray = NotificationAlignment._tray;
         if (!tray)
             return;
         try {
-            tray.bannerAlignment = this._original;
+            tray.bannerAlignment = this._original ?? Clutter.ActorAlign.CENTER;
         } catch (_e) {
             // Non-fatal.
         }

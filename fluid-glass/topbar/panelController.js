@@ -162,8 +162,11 @@ export class PanelController {
         // Reveal the native panel on the top edge of a fullscreen app.
         this._fullscreenReveal.enable();
 
-        // Notifications follow the clock to the right edge (macOS-style).
-        this._notifications.apply();
+        // Notifications follow the clock: right if clock-on-right, centered otherwise.
+        if (this._settingBool('clock-on-right', false))
+            this._notifications.apply();
+        else
+            this._notifications.restore();
     }
 
     restoreOriginalState() {
@@ -210,9 +213,11 @@ export class PanelController {
         if (this._settingBool('clock-on-right', false)) {
             dateMenu?.add_style_class_name(CLOCK_STYLE_CLASS);
             this._moveClockRight();
+            this._notifications.apply();
         } else {
             dateMenu?.remove_style_class_name(CLOCK_STYLE_CLASS);
             this._moveClockHome();
+            this._notifications.restore();
         }
     }
 

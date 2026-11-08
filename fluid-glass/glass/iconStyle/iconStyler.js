@@ -100,7 +100,6 @@ export class IconStyler {
     _scanId = 0;
     _prepareId = 0;
     _installedId = 0;
-    _notification = null;
     _settingsIds = [];
     _themeId = 0;
     _unwatchAccent = () => { };
@@ -110,7 +109,7 @@ export class IconStyler {
         this._extensionPath = _extensionPath;
         this._settings = _settings;
         this._logger = _logger;
-        this._maps = new IconMaps(_extensionPath, _logger, () => {});
+        this._maps = new IconMaps(_extensionPath, _logger);
         const file = Gio.File.new_for_path(`${_extensionPath}/shaders/icon-style.frag`);
         this._shader = new Promise((resolve, reject) => {
             file.load_contents_async(this._cancellable, (_f, res) => {
@@ -164,8 +163,6 @@ export class IconStyler {
         if (this._prepareId)
             GLib.Source.remove(this._prepareId);
         this._prepareId = 0;
-        this._notification?.destroy();
-        this._notification = null;
         this._unwatchAccent();
         if (this._scanId)
             global.compositor.get_laters().remove(this._scanId);
@@ -422,10 +419,6 @@ export class IconStyler {
         this._maps.prepare(files);
     }
 
-    _notify(_busy) {
-        // Disabled: Never show glass icon notification popups
-    }
-
     _colors() {
         const s = this._settings;
         const accent = s.get_boolean('icon-style-use-accent') ? accentColors() : null;
@@ -576,7 +569,6 @@ function isCancelled(e) {
 
 export class IconMaps {
     _logger;
-    _onBusy;
     _workers;
     // By icon file: its map's, tones' and lens map's textures.
     _maps = new Map();
@@ -585,16 +577,13 @@ export class IconMaps {
     // By cache file: the map being made into it.
     _making = new Map();
     _jobs = 0;
-    _busy = false;
     _idleId = 0;
     _prepareSerial = 0;
     _cancellable = new Gio.Cancellable();
     _dir = `${GLib.get_user_cache_dir()}/liquid-glass/icon-maps`;
 
-    /** @param _onBusy Called when maps start being made, and once they all are. */
-    constructor(extensionPath, _logger, _onBusy) {
+    constructor(extensionPath, _logger) {
         this._logger = _logger;
-        this._onBusy = _onBusy;
         const count = Math.max(1, Math.min(MAX_WORKERS, GLib.get_num_processors() - 1));
         this._workers = Array.from({ length: count }, () => new WorkerProcess(`${extensionPath}/dist/workers/iconWorker.js`, 'icon worker', _logger));
     }
@@ -661,10 +650,6 @@ export class IconMaps {
             GLib.Source.remove(this._idleId);
         this._idleId = 0;
         this._jobs++;
-        if (!this._busy) {
-            this._busy = true;
-            this._onBusy(true);
-        }
         // The least busy worker, the first of equals, so that a second one starts only when the first has work.
         const usable = this._workers.filter(worker => worker.available);
         const worker = (usable.length ? usable : this._workers).reduce((a, b) => (b.pending < a.pending ? b : a));
@@ -675,12 +660,7 @@ export class IconMaps {
             if (--this._jobs === 0) {
                 if (this._idleId)
                     GLib.Source.remove(this._idleId);
-                this._idleId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, IDLE_DELAY_MS, () => {
-                    this._idleId = 0;
-                    this._busy = false;
-                    this._onBusy(false);
-                    return GLib.SOURCE_REMOVE;
-                });
+                this._idleId = 0;
             }
         }
     }
