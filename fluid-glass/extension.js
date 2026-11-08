@@ -12,19 +12,36 @@ class DockSubsystem extends Dash2DockLiteExt {
         this._parent = parent;
     }
 
-    getSettings(schemaId = 'org.gnome.shell.extensions.dash2dock-lite') {
-        return this._parent.getSettings(schemaId);
+    getSettings(schemaId = 'org.gnome.shell.extensions.fluid-glass.dock') {
+        try {
+            return this._parent.getSettings(schemaId);
+        } catch (_e) {
+            return this._parent.getSettings('org.gnome.shell.extensions.dash2dock-lite');
+        }
     }
 }
 
 export default class FluidGlassExtension extends Extension {
+    _safeGetSettings(schemaId, legacyId = null) {
+        try {
+            return this.getSettings(schemaId);
+        } catch (_e) {
+            if (legacyId) {
+                try {
+                    return this.getSettings(legacyId);
+                } catch (_err) {}
+            }
+            throw _e;
+        }
+    }
+
     enable() {
         console.log('[FluidGlass] Enabling Unified Fluid Glass Suite...');
 
         this._masterSettings = this.getSettings('org.gnome.shell.extensions.fluid-glass');
-        this._topbarSettings = this.getSettings('org.gnome.shell.extensions.lintel');
-        this._glassSettings = this.getSettings('org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com');
-        this._dockSettings = this.getSettings('org.gnome.shell.extensions.dash2dock-lite');
+        this._topbarSettings = this._safeGetSettings('org.gnome.shell.extensions.fluid-glass.topbar', 'org.gnome.shell.extensions.lintel');
+        this._glassSettings = this._safeGetSettings('org.gnome.shell.extensions.fluid-glass.glass', 'org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com');
+        this._dockSettings = this._safeGetSettings('org.gnome.shell.extensions.fluid-glass.dock', 'org.gnome.shell.extensions.dash2dock-lite');
 
         const extensionPath = this.dir.get_path();
 
@@ -36,7 +53,7 @@ export default class FluidGlassExtension extends Extension {
                     path: extensionPath,
                     uuid: this.uuid,
                     metadata: this.metadata,
-                    getSettings: (schemaId = 'org.gnome.shell.extensions.lintel') => this.getSettings(schemaId),
+                    getSettings: (schemaId = 'org.gnome.shell.extensions.fluid-glass.topbar') => this._safeGetSettings(schemaId, 'org.gnome.shell.extensions.lintel'),
                     openPreferences: () => this.openPreferences(),
                 };
 
@@ -114,7 +131,7 @@ export default class FluidGlassExtension extends Extension {
                 path: extensionPath,
                 uuid: this.uuid,
                 metadata: this.metadata,
-                getSettings: (schemaId = 'org.gnome.shell.extensions.lintel') => this.getSettings(schemaId),
+                getSettings: (schemaId = 'org.gnome.shell.extensions.fluid-glass.topbar') => this._safeGetSettings(schemaId, 'org.gnome.shell.extensions.lintel'),
                 openPreferences: () => this.openPreferences(),
             };
             this._topbar = new PanelController(topbarAdapter);

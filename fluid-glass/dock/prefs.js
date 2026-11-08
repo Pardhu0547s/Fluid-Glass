@@ -179,12 +179,7 @@ export default class Preferences extends ExtensionPreferences {
 
     // this.dump(window, 0);
 
-    // add buymeacoffee QR
-    if (builder.get_object('qr')) {
-      builder
-        .get_object('qr')
-        .set_from_file(`${UIFolderPath}/images/qr_icedman.png`);
-    }
+
 
     let settings = this.getSettings(schemaId);
     settings.set_string('msg-to-ext', '');

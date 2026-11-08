@@ -6,18 +6,23 @@
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
+import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 
-const EXTENSION_UUID = 'fluid-glass@fedora';
+const EXTENSION_UUID = 'fluid-glass@pardhu0547s.github.io';
 
 const SCHEMA_MASTER = 'org.gnome.shell.extensions.fluid-glass';
-const SCHEMA_LINTEL = 'org.gnome.shell.extensions.lintel';
-const SCHEMA_GLASS = 'org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com';
-const SCHEMA_DOCK = 'org.gnome.shell.extensions.dash2dock-lite';
+const SCHEMA_TOPBAR = 'org.gnome.shell.extensions.fluid-glass.topbar';
+const SCHEMA_GLASS = 'org.gnome.shell.extensions.fluid-glass.glass';
+const SCHEMA_DOCK = 'org.gnome.shell.extensions.fluid-glass.dock';
+
+const LEGACY_LINTEL = 'org.gnome.shell.extensions.lintel';
+const LEGACY_GLASS = 'org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com';
+const LEGACY_DOCK = 'org.gnome.shell.extensions.dash2dock-lite';
 
 export default class FluidGlassPreferences extends ExtensionPreferences {
-    _safeGetSettings(schemaId) {
+    _tryGetSettings(schemaId) {
         try {
             return this.getSettings(schemaId);
         } catch (_e) {
@@ -36,13 +41,29 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         return null;
     }
 
+    _safeGetSettings(schemaId, legacyId = null) {
+        let s = this._tryGetSettings(schemaId);
+        if (!s && legacyId)
+            s = this._tryGetSettings(legacyId);
+        return s;
+    }
+
     fillPreferencesWindow(window) {
         window.set_default_size(780, 680);
 
+        const display = Gdk.Display.get_default();
+        if (display) {
+            try {
+                const iconTheme = Gtk.IconTheme.get_for_display(display);
+                const iconsPath = this.dir.get_child('icons').get_path();
+                iconTheme.add_search_path(iconsPath);
+            } catch (_e) {}
+        }
+
         this.sMaster = this._safeGetSettings(SCHEMA_MASTER);
-        this.sLintel = this._safeGetSettings(SCHEMA_LINTEL);
-        this.sGlass = this._safeGetSettings(SCHEMA_GLASS);
-        this.sDock = this._safeGetSettings(SCHEMA_DOCK);
+        this.sLintel = this._safeGetSettings(SCHEMA_TOPBAR, LEGACY_LINTEL);
+        this.sGlass = this._safeGetSettings(SCHEMA_GLASS, LEGACY_GLASS);
+        this.sDock = this._safeGetSettings(SCHEMA_DOCK, LEGACY_DOCK);
 
         this._buildPresetsPage(window);
         this._buildGlassPage(window);
@@ -56,7 +77,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
     _buildPresetsPage(window) {
         const page = new Adw.PreferencesPage({
             title: _('Overview & Presets'),
-            icon_name: 'preferences-desktop-theme-symbolic',
+            icon_name: 'fluid-glass-symbolic',
         });
         window.add(page);
 
@@ -534,7 +555,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         });
 
         const icon = new Gtk.Image({
-            icon_name: 'preferences-desktop-theme-symbolic',
+            icon_name: 'fluid-glass-symbolic',
             pixel_size: 72,
         });
         heroBox.append(icon);
@@ -575,7 +596,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
 
         groupInfo.add(new Adw.ActionRow({
             title: _('License'),
-            subtitle: 'GNU General Public License v2 or later',
+            subtitle: 'GNU General Public License v3 or later (GPL-3.0-or-later)',
         }));
     }
 

@@ -5,20 +5,20 @@
     is stable; the skeleton (Stage 1) does not yet read them at runtime, which
     keeps the extension loadable even before the schema is compiled.
   -->
-  <enum id="org.gnome.shell.extensions.lintel.appearance">
+  <enum id="org.gnome.shell.extensions.fluid-glass.topbar.appearance">
     <value nick="tahoe-transparent" value="0"/>
     <value nick="translucent" value="1"/>
     <value nick="solid" value="2"/>
     <value nick="follow-gnome" value="3"/>
   </enum>
 
-  <enum id="org.gnome.shell.extensions.lintel.overview-mode">
+  <enum id="org.gnome.shell.extensions.fluid-glass.topbar.overview-mode">
     <value nick="keep" value="0"/>
     <value nick="transparent" value="1"/>
     <value nick="native" value="2"/>
   </enum>
 
-  <enum id="org.gnome.shell.extensions.lintel.text-mode">
+  <enum id="org.gnome.shell.extensions.fluid-glass.topbar.text-mode">
     <value nick="auto" value="0"/>
     <value nick="light" value="1"/>
     <value nick="dark" value="2"/>
@@ -27,36 +27,36 @@
   <!-- Mirrors macOS's "Show date" three-way control. when-space-allows drops the
        date (keeping the weekday) once the panel's natural width would overflow
        the monitor, which is what the macOS menu bar does when it gets crowded. -->
-  <enum id="org.gnome.shell.extensions.lintel.clock-date-mode">
+  <enum id="org.gnome.shell.extensions.fluid-glass.topbar.clock-date-mode">
     <value nick="when-space-allows" value="0"/>
     <value nick="always" value="1"/>
     <value nick="never" value="2"/>
   </enum>
 
-  <enum id="org.gnome.shell.extensions.lintel.control-center-mode">
+  <enum id="org.gnome.shell.extensions.fluid-glass.topbar.control-center-mode">
     <value nick="custom" value="0"/>
     <value nick="native" value="1"/>
   </enum>
 
   <!-- Keyless weather services only; see src/services/weatherProviders.js. -->
-  <enum id="org.gnome.shell.extensions.lintel.weather-provider">
+  <enum id="org.gnome.shell.extensions.fluid-glass.topbar.weather-provider">
     <value nick="open-meteo" value="0"/>
     <value nick="wttr" value="1"/>
   </enum>
 
-  <enum id="org.gnome.shell.extensions.lintel.weather-location-mode">
+  <enum id="org.gnome.shell.extensions.fluid-glass.topbar.weather-location-mode">
     <value nick="auto" value="0"/>
     <value nick="manual" value="1"/>
   </enum>
 
-  <enum id="org.gnome.shell.extensions.lintel.weather-units">
+  <enum id="org.gnome.shell.extensions.fluid-glass.topbar.weather-units">
     <value nick="auto" value="0"/>
     <value nick="celsius" value="1"/>
     <value nick="fahrenheit" value="2"/>
   </enum>
 
-  <schema id="org.gnome.shell.extensions.lintel"
-          path="/org/gnome/shell/extensions/lintel/">
+  <schema id="org.gnome.shell.extensions.fluid-glass.topbar"
+          path="/org/gnome/shell/extensions/fluid-glass/topbar/">
 
     <!-- Layout (Stage 2) -->
     <key name="hide-activities" type="b">
@@ -85,11 +85,11 @@
       <default>{'calendar': 'large', 'upnext': 'medium', 'weather': 'medium', 'screentime': 'small', 'system': 'medium', 'battery': 'small', 'media': 'medium', 'clock': 'small'}</default>
       <summary>Notification Center widget sizes: small, medium, or large</summary>
     </key>
-    <key name="weather-provider" enum="org.gnome.shell.extensions.lintel.weather-provider">
+    <key name="weather-provider" enum="org.gnome.shell.extensions.fluid-glass.topbar.weather-provider">
       <default>'open-meteo'</default>
       <summary>Weather service used by the Notification Center widget</summary>
     </key>
-    <key name="weather-location-mode" enum="org.gnome.shell.extensions.lintel.weather-location-mode">
+    <key name="weather-location-mode" enum="org.gnome.shell.extensions.fluid-glass.topbar.weather-location-mode">
       <default>'auto'</default>
       <summary>Where the weather location comes from</summary>
       <description>auto uses Location Services and falls back to weather-location when they are off or fail; manual always uses weather-location.</description>
@@ -98,7 +98,7 @@
       <default>('', 0.0, 0.0, '')</default>
       <summary>Chosen weather city: name, latitude, longitude, IANA time zone</summary>
     </key>
-    <key name="weather-units" enum="org.gnome.shell.extensions.lintel.weather-units">
+    <key name="weather-units" enum="org.gnome.shell.extensions.fluid-glass.topbar.weather-units">
       <default>'auto'</default>
       <summary>Temperature unit: follow the region, Celsius or Fahrenheit</summary>
     </key>
@@ -124,7 +124,7 @@
     </key>
 
     <!-- Control Center (Stage 6) -->
-    <key name="control-center-mode" enum="org.gnome.shell.extensions.lintel.control-center-mode">
+    <key name="control-center-mode" enum="org.gnome.shell.extensions.fluid-glass.topbar.control-center-mode">
       <default>'custom'</default>
       <summary>custom = separate Wi-Fi, battery and Control Center menus; native = open Quick Settings</summary>
     </key>
@@ -143,7 +143,7 @@
       <default>true</default>
       <summary>Show weekday in the clock</summary>
     </key>
-    <key name="clock-date-mode" enum="org.gnome.shell.extensions.lintel.clock-date-mode">
+    <key name="clock-date-mode" enum="org.gnome.shell.extensions.fluid-glass.topbar.clock-date-mode">
       <default>'when-space-allows'</default>
       <summary>Show the date in the clock: when space allows, always, or never</summary>
     </key>
@@ -157,15 +157,15 @@
     </key>
 
     <!-- Appearance (Stage 8) -->
-    <key name="appearance" enum="org.gnome.shell.extensions.lintel.appearance">
+    <key name="appearance" enum="org.gnome.shell.extensions.fluid-glass.topbar.appearance">
       <default>'tahoe-transparent'</default>
       <summary>Panel background style</summary>
     </key>
-    <key name="overview-mode" enum="org.gnome.shell.extensions.lintel.overview-mode">
+    <key name="overview-mode" enum="org.gnome.shell.extensions.fluid-glass.topbar.overview-mode">
       <default>'transparent'</default>
       <summary>How the Lintel bar behaves in the Overview</summary>
     </key>
-    <key name="text-mode" enum="org.gnome.shell.extensions.lintel.text-mode">
+    <key name="text-mode" enum="org.gnome.shell.extensions.fluid-glass.topbar.text-mode">
       <default>'auto'</default>
       <summary>Text/icon colour: auto (sample visible background), light, or dark</summary>
     </key>

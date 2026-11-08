@@ -204,8 +204,8 @@ fi
 # Fluid Glass Unified Extension & Customizer App
 # ---------------------------------------------------------------------------
 if [[ -d "${REPO_DIR}/fluid-glass" ]]; then
-  info "Installing Fluid Glass Extension (fluid-glass@fedora)"
-  EXT_DEST="${HOME}/.local/share/gnome-shell/extensions/fluid-glass@fedora"
+  info "Installing Fluid Glass Extension (fluid-glass@pardhu0547s.github.io)"
+  EXT_DEST="${HOME}/.local/share/gnome-shell/extensions/fluid-glass@pardhu0547s.github.io"
   mkdir -p "${HOME}/.local/share/gnome-shell/extensions"
   rm -rf "${EXT_DEST}"
   cp -a "${REPO_DIR}/fluid-glass" "${EXT_DEST}"
@@ -220,11 +220,11 @@ if [[ -d "${REPO_DIR}/fluid-glass" ]]; then
     info "Backup saved to ${BACKUP_FILE}"
 
     info "Applying unified Fluid Glass default theme presets..."
-    [[ -f "${REPO_DIR}/fluid-glass/presets/lintel.dconf" ]] && dconf load /org/gnome/shell/extensions/lintel/ < "${REPO_DIR}/fluid-glass/presets/lintel.dconf" || true
-    [[ -f "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" ]] && dconf load /org/gnome/shell/extensions/liquid-glass/ < "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" || true
-    [[ -f "${REPO_DIR}/fluid-glass/presets/dock.dconf" ]] && dconf load /org/gnome/shell/extensions/dash2dock-lite/ < "${REPO_DIR}/fluid-glass/presets/dock.dconf" || true
+    [[ -f "${REPO_DIR}/fluid-glass/presets/lintel.dconf" ]] && dconf load /org/gnome/shell/extensions/fluid-glass/topbar/ < "${REPO_DIR}/fluid-glass/presets/lintel.dconf" || true
+    [[ -f "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" ]] && dconf load /org/gnome/shell/extensions/fluid-glass/glass/ < "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" || true
+    [[ -f "${REPO_DIR}/fluid-glass/presets/dock.dconf" ]] && dconf load /org/gnome/shell/extensions/fluid-glass/dock/ < "${REPO_DIR}/fluid-glass/presets/dock.dconf" || true
   fi
 fi
 
-info "Done. Configure Fluid Glass anytime via GNOME Extensions or by running: gnome-extensions prefs fluid-glass@fedora"
+info "Done. Configure Fluid Glass anytime via GNOME Extensions or by running: gnome-extensions prefs fluid-glass@pardhu0547s.github.io"
 

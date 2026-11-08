@@ -48,10 +48,11 @@ export function initGlassResources(extensionPath, settings, logger) {
 export function getDefaultExtensionPath() {
     if (_defaultExtensionPath)
         return _defaultExtensionPath;
-    const ext = Main.extensionManager?.lookup('fluid-glass@fedora');
+    const ext = Main.extensionManager?.lookup('fluid-glass@pardhu0547s.github.io') ||
+                Main.extensionManager?.lookup('fluid-glass@fedora');
     if (ext?.path)
         return ext.path;
-    return GLib.build_filenamev([GLib.get_user_data_dir(), 'gnome-shell', 'extensions', 'fluid-glass@fedora']);
+    return GLib.build_filenamev([GLib.get_user_data_dir(), 'gnome-shell', 'extensions', 'fluid-glass@pardhu0547s.github.io']);
 }
 
 export function getDefaultSettings() {
@@ -59,10 +60,16 @@ export function getDefaultSettings() {
         return _defaultSettings;
     try {
         _defaultSettings = new Gio.Settings({
-            schema_id: 'org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com',
+            schema_id: 'org.gnome.shell.extensions.fluid-glass.glass',
         });
     } catch (_e) {
-        _defaultSettings = null;
+        try {
+            _defaultSettings = new Gio.Settings({
+                schema_id: 'org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com',
+            });
+        } catch (_err) {
+            _defaultSettings = null;
+        }
     }
     return _defaultSettings;
 }

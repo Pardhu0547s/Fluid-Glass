@@ -9,9 +9,14 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
+# Clean up any leftover compiled schemas or zip
+rm -f fluid-glass*.zip
+
+# Ensure schemas are freshly compiled
+glib-compile-schemas schemas/
+
 gnome-extensions pack \
   --force \
-  --extra-source=assets \
   --extra-source=shaders \
   --extra-source=icons \
   --extra-source=glass \
@@ -20,6 +25,7 @@ gnome-extensions pack \
   --extra-source=presets \
   --extra-source=glassEffect.js \
   --extra-source=glassEngine.js \
+  --extra-source=THIRD_PARTY_NOTICES.md \
   .
 
-echo "Packaged: fluid-glass@fedora.shell-extension.zip"
+echo "Packaged: fluid-glass@pardhu0547s.github.io.shell-extension.zip"

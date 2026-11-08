@@ -1,7 +1,7 @@
 # Fluid Glass for Linux 
 
 A unified **macOS Tahoe Fluid Glass** suite for GNOME:
-1. **Fluid Glass Unified Extension (`fluid-glass@fedora`)**: Combines a macOS Top Bar & floating Tahoe Control Center, real-time GLSL Liquid Glass Shaders (refraction & blur), and an animated magnification Dock.
+1. **Fluid Glass Unified Extension (`fluid-glass@pardhu0547s.github.io`)**: Combines a macOS Top Bar & floating Tahoe Control Center, real-time GLSL Liquid Glass Shaders (refraction & blur), and an animated magnification Dock.
 2. **Fluid Glass Settings App**: A standalone native GTK4 & Libadwaita desktop application to customize glass effects, presets, accent colors, dock animations, and layout on the fly.
 3. **Fluid Glass GTK & Shell Theme**: Translucent glass styling with specular highlights, rim reflections, and soft ambient shadows.
 
@@ -20,7 +20,7 @@ A unified **macOS Tahoe Fluid Glass** suite for GNOME:
   - Smooth hover magnification and window dodging.
   - Transparent base allowing the liquid glass shader to refract the desktop background.
 - **Native Extension Preferences (GTK4 + Libadwaita)**:
-  - Accessible directly via the Extensions app, Extension Manager, or `gnome-extensions prefs fluid-glass@fedora`.
+  - Accessible directly via the Extensions app, Extension Manager, or `gnome-extensions prefs fluid-glass@pardhu0547s.github.io`.
   - Switch presets in one click: **Tahoe Crystal (Recommended)**, **Deep Frosted Glass**, **Midnight Obsidian**, and **Electric Neon**.
   - Custom accent color picker, real-time glass shader sliders, and component toggles.
 
@@ -35,7 +35,7 @@ cd Fluid-Glass
 ```
 
 The installer will:
-1. Install the **Fluid Glass** extension to `~/.local/share/gnome-shell/extensions/fluid-glass@fedora`.
+1. Install the **Fluid Glass** extension to `~/.local/share/gnome-shell/extensions/fluid-glass@pardhu0547s.github.io`.
 2. Compile and install all GSettings schemas.
 3. Install and configure the GTK4 / Libadwaita themes.
 
@@ -45,7 +45,7 @@ The installer will:
 
 Open settings from the GNOME **Extensions** or **Extension Manager** app, or run:
 ```bash
-gnome-extensions prefs fluid-glass@fedora
+gnome-extensions prefs fluid-glass@pardhu0547s.github.io
 ```
 
 ---
@@ -59,4 +59,4 @@ gnome-extensions prefs fluid-glass@fedora
 
 ## 📄 License
 
-GPL-3.0-or-later. See `COPYING` for details.
+The combined work is licensed under **GNU General Public License v3.0 or later (GPL-3.0-or-later)**. See [`COPYING`](file:///home/pavan/WorkSpace/Glass%20Theme/COPYING) and [`THIRD_PARTY_NOTICES.md`](file:///home/pavan/WorkSpace/Glass%20Theme/THIRD_PARTY_NOTICES.md) for full licensing details and third-party attribution.

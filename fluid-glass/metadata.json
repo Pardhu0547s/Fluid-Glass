@@ -1,8 +1,13 @@
 {
-  "uuid": "fluid-glass@fedora",
+  "uuid": "fluid-glass@pardhu0547s.github.io",
   "name": "Fluid Glass",
   "description": "Unified macOS Tahoe Fluid Glass Experience: Native Tahoe Control Center, Top Bar, Dock, and GLSL Liquid Glass Shaders.",
   "shell-version": [
+    "45",
+    "46",
+    "47",
+    "48",
+    "49",
     "50",
     "51"
   ],
@@ -10,7 +15,7 @@
     "user"
   ],
   "settings-schema": "org.gnome.shell.extensions.fluid-glass",
-  "gettext-domain": "fluid-glass@fedora",
-  "url": "https://github.com/pavan/fluid-glass",
+  "gettext-domain": "fluid-glass@pardhu0547s.github.io",
+  "url": "https://github.com/Pardhu0547s/Fluid-Glass",
   "version": 1
 }
