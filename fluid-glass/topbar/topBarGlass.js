@@ -3,10 +3,10 @@ import St from 'gi://St';
 import GLib from 'gi://GLib';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
-import { BackdropGlass } from './rendering/backdropGlass.js';
-import { ensureGlassAllocated, isActorValid } from './actors.js';
-import { startSyncLoop, stopStageLoop, hexToColorArray } from './animation.js';
-import { sanitizeColorPreference, AdaptiveTextColor } from './contrastSampler.js';
+import { BackdropGlass } from '../glass/rendering/backdropGlass.js';
+import { ensureGlassAllocated, isActorValid } from '../glass/actors.js';
+import { startSyncLoop, stopStageLoop, hexToColorArray } from '../glass/animation.js';
+import { sanitizeColorPreference, AdaptiveTextColor } from '../glass/contrastSampler.js';
 // Extra space for shader edge effects.
 const SHADER_PADDING = 20;
 // Space for the pill shadow.

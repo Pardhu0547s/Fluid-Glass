@@ -20,6 +20,7 @@ import { DockIcon, DockItemContainer, DockBackground } from './dockItems.js';
 import { DockItemList } from './dockItemMenu.js';
 import { AutoHide } from './autohide.js';
 import { Animator } from './animator.js';
+import { DockGlass } from './dockGlass.js';
 import {
   get_distance_sqr,
   get_distance,
@@ -69,6 +70,7 @@ export let Dock = GObject.registerClass(
       });
 
       this.extension = params.extension;
+      this._dockGlass = null;
 
       this._alignment = DockAlignment.CENTER;
       this._monitorIndex = Main.layoutManager.primaryIndex;
@@ -194,9 +196,25 @@ export let Dock = GObject.registerClass(
       this.addToChrome();
       this.layout();
       this._beginAnimation();
+
+      if (!this._dockGlass && this.extension?.getGlassSettings) {
+        try {
+          const glassSettings = this.extension.getGlassSettings();
+          if (glassSettings) {
+            const path = this.extension.getExtensionPath?.() ?? '';
+            const logger = this.extension.getLogger?.() ?? console;
+            this._dockGlass = new DockGlass(path, this, glassSettings, logger);
+            this._dockGlass.setup();
+          }
+        } catch (e) {
+          console.error('[FluidGlass] Dock glass initialization error:', e);
+        }
+      }
     }
 
     undock() {
+      this._dockGlass?.cleanup();
+      this._dockGlass = null;
       this._destroyList();
       this._endAnimation();
       this.dash._box.remove_effect_by_name('icon-effect');

@@ -19,6 +19,18 @@ class DockSubsystem extends Dash2DockLiteExt {
             return this._parent.getSettings('org.gnome.shell.extensions.dash2dock-lite');
         }
     }
+
+    getGlassSettings() {
+        return this._parent._glassSettings;
+    }
+
+    getExtensionPath() {
+        return this._parent.dir.get_path();
+    }
+
+    getLogger() {
+        return this._parent._glass?._logger ?? console;
+    }
 }
 
 export default class FluidGlassExtension extends Extension {
@@ -54,6 +66,8 @@ export default class FluidGlassExtension extends Extension {
                     uuid: this.uuid,
                     metadata: this.metadata,
                     getSettings: (schemaId = 'org.gnome.shell.extensions.fluid-glass.topbar') => this._safeGetSettings(schemaId, 'org.gnome.shell.extensions.lintel'),
+                    getGlassSettings: () => this._safeGetSettings('org.gnome.shell.extensions.fluid-glass.glass', 'org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com'),
+                    getLogger: () => this._glass?._logger ?? console,
                     openPreferences: () => this.openPreferences(),
                 };
 

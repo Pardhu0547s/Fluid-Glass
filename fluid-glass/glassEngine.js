@@ -3,13 +3,11 @@ import GLib from 'gi://GLib';
 import {UIManager} from './glass/uiManager.js';
 import {PanelMenuManager, ExtraDateMenuManager} from './glass/panelMenuManager.js';
 import {BlurMyShellWatch} from './glass/blurMyShell.js';
-import {DockWatcher} from './glass/dockManager.js';
 import {NotificationManager} from './glass/notificationManager.js';
 import {QuickSettingsManager} from './glass/quickSettingsManager.js';
 import {OsdManager} from './glass/osdManager.js';
 import {ApplicationManager} from './glass/applicationManager.js';
 import {WindowListService} from './glass/windowListService.js';
-import {TopBarManager, ExtraTopBarManager} from './glass/topBarManager.js';
 import {DesktopLayer} from './glass/desktop/desktopLayer.js';
 import {Launcher} from './glass/launcherManager.js';
 import {IconStyler} from './glass/iconStyle/iconStyler.js';
@@ -47,12 +45,6 @@ export class GlassEngine {
     this._panelMenuManager = new PanelMenuManager(path, settings, logger);
     this._panelMenuManager.setup();
 
-    this._topBarManager = new TopBarManager(path, settings, logger);
-    this._topBarManager.setup();
-
-    this._extraTopBarManager = new ExtraTopBarManager(path, settings, logger);
-    this._extraTopBarManager.setup();
-
     this._desktopLayer = new DesktopLayer(path, settings, logger, this._openPreferences);
     this._desktopLayer.setup();
 
@@ -84,9 +76,6 @@ export class GlassEngine {
       return GLib.SOURCE_REMOVE;
     });
 
-    this._dockWatcher = new DockWatcher(path, settings, logger, this._iconStyler);
-    this._dockWatcher.setup();
-
     this._dumpShortcut = new DumpShortcut(settings);
     this._dumpShortcut.setup();
   }
@@ -105,12 +94,6 @@ export class GlassEngine {
     this._panelMenuManager?.cleanup();
     this._panelMenuManager = null;
 
-    this._topBarManager?.cleanup();
-    this._topBarManager = null;
-
-    this._extraTopBarManager?.cleanup();
-    this._extraTopBarManager = null;
-
     this._desktopLayer?.cleanup();
     this._desktopLayer = null;
 
@@ -128,9 +111,6 @@ export class GlassEngine {
 
     this._quickSettingsManager?.cleanup();
     this._quickSettingsManager = null;
-
-    this._dockWatcher?.cleanup();
-    this._dockWatcher = null;
 
     this._iconStyler?.cleanup();
     this._iconStyler = null;

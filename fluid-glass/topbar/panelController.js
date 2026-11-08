@@ -31,6 +31,7 @@ import {LintelClock} from './widgets/clock.js';
 import {LintelNotificationCenter} from './widgets/notificationCenter.js';
 import {ThemeManager} from './theme.js';
 import {FullscreenReveal} from './fullscreenReveal.js';
+import {TopBarManager, ExtraTopBarManager} from './topBarGlass.js';
 import {shutdownSystemStats} from './services/systemStats.js';
 import {shutdownWeather} from './services/weather.js';
 
@@ -82,6 +83,8 @@ export class PanelController {
         this._sessionModeId = 0;
         this._monitorsId = 0;
         this._reapplyId = 0; // GLib idle source id, coalesced.
+        this._topBarGlass = null;
+        this._extraTopBarGlass = null;
         this._enabled = false;
     }
 
@@ -167,9 +170,31 @@ export class PanelController {
             this._notifications.apply();
         else
             this._notifications.restore();
+
+        // Top bar GLSL glass shader management directly owned by topbar subsystem
+        if (!this._topBarGlass && this._extension?.getGlassSettings) {
+            try {
+                const glassSettings = this._extension.getGlassSettings();
+                if (glassSettings) {
+                    const path = this._extension.path;
+                    const logger = this._extension.getLogger?.() ?? console;
+                    this._topBarGlass = new TopBarManager(path, glassSettings, logger);
+                    this._topBarGlass.setup();
+                    this._extraTopBarGlass = new ExtraTopBarManager(path, glassSettings, logger);
+                    this._extraTopBarGlass.setup();
+                }
+            } catch (glassErr) {
+                console.error('[FluidGlass] Topbar glass setup error:', glassErr);
+            }
+        }
     }
 
     restoreOriginalState() {
+        this._topBarGlass?.cleanup();
+        this._topBarGlass = null;
+        this._extraTopBarGlass?.cleanup();
+        this._extraTopBarGlass = null;
+
         const panel = PanelAdapter.actor;
         if (panel)
             panel.remove_style_class_name(PANEL_STYLE_CLASS);
