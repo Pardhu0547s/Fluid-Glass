@@ -74,7 +74,7 @@
 
     <!-- Notification Center -->
     <key name="notification-center-enabled" type="b">
-      <default>true</default>
+      <default>false</default>
       <summary>Open the Tahoe-style Notification Center from the clock</summary>
     </key>
     <key name="notification-center-widgets" type="as">
