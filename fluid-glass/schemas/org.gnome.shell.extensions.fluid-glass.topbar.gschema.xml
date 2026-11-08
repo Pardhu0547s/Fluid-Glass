@@ -64,7 +64,7 @@
       <summary>Hide the Activities / workspace indicator</summary>
     </key>
     <key name="clock-on-right" type="b">
-      <default>true</default>
+      <default>false</default>
       <summary>Move the clock (date menu) to the far right, macOS-style</summary>
     </key>
     <key name="fullscreen-reveal" type="b">

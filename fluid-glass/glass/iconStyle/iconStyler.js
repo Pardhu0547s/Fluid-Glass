@@ -110,7 +110,7 @@ export class IconStyler {
         this._extensionPath = _extensionPath;
         this._settings = _settings;
         this._logger = _logger;
-        this._maps = new IconMaps(_extensionPath, _logger, busy => this._notify(busy));
+        this._maps = new IconMaps(_extensionPath, _logger, () => {});
         const file = Gio.File.new_for_path(`${_extensionPath}/shaders/icon-style.frag`);
         this._shader = new Promise((resolve, reject) => {
             file.load_contents_async(this._cancellable, (_f, res) => {
@@ -423,11 +423,7 @@ export class IconStyler {
     }
 
     _notify(_busy) {
-        // Silenced: do not show intrusive notifications on startup or when preparing icon cache
-        if (this._notification) {
-            this._notification.destroy();
-            this._notification = null;
-        }
+        // Disabled: Never show glass icon notification popups
     }
 
     _colors() {

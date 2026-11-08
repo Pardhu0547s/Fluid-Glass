@@ -207,7 +207,7 @@ export class PanelController {
 
     _applyClockPosition() {
         const dateMenu = PanelAdapter.dateMenu;
-        if (this._settingBool('clock-on-right', true)) {
+        if (this._settingBool('clock-on-right', false)) {
             dateMenu?.add_style_class_name(CLOCK_STYLE_CLASS);
             this._moveClockRight();
         } else {
@@ -413,7 +413,7 @@ export class PanelController {
     }
 
     _addNotificationCenter() {
-        if (!this._settingBool('notification-center-enabled', true))
+        if (!this._settingBool('notification-center-enabled', false))
             return;
         if (this._notificationCenter) {
             this._notificationCenter.reapply();
