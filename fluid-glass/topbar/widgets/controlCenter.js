@@ -55,7 +55,7 @@ import {
 } from './ccTile.js';
 import {CCGrid} from './ccGrid.js';
 import {attachMultiRegionGlass} from '../../glass/glassEffect.js';
-import {getSharedAnimator} from './statusMenu.js';
+import {Spring, stepMenuSpring, addFrameTicker, removeFrameTicker} from '../../glass/animation.js';
 
 const ORDER_KEY = 'control-center-controls';
 const SIZES_KEY = 'control-center-control-sizes';
@@ -432,11 +432,53 @@ export const ControlCenter = GObject.registerClass({
             logError(e, 'lintel: attachMultiRegionGlass');
         }
 
-        try {
-            getSharedAnimator().attach(this.menu);
-        } catch (e) {
-            logError(e, 'lintel: attach popup animator');
-        }
+        // Liquid Glass spring open/close animation
+        const spring = new Spring(120, 22, 1.0);
+        let tickId = 0;
+        let lastTime = 0;
+
+        const startSpring = targetValue => {
+            if (tickId !== 0) {
+                removeFrameTicker(tickId);
+                tickId = 0;
+            }
+            if (!St.Settings.get().enable_animations) {
+                this.menu.box.set_scale(1.0, 1.0);
+                this.menu.box.opacity = targetValue === 1 ? 255 : 0;
+                return;
+            }
+            spring.target = targetValue;
+            lastTime = GLib.get_monotonic_time();
+            tickId = addFrameTicker(() => {
+                const currentTime = GLib.get_monotonic_time();
+                const elapsedMs = (currentTime - lastTime) / 1000;
+                lastTime = currentTime;
+                const frame = stepMenuSpring(spring, elapsedMs);
+                if (frame.stopped)
+                    tickId = 0;
+
+                this.menu.box.set_scale(frame.scale, frame.scale);
+                this.menu.box.opacity = frame.opacity;
+
+                if (frame.stopped && frame.closing) {
+                    this.menu.actor.hide();
+                    this.menu.box.opacity = 0;
+                } else if (frame.stopped && !frame.closing) {
+                    this.menu.box.set_scale(1.0, 1.0);
+                    this.menu.box.opacity = 255;
+                }
+                return frame.stopped ? GLib.SOURCE_REMOVE : GLib.SOURCE_CONTINUE;
+            }, 16);
+        };
+
+        this.menu.connect('open-state-changed', (_m, isOpen) => {
+            if (isOpen) {
+                this.menu.box.set_pivot_point(0.5, 0);
+                startSpring(1);
+            } else {
+                startSpring(0);
+            }
+        });
     }
 
     _getVisibleModules() {
