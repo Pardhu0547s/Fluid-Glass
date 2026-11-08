@@ -236,6 +236,8 @@ export class PanelController {
         if (!this._popupAnimator)
             return;
 
+        this._popupAnimator.hookPanelMenuManager();
+
         // Hook all custom Lintel menus
         if (this._systemMenu?.menu)
             this._popupAnimator.attach(this._systemMenu.menu);

@@ -2807,3 +2807,151 @@
 #dash .dash-item-container {
   /*border: 2px solid magenta;*/
 }
+
+/* ── macOS Tahoe / Fluid Glass Lock & Login Screen ──────────────────────── */
+
+#lockDialogGroup {
+    background-color: transparent !important;
+}
+
+.unlock-dialog {
+    color: #ffffff;
+}
+
+/* Clock & Date typography */
+.unlock-dialog-clock {
+    color: #ffffff;
+    spacing: 1.5em;
+}
+
+.unlock-dialog-clock .unlock-dialog-clock-time {
+    font-size: 7.2em;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+    letter-spacing: -2px;
+    color: #ffffff;
+    text-shadow: 0 4px 32px rgba(0, 0, 0, 0.45);
+}
+
+.unlock-dialog-clock .unlock-dialog-clock-date {
+    font-size: 1.5em;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.92);
+    letter-spacing: 0.2px;
+    text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+}
+
+.unlock-dialog-clock .unlock-dialog-clock-hint {
+    font-size: 1.05em;
+    font-weight: 500;
+    margin-top: 1.5em;
+    padding: 8px 24px;
+    border-radius: 99px;
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+/* Authentication prompt & container */
+.login-dialog .login-dialog-prompt-layout,
+.unlock-dialog .login-dialog-prompt-layout {
+    background-color: rgba(28, 28, 32, 0.52) !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 28px !important;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
+    padding: 32px 36px !important;
+}
+
+/* Password / PIN input field */
+.login-dialog .login-dialog-prompt-entry,
+.unlock-dialog .login-dialog-prompt-entry,
+.login-dialog StEntry.login-dialog-prompt-entry,
+.unlock-dialog StEntry.login-dialog-prompt-entry {
+    background-color: rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid rgba(255, 255, 255, 0.32) !important;
+    border-radius: 99px !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.22) !important;
+    color: #ffffff !important;
+    caret-color: #ffffff !important;
+    font-size: 1.15em !important;
+    padding: 9px 20px !important;
+    transition-duration: 150ms;
+}
+
+.login-dialog .login-dialog-prompt-entry:focus,
+.unlock-dialog .login-dialog-prompt-entry:focus,
+.login-dialog StEntry.login-dialog-prompt-entry:focus,
+.unlock-dialog StEntry.login-dialog-prompt-entry:focus {
+    background-color: rgba(255, 255, 255, 0.26) !important;
+    border-color: rgba(255, 255, 255, 0.68) !important;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3), 0 6px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* User avatar and typography */
+.login-dialog .user-widget .user-icon,
+.unlock-dialog .user-widget .user-icon {
+    border-radius: 99px !important;
+    border: 3px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45) !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.login-dialog .user-widget .user-widget-label,
+.unlock-dialog .user-widget .user-widget-label {
+    font-size: 1.4em !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Action and navigation buttons */
+.login-dialog .login-button,
+.unlock-dialog .login-button,
+.login-dialog-button,
+.login-dialog .modal-dialog-button,
+.unlock-dialog .modal-dialog-button,
+.login-dialog .web-login-prompt-button,
+.unlock-dialog .web-login-prompt-button {
+    background-color: rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    border-radius: 99px !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    transition-duration: 150ms;
+}
+
+.login-dialog .login-button:hover,
+.unlock-dialog .login-button:hover,
+.login-dialog-button:hover,
+.login-dialog .modal-dialog-button:hover,
+.unlock-dialog .modal-dialog-button:hover {
+    background-color: rgba(255, 255, 255, 0.28) !important;
+    border-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+.login-dialog .login-button:active,
+.unlock-dialog .login-button:active,
+.login-dialog-button:active,
+.login-dialog .modal-dialog-button:active,
+.unlock-dialog .modal-dialog-button:active {
+    background-color: rgba(255, 255, 255, 0.42) !important;
+    border-color: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* Lock screen notifications */
+.unlock-dialog-notifications-container .message,
+.unlock-dialog-notifications-container .unlock-dialog-notification-source {
+    background-color: rgba(28, 28, 32, 0.55) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    color: #ffffff !important;
+}
+
+.unlock-dialog-notifications-container .message:hover,
+.unlock-dialog-notifications-container .unlock-dialog-notification-source:hover {
+    background-color: rgba(40, 40, 48, 0.65) !important;
+    border-color: rgba(255, 255, 255, 0.32) !important;
+}
+

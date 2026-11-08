@@ -12,7 +12,9 @@
     "51"
   ],
   "session-modes": [
-    "user"
+    "user",
+    "unlock-dialog",
+    "gdm"
   ],
   "settings-schema": "org.gnome.shell.extensions.fluid-glass",
   "gettext-domain": "fluid-glass@pardhu0547s.github.io",
