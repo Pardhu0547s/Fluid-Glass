@@ -32,7 +32,7 @@ import {
     UpNextWidget,
     WeatherWidget,
 } from './ncWidgets.js';
-import {attachMultiRegionGlass} from '../../glassEffect.js';
+import {attachMultiRegionGlass} from '../../glass/glassEffect.js';
 
 const CLEAR_THEME_STYLE = 'background: transparent !important; background-color: transparent !important; background-gradient-direction: none !important; border: none !important; box-shadow: none !important;';
 

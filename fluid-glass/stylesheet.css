@@ -1504,10 +1504,94 @@
     font-weight: 700;
 }
 
+.lintel-nc-calendar-header {
+    spacing: 6px;
+    margin-bottom: 2px;
+}
+
+.lintel-nc-calendar-nav-box {
+    spacing: 4px;
+}
+
+.lintel-nc-calendar-nav-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    background-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    transition-duration: 150ms;
+}
+
+.lintel-nc-light .lintel-nc-calendar-nav-btn {
+    background-color: rgba(0, 0, 0, 0.08);
+    color: rgba(0, 0, 0, 0.75);
+}
+
+.lintel-nc-calendar-nav-btn:hover,
+.lintel-nc-calendar-nav-btn:active,
+.lintel-nc-calendar-nav-btn:focus {
+    background-color: rgba(255, 255, 255, 0.28);
+    color: #ffffff;
+}
+
+.lintel-nc-light .lintel-nc-calendar-nav-btn:hover,
+.lintel-nc-light .lintel-nc-calendar-nav-btn:active,
+.lintel-nc-light .lintel-nc-calendar-nav-btn:focus {
+    background-color: rgba(0, 0, 0, 0.16);
+    color: #000000;
+}
+
+.lintel-nc-widget-large .lintel-nc-calendar-nav-btn {
+    width: 28px;
+    height: 28px;
+}
+
+.lintel-nc-calendar-title-btn {
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    box-shadow: none;
+}
+
+.lintel-nc-calendar-medium-footer {
+    spacing: 6px;
+}
+
 .lintel-nc-calendar-day {
     width: 17px;
     height: 17px;
     border-radius: 999px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    background-color: transparent;
+    transition-duration: 100ms;
+}
+
+.lintel-nc-calendar-day:hover,
+.lintel-nc-calendar-day:focus {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.lintel-nc-light .lintel-nc-calendar-day:hover,
+.lintel-nc-light .lintel-nc-calendar-day:focus {
+    background-color: rgba(0, 0, 0, 0.10);
+}
+
+.lintel-nc-calendar-day.lintel-nc-calendar-selected {
+    background-color: rgba(255, 255, 255, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.75);
+}
+
+.lintel-nc-light .lintel-nc-calendar-day.lintel-nc-calendar-selected {
+    background-color: rgba(0, 0, 0, 0.20);
+    border: 1.5px solid rgba(0, 0, 0, 0.50);
 }
 
 .lintel-nc-calendar-day-number {

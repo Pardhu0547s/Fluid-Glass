@@ -23,7 +23,6 @@ gnome-extensions pack \
   --extra-source=topbar \
   --extra-source=dock \
   --extra-source=presets \
-  --extra-source=glassEffect.js \
   --extra-source=glassEngine.js \
   --extra-source=THIRD_PARTY_NOTICES.md \
   .

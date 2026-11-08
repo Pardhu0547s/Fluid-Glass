@@ -206,15 +206,97 @@ export const CalendarWidget = GObject.registerClass({
 }, class CalendarWidget extends WidgetCard {
     _init(size, onActivated) {
         super._init('calendar', size, onActivated);
+        this._now = GLib.DateTime.new_now_local();
+        this._displayedDate = this._now;
+        this._selectedDay = null;
         this.refresh();
     }
 
     refresh() {
-        const now = GLib.DateTime.new_now_local();
-        const month = now.format('%OB') || now.format('%B') || '';
+        this._now = GLib.DateTime.new_now_local();
+        this._render();
+    }
+
+    _createNavButton(iconName, tooltipText, onClick) {
+        const btn = new St.Button({
+            style_class: 'lintel-nc-calendar-nav-btn',
+            child: new St.Icon({
+                icon_name: iconName,
+                icon_size: this._size === 'large' ? 14 : 11,
+            }),
+            can_focus: true,
+            reactive: true,
+            track_hover: true,
+            x_align: Clutter.ActorAlign.CENTER,
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        btn.connect('button-press-event', () => Clutter.EVENT_STOP);
+        btn.connect('button-release-event', () => Clutter.EVENT_STOP);
+        btn.connect('touch-event', (_actor, event) => {
+            if (event.type() === Clutter.EventType.TOUCH_END) {
+                onClick();
+            }
+            return Clutter.EVENT_STOP;
+        });
+        btn.connect('clicked', () => {
+            onClick();
+            return Clutter.EVENT_STOP;
+        });
+        return btn;
+    }
+
+    _prevMonth() {
+        this._displayedDate = this._displayedDate.add_months(-1);
+        this._selectedDay = null;
+        this._render();
+    }
+
+    _nextMonth() {
+        this._displayedDate = this._displayedDate.add_months(1);
+        this._selectedDay = null;
+        this._render();
+    }
+
+    _resetToToday() {
+        this._displayedDate = GLib.DateTime.new_now_local();
+        this._now = this._displayedDate;
+        this._selectedDay = null;
+        this._render();
+    }
+
+    _attachScroll(actor) {
+        actor.reactive = true;
+        actor.connect('scroll-event', (_a, event) => {
+            const dir = event.get_scroll_direction();
+            if (dir === Clutter.ScrollDirection.UP) {
+                this._prevMonth();
+                return Clutter.EVENT_STOP;
+            } else if (dir === Clutter.ScrollDirection.DOWN) {
+                this._nextMonth();
+                return Clutter.EVENT_STOP;
+            }
+            return Clutter.EVENT_PROPAGATE;
+        });
+    }
+
+    _render() {
+        const displayed = this._displayedDate;
+        const now = this._now;
+        const month = displayed.format('%OB') || displayed.format('%B') || '';
+        const isCurrentMonth = displayed.get_year() === now.get_year() &&
+                               displayed.get_month() === now.get_month();
+
+        const prevBtn = this._createNavButton('go-previous-symbolic', 'Previous', () => this._prevMonth());
+        const nextBtn = this._createNavButton('go-next-symbolic', 'Next', () => this._nextMonth());
+
+        const navBox = new St.BoxLayout({
+            style_class: 'lintel-nc-calendar-nav-box',
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+        navBox.add_child(prevBtn);
+        navBox.add_child(nextBtn);
 
         if (this._size === 'medium') {
-            // Tahoe's medium calendar: the day on the left, the month beside it.
             const box = new St.BoxLayout({
                 style_class: 'lintel-nc-calendar-split',
                 x_expand: true,
@@ -223,33 +305,81 @@ export const CalendarWidget = GObject.registerClass({
             const summary = _vbox('lintel-nc-calendar-summary', {
                 x_expand: true,
             });
-            summary.add_child(_label((now.format('%A') ?? '').toLocaleUpperCase(),
-                'lintel-nc-calendar-month'));
-            summary.add_child(_label(`${now.get_day_of_month()}`,
-                'lintel-nc-calendar-big-day'));
+
+            const summaryDayNumber = (!isCurrentMonth && this._selectedDay)
+                ? this._selectedDay
+                : (isCurrentMonth ? now.get_day_of_month() : 1);
+            let summaryWeekday = (isCurrentMonth ? now.format('%A') : displayed.format('%B')) ?? '';
+
+            summary.add_child(_label(summaryWeekday.toLocaleUpperCase(), 'lintel-nc-calendar-month'));
+            summary.add_child(_label(`${summaryDayNumber}`, 'lintel-nc-calendar-big-day'));
             summary.add_child(_spacer());
-            summary.add_child(_label(`${_capitalize(month)} ${now.get_year()}`,
-                'lintel-nc-widget-subtitle'));
+
+            const footer = new St.BoxLayout({
+                style_class: 'lintel-nc-calendar-medium-footer',
+                x_expand: true,
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+            const subtitleBtn = new St.Button({
+                style_class: 'lintel-nc-calendar-title-btn',
+                child: _label(`${_capitalize(month)} ${displayed.get_year()}`, 'lintel-nc-widget-subtitle'),
+                can_focus: true,
+                reactive: true,
+                track_hover: true,
+                x_expand: true,
+            });
+            subtitleBtn.connect('button-press-event', () => Clutter.EVENT_STOP);
+            subtitleBtn.connect('clicked', () => {
+                this._resetToToday();
+                return Clutter.EVENT_STOP;
+            });
+            footer.add_child(subtitleBtn);
+            footer.add_child(navBox);
+
+            summary.add_child(footer);
             box.add_child(summary);
-            box.add_child(this._monthGrid(now));
+            box.add_child(this._monthGrid(displayed, now));
+
+            this._attachScroll(box);
             this.setContent(box);
             return;
         }
 
         const box = _vbox(null, {x_expand: true, y_expand: true});
-        const header = new St.BoxLayout({x_expand: true});
-        header.add_child(_label(month.toLocaleUpperCase(),
-            'lintel-nc-calendar-month', {x_expand: true}));
+        const header = new St.BoxLayout({
+            style_class: 'lintel-nc-calendar-header',
+            x_expand: true,
+            y_align: Clutter.ActorAlign.CENTER,
+        });
+
+        const titleBtn = new St.Button({
+            style_class: 'lintel-nc-calendar-title-btn',
+            child: _label(month.toLocaleUpperCase(), 'lintel-nc-calendar-month'),
+            can_focus: true,
+            reactive: true,
+            track_hover: true,
+            x_expand: true,
+        });
+        titleBtn.connect('button-press-event', () => Clutter.EVENT_STOP);
+        titleBtn.connect('clicked', () => {
+            this._resetToToday();
+            return Clutter.EVENT_STOP;
+        });
+        header.add_child(titleBtn);
+
         if (this._size === 'large') {
-            header.add_child(_label(`${now.get_year()}`,
-                'lintel-nc-calendar-year'));
+            header.add_child(_label(`${displayed.get_year()}`, 'lintel-nc-calendar-year'));
         }
+
+        header.add_child(navBox);
         box.add_child(header);
-        box.add_child(this._monthGrid(now));
+        box.add_child(this._monthGrid(displayed, now));
+
+        this._attachScroll(box);
         this.setContent(box);
     }
 
-    _monthGrid(now) {
+    _monthGrid(displayed, now) {
         const layout = new Clutter.GridLayout({
             orientation: Clutter.Orientation.VERTICAL,
             column_homogeneous: true,
@@ -279,10 +409,11 @@ export const CalendarWidget = GObject.registerClass({
             layout.attach(this._cell(label), col, 0, 1, 1);
         }
 
+        const isCurrentMonth = displayed.get_year() === now.get_year() &&
+                               displayed.get_month() === now.get_month();
         const today = now.get_day_of_month();
         const first = GLib.DateTime.new_local(
-            now.get_year(), now.get_month(), 1, 12, 0, 0);
-        // get_day_of_week(): 1 = Monday ... 7 = Sunday; week start: 0 = Sunday.
+            displayed.get_year(), displayed.get_month(), 1, 12, 0, 0);
         const offset = (7 + first.get_day_of_week() % 7 - weekStart) % 7;
         const days = first.add_months(1).add_days(-1).get_day_of_month();
 
@@ -292,18 +423,41 @@ export const CalendarWidget = GObject.registerClass({
                 x_align: Clutter.ActorAlign.CENTER,
                 y_align: Clutter.ActorAlign.CENTER,
             });
-            // The label is centred inside a square disc, so today's red circle
-            // is round and its number optically centred at every size.
-            const disc = new St.Bin({
+
+            const disc = new St.Button({
                 style_class: 'lintel-nc-calendar-day',
                 child: label,
+                can_focus: true,
+                reactive: true,
+                track_hover: true,
                 x_align: Clutter.ActorAlign.CENTER,
                 y_align: Clutter.ActorAlign.CENTER,
             });
-            if (day === today)
+
+            if (isCurrentMonth && day === today) {
                 disc.add_style_class_name('lintel-nc-calendar-today');
-            else if (isWeekend((weekStart + cell) % 7))
+            } else if (this._selectedDay === day) {
+                disc.add_style_class_name('lintel-nc-calendar-selected');
+            } else if (isWeekend((weekStart + cell) % 7)) {
                 label.add_style_class_name('lintel-nc-calendar-weekend');
+            }
+
+            // Touch and click on individual days
+            disc.connect('button-press-event', () => Clutter.EVENT_STOP);
+            disc.connect('button-release-event', () => Clutter.EVENT_STOP);
+            disc.connect('touch-event', (_actor, event) => {
+                if (event.type() === Clutter.EventType.TOUCH_END) {
+                    this._selectedDay = day;
+                    this._render();
+                }
+                return Clutter.EVENT_STOP;
+            });
+            disc.connect('clicked', () => {
+                this._selectedDay = day;
+                this._render();
+                return Clutter.EVENT_STOP;
+            });
+
             layout.attach(this._cell(disc), cell % 7, Math.floor(cell / 7) + 1, 1, 1);
         }
         return grid;

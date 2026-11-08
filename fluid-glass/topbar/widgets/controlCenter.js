@@ -54,7 +54,7 @@ import {
     CCTile,
 } from './ccTile.js';
 import {CCGrid} from './ccGrid.js';
-import {attachMultiRegionGlass} from '../../glassEffect.js';
+import {attachMultiRegionGlass} from '../../glass/glassEffect.js';
 
 const ORDER_KEY = 'control-center-controls';
 const SIZES_KEY = 'control-center-control-sizes';
