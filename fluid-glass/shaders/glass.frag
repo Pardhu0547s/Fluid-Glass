@@ -621,9 +621,8 @@ void main() {
 
     float lensBand = lensBandFor(min(box_size.x, box_size.y));
     if (multi_region_mode > 0.5) {
-        // Multi-region capsules: sleek 7.5px refractive curved bevel along the perimeter
-        // for authentic glass depth, refraction and chromatic dispersion.
-        lensBand = min(lensBand, 7.5);
+        // Multi-region capsules: sleek, subtle 2.5px refractive curved bevel along the perimeter
+        lensBand = min(lensBand, 2.5);
     }
 
 #ifdef LG_SHAPE_TEXTURE
@@ -865,6 +864,10 @@ void main() {
     // The rim band. The width is kept above 0 for smoothstep(), and the step()
     // makes a rim width of 0 really turn it off.
     float safeRimWidth = max(rim_width, 0.001);
+    if (multi_region_mode > 0.5) {
+        // Thin hairline rim for multi-region capsules (Control Center)
+        safeRimWidth = min(safeRimWidth, 0.9);
+    }
     float edgeBand = (1.0 - smoothstep(0.0, safeRimWidth, abs(d))) * step(0.0005, rim_width);
 
     float rimDot = 1.0 - max(dot(normal, viewDir), 0.0);
@@ -875,7 +878,7 @@ void main() {
     // the surface light off it runs all the way round.
     float aoLight = mix(1.0, 1.0 - lightMask, surface_light_enabled);
     if (multi_region_mode > 0.5) {
-        aoLight *= 0.5;
+        aoLight *= 0.25;
     }
     baseColor *= (1.0 - aoMask * ao_intensity * aoLight);
 
@@ -895,6 +898,14 @@ void main() {
     float surfaceSheen = pow(sheenFacing, 1.65);
     surfaceSheen *= mix(1.0, 0.55, edgeBand);
     float sheenLight = surfaceSheen * sheen_intensity;
+
+    if (multi_region_mode > 0.5) {
+        // Subtle, refined rim light, sheen and specular highlights on capsules
+        finalRimLight *= 0.35;
+        specularLight *= 0.35;
+        sheenLight *= 0.35;
+        idleRim *= 0.5;
+    }
 
     float alpha = insideMask;
 

@@ -424,7 +424,7 @@ export const ControlCenter = GObject.registerClass({
                     cornerRadius: 22.0,
                     blurRadius: 10,
                     tintColor: '#ffffff',
-                    tintStrength: 0.12,
+                    tintStrength: 0.08,
                 }
             );
         } catch (e) {
