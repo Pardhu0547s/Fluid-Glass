@@ -55,6 +55,7 @@ import {
 } from './ccTile.js';
 import {CCGrid} from './ccGrid.js';
 import {attachMultiRegionGlass} from '../../glass/glassEffect.js';
+import {getSharedAnimator} from './statusMenu.js';
 
 const ORDER_KEY = 'control-center-controls';
 const SIZES_KEY = 'control-center-control-sizes';
@@ -424,11 +425,17 @@ export const ControlCenter = GObject.registerClass({
                     cornerRadius: 22.0,
                     blurRadius: 10,
                     tintColor: '#ffffff',
-                    tintStrength: 0.08,
+                    tintStrength: 0.12,
                 }
             );
         } catch (e) {
             logError(e, 'lintel: attachMultiRegionGlass');
+        }
+
+        try {
+            getSharedAnimator().attach(this.menu);
+        } catch (e) {
+            logError(e, 'lintel: attach popup animator');
         }
     }
 

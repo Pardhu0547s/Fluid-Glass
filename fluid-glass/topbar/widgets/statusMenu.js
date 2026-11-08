@@ -10,6 +10,21 @@
 // never did anything. See docs/DESIGN_QA.md, Pass 8.
 
 import Gio from 'gi://Gio';
+import {PopupAnimator} from '../popupAnimator.js';
+
+let sharedAnimator = null;
+export function getSharedAnimator() {
+    if (!sharedAnimator)
+        sharedAnimator = new PopupAnimator();
+    return sharedAnimator;
+}
+
+export function resetSharedAnimator() {
+    if (sharedAnimator) {
+        sharedAnimator.destroy();
+        sharedAnimator = null;
+    }
+}
 
 let ifaceSettings = null;
 export function getIface() {
@@ -44,6 +59,8 @@ export function styleStatusMenu(menu, contentClass = '') {
     menu.box.set_style(clearStyle);
     if (contentClass)
         menu.box.add_style_class_name(contentClass);
+
+    getSharedAnimator().attach(menu);
 
     const syncAll = () => {
         syncMenuTheme(menu.box);

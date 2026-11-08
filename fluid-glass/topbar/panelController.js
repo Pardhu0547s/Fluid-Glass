@@ -32,6 +32,7 @@ import {LintelNotificationCenter} from './widgets/notificationCenter.js';
 import {ThemeManager} from './theme.js';
 import {FullscreenReveal} from './fullscreenReveal.js';
 import {TopBarManager, ExtraTopBarManager} from './topBarGlass.js';
+import {getSharedAnimator, resetSharedAnimator} from './widgets/statusMenu.js';
 import {shutdownSystemStats} from './services/systemStats.js';
 import {shutdownWeather} from './services/weather.js';
 
@@ -85,6 +86,7 @@ export class PanelController {
         this._reapplyId = 0; // GLib idle source id, coalesced.
         this._topBarGlass = null;
         this._extraTopBarGlass = null;
+        this._popupAnimator = getSharedAnimator();
         this._enabled = false;
     }
 
@@ -187,9 +189,15 @@ export class PanelController {
                 console.error('[FluidGlass] Topbar glass setup error:', glassErr);
             }
         }
+
+        // Apply Notification Center-style popup animations to all top bar menus
+        this._applyPopupAnimations();
     }
 
     restoreOriginalState() {
+        resetSharedAnimator();
+        this._popupAnimator = null;
+
         this._topBarGlass?.cleanup();
         this._topBarGlass = null;
         this._extraTopBarGlass?.cleanup();
@@ -221,6 +229,37 @@ export class PanelController {
     }
 
     // ---- Individual, idempotent layout mutations ----------------------------
+
+    _applyPopupAnimations() {
+        if (!this._popupAnimator)
+            this._popupAnimator = getSharedAnimator();
+        if (!this._popupAnimator)
+            return;
+
+        // Hook all custom Lintel menus
+        if (this._systemMenu?.menu)
+            this._popupAnimator.attach(this._systemMenu.menu);
+        if (this._controlCenter?.menu)
+            this._popupAnimator.attach(this._controlCenter.menu);
+        if (this._wifiMenu?.menu)
+            this._popupAnimator.attach(this._wifiMenu.menu);
+        if (this._bluetoothMenu?.menu)
+            this._popupAnimator.attach(this._bluetoothMenu.menu);
+        if (this._batteryMenu?.menu)
+            this._popupAnimator.attach(this._batteryMenu.menu);
+
+        // Hook native dateMenu (calendar) and quickSettings
+        if (PanelAdapter.dateMenu?.menu)
+            this._popupAnimator.attach(PanelAdapter.dateMenu.menu);
+        if (PanelAdapter.statusArea?.quickSettings?.menu)
+            this._popupAnimator.attach(PanelAdapter.statusArea.quickSettings.menu);
+
+        // Hook any other indicators in statusArea
+        for (const button of Object.values(PanelAdapter.statusArea)) {
+            if (button?.menu)
+                this._popupAnimator.attach(button.menu);
+        }
+    }
 
     _applyActivitiesVisibility() {
         const container = PanelAdapter.containerOf(PanelAdapter.activities);
@@ -577,6 +616,8 @@ export class PanelController {
 
         this._externalIndicators.destroy();
         this._notifications.destroy();
+        resetSharedAnimator();
+        this._popupAnimator = null;
         this._snapshot?.destroy();
         this._snapshot = null;
         this._clockHome = null;
