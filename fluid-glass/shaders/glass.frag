@@ -179,6 +179,16 @@ float sdRoundRect(vec2 p, vec2 b, vec2 corner) {
     return (len - r) / max(gradLen, 0.5);
 }
 
+// Per-region corner radius for Control Center multi-region modules:
+// 1x1 buttons (b ~ 31x31), 2x1 capsules (b ~ 70x31), sliders (b ~ 146x29),
+// and Edit Controls (b ~ 55x14) all have min(b.x, b.y) <= 45px and get
+// full semicircular stadium/circle ends (r = min(b.x, b.y)).
+// 2x2 Now Playing square (b ~ 70x67) gets a 26px squircle corner radius.
+float regionCornerRadius(vec2 b, float fallbackR) {
+    float halfMin = min(b.x, b.y);
+    return (halfMin > 45.0) ? min(fallbackR, 26.0) : halfMin;
+}
+
 // The region this pixel is most inside of, with its local frame and colours.
 // Far outside every region the local position stays large, which main()
 // already treats as transparent.
@@ -204,7 +214,7 @@ void findActiveRegion(vec2 pixel_coord, float pad, out vec2 outLocalPos, out vec
 
         // Picking the region needs no continuous corners; main() measures the
         // chosen one with them.
-        float r = min(corner_radius, min(rBox.x, rBox.y));
+        float r = regionCornerRadius(rBox, corner_radius);
         float d = sdCircleRoundRect(rLocal, rBox, r);
         if (d < bestD) {
             bestD = d;
@@ -617,7 +627,10 @@ void main() {
         activeTint = vec3(tint_r, tint_g, tint_b);
     }
 
-    vec2 corner = cornerShape(box_size, corner_radius);
+    float effCornerRadius = (multi_region_mode > 0.5)
+        ? regionCornerRadius(box_size, corner_radius)
+        : corner_radius;
+    vec2 corner = cornerShape(box_size, effCornerRadius);
     float d = sdRoundRect(local_pos, box_size, corner);
 
     float lensBand = lensBandFor(min(box_size.x, box_size.y));

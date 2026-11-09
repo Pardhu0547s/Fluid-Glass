@@ -91,9 +91,8 @@ export function packModules(modules) {
     return placements;
 }
 
-const CCGridLayout = GObject.registerClass({
-    GTypeName: 'FluidGlass_CCGridLayout',
-}, class CCGridLayout extends Clutter.LayoutManager {
+const CCGridLayout = GObject.registerClass(
+class CCGridLayout extends Clutter.LayoutManager {
     _init() {
         super._init();
         this._placements = [];
@@ -115,7 +114,7 @@ const CCGridLayout = GObject.registerClass({
     /** Column offsets, cell width and row heights for a given width. */
     _geometry(container, width) {
         const gutter = this._length(container, '-lintel-grid-gutter', 12);
-        const pairGap = this._length(container, '-lintel-grid-pair-gap', 12);
+        const pairGap = this._length(container, '-lintel-grid-pair-gap', 18);
         const rowGap = this._length(container, '-lintel-grid-row-gap', 10);
         const half = Math.max(0, (width - gutter) / 2);
         const cell = Math.max(0, (half - pairGap) / 2);
@@ -124,27 +123,10 @@ const CCGridLayout = GObject.registerClass({
 
         const shown = this._placements.filter(p => p.module.actor.visible);
         const rowCount = shown.reduce((n, p) => Math.max(n, p.row + p.rows), 0);
-        const heights = new Array(rowCount).fill(0);
-        for (const p of shown) {
-            if (p.rows !== 1)
-                continue;
-            // Every 1-row module (1×1 circle or 2×1 stadium pill) matches the
-            // cell height (64px) so rows stay uniform across the grid.
-            const height = p.columns === 1
-                ? cell
-                : Math.max(cell, p.module.actor.get_preferred_height(spanWidth(p))[1]);
-            heights[p.row] = Math.max(heights[p.row], height);
-        }
-        for (const p of shown) {
-            if (p.rows === 1)
-                continue;
-            const [, natural] = p.module.actor.get_preferred_height(spanWidth(p));
-            const rows = heights.slice(p.row, p.row + p.rows);
-            const have = rows.reduce((sum, h) => sum + h, 0) + rowGap * (p.rows - 1);
-            const extra = Math.max(0, natural - have) / p.rows;
-            for (let r = p.row; r < p.row + p.rows; r++)
-                heights[r] += extra;
-        }
+        // Every row in macOS GoldenGate/Tahoe has uniform height = cell (58px),
+        // so 1×1 circles are 58×58, 2×1 pills are 134×58, and 2×2 Now Playing
+        // is 134×126 without ever stretching adjacent rows.
+        const heights = new Array(rowCount).fill(cell);
 
         const y = [];
         let offset = 0;
@@ -187,9 +169,8 @@ const CCGridLayout = GObject.registerClass({
     }
 });
 
-export const CCGrid = GObject.registerClass({
-    GTypeName: 'FluidGlass_CCGrid',
-}, class CCGrid extends St.Widget {
+export const CCGrid = GObject.registerClass(
+class CCGrid extends St.Widget {
     _init() {
         super._init({
             style_class: 'lintel-cc-grid',

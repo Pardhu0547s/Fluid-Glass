@@ -31,7 +31,6 @@ const RFKILL_XML = `
 const RfkillProxy = Gio.DBusProxy.makeProxyWrapper(RFKILL_XML);
 
 export const ConnectivityService = GObject.registerClass({
-    GTypeName: 'FluidGlass_ConnectivityService',
     Signals: {'changed': {}},
 }, class ConnectivityService extends GObject.Object {
     _init() {

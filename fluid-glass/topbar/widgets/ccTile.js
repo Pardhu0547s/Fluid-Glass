@@ -16,9 +16,8 @@ import * as Slider from 'resource:///org/gnome/shell/ui/slider.js';
 import {_} from '../i18n.js';
 
 /** A horizontal network/focus capsule with a circular state icon. */
-export const CCTile = GObject.registerClass({
-    GTypeName: 'FluidGlass_CCTile',
-}, class CCTile extends St.Button {
+export const CCTile = GObject.registerClass(
+class CCTile extends St.Button {
     _init(iconName, title, styleClass = '') {
         const classes = ['lintel-cc-tile', styleClass]
             .filter(Boolean).join(' ');
@@ -37,8 +36,11 @@ export const CCTile = GObject.registerClass({
             x_align: Clutter.ActorAlign.FILL,
             y_align: Clutter.ActorAlign.CENTER,
         });
+        const iconProps = typeof iconName === 'string'
+            ? {icon_name: iconName}
+            : {gicon: iconName};
         this._icon = new St.Icon({
-            icon_name: iconName,
+            ...iconProps,
             style_class: 'lintel-cc-tile-icon',
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
@@ -127,7 +129,6 @@ export const CCTile = GObject.registerClass({
 
 /** The large 2×2 Now Playing module from the right side of Control Center. */
 export const CCMediaCard = GObject.registerClass({
-    GTypeName: 'FluidGlass_CCMediaCard',
     Signals: {
         previous: {},
         'play-pause': {},
@@ -150,16 +151,16 @@ class CCMediaCard extends St.BoxLayout {
         this._artwork = new St.Icon({
             icon_name: 'audio-x-generic-symbolic',
             style_class: 'lintel-cc-media-artwork',
-            icon_size: 22,
-            width: 46,
-            height: 46,
+            icon_size: 20,
+            width: 42,
+            height: 42,
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
         });
         const artBin = new St.Bin({
             style_class: 'lintel-cc-media-artwork-bin',
-            width: 46,
-            height: 46,
+            width: 42,
+            height: 42,
             x_align: Clutter.ActorAlign.START,
             y_align: Clutter.ActorAlign.START,
             child: this._artwork,
@@ -256,7 +257,7 @@ class CCMediaCard extends St.BoxLayout {
                     this._artwork.gicon = new Gio.FileIcon({
                         file: Gio.File.new_for_uri(nextArtUrl),
                     });
-                    this._artwork.icon_size = 46;
+                    this._artwork.icon_size = 42;
                     return;
                 } catch (_e) {
                     // Fall through to the neutral media glyph.
@@ -264,7 +265,7 @@ class CCMediaCard extends St.BoxLayout {
             }
             if (this._artwork.gicon)
                 this._artwork.gicon = null;
-            this._artwork.icon_size = 22;
+            this._artwork.icon_size = 20;
             if (this._artwork.icon_name !== 'audio-x-generic-symbolic')
                 this._artwork.icon_name = 'audio-x-generic-symbolic';
         }
@@ -277,7 +278,6 @@ class CCMediaCard extends St.BoxLayout {
  * optional rightmost circular accessory button opens the corresponding settings.
  */
 export const CCSlider = GObject.registerClass({
-    GTypeName: 'FluidGlass_CCSlider',
     Signals: {
         'moved': {param_types: [GObject.TYPE_DOUBLE]},
         'icon-clicked': {},
@@ -344,8 +344,11 @@ export const CCSlider = GObject.registerClass({
         }
 
         if (accessoryIconName) {
+            const accProps = typeof accessoryIconName === 'string'
+                ? {icon_name: accessoryIconName}
+                : {gicon: accessoryIconName};
             const accIcon = new St.Icon({
-                icon_name: accessoryIconName,
+                ...accProps,
                 style_class: 'lintel-cc-slider-accessory-icon',
                 x_align: Clutter.ActorAlign.CENTER,
                 y_align: Clutter.ActorAlign.CENTER,

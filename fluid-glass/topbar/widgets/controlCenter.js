@@ -39,7 +39,7 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import {_} from '../i18n.js';
 import {settingsText, shellText} from '../compat/borrowedStrings.js';
 import {VolumeService} from '../services/volume.js';
-import {BrightnessService} from '../services/brightness.js?v=2';
+import {BrightnessService} from '../services/brightness.js';
 import {ConnectivityService} from '../services/connectivity.js';
 import {MediaService} from '../services/media.js';
 import {QuickSettingsBridge} from '../services/quickSettingsBridge.js';
@@ -107,9 +107,8 @@ const AIRDROP_APP_IDS = [
     'bluetooth-sendto.desktop',
 ];
 
-export const ControlCenter = GObject.registerClass({
-    GTypeName: 'FluidGlass_ControlCenter',
-}, class ControlCenter extends PanelMenu.Button {
+export const ControlCenter = GObject.registerClass(
+class ControlCenter extends PanelMenu.Button {
     _init(extension) {
         super._init(0.0, _('Control Center'), false);
         this.add_style_class_name('lintel-control-center-button');
@@ -300,20 +299,26 @@ export const ControlCenter = GObject.registerClass({
             () => this._net.setBluetooth(this._btTile.checked));
         // AirDrop is a launcher, not a toggle: the sharing app owns its own
         // visibility state, so the control must not latch when clicked.
-        this._airDropTile = this._tile('network-transmit-receive-symbolic',
+        this._airDropTile = this._tile(
+            this._tahoeIcon('tahoe-airdrop-symbolic.svg', 'network-transmit-receive-symbolic'),
             'AirDrop', () => this._openAirDrop(), false);
         const stageManager = this._tile(
-            'preferences-desktop-multitasking-symbolic', _('Stage Manager'),
+            this._tahoeIcon('tahoe-stage-manager-symbolic.svg', 'preferences-desktop-multitasking-symbolic'),
+            _('Stage Manager'),
             () => {
                 this.menu.close();
                 Main.overview.toggle();
             }, false);
-        const mirroring = this._tile('video-joined-displays-symbolic',
+        const mirroring = this._tile(
+            this._tahoeIcon('tahoe-screen-mirroring-symbolic.svg', 'video-joined-displays-symbolic'),
             _('Screen Mirroring'), () => this._openSettings('display'), false);
-        this._darkTile = this._tile('dark-mode-symbolic', _('Dark Mode'),
+        this._darkTile = this._tile(
+            this._tahoeIcon('tahoe-dark-mode-symbolic.svg', 'dark-mode-symbolic'),
+            _('Dark Mode'),
             () => this._iface.set_string('color-scheme',
                 this._darkTile.checked ? 'prefer-dark' : 'default'));
-        const screenshot = this._tile('screenshot-selection-symbolic',
+        const screenshot = this._tile(
+            this._tahoeIcon('tahoe-screenshot-symbolic.svg', 'screenshot-selection-symbolic'),
             _('Screenshot'), () => {
                 this.menu.close();
                 Main.screenshotUI?.open();
@@ -343,13 +348,15 @@ export const ControlCenter = GObject.registerClass({
 
         this._brightCard = new CCSlider(
             _('Display'), 'display-brightness-symbolic',
-            'display-brightness-symbolic', false, 'video-display-symbolic');
+            'display-brightness-symbolic', false,
+            this._tahoeIcon('tahoe-display-symbolic.svg', 'video-display-symbolic'));
         this._brightCard.connect('moved', (_c, v) => this._brightness.setLevel(v));
         this._brightCard.connect('accessory-clicked',
             () => this._openSettings('display'));
         this._volCard = new CCSlider(
             _('Sound'), 'audio-volume-low-symbolic',
-            'audio-volume-high-symbolic', true, 'audio-speakers-symbolic');
+            'audio-volume-high-symbolic', true,
+            this._tahoeIcon('tahoe-airplay-audio-symbolic.svg', 'audio-speakers-symbolic'));
         this._volCard.connect('moved', (_c, v) => this._volume.setLevel(v));
         this._volCard.connect('icon-clicked', () => this._volume.toggleMute());
         this._volCard.connect('accessory-clicked',
@@ -514,6 +521,30 @@ export const ControlCenter = GObject.registerClass({
         if (this._editButton && this._editButton.visible && this._editButton.mapped)
             modules.push(this._editButton);
         return modules;
+    }
+
+    _tahoeIcon(filename, fallbackName = '') {
+        try {
+            const uri = new URL(`../icons/${filename}`, import.meta.url).href;
+            const file = Gio.File.new_for_uri(uri);
+            if (file.query_exists(null))
+                return new Gio.FileIcon({file});
+        } catch (_e) {
+            // Fallback to extension path
+        }
+        try {
+            if (this._extension?.path) {
+                const path = GLib.build_filenamev([
+                    this._extension.path, 'topbar', 'icons', filename,
+                ]);
+                const file = Gio.File.new_for_path(path);
+                if (file.query_exists(null))
+                    return new Gio.FileIcon({file});
+            }
+        } catch (_e) {
+            // Ignore
+        }
+        return fallbackName;
     }
 
     _tile(iconName, title, onClick, toggleMode = true) {
