@@ -124,13 +124,35 @@ export class PanelMenuManager {
         }
     }
 
+    _alignAndStyleMenu(menu) {
+        if (!menu)
+            return;
+        menu._arrowAlignment = 0.5;
+        if (menu._boxPointer) {
+            menu._boxPointer._arrowAlignment = 0.5;
+            menu._boxPointer.setSourceAlignment?.(0.5);
+        }
+        menu.setSourceAlignment?.(0.5);
+        menu.actor?.add_style_class_name?.('lintel-status-menu');
+        menu.box?.add_style_class_name?.('lintel-extra-status-menu-content');
+    }
+
+    _unstyleMenu(menu, entry) {
+        if (!menu)
+            return;
+        if (entry?.openSignalId) {
+            try { menu.disconnect(entry.openSignalId); } catch (_e) {}
+        }
+        menu.actor?.remove_style_class_name?.('lintel-status-menu');
+        menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
+    }
+
     _detachUnwanted(wanted) {
         // Keep existing instances: a new indicator must not close another menu.
         for (const [menu, entry] of this._menus) {
             if (wanted.has(menu))
                 continue;
-            menu.actor?.remove_style_class_name?.('lintel-status-menu');
-            menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
+            this._unstyleMenu(menu, entry);
             this._menus.delete(menu);
             entry.manager.cleanup();
         }
@@ -142,17 +164,19 @@ export class PanelMenuManager {
         for (const [menu, { name }] of wanted) {
             if (this._menus.has(menu))
                 continue;
-            menu.actor?.add_style_class_name?.('lintel-status-menu');
-            menu.box?.add_style_class_name?.('lintel-extra-status-menu-content');
+            this._alignAndStyleMenu(menu);
+            const openSignalId = menu.connect?.('open-state-changed', (_m, open) => {
+                if (open)
+                    this._alignAndStyleMenu(menu);
+            });
             const manager = new UIManager(this._path, this._settings, this._logger, { menu }, false, 'enable-extra-menu-glass', PANEL_MENU_PREFIX, `menu:${name}`, false);
             try {
                 manager.setup();
-                this._menus.set(menu, { name, manager });
+                this._menus.set(menu, { name, manager, openSignalId });
                 this._logger.log(`[Liquid Glass] Extra panel menu glass attached to "${name}"`);
             }
             catch (e) {
-                menu.actor?.remove_style_class_name?.('lintel-status-menu');
-                menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
+                this._unstyleMenu(menu, { openSignalId });
                 manager.cleanup();
                 this._logger.log(`[Liquid Glass] Could not attach panel menu glass to "${name}": ${e}`);
             }
@@ -172,10 +196,9 @@ export class PanelMenuManager {
                 button.disconnect(id);
         }
         this._buttons.clear();
-        for (const [menu, { manager }] of this._menus) {
-            menu.actor?.remove_style_class_name?.('lintel-status-menu');
-            menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
-            manager.cleanup();
+        for (const [menu, entry] of this._menus) {
+            this._unstyleMenu(menu, entry);
+            entry.manager.cleanup();
         }
         this._menus.clear();
         this._settings.set_strv('detected-extra-menus', []);

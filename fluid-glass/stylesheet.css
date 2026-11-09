@@ -150,11 +150,11 @@
 }
 
 .lintel-system-menu-content {
-    width: 230px;
-    padding: 5px 4px 4px 4px;
+    width: 304px;
+    padding: 7px 5px 1px 5px;
     border-radius: 16px;
     font-family: "SF Pro Text";
-    font-size: 9.5pt;
+    font-size: 10.5pt;
     font-weight: 400;
     transition-duration: 120ms;
 }
@@ -178,16 +178,15 @@
 }
 
 .lintel-system-menu-content .popup-menu-item {
-    min-height: 22px;
-    padding: 2px 8px;
-    spacing: 8px;
+    min-height: 19px;
+    padding: 3px 7px 3px 15px;
+    spacing: 9px;
     color: inherit;
     background-color: transparent;
     border: 0 solid transparent;
-    border-radius: 5px;
+    border-radius: 6px;
     box-shadow: none;
     transition-duration: 80ms;
-    font-size: 9pt;
 }
 
 .lintel-system-menu-content .popup-menu-item:hover,
@@ -264,15 +263,15 @@
 
 .lintel-system-menu-content .popup-separator-menu-item {
     min-height: 0;
-    height: 7px;
-    padding: 0 8px;
+    height: 12px;
+    padding: 0 11px;
     background-color: transparent !important;
     border-radius: 0;
 }
 
 .lintel-system-menu-content
     .lintel-system-menu-about-separator {
-    height: 7px;
+    height: 10px;
 }
 
 .lintel-system-menu-content .popup-separator-menu-item
