@@ -54,7 +54,7 @@ import {
     CCTile,
 } from './ccTile.js';
 import {CCGrid} from './ccGrid.js';
-import {attachMultiRegionGlass} from '../../glass/glassEffect.js';
+import {attachGlass} from '../../glass/glassEffect.js';
 import {Spring, stepMenuSpring, addFrameTicker, removeFrameTicker} from '../../glass/animation.js';
 
 const ORDER_KEY = 'control-center-controls';
@@ -280,7 +280,7 @@ class ControlCenter extends PanelMenu.Button {
         this.menu.actor.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important;');
         this.menu.box.remove_style_class_name('popup-menu-content');
         this.menu.box.add_style_class_name('lintel-cc-popup');
-        this.menu.box.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
+        this.menu.box.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 6px !important;');
         if (this.menu._boxPointer?.bin)
             this.menu._boxPointer.bin.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
         this._syncAppearance();
@@ -434,21 +434,59 @@ class ControlCenter extends PanelMenu.Button {
 
         this.menu.box.add_child(content);
 
+        const glassSettings = this._extension?.getGlassSettings?.();
+        const blurRadius = glassSettings?.get_int('panel-menu-blur-radius') ?? 10;
+        const tintColor = glassSettings?.get_string('panel-menu-tint-color') ?? '#ffffff';
+        const tintStrength = glassSettings?.get_double('panel-menu-tint-strength') ?? 0.12;
+        const brightness = glassSettings?.get_double('panel-menu-brightness') ?? 1.0;
+        const contrast = glassSettings?.get_double('panel-menu-contrast') ?? 1.0;
+        const saturation = glassSettings?.get_double('panel-menu-saturation') ?? 1.5;
+        const cornerRadius = glassSettings?.get_double('panel-menu-corner-radius') ?? 26.0;
+        const expand = glassSettings?.get_int('panel-menu-glass-expand') ?? 3;
+
         try {
-            this._glassHandle = attachMultiRegionGlass(
+            this._glassHandle = attachGlass(
                 this.menu.box,
-                () => this._getVisibleModules(),
                 {
                     owner: 'controlCenter',
                     menu: this.menu,
-                    cornerRadius: 32.0,
-                    blurRadius: 16,
-                    tintColor: '#28282e',
-                    tintStrength: 0.24,
+                    outline: 'panel-menu',
+                    settings: glassSettings,
+                    cornerRadius,
+                    blurRadius,
+                    tintColor,
+                    tintStrength,
+                    brightness,
+                    contrast,
+                    saturation,
+                    expand,
                 }
             );
         } catch (e) {
-            logError(e, 'lintel: attachMultiRegionGlass');
+            logError(e, 'lintel: attachGlass');
+        }
+
+        if (glassSettings) {
+            const updateGlass = () => {
+                this._glassHandle?.update({
+                    blurRadius: glassSettings.get_int('panel-menu-blur-radius'),
+                    tintColor: glassSettings.get_string('panel-menu-tint-color'),
+                    tintStrength: glassSettings.get_double('panel-menu-tint-strength'),
+                    brightness: glassSettings.get_double('panel-menu-brightness'),
+                    contrast: glassSettings.get_double('panel-menu-contrast'),
+                    saturation: glassSettings.get_double('panel-menu-saturation'),
+                    cornerRadius: glassSettings.get_double('panel-menu-corner-radius'),
+                    expand: glassSettings.get_int('panel-menu-glass-expand'),
+                });
+            };
+            for (const k of [
+                'panel-menu-blur-radius', 'panel-menu-tint-color',
+                'panel-menu-tint-strength', 'panel-menu-brightness',
+                'panel-menu-contrast', 'panel-menu-saturation',
+                'panel-menu-corner-radius', 'panel-menu-glass-expand',
+            ]) {
+                this._settingsIds.push(glassSettings.connect(`changed::${k}`, updateGlass));
+            }
         }
 
         // Liquid Glass spring open/close animation
@@ -1028,7 +1066,7 @@ class ControlCenter extends PanelMenu.Button {
             this.menu.actor.add_style_class_name(
                 dark ? 'lintel-cc-dark' : 'lintel-cc-light');
         }
-        this.menu.box.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
+        this.menu.box.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 6px !important;');
         if (this.menu.actor)
             this.menu.actor.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important;');
         if (this.menu._boxPointer?.bin)

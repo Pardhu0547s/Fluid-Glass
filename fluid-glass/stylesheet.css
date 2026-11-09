@@ -509,9 +509,9 @@
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
-    border-radius: 0 !important;
+    border-radius: 26px !important;
     box-shadow: none !important;
-    padding: 0 !important;
+    padding: 6px !important;
 }
 
 /* Widths measured off docs/audits/tahoe-reference/26-Tahoe-Finder-Control-Center.png
