@@ -150,7 +150,7 @@
 }
 
 .lintel-system-menu-content {
-    width: 304px;
+    width: 200px;
     padding: 7px 5px 1px 5px;
     border-radius: 16px;
     font-family: "SF Pro Text";
@@ -316,6 +316,11 @@
     border-radius: 14px;
     font-family: "SF Pro Text";
     font-size: 9pt;
+}
+
+.lintel-system-menu-content.lintel-status-menu-content.lintel-battery-menu-content,
+.lintel-system-menu-content.lintel-battery-menu-content {
+    width: 176px;
 }
 
 .lintel-status-menu-content .popup-menu-item,
