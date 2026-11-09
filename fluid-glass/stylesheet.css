@@ -150,11 +150,11 @@
 }
 
 .lintel-system-menu-content {
-    width: 304px;
-    padding: 7px 5px 1px 5px;
+    width: 230px;
+    padding: 5px 4px 4px 4px;
     border-radius: 16px;
     font-family: "SF Pro Text";
-    font-size: 10.5pt;
+    font-size: 9.5pt;
     font-weight: 400;
     transition-duration: 120ms;
 }
@@ -178,15 +178,16 @@
 }
 
 .lintel-system-menu-content .popup-menu-item {
-    min-height: 19px;
-    padding: 3px 7px 3px 15px;
-    spacing: 9px;
+    min-height: 22px;
+    padding: 2px 8px;
+    spacing: 8px;
     color: inherit;
     background-color: transparent;
     border: 0 solid transparent;
-    border-radius: 6px;
+    border-radius: 5px;
     box-shadow: none;
     transition-duration: 80ms;
+    font-size: 9pt;
 }
 
 .lintel-system-menu-content .popup-menu-item:hover,
@@ -263,15 +264,15 @@
 
 .lintel-system-menu-content .popup-separator-menu-item {
     min-height: 0;
-    height: 12px;
-    padding: 0 11px;
+    height: 7px;
+    padding: 0 8px;
     background-color: transparent !important;
     border-radius: 0;
 }
 
 .lintel-system-menu-content
     .lintel-system-menu-about-separator {
-    height: 10px;
+    height: 7px;
 }
 
 .lintel-system-menu-content .popup-separator-menu-item
@@ -309,16 +310,30 @@
     -arrow-rise: 0;
 }
 
-.lintel-system-menu-content.lintel-status-menu-content {
-    width: 230px;
+.lintel-system-menu-content.lintel-status-menu-content,
+.lintel-extra-status-menu-content {
+    width: 232px;
     padding: 5px 4px 4px 4px;
+    border-radius: 14px;
+    font-family: "SF Pro Text";
+    font-size: 9pt;
 }
 
-.lintel-status-menu-content .popup-menu-item {
+.lintel-status-menu-content .popup-menu-item,
+.lintel-extra-status-menu-content .popup-menu-item {
     min-height: 22px;
     padding: 2px 8px;
     font-size: 9pt;
     border-radius: 5px;
+}
+
+.lintel-status-menu-content .popup-separator-menu-item,
+.lintel-extra-status-menu-content .popup-separator-menu-item {
+    min-height: 0;
+    height: 7px;
+    padding: 0 8px;
+    background-color: transparent !important;
+    border-radius: 0;
 }
 
 .lintel-status-toggle {

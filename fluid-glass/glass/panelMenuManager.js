@@ -129,6 +129,8 @@ export class PanelMenuManager {
         for (const [menu, entry] of this._menus) {
             if (wanted.has(menu))
                 continue;
+            menu.actor?.remove_style_class_name?.('lintel-status-menu');
+            menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
             this._menus.delete(menu);
             entry.manager.cleanup();
         }
@@ -140,6 +142,8 @@ export class PanelMenuManager {
         for (const [menu, { name }] of wanted) {
             if (this._menus.has(menu))
                 continue;
+            menu.actor?.add_style_class_name?.('lintel-status-menu');
+            menu.box?.add_style_class_name?.('lintel-extra-status-menu-content');
             const manager = new UIManager(this._path, this._settings, this._logger, { menu }, false, 'enable-extra-menu-glass', PANEL_MENU_PREFIX, `menu:${name}`, false);
             try {
                 manager.setup();
@@ -147,6 +151,8 @@ export class PanelMenuManager {
                 this._logger.log(`[Liquid Glass] Extra panel menu glass attached to "${name}"`);
             }
             catch (e) {
+                menu.actor?.remove_style_class_name?.('lintel-status-menu');
+                menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
                 manager.cleanup();
                 this._logger.log(`[Liquid Glass] Could not attach panel menu glass to "${name}": ${e}`);
             }
@@ -166,8 +172,11 @@ export class PanelMenuManager {
                 button.disconnect(id);
         }
         this._buttons.clear();
-        for (const { manager } of this._menus.values())
+        for (const [menu, { manager }] of this._menus) {
+            menu.actor?.remove_style_class_name?.('lintel-status-menu');
+            menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
             manager.cleanup();
+        }
         this._menus.clear();
         this._settings.set_strv('detected-extra-menus', []);
     }
