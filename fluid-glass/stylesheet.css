@@ -310,13 +310,15 @@
 }
 
 .lintel-system-menu-content.lintel-status-menu-content {
-    width: 280px;
-    padding: 7px 5px 5px 5px;
+    width: 230px;
+    padding: 5px 4px 4px 4px;
 }
 
 .lintel-status-menu-content .popup-menu-item {
-    min-height: 24px;
-    padding: 3px 10px;
+    min-height: 22px;
+    padding: 2px 8px;
+    font-size: 9pt;
+    border-radius: 5px;
 }
 
 .lintel-status-toggle {
@@ -325,33 +327,41 @@
 
 .lintel-status-section-title,
 .lintel-system-menu-content.lintel-dark .lintel-status-section-title {
-    color: rgba(255, 255, 255, 0.70);
-    font-size: 8.25pt;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 7.75pt;
     font-weight: 600;
-    padding-top: 7px;
+    padding-top: 5px;
     padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .lintel-system-menu-content.lintel-light .lintel-status-section-title {
-    color: rgba(0, 0, 0, 0.60);
-    font-size: 8.25pt;
+    color: rgba(0, 0, 0, 0.55);
+    font-size: 7.75pt;
     font-weight: 600;
-    padding-top: 7px;
+    padding-top: 5px;
     padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
 
 .lintel-status-empty,
 .lintel-system-menu-content.lintel-dark .lintel-status-empty {
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255, 255, 255, 0.60);
+    font-size: 8.5pt;
+    padding: 2px 8px;
 }
 
 .lintel-system-menu-content.lintel-light .lintel-status-empty {
     color: rgba(0, 0, 0, 0.50);
+    font-size: 8.5pt;
+    padding: 2px 8px;
 }
 
 .lintel-wifi-network-item,
 .lintel-bluetooth-device-item {
-    spacing: 8px;
+    spacing: 7px;
 }
 
 .lintel-wifi-secure-icon,
@@ -374,18 +384,18 @@
 }
 
 .lintel-status-menu-content .lintel-battery-summary {
-    spacing: 12px;
-    padding: 9px 11px 7px 11px;
+    spacing: 8px;
+    padding: 4px 8px 3px 8px;
 }
 
 .lintel-battery-summary-icon,
 .lintel-system-menu-content.lintel-dark .lintel-battery-summary-icon {
-    icon-size: 30px;
+    icon-size: 18px;
     color: #ffffff;
 }
 
 .lintel-system-menu-content.lintel-light .lintel-battery-summary-icon {
-    icon-size: 30px;
+    icon-size: 18px;
     color: #000000;
 }
 
@@ -396,43 +406,58 @@
 .lintel-battery-summary-percentage,
 .lintel-system-menu-content.lintel-dark .lintel-battery-summary-percentage {
     color: #ffffff;
-    font-size: 18pt;
+    font-size: 12pt;
     font-weight: 650;
     font-feature-settings: "tnum";
+    line-height: 1.1;
 }
 
 .lintel-system-menu-content.lintel-light .lintel-battery-summary-percentage {
     color: #000000;
-    font-size: 18pt;
+    font-size: 12pt;
     font-weight: 650;
     font-feature-settings: "tnum";
+    line-height: 1.1;
 }
 
 .lintel-battery-summary-status,
 .lintel-system-menu-content.lintel-dark .lintel-battery-summary-status {
-    color: rgba(255, 255, 255, 0.88);
-    font-size: 8.75pt;
-    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 8.25pt;
+    font-weight: 500;
 }
 
 .lintel-system-menu-content.lintel-light .lintel-battery-summary-status {
-    color: rgba(0, 0, 0, 0.75);
-    font-size: 8.75pt;
-    font-weight: 600;
+    color: rgba(0, 0, 0, 0.70);
+    font-size: 8.25pt;
+    font-weight: 500;
 }
 
 .lintel-battery-summary-time,
 .lintel-status-menu-content .lintel-battery-source,
 .lintel-system-menu-content.lintel-dark .lintel-battery-summary-time,
 .lintel-system-menu-content.lintel-dark .lintel-status-menu-content .lintel-battery-source {
-    color: rgba(255, 255, 255, 0.70);
-    font-size: 8.25pt;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 8pt;
 }
 
 .lintel-system-menu-content.lintel-light .lintel-battery-summary-time,
 .lintel-system-menu-content.lintel-light .lintel-status-menu-content .lintel-battery-source {
-    color: rgba(0, 0, 0, 0.60);
-    font-size: 8.25pt;
+    color: rgba(0, 0, 0, 0.55);
+    font-size: 8pt;
+}
+
+.lintel-status-menu-content .lintel-battery-source {
+    padding-top: 1px;
+    padding-bottom: 2px;
+}
+
+.lintel-status-menu-content .popup-separator-menu-item {
+    min-height: 0;
+    height: 7px;
+    padding: 0 8px;
+    background-color: transparent !important;
+    border-radius: 0;
 }
 
 /* ── macOS Tahoe Control Center ───────────────────────────────────────── */
