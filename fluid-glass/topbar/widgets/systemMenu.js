@@ -22,6 +22,7 @@ import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Shell from 'gi://Shell';
 import St from 'gi://St';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -350,31 +351,13 @@ export const LintelSystemMenu = GObject.registerClass({
         addUserOnly(this._addProgramItem(_('System Settings…'),
             'preferences-system-symbolic',
             'gnome-control-center'));
-        addUserOnly(this._addUriItem(_('App Center…'),
-            this._menuIcon('app-store', 'software-store-symbolic'),
-            'appstream:///'));
+        addUserOnly(this._addItem(_('App Center…'),
+            this._menuIcon('app-store', 'org.gnome.Software-symbolic'),
+            () => this._launchAppCenter()));
 
         const sep1 = new PopupMenu.PopupSeparatorMenuItem();
         this.menu.addMenuItem(sep1);
         addUserOnly(sep1);
-
-        // A submenu affordance is part of the original menu.  GNOME does not
-        // expose macOS' application/document/server history model, so its first
-        // entry opens the desktop's native Recent location.
-        const recent = new PopupMenu.PopupSubMenuMenuItem(_('Recent Items'), true);
-        recent.add_style_class_name('lintel-system-menu-item');
-        recent.icon.icon_name = 'document-open-recent-symbolic';
-        recent.label.x_expand = true;
-        recent.menu.addMenuItem(this._createItem(
-            _('Open Recent Items…'), 'folder-recent-symbolic', () => {
-                this._launchUri('recent:///');
-            }));
-        this.menu.addMenuItem(recent);
-        addUserOnly(recent);
-
-        const sep2 = new PopupMenu.PopupSeparatorMenuItem();
-        this.menu.addMenuItem(sep2);
-        addUserOnly(sep2);
 
         // Force Quit the focused window (sensitivity refreshed on open).
         this._forceQuitItem = addUserOnly(this._addItem(_('Force Quit…'),
@@ -432,15 +415,48 @@ export const LintelSystemMenu = GObject.registerClass({
         });
     }
 
-    _addUriItem(label, iconName, uri) {
-        return this._addItem(label, iconName, () => this._launchUri(uri));
-    }
+    _launchAppCenter() {
+        const appSys = Shell.AppSystem.get_default();
+        const candidateIds = [
+            'org.gnome.Software.desktop',
+            'snap.snap-store.ubuntu-app-center.desktop',
+            'snap-store_snap-store.desktop',
+            'snap-store.desktop',
+            'ubuntu-app-center.desktop',
+            'io.elementary.appcenter.desktop',
+            'com.system76.CosmicStore.desktop',
+            'io.pop_os.pop-shop.desktop',
+            'org.kde.discover.desktop',
+            'pamac-manager.desktop',
+        ];
 
-    _launchUri(uri) {
+        for (const id of candidateIds) {
+            const app = appSys.lookup_app(id);
+            if (app) {
+                app.activate();
+                return;
+            }
+        }
+
         try {
-            Gio.AppInfo.launch_default_for_uri(uri, null);
-        } catch (e) {
-            logError(e, `LintelSystemMenu: failed to open ${uri}`);
+            const appInfo = Gio.AppInfo.get_default_for_type('x-scheme-handler/appstream', false);
+            if (appInfo) {
+                const app = appSys.lookup_app(appInfo.get_id());
+                if (app) {
+                    app.activate();
+                    return;
+                }
+                const ctx = global.create_app_launch_context(0, -1);
+                appInfo.launch([], ctx);
+                return;
+            }
+        } catch (_e) {}
+
+        for (const cmd of ['gnome-software', 'snap-store', 'ubuntu-app-center', 'io.elementary.appcenter', 'plasma-discover']) {
+            if (GLib.find_program_in_path(cmd)) {
+                Util.spawn([cmd]);
+                return;
+            }
         }
     }
 
