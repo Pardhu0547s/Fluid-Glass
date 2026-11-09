@@ -385,9 +385,13 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
             const [ix, iy] = item.get_transformed_position();
             let [iw, ih] = item.get_transformed_size();
             const parent = item.get_parent?.();
-            const isSlider = parent?.has_style_class_name?.('lintel-cc-sliders');
+            const isSlider = item.has_style_class_name?.('lintel-cc-slider') ||
+                parent?.has_style_class_name?.('lintel-cc-sliders');
             if (isSlider) {
-                const [pw] = parent.get_transformed_size();
+                const sliderContainer = item.has_style_class_name?.('lintel-cc-slider')
+                    ? parent?.get_parent?.() ?? parent
+                    : parent;
+                const [pw] = sliderContainer?.get_transformed_size?.() ?? [0, 0];
                 if (pw > iw)
                     iw = pw;
                 const prev = lastGoodSizes.get(item);
@@ -405,6 +409,10 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
             const rw = iw + (expand * 2) + (pad * 2);
             const rh = ih + (expand * 2) + (pad * 2);
 
+            const isActiveCompact = Boolean(
+                item.has_style_class_name?.('lintel-cc-tile-compact') && item.checked
+            );
+
             regions.push({
                 x: rx,
                 y: ry,
@@ -413,7 +421,7 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
                 tintR: 1.0,
                 tintG: 1.0,
                 tintB: 1.0,
-                baseStrength: 0.0,
+                baseStrength: isActiveCompact ? 0.92 : 0.0,
             });
 
             minX = Math.min(minX, rx);

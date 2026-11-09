@@ -115,8 +115,8 @@ const CCGridLayout = GObject.registerClass({
     /** Column offsets, cell width and row heights for a given width. */
     _geometry(container, width) {
         const gutter = this._length(container, '-lintel-grid-gutter', 12);
-        const pairGap = this._length(container, '-lintel-grid-pair-gap', 16);
-        const rowGap = this._length(container, '-lintel-grid-row-gap', 8);
+        const pairGap = this._length(container, '-lintel-grid-pair-gap', 12);
+        const rowGap = this._length(container, '-lintel-grid-row-gap', 10);
         const half = Math.max(0, (width - gutter) / 2);
         const cell = Math.max(0, (half - pairGap) / 2);
         const x = [0, cell + pairGap, half + gutter, half + gutter + cell + pairGap];
@@ -128,11 +128,11 @@ const CCGridLayout = GObject.registerClass({
         for (const p of shown) {
             if (p.rows !== 1)
                 continue;
-            // A circle is a square cell whatever its content asks for: its
-            // natural height is only the glyph's.
+            // Every 1-row module (1×1 circle or 2×1 stadium pill) matches the
+            // cell height (64px) so rows stay uniform across the grid.
             const height = p.columns === 1
                 ? cell
-                : p.module.actor.get_preferred_height(spanWidth(p))[1];
+                : Math.max(cell, p.module.actor.get_preferred_height(spanWidth(p))[1]);
             heights[p.row] = Math.max(heights[p.row], height);
         }
         for (const p of shown) {

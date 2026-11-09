@@ -484,32 +484,32 @@
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    spacing: 8px;
+    spacing: 10px;
     padding: 4px;
     width: 292px;
 }
 
 /* Module grid (src/widgets/ccGrid.js): four cells per row in two halves.
- * 62 + 16 pair gap + 62 = 140 per half, 140 + 12 gutter + 140 = 292. The cell
+ * 64 + 12 pair gap + 64 = 140 per half, 140 + 12 gutter + 140 = 292. The cell
  * width is derived from the content width, so only the gaps are declared. */
 .lintel-cc-grid {
     -lintel-grid-gutter: 12px;
-    -lintel-grid-pair-gap: 16px;
-    -lintel-grid-row-gap: 8px;
+    -lintel-grid-pair-gap: 12px;
+    -lintel-grid-row-gap: 10px;
 }
 
 .lintel-cc-sliders {
-    spacing: 8px;
+    spacing: 10px;
 }
 
-/* Connectivity and Focus capsules (pure Liquid Glass — no CSS theme overlay). */
+/* Connectivity and Focus 2×1 stadium capsules (macOS Tahoe Liquid Glass). */
 .lintel-cc-tile {
-    min-height: 52px;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    border-radius: 22px;
-    padding: 6px 10px;
+    min-height: 64px;
+    height: 64px;
+    background-color: rgba(34, 34, 40, 0.24) !important;
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    border-radius: 999px;
+    padding: 0 12px;
     box-shadow: none !important;
     transition-duration: 160ms;
 }
@@ -519,25 +519,45 @@
 .lintel-cc-tile:active,
 .lintel-cc-tile:checked,
 .lintel-cc-tile:checked:hover {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
+    background-color: rgba(44, 44, 52, 0.30) !important;
+    border: 1px solid rgba(255, 255, 255, 0.30) !important;
     box-shadow: none !important;
 }
 
 .lintel-cc-tile-box {
-    spacing: 8px;
+    spacing: 10px;
+}
+
+.lintel-cc-tile-labels {
+    spacing: 1px;
+}
+
+/* Circular icon badge inside 2×1 capsules: translucent white when off,
+ * solid white with macOS blue icon when active/checked. */
+.lintel-cc-tile-icon-badge {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.16);
+    transition-duration: 160ms;
+}
+
+.lintel-cc-tile-icon-badge:checked,
+.lintel-cc-tile:checked .lintel-cc-tile-icon-badge {
+    background-color: #ffffff !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
 }
 
 .lintel-cc-tile-icon {
-    icon-size: 16px;
+    icon-size: 18px;
     color: #ffffff;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    border-radius: 999px;
-    padding: 7px;
+    padding: 0;
     transition-duration: 160ms;
 }
 
@@ -554,87 +574,92 @@
 .lintel-cc-media-title,
 .lintel-cc-slider-title {
     color: #ffffff;
-    font-family: "Adwaita Sans";
-    font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.48);
+    font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
+    font-weight: 700;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.38);
 }
 
 .lintel-cc-tile-title {
-    font-size: 9.5pt;
+    font-size: 9.75pt;
 }
 
 .lintel-cc-tile-status {
-    color: rgba(255, 255, 255, 0.85);
-    font-family: "Adwaita Sans";
+    color: rgba(255, 255, 255, 0.78);
+    font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
+    font-weight: 500;
     font-size: 8.25pt;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.48);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
-/* Artwork and metadata form one compact header; transport controls remain a
- * separate, evenly distributed row like Tahoe's Now Playing module. */
+/* 2×2 Now Playing module: vertical stack — artwork top-left, track title &
+ * artist in the middle, transport controls across the bottom. */
 .lintel-cc-media {
     width: 140px;
     min-width: 140px;
     max-width: 140px;
-    height: 118px;
-    min-height: 118px;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    border-radius: 24px;
-    padding: 10px;
+    height: 138px;
+    min-height: 138px;
+    background-color: rgba(34, 34, 40, 0.24) !important;
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    border-radius: 28px;
+    padding: 12px 13px 10px 13px;
     box-shadow: none !important;
-}
-
-.lintel-cc-media-header {
-    spacing: 9px;
 }
 
 .lintel-cc-media-metadata {
     spacing: 1px;
+    padding-top: 4px;
 }
 
 .lintel-cc-media-artwork-bin {
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    max-width: 36px;
-    max-height: 36px;
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    min-height: 46px;
+    max-width: 46px;
+    max-height: 46px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.14);
 }
 
 .lintel-cc-media-artwork {
-    icon-size: 24px;
-    width: 36px;
-    height: 36px;
-    max-width: 36px;
-    max-height: 36px;
+    icon-size: 22px;
+    width: 46px;
+    height: 46px;
+    max-width: 46px;
+    max-height: 46px;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    border-radius: 12px;
+    border-radius: 10px;
     color: rgba(255, 255, 255, 0.90);
 }
 
 .lintel-cc-media-title {
-    font-size: 9.25pt;
+    font-size: 9.75pt;
 }
 
 .lintel-cc-media-artist {
-    color: rgba(255, 255, 255, 0.88);
+    color: rgba(255, 255, 255, 0.68);
     font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
-    font-size: 8pt;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
+    font-weight: 500;
+    font-size: 8.25pt;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .lintel-cc-media-controls {
-    spacing: 3px;
+    spacing: 4px;
 }
 
 .lintel-cc-media-control {
     icon-size: 16px;
-    color: rgba(255, 255, 255, 0.94);
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.lintel-cc-media-play-icon {
+    icon-size: 20px;
+    color: #ffffff;
 }
 
 .lintel-cc-media-button,
@@ -646,68 +671,91 @@
     border: none !important;
     box-shadow: none !important;
     border-radius: 999px;
-    padding: 5px 7px;
+    padding: 3px 6px;
     transition-duration: 140ms;
 }
 
-/* A control resized to one cell (compact button). */
+/* 1×1 Compact Circle Button (64px × 64px perfect circle).
+ * When active/checked (e.g. Dark Mode in macOS Tahoe), the entire circle fills
+ * with solid white and the icon turns dark charcoal. */
 .lintel-cc-tile.lintel-cc-tile-compact,
-.lintel-cc-tile.lintel-cc-tile-compact:hover,
-.lintel-cc-tile.lintel-cc-tile-compact:checked,
-.lintel-cc-tile.lintel-cc-tile-compact:checked:hover {
-    min-height: 0;
+.lintel-cc-tile.lintel-cc-tile-compact:hover {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
     padding: 0;
-    border-radius: 22px;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
+    border-radius: 999px;
+    background-color: rgba(34, 34, 40, 0.24) !important;
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
     box-shadow: none !important;
     transition-duration: 160ms;
 }
 
-.lintel-cc-tile.lintel-cc-tile-compact:checked .lintel-cc-tile-icon,
-.lintel-cc-tile-compact .lintel-cc-tile-icon:checked {
-    color: #007aff !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+.lintel-cc-tile.lintel-cc-tile-compact:checked,
+.lintel-cc-tile.lintel-cc-tile-compact:checked:hover {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    min-height: 64px;
+    padding: 0;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
 }
 
 .lintel-cc-tile-compact .lintel-cc-tile-box {
     spacing: 0;
 }
 
+.lintel-cc-tile-compact .lintel-cc-tile-icon-badge,
+.lintel-cc-tile-compact .lintel-cc-tile-icon-badge:checked,
+.lintel-cc-tile.lintel-cc-tile-compact:checked .lintel-cc-tile-icon-badge {
+    width: 64px;
+    height: 64px;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
 .lintel-cc-tile-compact .lintel-cc-tile-icon {
     icon-size: 22px;
     padding: 0;
-    color: #ffffff;
+    color: #ffffff !important;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }
 
-/* Labelled Display and Sound modules. */
-.lintel-cc-slider,
-.lintel-cc-slider:hover {
-    min-width: 272px;
-    min-height: 48px;
+.lintel-cc-tile.lintel-cc-tile-compact:checked .lintel-cc-tile-icon,
+.lintel-cc-tile-compact .lintel-cc-tile-icon:checked {
+    color: #1c1c1e !important;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
-    border-radius: 22px;
-    padding: 8px 10px 7px 10px;
-    spacing: 4px;
+    box-shadow: none !important;
+}
+
+/* Labelled Display and Sound stadium pill modules. */
+.lintel-cc-slider,
+.lintel-cc-slider:hover {
+    min-width: 292px;
+    min-height: 64px;
+    background-color: rgba(34, 34, 40, 0.24) !important;
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    border-radius: 32px;
+    padding: 10px 14px 10px 16px;
+    spacing: 6px;
     box-shadow: none !important;
 }
 
 .lintel-cc-slider-title {
-    font-size: 9.25pt;
+    font-size: 9.75pt;
 }
 
 .lintel-cc-slider-row {
-    spacing: 7px;
+    spacing: 9px;
 }
 
 .lintel-cc-slider-icon-button,
@@ -723,25 +771,48 @@
 }
 
 .lintel-cc-slider-icon {
-    icon-size: 13px;
-    color: rgba(255, 255, 255, 0.94);
+    icon-size: 14px;
+    color: rgba(255, 255, 255, 0.78);
 }
 
 .lintel-cc-slider-trailing-icon {
-    icon-size: 16px;
-    color: rgba(255, 255, 255, 0.94);
+    icon-size: 17px;
+    color: #ffffff;
+}
+
+.lintel-cc-slider-accessory-button,
+.lintel-cc-slider-accessory-button:focus {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    min-height: 26px;
+    padding: 0;
+    border-radius: 999px;
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition-duration: 140ms;
+}
+
+.lintel-cc-slider-accessory-button:hover {
+    background-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+.lintel-cc-slider-accessory-icon {
+    icon-size: 13px;
+    color: #ffffff;
 }
 
 .lintel-cc-track {
     color: #ffffff;
-    height: 14px;
-    -barlevel-height: 8px;
-    -barlevel-background-color: rgba(255, 255, 255, 0.25);
+    height: 12px;
+    -barlevel-height: 7px;
+    -barlevel-background-color: rgba(255, 255, 255, 0.22);
     -barlevel-active-background-color: #ffffff;
     -barlevel-overdrive-color: #ff3b30;
     -barlevel-overdrive-separator-width: 0;
     -barlevel-border-radius: 999px;
-    -slider-handle-radius: 8px;
+    -slider-handle-radius: 0px;
 }
 
 .lintel-cc-edit-controls,
@@ -749,14 +820,14 @@
 .lintel-cc-edit-controls:focus,
 .lintel-cc-edit-controls.lintel-cc-edit-done {
     color: rgba(255, 255, 255, 0.95);
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
+    background-color: rgba(34, 34, 40, 0.24) !important;
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
     border-radius: 999px;
-    padding: 5px 14px;
+    padding: 5px 16px;
     font-family: "SF Pro Text", "Adwaita Sans", sans-serif;
-    font-size: 8.75pt;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.40);
+    font-weight: 600;
+    font-size: 9pt;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
     box-shadow: none !important;
     transition-duration: 160ms;
 }
@@ -767,15 +838,9 @@
 .lintel-cc-light .lintel-cc-tile:hover,
 .lintel-cc-light .lintel-cc-media,
 .lintel-cc-light .lintel-cc-slider,
-.lintel-cc-light .lintel-cc-edit-controls,
-.lintel-cc-light .lintel-cc-tile-icon,
-.lintel-cc-light .lintel-cc-tile:checked .lintel-cc-tile-icon,
-.lintel-cc-light .lintel-cc-tile-icon:checked,
-.lintel-cc-light .lintel-cc-media-button,
-.lintel-cc-light .lintel-cc-media-button:hover {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
+.lintel-cc-light .lintel-cc-edit-controls {
+    background-color: rgba(255, 255, 255, 0.42) !important;
+    border: 1px solid rgba(255, 255, 255, 0.55) !important;
     box-shadow: none !important;
 }
 
@@ -805,12 +870,14 @@
     text-shadow: none;
 }
 
-.lintel-cc-light .lintel-cc-media-control {
+.lintel-cc-light .lintel-cc-media-control,
+.lintel-cc-light .lintel-cc-media-play-icon {
     color: rgba(0, 0, 0, 0.85);
 }
 
 .lintel-cc-light .lintel-cc-slider-icon,
-.lintel-cc-light .lintel-cc-slider-trailing-icon {
+.lintel-cc-light .lintel-cc-slider-trailing-icon,
+.lintel-cc-light .lintel-cc-slider-accessory-icon {
     color: rgba(0, 0, 0, 0.85);
 }
 

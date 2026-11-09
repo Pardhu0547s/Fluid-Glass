@@ -343,13 +343,17 @@ export const ControlCenter = GObject.registerClass({
 
         this._brightCard = new CCSlider(
             _('Display'), 'display-brightness-symbolic',
-            'display-brightness-symbolic');
+            'display-brightness-symbolic', false, 'video-display-symbolic');
         this._brightCard.connect('moved', (_c, v) => this._brightness.setLevel(v));
+        this._brightCard.connect('accessory-clicked',
+            () => this._openSettings('display'));
         this._volCard = new CCSlider(
             _('Sound'), 'audio-volume-low-symbolic',
-            'audio-volume-high-symbolic', true);
+            'audio-volume-high-symbolic', true, 'audio-speakers-symbolic');
         this._volCard.connect('moved', (_c, v) => this._volume.setLevel(v));
         this._volCard.connect('icon-clicked', () => this._volume.toggleMute());
+        this._volCard.connect('accessory-clicked',
+            () => this._openSettings('sound'));
         this._micCard = new CCSlider(
             shellText('Microphone'), 'microphone-sensitivity-medium-symbolic',
             'microphone-sensitivity-high-symbolic', true);
@@ -422,10 +426,10 @@ export const ControlCenter = GObject.registerClass({
                 {
                     owner: 'controlCenter',
                     menu: this.menu,
-                    cornerRadius: 22.0,
-                    blurRadius: 10,
-                    tintColor: '#ffffff',
-                    tintStrength: 0.12,
+                    cornerRadius: 32.0,
+                    blurRadius: 16,
+                    tintColor: '#28282e',
+                    tintStrength: 0.24,
                 }
             );
         } catch (e) {
@@ -485,14 +489,22 @@ export const ControlCenter = GObject.registerClass({
         const modules = [];
         if (this._grid) {
             for (const child of this._grid.get_children()) {
-                if (child.visible && child.mapped)
-                    modules.push(child);
+                if (!child.visible || !child.mapped)
+                    continue;
+                const actor = child.has_style_class_name?.('lintel-cc-tile')
+                    ? child
+                    : (child.get_first_child?.() ?? child);
+                if (actor.visible && actor.mapped)
+                    modules.push(actor);
             }
         }
         if (this._sliderBox) {
             for (const child of this._sliderBox.get_children()) {
-                if (child.visible && child.mapped)
-                    modules.push(child);
+                if (!child.visible || !child.mapped)
+                    continue;
+                const actor = child.get_first_child?.() ?? child;
+                if (actor.visible && actor.mapped)
+                    modules.push(actor);
             }
         }
         if (this._toolbar && this._toolbar.visible && this._toolbar.mapped)
@@ -985,7 +997,9 @@ export const ControlCenter = GObject.registerClass({
             const wifi = this._net.wifiAvailable;
             this._setTile('wifi', wifi,
                 this._net.wifiEnabled,
-                this._net.wifiEnabled ? _('On') : _('Off'));
+                this._net.wifiEnabled
+                    ? (this._net.wifiSsid || _('On'))
+                    : _('Off'));
             const wired = this._net.wiredState;
             this._setTile('network', !wifi && this._net.wiredAvailable,
                 wired === 'connected', {
@@ -996,10 +1010,10 @@ export const ControlCenter = GObject.registerClass({
             this._setTile('bluetooth', this._net.bluetoothAvailable,
                 this._net.bluetoothEnabled,
                 this._net.bluetoothEnabled ? _('On') : _('Off'));
-            // Name the app the control will open; GNOME exposes no discovery
-            // state to put there instead.
-            this._setTile('airdrop', true, false,
-                this._airDropApp()?.get_name() ?? '');
+            // Name the app the control will open, or fallback to Tahoe's
+            // "Contacts Only" with active circular badge.
+            this._setTile('airdrop', true, true,
+                this._airDropApp()?.get_name() || _('Contacts Only'));
 
             const dark = this._iface.get_string('color-scheme') === 'prefer-dark';
             this._setTile('dark-mode', true, dark, '');

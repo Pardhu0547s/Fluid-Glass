@@ -30,28 +30,30 @@ export const CCTile = GObject.registerClass({
             toggle_mode: true,
         });
 
-        const clearThemeStyle = 'background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;';
-        const updateStyle = () => {
-            this.set_style(clearThemeStyle);
-        };
-        this.connect('notify::checked', updateStyle);
-        updateStyle();
-
         const box = new St.BoxLayout({
             style_class: 'lintel-cc-tile-box',
             x_expand: true,
+            y_expand: true,
             x_align: Clutter.ActorAlign.FILL,
+            y_align: Clutter.ActorAlign.CENTER,
         });
         this._icon = new St.Icon({
             icon_name: iconName,
             style_class: 'lintel-cc-tile-icon',
+            x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
-            style: clearThemeStyle,
         });
-        // macOS Tahoe: icon on the left, title/status left-aligned right beside
-        // it (not centred in the capsule).
+        this._iconBadge = new St.Bin({
+            style_class: 'lintel-cc-tile-icon-badge',
+            x_align: Clutter.ActorAlign.START,
+            y_align: Clutter.ActorAlign.CENTER,
+            child: this._icon,
+        });
+        // macOS Tahoe: circular icon badge on the left, title/status left-aligned
+        // right beside it.
         this._labels = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
+            style_class: 'lintel-cc-tile-labels',
             x_expand: true,
             x_align: Clutter.ActorAlign.START,
             y_align: Clutter.ActorAlign.CENTER,
@@ -64,10 +66,13 @@ export const CCTile = GObject.registerClass({
         this._status = new St.Label({
             style_class: 'lintel-cc-tile-status',
             x_align: Clutter.ActorAlign.START,
+            visible: false,
         });
+        this._title.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+        this._status.clutter_text.ellipsize = Pango.EllipsizeMode.END;
         this._labels.add_child(this._title);
         this._labels.add_child(this._status);
-        box.add_child(this._icon);
+        box.add_child(this._iconBadge);
         box.add_child(this._labels);
         this.set_child(box);
     }
@@ -78,8 +83,8 @@ export const CCTile = GObject.registerClass({
      */
     setCompact(compact) {
         this._labels.visible = !compact;
-        this._icon.x_expand = compact;
-        this._icon.x_align = compact
+        this._iconBadge.x_expand = compact;
+        this._iconBadge.x_align = compact
             ? Clutter.ActorAlign.CENTER
             : Clutter.ActorAlign.START;
         if (compact)
@@ -95,11 +100,15 @@ export const CCTile = GObject.registerClass({
 
     setActive(active, statusText = '') {
         this.checked = active;
-        if (active)
+        if (active) {
             this._icon.add_style_pseudo_class('checked');
-        else
+            this._iconBadge.add_style_pseudo_class('checked');
+        } else {
             this._icon.remove_style_pseudo_class('checked');
+            this._iconBadge.remove_style_pseudo_class('checked');
+        }
         this._status.text = statusText;
+        this._status.visible = Boolean(statusText);
     }
 
     setIcon(name) {
@@ -116,7 +125,7 @@ export const CCTile = GObject.registerClass({
     }
 });
 
-/** The large Now Playing module from the right side of Control Center. */
+/** The large 2×2 Now Playing module from the right side of Control Center. */
 export const CCMediaCard = GObject.registerClass({
     GTypeName: 'FluidGlass_CCMediaCard',
     Signals: {
@@ -127,47 +136,43 @@ export const CCMediaCard = GObject.registerClass({
 },
 class CCMediaCard extends St.BoxLayout {
     _init(styleClass = 'lintel-cc-media') {
-        const clearThemeStyle = 'background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;';
         super._init({
             orientation: Clutter.Orientation.VERTICAL,
             style_class: styleClass,
             accessible_name: _('Now Playing'),
             x_expand: true,
-            style: clearThemeStyle,
+            y_expand: true,
         });
 
         this._currentArtUrl = null;
 
-        const header = new St.BoxLayout({
-            style_class: 'lintel-cc-media-header',
-            x_expand: true,
-            y_align: Clutter.ActorAlign.CENTER,
-        });
+        // Top-left rounded square artwork (macOS Tahoe vertical media layout)
         this._artwork = new St.Icon({
             icon_name: 'audio-x-generic-symbolic',
             style_class: 'lintel-cc-media-artwork',
-            icon_size: 24,
-            width: 36,
-            height: 36,
+            icon_size: 22,
+            width: 46,
+            height: 46,
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
-            style: clearThemeStyle,
         });
         const artBin = new St.Bin({
             style_class: 'lintel-cc-media-artwork-bin',
-            width: 36,
-            height: 36,
-            x_align: Clutter.ActorAlign.CENTER,
-            y_align: Clutter.ActorAlign.CENTER,
+            width: 46,
+            height: 46,
+            x_align: Clutter.ActorAlign.START,
+            y_align: Clutter.ActorAlign.START,
             child: this._artwork,
         });
-        header.add_child(artBin);
+        this.add_child(artBin);
 
+        // Middle: track title + artist stacked vertically below the artwork
         const metadata = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
             style_class: 'lintel-cc-media-metadata',
             x_expand: true,
-            x_align: Clutter.ActorAlign.START,
+            y_expand: true,
+            x_align: Clutter.ActorAlign.FILL,
             y_align: Clutter.ActorAlign.CENTER,
         });
         this._title = new St.Label({
@@ -177,23 +182,19 @@ class CCMediaCard extends St.BoxLayout {
             x_align: Clutter.ActorAlign.START,
         });
         this._artist = new St.Label({
+            text: '',
             style_class: 'lintel-cc-media-artist',
             x_expand: true,
             x_align: Clutter.ActorAlign.START,
+            visible: false,
         });
         this._title.clutter_text.ellipsize = Pango.EllipsizeMode.END;
         this._artist.clutter_text.ellipsize = Pango.EllipsizeMode.END;
         metadata.add_child(this._title);
         metadata.add_child(this._artist);
-        header.add_child(metadata);
-        this.add_child(header);
+        this.add_child(metadata);
 
-        // Flexible spacer keeps header at top and controls pinned neatly to bottom
-        const spacer = new St.Widget({
-            y_expand: true,
-        });
-        this.add_child(spacer);
-
+        // Bottom: transport controls evenly distributed across the width
         const controls = new St.BoxLayout({
             style_class: 'lintel-cc-media-controls',
             x_expand: true,
@@ -206,21 +207,23 @@ class CCMediaCard extends St.BoxLayout {
             ['media-skip-forward-symbolic', _('Next'), 'next'],
         ];
         for (const [name, label, signal] of actions) {
+            const isPlay = signal === 'play-pause';
             const icon = new St.Icon({
                 icon_name: name,
-                style_class: 'lintel-cc-media-control',
+                style_class: isPlay
+                    ? 'lintel-cc-media-control lintel-cc-media-play-icon'
+                    : 'lintel-cc-media-control',
             });
-            if (signal === 'play-pause')
+            if (isPlay)
                 this._playIcon = icon;
             const button = new St.Button({
-                style_class: signal === 'play-pause'
+                style_class: isPlay
                     ? 'lintel-cc-media-button lintel-cc-media-play'
                     : 'lintel-cc-media-button',
                 accessible_name: label,
                 can_focus: true,
                 x_expand: true,
                 child: icon,
-                style: clearThemeStyle,
             });
             button.connect('clicked', () => this.emit(signal));
             controls.add_child(button);
@@ -253,6 +256,7 @@ class CCMediaCard extends St.BoxLayout {
                     this._artwork.gicon = new Gio.FileIcon({
                         file: Gio.File.new_for_uri(nextArtUrl),
                     });
+                    this._artwork.icon_size = 46;
                     return;
                 } catch (_e) {
                     // Fall through to the neutral media glyph.
@@ -260,6 +264,7 @@ class CCMediaCard extends St.BoxLayout {
             }
             if (this._artwork.gicon)
                 this._artwork.gicon = null;
+            this._artwork.icon_size = 22;
             if (this._artwork.icon_name !== 'audio-x-generic-symbolic')
                 this._artwork.icon_name = 'audio-x-generic-symbolic';
         }
@@ -268,24 +273,24 @@ class CCMediaCard extends St.BoxLayout {
 
 /**
  * A labelled Tahoe slider card. The leading glyph can be a real button (volume
- * uses it for mute), while the optional trailing glyph is the maximum-value
- * indicator. Output selection is intentionally not faked without a backend.
+ * uses it for mute), the trailing glyph is the maximum-value indicator, and the
+ * optional rightmost circular accessory button opens the corresponding settings.
  */
 export const CCSlider = GObject.registerClass({
     GTypeName: 'FluidGlass_CCSlider',
     Signals: {
         'moved': {param_types: [GObject.TYPE_DOUBLE]},
         'icon-clicked': {},
+        'accessory-clicked': {},
     },
 }, class CCSlider extends St.BoxLayout {
-    _init(title, iconName, trailingIconName = '', iconClickable = false) {
+    _init(title, iconName, trailingIconName = '', iconClickable = false, accessoryIconName = '') {
         super._init({
             orientation: Clutter.Orientation.VERTICAL,
             style_class: 'lintel-cc-slider',
             accessible_name: title,
             x_expand: true,
             x_align: Clutter.ActorAlign.FILL,
-            style: 'background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;',
         });
 
         this._block = false;
@@ -293,6 +298,7 @@ export const CCSlider = GObject.registerClass({
         this.add_child(new St.Label({
             text: title,
             style_class: 'lintel-cc-slider-title',
+            x_align: Clutter.ActorAlign.START,
         }));
 
         const row = new St.BoxLayout({
@@ -304,12 +310,14 @@ export const CCSlider = GObject.registerClass({
         this._icon = new St.Icon({
             icon_name: iconName,
             style_class: 'lintel-cc-slider-icon',
+            y_align: Clutter.ActorAlign.CENTER,
         });
         this._iconButton = new St.Button({
             style_class: 'lintel-cc-slider-icon-button',
             accessible_name: iconClickable ? _('Toggle %s').format(title) : title,
             can_focus: iconClickable,
             reactive: iconClickable,
+            y_align: Clutter.ActorAlign.CENTER,
             child: this._icon,
         });
         this._iconButton.connect('clicked', () => this.emit('icon-clicked'));
@@ -320,6 +328,7 @@ export const CCSlider = GObject.registerClass({
         this._slider.accessible_name = _('%s level').format(title);
         this._slider.x_expand = true;
         this._slider.x_align = Clutter.ActorAlign.FILL;
+        this._slider.y_align = Clutter.ActorAlign.CENTER;
         this._slider.connect('notify::value', () => {
             if (!this._block)
                 this.emit('moved', this._slider.value);
@@ -330,7 +339,26 @@ export const CCSlider = GObject.registerClass({
             row.add_child(new St.Icon({
                 icon_name: trailingIconName,
                 style_class: 'lintel-cc-slider-trailing-icon',
+                y_align: Clutter.ActorAlign.CENTER,
             }));
+        }
+
+        if (accessoryIconName) {
+            const accIcon = new St.Icon({
+                icon_name: accessoryIconName,
+                style_class: 'lintel-cc-slider-accessory-icon',
+                x_align: Clutter.ActorAlign.CENTER,
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+            this._accessoryButton = new St.Button({
+                style_class: 'lintel-cc-slider-accessory-button',
+                accessible_name: _('%s Settings').format(title),
+                can_focus: true,
+                y_align: Clutter.ActorAlign.CENTER,
+                child: accIcon,
+            });
+            this._accessoryButton.connect('clicked', () => this.emit('accessory-clicked'));
+            row.add_child(this._accessoryButton);
         }
         this.add_child(row);
     }

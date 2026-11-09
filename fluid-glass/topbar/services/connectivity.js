@@ -106,6 +106,12 @@ export const ConnectivityService = GObject.registerClass({
             this._deviceIds.push([device, device.connect('state-changed',
                 () => this.emit('changed'))]);
         }
+        for (const device of this._devices(NM.DeviceType.WIFI)) {
+            this._deviceIds.push([device, device.connect('state-changed',
+                () => this.emit('changed'))]);
+            this._deviceIds.push([device, device.connect('notify::active-access-point',
+                () => this.emit('changed'))]);
+        }
         this.emit('changed');
     }
 
@@ -118,6 +124,21 @@ export const ConnectivityService = GObject.registerClass({
 
     get wifiEnabled() {
         return this._client?.wireless_enabled ?? false;
+    }
+
+    get wifiSsid() {
+        for (const device of this._managedDevices(NM.DeviceType.WIFI)) {
+            const ap = device.active_access_point;
+            const ssid = ap?.get_ssid?.();
+            if (!ssid)
+                continue;
+            try {
+                const text = NM.utils_ssid_to_utf8(ssid.get_data());
+                if (text)
+                    return text;
+            } catch (_e) {}
+        }
+        return '';
     }
 
     setWifi(on) {

@@ -129,12 +129,12 @@
       <summary>custom = separate Wi-Fi, battery and Control Center menus; native = open Quick Settings</summary>
     </key>
     <key name="control-center-controls" type="as">
-      <default>['wifi', 'media', 'bluetooth', 'airdrop', 'focus', 'stage-manager', 'screen-mirroring', 'dark-mode', 'night-light', 'screenshot', 'airplane', 'display', 'sound']</default>
+      <default>['wifi', 'network', 'media', 'bluetooth', 'airdrop', 'stage-manager', 'screen-mirroring', 'dark-mode', 'screenshot', 'focus', 'display', 'sound']</default>
       <summary>Ordered identifiers of the controls shown in the custom Control Center</summary>
       <description>Grid controls are laid out in this order; display, sound and microphone are the sliders below the grid, in their relative order.</description>
     </key>
     <key name="control-center-control-sizes" type="a{ss}">
-      <default>{'wifi': 'wide', 'media': 'large', 'bluetooth': 'small', 'airdrop': 'small', 'focus': 'wide', 'stage-manager': 'small', 'screen-mirroring': 'small', 'dark-mode': 'small', 'night-light': 'small', 'screenshot': 'small', 'airplane': 'small'}</default>
+      <default>{'wifi': 'wide', 'network': 'wide', 'media': 'large', 'bluetooth': 'wide', 'airdrop': 'wide', 'stage-manager': 'small', 'screen-mirroring': 'small', 'dark-mode': 'small', 'screenshot': 'small', 'focus': 'wide', 'airplane': 'small', 'power-mode': 'wide', 'night-light': 'small'}</default>
       <summary>Control Center control sizes: small (a circle), wide, or large</summary>
     </key>
 

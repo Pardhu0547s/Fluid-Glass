@@ -358,9 +358,9 @@ export class GlassGeometry {
         const shadowMax = Math.max(this._uniforms.get('shadow_max_radius') ?? 0, 5);
         const shadowRadius = Math.max(this._uniforms.get('shadow_radius') ?? 0, 0);
         const shadowIntensity = this._uniforms.get('shadow_intensity') ?? 0;
-        const reach = (this.multiRegion || !(shadowIntensity > 0))
+        const reach = !(shadowIntensity > 0)
             ? 0
-            : Math.min(shadowRadius, shadowMax);
+            : (this.multiRegion ? Math.min(shadowRadius, 8) : Math.min(shadowRadius, shadowMax));
         // The feather widens the body; the rim and AO lie inside it.
         const feather = Math.max(this._uniforms.get('edge_smoothing') ?? 0, 0.75);
         const m = Math.ceil(reach + feather + 2);

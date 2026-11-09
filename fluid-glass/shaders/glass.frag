@@ -204,7 +204,8 @@ void findActiveRegion(vec2 pixel_coord, float pad, out vec2 outLocalPos, out vec
 
         // Picking the region needs no continuous corners; main() measures the
         // chosen one with them.
-        float d = sdCircleRoundRect(rLocal, rBox, corner_radius);
+        float r = min(corner_radius, min(rBox.x, rBox.y));
+        float d = sdCircleRoundRect(rLocal, rBox, r);
         if (d < bestD) {
             bestD = d;
             outLocalPos = rLocal;
@@ -641,9 +642,9 @@ void main() {
     // Two early exits for the regions where everything below collapses to a
     // constant. Together they cover most of every surface.
 
-    // Beyond the shadow's reach nothing is drawn. In multi-region mode, a compact
-    // 12px shadow lifts each floating capsule cleanly off the desktop.
-    float shadowReach = (multi_region_mode > 0.5) ? 12.0 : max(shadow_max_radius, 5.0);
+    // Beyond the shadow's reach nothing is drawn. In multi-region mode, a tight
+    // 8px shadow reach lifts each floating capsule without bleeding across gaps.
+    float shadowReach = (multi_region_mode > 0.5) ? 8.0 : max(shadow_max_radius, 5.0);
     if (early_exit_enabled > 0.5 && debug_view < 0.5 && d >= max(shadowReach, edgeFeather)) {
         cogl_color_out = vec4(0.0);
         return;
@@ -720,8 +721,9 @@ void main() {
     float dirRadius    = 0.85 + lightAlignment * 0.15;
     float dirIntensity = 0.85 + lightAlignment * 0.15;
 
-    // Capped to the room the actor has, so the fade is never cut off.
-    float maxRadius = max(shadow_max_radius, 5.0);
+    // Capped to the room the actor has (or shadowReach in multi-region mode),
+    // so the fade always reaches 0 smoothly before the early exit.
+    float maxRadius = shadowReach;
     float effectiveRadius    = min(shadow_radius * dirRadius, maxRadius);
 
     // A radius of 0 turns the shadow off; the radius floor below would
@@ -755,7 +757,7 @@ void main() {
         shadowAlpha = max(shadowAlpha + ditherLSB(pixel_coord + vec2(37.0, 17.0)), 0.0);
 
     if (multi_region_mode > 0.5) {
-        shadowAlpha = min(shadowAlpha * 0.55, 0.30);
+        shadowAlpha = min(shadowAlpha * 0.32, 0.18);
     }
 
     if (debug_view > 0.5) {
