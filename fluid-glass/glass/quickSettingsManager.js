@@ -1466,22 +1466,21 @@ export class QuickSettingsManager {
         this._buttonSignalIds.clear();
     }
 
-    // The spring open/close animation.
+    // The spring open/close animation (matching Control Center).
     _startAnimation(targetValue) {
         if (this._tickId !== 0) {
             removeFrameTicker(this._tickId);
             this._tickId = 0;
         }
-        if (!this._enableAnimation) {
-            this._endMorph();
+        this._endMorph();
+        if (!this._enableAnimation || !St.Settings.get().enable_animations) {
             showMenuAtRest(this.glass, this.animActor);
             return;
         }
-        if (this._growFromButton && St.Settings.get().enable_animations && this._startMorph(targetValue === 1))
-            return;
-        this._endMorph();
-        if (this.animActor)
+        if (this.animActor) {
             this.animActor.remove_all_transitions();
+            this.animActor.set_pivot_point(0.5, 0);
+        }
         if (this.glass)
             this.glass.remove_all_transitions();
         this._springScale.target = targetValue;
