@@ -127,6 +127,18 @@ class CCTile extends St.Button {
     }
 });
 
+function _sfIcon(filename, fallbackName = '') {
+    try {
+        const uri = new URL(`../icons/${filename}`, import.meta.url).href;
+        const file = Gio.File.new_for_uri(uri);
+        if (file.query_exists(null))
+            return new Gio.FileIcon({file});
+    } catch (_e) {
+        // Fallback to icon_name
+    }
+    return fallbackName;
+}
+
 /** The large 2×2 Now Playing module from the right side of Control Center. */
 export const CCMediaCard = GObject.registerClass({
     Signals: {
@@ -146,6 +158,7 @@ class CCMediaCard extends St.BoxLayout {
         });
 
         this._currentArtUrl = null;
+        this._playingState = null;
 
         // Top-left rounded square artwork (macOS Tahoe vertical media layout)
         this._artwork = new St.Icon({
@@ -202,15 +215,20 @@ class CCMediaCard extends St.BoxLayout {
             x_align: Clutter.ActorAlign.FILL,
             y_align: Clutter.ActorAlign.END,
         });
+        this._playGicon = _sfIcon('tahoe-media-play-symbolic.svg', 'media-playback-start-symbolic');
+        this._pauseGicon = _sfIcon('tahoe-media-pause-symbolic.svg', 'media-playback-pause-symbolic');
         const actions = [
-            ['media-skip-backward-symbolic', _('Previous'), 'previous'],
-            ['media-playback-start-symbolic', _('Play'), 'play-pause'],
-            ['media-skip-forward-symbolic', _('Next'), 'next'],
+            [_sfIcon('tahoe-media-backward-symbolic.svg', 'media-skip-backward-symbolic'), _('Previous'), 'previous'],
+            [this._playGicon, _('Play'), 'play-pause'],
+            [_sfIcon('tahoe-media-forward-symbolic.svg', 'media-skip-forward-symbolic'), _('Next'), 'next'],
         ];
-        for (const [name, label, signal] of actions) {
+        for (const [iconRef, label, signal] of actions) {
             const isPlay = signal === 'play-pause';
+            const iconProps = typeof iconRef === 'string'
+                ? {icon_name: iconRef}
+                : {gicon: iconRef};
             const icon = new St.Icon({
-                icon_name: name,
+                ...iconProps,
                 style_class: isPlay
                     ? 'lintel-cc-media-control lintel-cc-media-play-icon'
                     : 'lintel-cc-media-control',
@@ -243,11 +261,15 @@ class CCMediaCard extends St.BoxLayout {
             this._artist.visible = Boolean(artist);
         }
 
-        const nextPlayIcon = playing
-            ? 'media-playback-pause-symbolic'
-            : 'media-playback-start-symbolic';
-        if (this._playIcon.icon_name !== nextPlayIcon)
-            this._playIcon.icon_name = nextPlayIcon;
+        const isPlaying = Boolean(playing);
+        if (this._playingState !== isPlaying) {
+            this._playingState = isPlaying;
+            const target = isPlaying ? this._pauseGicon : this._playGicon;
+            if (typeof target === 'string')
+                this._playIcon.icon_name = target;
+            else
+                this._playIcon.gicon = target;
+        }
 
         const nextArtUrl = artUrl || '';
         if (this._currentArtUrl !== nextArtUrl) {
@@ -307,8 +329,11 @@ export const CCSlider = GObject.registerClass({
             x_align: Clutter.ActorAlign.FILL,
             y_align: Clutter.ActorAlign.CENTER,
         });
+        const leadProps = typeof iconName === 'string'
+            ? {icon_name: iconName}
+            : {gicon: iconName};
         this._icon = new St.Icon({
-            icon_name: iconName,
+            ...leadProps,
             style_class: 'lintel-cc-slider-icon',
             y_align: Clutter.ActorAlign.CENTER,
         });
@@ -336,8 +361,11 @@ export const CCSlider = GObject.registerClass({
         row.add_child(this._slider);
 
         if (trailingIconName) {
+            const trailProps = typeof trailingIconName === 'string'
+                ? {icon_name: trailingIconName}
+                : {gicon: trailingIconName};
             row.add_child(new St.Icon({
-                icon_name: trailingIconName,
+                ...trailProps,
                 style_class: 'lintel-cc-slider-trailing-icon',
                 y_align: Clutter.ActorAlign.CENTER,
             }));
@@ -375,9 +403,15 @@ export const CCSlider = GObject.registerClass({
         this._block = false;
     }
 
-    setIcon(name) {
-        if (this._icon.icon_name !== name)
-            this._icon.icon_name = name;
+    setIcon(nameOrGicon) {
+        if (!nameOrGicon)
+            return;
+        if (typeof nameOrGicon === 'string') {
+            if (this._icon.icon_name !== nameOrGicon)
+                this._icon.icon_name = nameOrGicon;
+        } else if (this._icon.gicon !== nameOrGicon) {
+            this._icon.gicon = nameOrGicon;
+        }
     }
 
     setAvailable(available) {

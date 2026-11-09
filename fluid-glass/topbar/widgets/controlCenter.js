@@ -216,7 +216,7 @@ class ControlCenter extends PanelMenu.Button {
                 const prevVolAvail = this._controls.get('sound')?.available;
                 const prevMicAvail = this._controls.get('microphone')?.available;
                 this._setCard('sound', this._volume.available,
-                    this._volume.level, this._volume.iconName);
+                    this._volume.level, this._soundSfIcon(this._volume.iconName));
                 this._setCard('microphone', this._volume.inputAvailable,
                     this._volume.inputLevel, this._volume.inputIconName);
                 if (prevVolAvail !== this._volume.available || prevMicAvail !== this._volume.inputAvailable)
@@ -229,7 +229,8 @@ class ControlCenter extends PanelMenu.Button {
                     return;
                 const prevAvail = this._controls.get('display')?.available;
                 this._setCard('display', this._brightness.available,
-                    this._brightness.level, 'display-brightness-symbolic');
+                    this._brightness.level,
+                    this._tahoeIcon('tahoe-brightness-low-symbolic.svg', 'display-brightness-symbolic'));
                 if (prevAvail !== this._brightness.available)
                     this._layoutControls();
             })]);
@@ -289,7 +290,8 @@ class ControlCenter extends PanelMenu.Button {
             style_class: 'lintel-cc-content',
         });
 
-        this._wifiTile = this._tile('network-wireless-signal-good-symbolic',
+        this._wifiTile = this._tile(
+            this._tahoeIcon('tahoe-wifi-symbolic.svg', 'network-wireless-signal-good-symbolic'),
             _('Wi-Fi'), () => this._net.setWifi(this._wifiTile.checked));
         // A desktop on a cable has no Wi-Fi card to toggle. It gets the wired
         // link instead, as a launcher into Settings → Network.
@@ -323,7 +325,9 @@ class ControlCenter extends PanelMenu.Button {
                 this.menu.close();
                 Main.screenshotUI?.open();
             }, false);
-        this._focusTile = this._tile('weather-clear-night-symbolic', _('Focus'),
+        this._focusTile = this._tile(
+            this._tahoeIcon('tahoe-focus-symbolic.svg', 'weather-clear-night-symbolic'),
+            _('Focus'),
             () => this._notif.set_boolean(
                 'show-banners', !this._focusTile.checked));
         this._airplaneTile = this._tile('airplane-mode-symbolic',
@@ -347,15 +351,19 @@ class ControlCenter extends PanelMenu.Button {
         this._mediaCard.connect('next', () => this._media.next());
 
         this._brightCard = new CCSlider(
-            _('Display'), 'display-brightness-symbolic',
-            'display-brightness-symbolic', false,
+            _('Display'),
+            this._tahoeIcon('tahoe-brightness-low-symbolic.svg', 'display-brightness-symbolic'),
+            this._tahoeIcon('tahoe-brightness-high-symbolic.svg', 'display-brightness-symbolic'),
+            false,
             this._tahoeIcon('tahoe-display-symbolic.svg', 'video-display-symbolic'));
         this._brightCard.connect('moved', (_c, v) => this._brightness.setLevel(v));
         this._brightCard.connect('accessory-clicked',
             () => this._openSettings('display'));
         this._volCard = new CCSlider(
-            _('Sound'), 'audio-volume-low-symbolic',
-            'audio-volume-high-symbolic', true,
+            _('Sound'),
+            this._tahoeIcon('tahoe-sound-low-symbolic.svg', 'audio-volume-low-symbolic'),
+            this._tahoeIcon('tahoe-sound-high-symbolic.svg', 'audio-volume-high-symbolic'),
+            true,
             this._tahoeIcon('tahoe-airplay-audio-symbolic.svg', 'audio-speakers-symbolic'));
         this._volCard.connect('moved', (_c, v) => this._volume.setLevel(v));
         this._volCard.connect('icon-clicked', () => this._volume.toggleMute());
@@ -521,6 +529,16 @@ class ControlCenter extends PanelMenu.Button {
         if (this._editButton && this._editButton.visible && this._editButton.mapped)
             modules.push(this._editButton);
         return modules;
+    }
+
+    _soundSfIcon(iconName) {
+        if (!iconName || iconName.includes('muted'))
+            return this._tahoeIcon('tahoe-sound-muted-symbolic.svg', iconName || 'audio-volume-muted-symbolic');
+        if (iconName.includes('high') || iconName.includes('overamplified'))
+            return this._tahoeIcon('tahoe-sound-high-symbolic.svg', iconName);
+        if (iconName.includes('medium'))
+            return this._tahoeIcon('tahoe-sound-medium-symbolic.svg', iconName);
+        return this._tahoeIcon('tahoe-sound-low-symbolic.svg', iconName);
     }
 
     _tahoeIcon(filename, fallbackName = '') {
@@ -1072,9 +1090,10 @@ class ControlCenter extends PanelMenu.Button {
                 this._media.artUrl, this._media.playing);
 
             this._setCard('display', this._brightness.available,
-                this._brightness.level, 'display-brightness-symbolic');
+                this._brightness.level,
+                this._tahoeIcon('tahoe-brightness-low-symbolic.svg', 'display-brightness-symbolic'));
             this._setCard('sound', this._volume.available,
-                this._volume.level, this._volume.iconName);
+                this._volume.level, this._soundSfIcon(this._volume.iconName));
             this._setCard('microphone', this._volume.inputAvailable,
                 this._volume.inputLevel, this._volume.inputIconName);
 
