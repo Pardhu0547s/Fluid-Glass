@@ -2654,6 +2654,99 @@
     color: rgba(0, 0, 0, 0.87) !important;
 }
 
+/* ── Notification Center / DateMenu Popover ────────────────────────── */
+
+.datemenu-popover .message-list {
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
+    padding: 0 8px;
+}
+
+.datemenu-popover .message-list-sections {
+    spacing: 6px;
+}
+
+.datemenu-popover .message {
+    padding: 8px 10px;
+    border-radius: 18px !important;
+}
+
+.datemenu-popover .message-list-placeholder {
+    max-width: 320px;
+}
+
+/* ── Notification Popups (Incoming Banners) ─────────────────────────── */
+
+.notification-banner {
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
+    border-radius: 22px;
+    padding: 8px 12px;
+    margin: 6px;
+    font-family: "SF Pro Text";
+    font-size: 9.5pt;
+}
+
+.notification-banner .message-header {
+    spacing: 8px;
+    padding-bottom: 2px;
+}
+
+.notification-banner .message-header .message-source-icon {
+    icon-size: 16px;
+}
+
+.notification-banner .message-header .message-source-title {
+    font-size: 9pt;
+    font-weight: 600;
+}
+
+.notification-banner .message-header .event-time {
+    font-size: 8pt;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.notification-banner .message-header .message-close-button {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    padding: 0;
+    border-radius: 999px;
+    color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+.notification-banner .message-header .message-close-button:hover {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.notification-banner .message-box {
+    spacing: 8px;
+    padding: 2px 0 0 0;
+}
+
+.notification-banner .message-title {
+    font-size: 9.5pt;
+    font-weight: 600;
+}
+
+.notification-banner .message-secondary-bin {
+    font-size: 9pt;
+}
+
+.notification-banner .notification-button {
+    min-height: 24px;
+    padding: 3px 12px;
+    border-radius: 8px;
+    font-size: 8.5pt;
+    font-weight: 500;
+}
+
+
 /* Desktop widgets. The card's glass is drawn behind it; the colours here are
    the starting point that automatic text contrast adjusts. */
 .liquid-glass-desktop-card {
