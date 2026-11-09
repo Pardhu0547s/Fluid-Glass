@@ -505,8 +505,8 @@
 .lintel-cc-tile {
     min-height: 0;
     height: 58px;
-    background-color: rgba(34, 34, 40, 0.24) !important;
-    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    background-color: rgba(34, 34, 40, 0.22) !important;
+    border: none !important;
     border-radius: 999px;
     padding: 0 11px;
     box-shadow: none !important;
@@ -518,8 +518,8 @@
 .lintel-cc-tile:active,
 .lintel-cc-tile:checked,
 .lintel-cc-tile:checked:hover {
-    background-color: rgba(44, 44, 52, 0.30) !important;
-    border: 1px solid rgba(255, 255, 255, 0.30) !important;
+    background-color: rgba(44, 44, 52, 0.28) !important;
+    border: none !important;
     box-shadow: none !important;
 }
 
@@ -597,8 +597,8 @@
 .lintel-cc-media {
     min-width: 0;
     min-height: 0;
-    background-color: rgba(34, 34, 40, 0.24) !important;
-    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    background-color: rgba(34, 34, 40, 0.22) !important;
+    border: none !important;
     border-radius: 26px;
     padding: 10px 12px 8px 12px;
     box-shadow: none !important;
@@ -683,8 +683,8 @@
     min-height: 0;
     padding: 0;
     border-radius: 999px;
-    background-color: rgba(34, 34, 40, 0.24) !important;
-    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    background-color: rgba(34, 34, 40, 0.22) !important;
+    border: none !important;
     box-shadow: none !important;
     transition-duration: 160ms;
 }
@@ -698,7 +698,7 @@
     padding: 0;
     border-radius: 999px;
     background-color: rgba(255, 255, 255, 0.95) !important;
-    border: 1px solid rgba(255, 255, 255, 0.98) !important;
+    border: none !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
 }
 
@@ -709,8 +709,8 @@
 .lintel-cc-tile-compact .lintel-cc-tile-icon-badge,
 .lintel-cc-tile-compact .lintel-cc-tile-icon-badge:checked,
 .lintel-cc-tile.lintel-cc-tile-compact:checked .lintel-cc-tile-icon-badge {
-    width: 56px;
-    height: 56px;
+    width: 58px;
+    height: 58px;
     min-width: 0;
     min-height: 0;
     background-color: transparent !important;
@@ -741,8 +741,8 @@
 .lintel-cc-slider:hover {
     min-width: 280px;
     min-height: 0;
-    background-color: rgba(34, 34, 40, 0.24) !important;
-    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    background-color: rgba(34, 34, 40, 0.22) !important;
+    border: none !important;
     border-radius: 999px;
     padding: 6px 12px 6px 14px;
     spacing: 3px;
@@ -819,8 +819,8 @@
 .lintel-cc-edit-controls:focus,
 .lintel-cc-edit-controls.lintel-cc-edit-done {
     color: rgba(255, 255, 255, 0.95);
-    background-color: rgba(34, 34, 40, 0.24) !important;
-    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    background-color: rgba(34, 34, 40, 0.22) !important;
+    border: none !important;
     border-radius: 999px;
     padding: 5px 16px;
     font-weight: 600;
@@ -838,7 +838,7 @@
 .lintel-cc-light .lintel-cc-slider,
 .lintel-cc-light .lintel-cc-edit-controls {
     background-color: rgba(255, 255, 255, 0.42) !important;
-    border: 1px solid rgba(255, 255, 255, 0.55) !important;
+    border: none !important;
     box-shadow: none !important;
 }
 
