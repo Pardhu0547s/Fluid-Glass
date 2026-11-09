@@ -736,16 +736,16 @@
     box-shadow: none !important;
 }
 
-/* Labelled Display and Sound stadium pill modules (280px × 58px outer box). */
+/* Labelled Display and Sound rounded-pill modules (280px × 52px outer box). */
 .lintel-cc-slider,
 .lintel-cc-slider:hover {
     min-width: 280px;
     min-height: 0;
     background-color: rgba(34, 34, 40, 0.22) !important;
     border: none !important;
-    border-radius: 999px;
-    padding: 6px 12px 6px 14px;
-    spacing: 3px;
+    border-radius: 18px;
+    padding: 5px 12px 5px 14px;
+    spacing: 2px;
     box-shadow: none !important;
 }
 
@@ -771,7 +771,7 @@
 
 .lintel-cc-slider-icon {
     icon-size: 14px;
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .lintel-cc-slider-trailing-icon {
@@ -804,8 +804,8 @@
 
 .lintel-cc-track {
     color: #ffffff;
-    height: 11px;
-    -barlevel-height: 7px;
+    height: 10px;
+    -barlevel-height: 6px;
     -barlevel-background-color: rgba(255, 255, 255, 0.22);
     -barlevel-active-background-color: #ffffff;
     -barlevel-overdrive-color: #ff3b30;

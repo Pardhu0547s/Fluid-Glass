@@ -180,13 +180,18 @@ float sdRoundRect(vec2 p, vec2 b, vec2 corner) {
 }
 
 // Per-region corner radius for Control Center multi-region modules:
-// 1x1 buttons (b ~ 31x31), 2x1 capsules (b ~ 70x31), sliders (b ~ 146x29),
-// and Edit Controls (b ~ 55x14) all have min(b.x, b.y) <= 45px and get
-// full semicircular stadium/circle ends (r = min(b.x, b.y)).
-// 2x2 Now Playing square (b ~ 70x67) gets a 26px squircle corner radius.
+// - 1x1 buttons (b ~ 36x36), 2x1 capsules (b ~ 84x36), and Edit Controls (b ~ 55x14)
+//   have b.x <= 105.0 and halfMin <= 45.0 -> full semicircular stadium/circle ends (r = halfMin).
+// - Wide Display & Sound sliders (b ~ 175x32, b.x > 105.0) get a sleek 22px corner radius
+//   (18px logical) so their ends are rounded-pill squircles rather than pointy semicircles.
+// - 2x2 Now Playing square (b ~ 84x79, halfMin > 45.0) gets a 26px squircle corner radius.
 float regionCornerRadius(vec2 b, float fallbackR) {
     float halfMin = min(b.x, b.y);
-    return (halfMin > 45.0) ? min(fallbackR, 26.0) : halfMin;
+    if (halfMin > 45.0)
+        return min(fallbackR, 26.0);
+    if (b.x > 105.0)
+        return min(halfMin, 22.0);
+    return halfMin;
 }
 
 // The region this pixel is most inside of, with its local frame and colours.
