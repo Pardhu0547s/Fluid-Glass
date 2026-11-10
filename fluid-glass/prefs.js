@@ -30,6 +30,76 @@ const ACCENT_COLORS = [
     ['Graphite', '#545458'],
 ];
 
+const DISTRO_ICONS_SYMBOLIC = [
+    { id: 'fedora-logo-symbolic', name: 'Fedora' },
+    { id: 'arch-logo-symbolic', name: 'Arch Linux' },
+    { id: 'debian-logo-symbolic', name: 'Debian' },
+    { id: 'ubuntu-logo-symbolic', name: 'Ubuntu' },
+    { id: 'pop-os-logo-symbolic', name: 'Pop!_OS' },
+    { id: 'manjaro-logo-symbolic', name: 'Manjaro' },
+    { id: 'opensuse-logo-symbolic', name: 'openSUSE' },
+    { id: 'tux-logo-symbolic', name: 'Linux Tux' },
+    { id: 'nixos-logo-symbolic', name: 'NixOS' },
+    { id: 'cachyos-logo-symbolic', name: 'CachyOS' },
+    { id: 'endeavouros_logo-symbolic', name: 'EndeavourOS' },
+    { id: 'redhat-logo-symbolic', name: 'Red Hat' },
+    { id: 'centos-logo-symbolic', name: 'CentOS' },
+    { id: 'rockylinux-logo-symbolic', name: 'Rocky Linux' },
+    { id: 'almalinux-logo-symbolic', name: 'AlmaLinux' },
+    { id: 'kali-linux-logo-symbolic', name: 'Kali Linux' },
+    { id: 'gentoo-logo-symbolic', name: 'Gentoo' },
+    { id: 'void-logo-symbolic', name: 'Void Linux' },
+    { id: 'zorin-logo-symbolic', name: 'Zorin OS' },
+    { id: 'nobara-logo-symbolic', name: 'Nobara' },
+    { id: 'steam-deck-logo-symbolic', name: 'Steam Deck' },
+    { id: 'ublue-logo-symbolic', name: 'Universal Blue' },
+    { id: 'solus-logo-symbolic', name: 'Solus' },
+    { id: 'raspbian-logo-symbolic', name: 'Raspberry Pi' },
+    { id: 'pureos-logo-symbolic', name: 'PureOS' },
+    { id: 'budgie-logo-symbolic', name: 'Budgie' },
+    { id: 'garuda-logo-symbolic', name: 'Garuda' },
+    { id: 'asahilinux-logo-symbolic', name: 'Asahi Linux' },
+    { id: 'mx-logo-symbolic', name: 'MX Linux' },
+    { id: 'freebsd-logo-symbolic', name: 'FreeBSD' },
+    { id: 'voyager-logo-symbolic', name: 'Voyager' },
+    { id: 'shastraos-logo-symbolic', name: 'Shastra OS' },
+];
+
+const DISTRO_ICONS_COLOURED = [
+    { id: 'fedora-logo', name: 'Fedora' },
+    { id: 'arch-logo', name: 'Arch Linux' },
+    { id: 'debian-logo', name: 'Debian' },
+    { id: 'ubuntu-logo', name: 'Ubuntu' },
+    { id: 'pop-os-logo', name: 'Pop!_OS' },
+    { id: 'manjaro-logo', name: 'Manjaro' },
+    { id: 'opensuse-logo', name: 'openSUSE' },
+    { id: 'tux-logo', name: 'Linux Tux' },
+    { id: 'nixos-logo', name: 'NixOS' },
+    { id: 'cachyos-logo', name: 'CachyOS' },
+    { id: 'endeavouros_logo', name: 'EndeavourOS' },
+    { id: 'redhat-logo', name: 'Red Hat' },
+    { id: 'centos-logo', name: 'CentOS' },
+    { id: 'rockylinux-logo', name: 'Rocky Linux' },
+    { id: 'almalinux-logo', name: 'AlmaLinux' },
+    { id: 'kali-linux-logo', name: 'Kali Linux' },
+    { id: 'gentoo-logo', name: 'Gentoo' },
+    { id: 'void-logo', name: 'Void Linux' },
+    { id: 'zorin-logo', name: 'Zorin OS' },
+    { id: 'bazzite-logo', name: 'Bazzite' },
+    { id: 'steam-deck-logo', name: 'Steam Deck' },
+    { id: 'steam-deck-le-logo', name: 'Steam Deck LE' },
+    { id: 'ublue-logo', name: 'Universal Blue' },
+    { id: 'solus-logo', name: 'Solus' },
+    { id: 'gnome-logo', name: 'GNOME' },
+    { id: 'clear-linux-logo', name: 'Clear Linux' },
+    { id: 'vanilla-logo', name: 'Vanilla OS' },
+    { id: 'freebsd-logo', name: 'FreeBSD' },
+    { id: 'openbsd-logo', name: 'OpenBSD' },
+    { id: 'netbsd-logo', name: 'NetBSD' },
+    { id: 'asahilinux-logo', name: 'Asahi Linux' },
+    { id: 'shastraos-logo', name: 'Shastra OS' },
+];
+
 export default class FluidGlassPreferences extends ExtensionPreferences {
     _tryGetSettings(schemaId) {
         try {
@@ -67,6 +137,8 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 const iconTheme = Gtk.IconTheme.get_for_display(display);
                 const iconsPath = this.dir.get_child('icons').get_path();
                 iconTheme.add_search_path(iconsPath);
+                const distrosPath = this.dir.get_child('icons').get_child('distros').get_path();
+                iconTheme.add_search_path(distrosPath);
             } catch (_e) {}
             this._installCss(display);
         }
@@ -473,6 +545,8 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         this._switchRow(groupBar, this.sLintel, 'fullscreen-reveal',
             _('Reveal in Fullscreen'), _('Show the bar when the pointer hits the top edge'));
 
+        this._buildLogoIconPicker(page);
+
         const groupClock = new Adw.PreferencesGroup({title: _('Clock')});
         page.add(groupClock);
         this._switchRow(groupClock, this.sLintel, 'clock-on-right',
@@ -481,6 +555,205 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             _('Show Weekday'), null);
         this._switchRow(groupClock, this.sLintel, 'clock-show-seconds',
             _('Show Seconds'), null);
+    }
+
+    _formatLogoSubtitle(val) {
+        if (!val)
+            return _('System Default (Auto-detected)');
+        const sym = DISTRO_ICONS_SYMBOLIC.find(d => d.id === val);
+        if (sym)
+            return `${sym.name} (Symbolic)`;
+        const col = DISTRO_ICONS_COLOURED.find(d => d.id === val);
+        if (col)
+            return `${col.name} (Coloured)`;
+        return val;
+    }
+
+    _updateLogoPreview(img, val) {
+        if (!val) {
+            img.set_from_icon_name('start-here-symbolic');
+        } else if (val.startsWith('/') || val.startsWith('~') || val.startsWith('file:')) {
+            const path = val.startsWith('~')
+                ? GLib.build_filenamev([GLib.get_home_dir(), val.slice(1)])
+                : (val.startsWith('file://') ? val.slice(7) : val);
+            const file = Gio.File.new_for_path(path);
+            img.set_from_gicon(Gio.FileIcon.new(file));
+        } else {
+            const cleanName = val.endsWith('.svg') ? val.slice(0, -4) : val;
+            const distrosDir = this.dir.get_child('icons').get_child('distros');
+            let distroFile = distrosDir.get_child(`${cleanName}.svg`);
+            if (!distroFile.query_exists(null))
+                distroFile = distrosDir.get_child(`${cleanName}-logo-symbolic.svg`);
+            if (!distroFile.query_exists(null))
+                distroFile = distrosDir.get_child(`${cleanName}-logo.svg`);
+
+            if (distroFile.query_exists(null)) {
+                img.set_from_gicon(Gio.FileIcon.new(distroFile));
+            } else {
+                img.set_from_icon_name(val);
+            }
+        }
+    }
+
+    _buildLogoIconPicker(page) {
+        if (!this.sLintel)
+            return;
+
+        const groupLogo = new Adw.PreferencesGroup({
+            title: _('System Menu Logo'),
+            description: _('Select an icon from popular Linux distributions or use your system default'),
+        });
+        page.add(groupLogo);
+
+        const currentVal = this.sLintel.get_string('system-menu-icon');
+        const previewRow = new Adw.ActionRow({
+            title: _('Current Logo'),
+            subtitle: this._formatLogoSubtitle(currentVal),
+        });
+        groupLogo.add(previewRow);
+
+        const previewImg = new Gtk.Image({
+            pixel_size: 32,
+        });
+        this._updateLogoPreview(previewImg, currentVal);
+        previewRow.add_prefix(previewImg);
+
+        const resetBtn = new Gtk.Button({
+            label: _('Reset to Default'),
+            valign: Gtk.Align.CENTER,
+            css_classes: ['flat'],
+        });
+        resetBtn.connect('clicked', () => {
+            this.sLintel.set_string('system-menu-icon', '');
+        });
+        previewRow.add_suffix(resetBtn);
+
+        const allDistroButtons = new Map();
+
+        const updateActiveDistro = (activeId) => {
+            for (const [id, b] of allDistroButtons) {
+                if (id === activeId)
+                    b.add_css_class('suggested-action');
+                else
+                    b.remove_css_class('suggested-action');
+            }
+        };
+
+        // 1. Symbolic Icons Expander
+        const expanderSymbolic = new Adw.ExpanderRow({
+            title: _('Symbolic Distribution Icons'),
+            subtitle: _('Monochrome icons that adapt to top bar text styling'),
+        });
+        groupLogo.add(expanderSymbolic);
+
+        const symFlow = new Gtk.FlowBox({
+            row_spacing: 8,
+            column_spacing: 8,
+            max_children_per_line: 8,
+            selection_mode: Gtk.SelectionMode.NONE,
+            margin_top: 10,
+            margin_bottom: 10,
+            margin_start: 10,
+            margin_end: 10,
+            valign: Gtk.Align.START,
+            halign: Gtk.Align.CENTER,
+        });
+        DISTRO_ICONS_SYMBOLIC.forEach(distro => {
+            const btn = new Gtk.Button({
+                tooltip_text: distro.name,
+                css_classes: ['flat'],
+            });
+            const file = this.dir.get_child('icons').get_child('distros').get_child(`${distro.id}.svg`);
+            const img = new Gtk.Image({
+                pixel_size: 28,
+            });
+            if (file.query_exists(null))
+                img.set_from_gicon(Gio.FileIcon.new(file));
+            else
+                img.set_from_icon_name(distro.id);
+
+            btn.set_child(img);
+            if (distro.id === currentVal)
+                btn.add_css_class('suggested-action');
+
+            btn.connect('clicked', () => {
+                this.sLintel.set_string('system-menu-icon', distro.id);
+            });
+            allDistroButtons.set(distro.id, btn);
+            symFlow.append(btn);
+        });
+        const symPrefRow = new Adw.PreferencesRow();
+        symPrefRow.set_child(symFlow);
+        expanderSymbolic.add_row(symPrefRow);
+
+        // 2. Coloured Icons Expander
+        const expanderColoured = new Adw.ExpanderRow({
+            title: _('Coloured Distribution Icons'),
+            subtitle: _('Full-colour original distribution artwork'),
+        });
+        groupLogo.add(expanderColoured);
+
+        const colFlow = new Gtk.FlowBox({
+            row_spacing: 8,
+            column_spacing: 8,
+            max_children_per_line: 8,
+            selection_mode: Gtk.SelectionMode.NONE,
+            margin_top: 10,
+            margin_bottom: 10,
+            margin_start: 10,
+            margin_end: 10,
+            valign: Gtk.Align.START,
+            halign: Gtk.Align.CENTER,
+        });
+        DISTRO_ICONS_COLOURED.forEach(distro => {
+            const btn = new Gtk.Button({
+                tooltip_text: distro.name,
+                css_classes: ['flat'],
+            });
+            const file = this.dir.get_child('icons').get_child('distros').get_child(`${distro.id}.svg`);
+            const img = new Gtk.Image({
+                pixel_size: 28,
+            });
+            if (file.query_exists(null))
+                img.set_from_gicon(Gio.FileIcon.new(file));
+            else
+                img.set_from_icon_name(distro.id);
+
+            btn.set_child(img);
+            if (distro.id === currentVal)
+                btn.add_css_class('suggested-action');
+
+            btn.connect('clicked', () => {
+                this.sLintel.set_string('system-menu-icon', distro.id);
+            });
+            allDistroButtons.set(distro.id, btn);
+            colFlow.append(btn);
+        });
+        const colPrefRow = new Adw.PreferencesRow();
+        colPrefRow.set_child(colFlow);
+        expanderColoured.add_row(colPrefRow);
+
+        // 3. Custom icon or emoji entry
+        const customEntry = new Adw.EntryRow({
+            title: _('Custom Icon, Emoji, or File Path'),
+            text: currentVal,
+        });
+        customEntry.connect('apply', () => {
+            this.sLintel.set_string('system-menu-icon', customEntry.get_text().trim());
+        });
+        customEntry.connect('entry-activated', () => {
+            this.sLintel.set_string('system-menu-icon', customEntry.get_text().trim());
+        });
+        groupLogo.add(customEntry);
+
+        this.sLintel.connect('changed::system-menu-icon', () => {
+            const val = this.sLintel.get_string('system-menu-icon');
+            previewRow.set_subtitle(this._formatLogoSubtitle(val));
+            this._updateLogoPreview(previewImg, val);
+            updateActiveDistro(val);
+            if (customEntry.get_text() !== val)
+                customEntry.set_text(val);
+        });
     }
 
     // ── 6. About ───────────────────────────────────────────────────────────

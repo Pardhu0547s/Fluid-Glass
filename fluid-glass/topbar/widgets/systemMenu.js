@@ -256,10 +256,25 @@ export const LintelSystemMenu = GObject.registerClass({
                       value.startsWith('file:'))) {
             const path = value.startsWith('~')
                 ? GLib.build_filenamev([GLib.get_home_dir(), value.slice(1)])
-                : value;
-            icon.gicon = Gio.icon_new_for_string(path);
+                : (value.startsWith('file://') ? value.slice(7) : value);
+            const file = Gio.File.new_for_path(path);
+            icon.gicon = Gio.FileIcon.new(file);
+        } else if (value) {
+            const cleanName = value.endsWith('.svg') ? value.slice(0, -4) : value;
+            const distrosDir = this._extension?.dir?.get_child('icons')?.get_child('distros');
+            let distroFile = distrosDir?.get_child(`${cleanName}.svg`);
+            if (!distroFile?.query_exists(null))
+                distroFile = distrosDir?.get_child(`${cleanName}-logo-symbolic.svg`);
+            if (!distroFile?.query_exists(null))
+                distroFile = distrosDir?.get_child(`${cleanName}-logo.svg`);
+
+            if (distroFile?.query_exists(null)) {
+                icon.gicon = Gio.FileIcon.new(distroFile);
+            } else {
+                icon.icon_name = value;
+            }
         } else {
-            icon.icon_name = value || FALLBACK_LOGO;
+            icon.icon_name = FALLBACK_LOGO;
         }
         return icon;
     }
