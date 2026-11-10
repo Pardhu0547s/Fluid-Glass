@@ -117,14 +117,14 @@ export class GlassHandle {
 
         if (this.targetActor) {
             this._signals.push(
-                this.targetActor.connect('notify::mapped', updateVisibility),
-                this.targetActor.connect('destroy', () => this.destroy())
+                [this.targetActor, this.targetActor.connect('notify::mapped', updateVisibility)],
+                [this.targetActor, this.targetActor.connect('destroy', () => this.destroy())]
             );
         }
 
         if (this.options.menu) {
             this._signals.push(
-                this.options.menu.connect('open-state-changed', (_m, isOpen) => {
+                [this.options.menu, this.options.menu.connect('open-state-changed', (_m, isOpen) => {
                     if (isOpen) {
                         if (this.glass)
                             this.glass.show();
@@ -134,7 +134,7 @@ export class GlassHandle {
                         if (this.glass)
                             this.glass.hide();
                     }
-                })
+                })]
             );
         }
 
@@ -189,10 +189,10 @@ export class GlassHandle {
 
         this.stopLoop();
 
-        for (const id of this._signals) {
-            if (this.targetActor && id) {
+        for (const [source, id] of this._signals) {
+            if (source && id) {
                 try {
-                    this.targetActor.disconnect(id);
+                    source.disconnect(id);
                 } catch (_e) {}
             }
         }

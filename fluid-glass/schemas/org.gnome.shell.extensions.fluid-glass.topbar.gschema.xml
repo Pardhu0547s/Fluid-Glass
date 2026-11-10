@@ -137,6 +137,11 @@
       <default>{'wifi': 'wide', 'network': 'wide', 'media': 'large', 'bluetooth': 'wide', 'airdrop': 'wide', 'stage-manager': 'small', 'screen-mirroring': 'small', 'dark-mode': 'small', 'screenshot': 'small', 'focus': 'wide', 'airplane': 'small', 'power-mode': 'wide', 'night-light': 'small'}</default>
       <summary>Control Center control sizes: small (a circle), wide, or large</summary>
     </key>
+    <key name="control-center-back-glass" type="b">
+      <default>false</default>
+      <summary>Enclosing background glass card behind all Control Center modules</summary>
+      <description>When true, an outer frosted liquid glass card wraps the entire Control Center. When false, modules float individually.</description>
+    </key>
 
     <!-- Clock (Stage 7) -->
     <key name="clock-show-weekday" type="b">

@@ -54,9 +54,10 @@ import {
     CCTile,
 } from './ccTile.js';
 import {CCGrid} from './ccGrid.js';
-import {attachGlass} from '../../glass/glassEffect.js';
+import {attachGlass, attachMultiRegionGlass} from '../../glass/glassEffect.js';
 import {Spring, stepMenuSpring, addFrameTicker, removeFrameTicker} from '../../glass/animation.js';
 
+const BACK_GLASS_KEY = 'control-center-back-glass';
 const ORDER_KEY = 'control-center-controls';
 const SIZES_KEY = 'control-center-control-sizes';
 
@@ -123,6 +124,7 @@ class ControlCenter extends PanelMenu.Button {
         this._controls = new Map();         // control id -> descriptor
         this._settings = null;
         this._settingsIds = [];
+        this._glassSettingsIds = [];
         this._localOrder = null;            // used only without the schema key
         this._localSizes = null;
         this._editing = false;
@@ -205,6 +207,15 @@ class ControlCenter extends PanelMenu.Button {
             this._settings = this._extension?.getSettings?.() ?? null;
         } catch (_e) {
             this._settings = null;
+        }
+
+        if (this._settings) {
+            this._settingsIds.push(
+                this._settings.connect(`changed::${BACK_GLASS_KEY}`, () => {
+                    this._syncAppearance();
+                    this._rebuildGlass();
+                })
+            );
         }
 
         this._buildPopup();
@@ -434,38 +445,9 @@ class ControlCenter extends PanelMenu.Button {
 
         this.menu.box.add_child(content);
 
+        this._rebuildGlass();
+
         const glassSettings = this._extension?.getGlassSettings?.();
-        const blurRadius = glassSettings?.get_int('panel-menu-blur-radius') ?? 10;
-        const tintColor = glassSettings?.get_string('panel-menu-tint-color') ?? '#ffffff';
-        const tintStrength = glassSettings?.get_double('panel-menu-tint-strength') ?? 0.12;
-        const brightness = glassSettings?.get_double('panel-menu-brightness') ?? 1.0;
-        const contrast = glassSettings?.get_double('panel-menu-contrast') ?? 1.0;
-        const saturation = glassSettings?.get_double('panel-menu-saturation') ?? 1.5;
-        const cornerRadius = glassSettings?.get_double('panel-menu-corner-radius') ?? 26.0;
-        const expand = glassSettings?.get_int('panel-menu-glass-expand') ?? 3;
-
-        try {
-            this._glassHandle = attachGlass(
-                this.menu.box,
-                {
-                    owner: 'controlCenter',
-                    menu: this.menu,
-                    outline: 'panel-menu',
-                    settings: glassSettings,
-                    cornerRadius,
-                    blurRadius,
-                    tintColor,
-                    tintStrength,
-                    brightness,
-                    contrast,
-                    saturation,
-                    expand,
-                }
-            );
-        } catch (e) {
-            logError(e, 'lintel: attachGlass');
-        }
-
         if (glassSettings) {
             const updateGlass = () => {
                 this._glassHandle?.update({
@@ -485,7 +467,7 @@ class ControlCenter extends PanelMenu.Button {
                 'panel-menu-contrast', 'panel-menu-saturation',
                 'panel-menu-corner-radius', 'panel-menu-glass-expand',
             ]) {
-                this._settingsIds.push(glassSettings.connect(`changed::${k}`, updateGlass));
+                this._glassSettingsIds.push(glassSettings.connect(`changed::${k}`, updateGlass));
             }
         }
 
@@ -536,6 +518,58 @@ class ControlCenter extends PanelMenu.Button {
                 startSpring(0);
             }
         });
+    }
+
+    _rebuildGlass() {
+        if (this._glassHandle) {
+            try {
+                this._glassHandle.destroy();
+            } catch (e) {
+                logError(e, 'lintel: destroy glass handle');
+            }
+            this._glassHandle = null;
+        }
+
+        const glassSettings = this._extension?.getGlassSettings?.();
+        const blurRadius = glassSettings?.get_int('panel-menu-blur-radius') ?? 10;
+        const tintColor = glassSettings?.get_string('panel-menu-tint-color') ?? '#ffffff';
+        const tintStrength = glassSettings?.get_double('panel-menu-tint-strength') ?? 0.12;
+        const brightness = glassSettings?.get_double('panel-menu-brightness') ?? 1.0;
+        const contrast = glassSettings?.get_double('panel-menu-contrast') ?? 1.0;
+        const saturation = glassSettings?.get_double('panel-menu-saturation') ?? 1.5;
+        const cornerRadius = glassSettings?.get_double('panel-menu-corner-radius') ?? 26.0;
+        const expand = glassSettings?.get_int('panel-menu-glass-expand') ?? 3;
+
+        const useBackGlass = this._settings?.get_boolean(BACK_GLASS_KEY) ?? false;
+
+        const options = {
+            owner: 'controlCenter',
+            menu: this.menu,
+            outline: 'panel-menu',
+            settings: glassSettings,
+            cornerRadius,
+            blurRadius,
+            tintColor,
+            tintStrength,
+            brightness,
+            contrast,
+            saturation,
+            expand,
+        };
+
+        try {
+            if (useBackGlass) {
+                this._glassHandle = attachGlass(this.menu.box, options);
+            } else {
+                this._glassHandle = attachMultiRegionGlass(
+                    this.menu.box,
+                    () => this._getVisibleModules(),
+                    options
+                );
+            }
+        } catch (e) {
+            logError(e, 'lintel: attachGlass / attachMultiRegionGlass');
+        }
     }
 
     _getVisibleModules() {
@@ -1066,7 +1100,14 @@ class ControlCenter extends PanelMenu.Button {
             this.menu.actor.add_style_class_name(
                 dark ? 'lintel-cc-dark' : 'lintel-cc-light');
         }
-        this.menu.box.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 6px !important;');
+        const useBackGlass = this._settings?.get_boolean(BACK_GLASS_KEY) ?? false;
+        if (useBackGlass)
+            this.menu.box.add_style_class_name('lintel-cc-back-glass');
+        else
+            this.menu.box.remove_style_class_name('lintel-cc-back-glass');
+
+        const pad = useBackGlass ? '6px' : '0';
+        this.menu.box.set_style(`background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: ${pad} !important;`);
         if (this.menu.actor)
             this.menu.actor.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important;');
         if (this.menu._boxPointer?.bin)
@@ -1270,6 +1311,11 @@ class ControlCenter extends PanelMenu.Button {
         for (const [obj, id] of this._gsettingsIds)
             obj.disconnect(id);
         this._gsettingsIds = [];
+        for (const id of this._glassSettingsIds) {
+            const gs = this._extension?.getGlassSettings?.();
+            gs?.disconnect(id);
+        }
+        this._glassSettingsIds = [];
         for (const id of this._settingsIds)
             this._settings?.disconnect(id);
         this._settingsIds = [];

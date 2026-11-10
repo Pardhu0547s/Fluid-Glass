@@ -373,6 +373,13 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 this.sLintel.set_string('control-center-mode', modeRow.get_selected() === 0 ? 'custom' : 'native');
             });
             groupCC.add(modeRow);
+
+            const backGlassRow = new Adw.SwitchRow({
+                title: _('Background Glass Card'),
+                subtitle: _('Enclose all Control Center modules inside an outer frosted liquid glass card'),
+            });
+            this.sLintel.bind('control-center-back-glass', backGlassRow, 'active', Gio.SettingsBindFlags.DEFAULT);
+            groupCC.add(backGlassRow);
         }
 
         const groupModules = new Adw.PreferencesGroup({

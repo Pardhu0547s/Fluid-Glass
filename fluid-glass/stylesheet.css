@@ -509,8 +509,13 @@
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
-    border-radius: 26px !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.lintel-cc-popup.lintel-cc-back-glass {
+    border-radius: 26px !important;
     padding: 6px !important;
 }
 
