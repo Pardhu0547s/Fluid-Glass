@@ -9,6 +9,7 @@ import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import {resolveAccentColor} from './distroColors.js';
 
 const EXTENSION_UUID = 'fluid-glass@pardhu0547s.github.io';
 
@@ -22,6 +23,7 @@ const LEGACY_GLASS = 'org.gnome.shell.extensions.liquid-glass@thinkingcoding1231
 const LEGACY_DOCK = 'org.gnome.shell.extensions.dash2dock-lite';
 
 const ACCENT_COLORS = [
+    ['Auto (Distro Default)', 'auto'],
     ['Blue', '#007aff'],
     ['Purple', '#af52de'],
     ['Green', '#34c759'],
@@ -172,7 +174,10 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 outline: 2px solid @window_fg_color;
                 outline-offset: 2px;
             }
-            ${ACCENT_COLORS.map((c, i) => `.fg-swatch-${i} { background: ${c[1]}; }`).join('\n')}
+            .fg-swatch-0 {
+                background: linear-gradient(135deg, #007aff 0%, #ff9500 50%, #34c759 100%);
+            }
+            ${ACCENT_COLORS.slice(1).map((c, i) => `.fg-swatch-${i + 1} { background: ${c[1]}; }`).join('\n')}
             .fg-scale { min-width: 200px; }
             .fg-hero-title { font-size: 22pt; font-weight: 800; }
         `;
@@ -298,7 +303,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             valign: Gtk.Align.CENTER,
             margin_start: 6,
         });
-        const currentAccent = (this.sMaster?.get_string('accent-color') ?? '').toLowerCase();
+        const currentAccent = (this.sMaster?.get_string('accent-color') ?? 'auto').toLowerCase();
         let firstSwatch = null;
         ACCENT_COLORS.forEach(([name, hex], i) => {
             const btn = new Gtk.ToggleButton({
@@ -310,7 +315,8 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 btn.set_group(firstSwatch);
             else
                 firstSwatch = btn;
-            btn.set_active(hex === currentAccent);
+            const isMatch = (hex === currentAccent) || (hex === 'auto' && (currentAccent === 'auto' || currentAccent === '' || currentAccent === 'system'));
+            btn.set_active(isMatch);
             btn.connect('toggled', b => {
                 if (b.get_active())
                     this._setAccentColor(hex);
@@ -318,6 +324,21 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             boxColors.append(btn);
         });
         rowAcc.add_suffix(boxColors);
+
+        const updateAccentSubtitle = () => {
+            const val = (this.sMaster?.get_string('accent-color') ?? 'auto').toLowerCase();
+            if (val === 'auto' || val === '' || val === 'system') {
+                const resolved = resolveAccentColor(this.sMaster, this.sLintel);
+                rowAcc.set_subtitle(_('System / Distro default (Auto: %s — Blue for Fedora, Orange for Ubuntu, Green for Manjaro)').format(resolved));
+            } else {
+                rowAcc.set_subtitle(_('Custom accent color: %s').format(val));
+            }
+        };
+        updateAccentSubtitle();
+        if (this.sMaster)
+            this.sMaster.connect('changed::accent-color', updateAccentSubtitle);
+        if (this.sLintel)
+            this.sLintel.connect('changed::system-menu-icon', updateAccentSubtitle);
 
         // Maintenance Actions
         const groupActions = new Adw.PreferencesGroup({title: _('Maintenance')});
@@ -843,6 +864,9 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             }
         };
 
+        const curAcc = (this.sMaster?.get_string('accent-color') ?? 'auto').toLowerCase();
+        const keepAuto = curAcc === 'auto' || curAcc === '' || curAcc === 'system';
+
         if (presetId === 'tahoe-crystal') {
             setGlass('blur-radius', 10, true);
             setGlass('tint-strength', 0.12);
@@ -850,19 +874,22 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             setGlass('brightness', 1.0);
             if (this.sLintel)
                 this.sLintel.set_string('control-center-mode', 'custom');
-            this._setAccentColor('#007aff');
+            if (!keepAuto)
+                this._setAccentColor('#007aff');
         } else if (presetId === 'deep-frosted') {
             setGlass('blur-radius', 20, true);
             setGlass('tint-strength', 0.28);
             setGlass('saturation', 1.4);
             setGlass('brightness', 1.0);
-            this._setAccentColor('#007aff');
+            if (!keepAuto)
+                this._setAccentColor('#007aff');
         } else if (presetId === 'midnight-glass') {
             setGlass('blur-radius', 12, true);
             setGlass('tint-strength', 0.08);
             setGlass('saturation', 1.3);
             setGlass('brightness', 0.85);
-            this._setAccentColor('#007aff');
+            if (!keepAuto)
+                this._setAccentColor('#007aff');
         } else if (presetId === 'electric-neon') {
             setGlass('blur-radius', 10, true);
             setGlass('tint-strength', 0.18);

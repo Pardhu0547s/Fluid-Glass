@@ -291,7 +291,9 @@ export const LintelFluidGlassMenu = GObject.registerClass({
         this._setGlassDouble('brightness', preset.bright);
         if (this._masterSettings) {
             this._masterSettings.set_string('glass-preset', preset.id);
-            this._masterSettings.set_string('accent-color', preset.accent);
+            const curAcc = this._masterSettings.get_string('accent-color')?.toLowerCase() ?? 'auto';
+            if (preset.id === 'electric-neon' || (curAcc !== 'auto' && curAcc !== '' && curAcc !== 'system'))
+                this._masterSettings.set_string('accent-color', preset.accent);
         }
         this._syncPresets(preset.id);
     }

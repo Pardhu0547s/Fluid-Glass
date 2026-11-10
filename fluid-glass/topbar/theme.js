@@ -21,6 +21,7 @@ import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import {sanitizeFontFamily, sanitizeFontWeight} from './cssValues.js';
+import {resolveAccentColor} from '../distroColors.js';
 
 const FILE_NAME = 'lintel-dynamic.css';
 const OVERVIEW_CLASS = 'lintel-overview-transparent';
@@ -36,8 +37,11 @@ export class ThemeManager {
         this._enabled = false;
         this._settings = null;
         this._settingsId = 0;
+        this._masterSettings = null;
+        this._masterSettingsId = 0;
         this._desktop = null;
         this._desktopId = 0;
+        this._desktopAccentId = 0;
         this._background = null;
         this._backgroundId = 0;
         this._fullscreenId = 0;
@@ -71,11 +75,25 @@ export class ThemeManager {
             });
         }
 
+        try {
+            this._masterSettings = this._extension?.getMasterSettings?.() ?? null;
+        } catch (_e) {
+            this._masterSettings = null;
+        }
+        if (this._masterSettings) {
+            this._masterSettingsId = this._masterSettings.connect(
+                'changed::accent-color', () => this._rebuild());
+        }
+
         this._desktop = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
         this._desktopId = this._desktop.connect(
             'changed::color-scheme', () => {
                 this._rebuild();
                 this.requestContrastUpdate();
+            });
+        this._desktopAccentId = this._desktop.connect(
+            'changed::accent-color', () => {
+                this._rebuild();
             });
 
         this._background = new Gio.Settings({
@@ -379,6 +397,48 @@ export class ThemeManager {
             lines.push('#panel.lintel .panel-button:active, #panel.lintel .panel-button:checked { background-color: transparent; }');
         }
 
+        const accent = resolveAccentColor(this._masterSettings, this._settings);
+        lines.push(`
+/* Dynamic Accent Color */
+.lintel-cc-tile-icon:checked,
+.lintel-cc-tile:checked .lintel-cc-tile-icon,
+.lintel-cc-light .lintel-cc-tile-icon:checked,
+.lintel-cc-light .lintel-cc-tile:checked .lintel-cc-tile-icon {
+    color: ${accent} !important;
+}
+
+.lintel-fg-track,
+.lintel-system-menu-content.lintel-light .lintel-fg-track {
+    -barlevel-active-background-color: ${accent} !important;
+}
+
+.toggle-switch:checked {
+    background-color: ${accent} !important;
+}
+
+.lintel-status-menu-content .popup-menu-item:checked,
+.lintel-extra-status-menu-content .popup-menu-item:checked,
+.lintel-system-menu-content .popup-menu-item:checked,
+.lintel-system-menu-content.lintel-dark .popup-menu-item:checked,
+.lintel-system-menu-content.lintel-light .popup-menu-item:checked {
+    color: ${accent} !important;
+}
+
+.popup-menu-ornament:checked,
+.popup-menu-item:checked .popup-menu-ornament {
+    color: ${accent} !important;
+}
+
+.liquid-glass-menu-root .calendar-today,
+.liquid-glass-menu-root .calendar-today:hover,
+.liquid-glass-menu-root .calendar-today:active,
+.liquid-glass-menu-root .calendar-today:checked,
+.liquid-glass-menu-root .calendar-today:selected,
+.liquid-glass-menu-root .calendar-today:focus {
+    background-color: ${accent} !important;
+}
+`);
+
         return lines.join('\n');
     }
 
@@ -424,9 +484,17 @@ export class ThemeManager {
             this._settings.disconnect(this._settingsId);
             this._settingsId = 0;
         }
+        if (this._masterSettingsId && this._masterSettings) {
+            this._masterSettings.disconnect(this._masterSettingsId);
+            this._masterSettingsId = 0;
+        }
         if (this._desktopId && this._desktop) {
             this._desktop.disconnect(this._desktopId);
             this._desktopId = 0;
+        }
+        if (this._desktopAccentId && this._desktop) {
+            this._desktop.disconnect(this._desktopAccentId);
+            this._desktopAccentId = 0;
         }
         if (this._backgroundId && this._background) {
             this._background.disconnect(this._backgroundId);

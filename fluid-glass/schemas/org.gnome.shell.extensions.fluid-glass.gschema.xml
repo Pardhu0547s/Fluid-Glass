@@ -29,8 +29,8 @@
     </key>
 
     <key name="accent-color" type="s">
-      <default>'#007aff'</default>
-      <summary>Active toggle accent color (hex format)</summary>
+      <default>'auto'</default>
+      <summary>Active toggle accent color ('auto' or hex format)</summary>
     </key>
 
     <key name="glass-opacity" type="d">
