@@ -97,21 +97,8 @@ export class PanelController {
             return;
         this._enabled = true;
 
-        // 1. Snapshot the pristine layout BEFORE any mutation.
-        this.captureOriginalState();
-
-        // 2. Apply our layout.
-        this.applyLintelLayout();
-
-        // 3. Re-assert after GNOME rebuilds the panel on session changes, and
-        // after monitor hotplug / resolution / fractional-scale changes (which
-        // reallocate the panel). Both funnel through the same coalesced idle.
-        this._sessionModeId = Main.sessionMode.connect(
-            'updated', () => this._queueReapply());
-        this._monitorsId = Main.layoutManager.connect(
-            'monitors-changed', () => this._queueReapply());
-
-        // 4. React to structural settings changes live (from prefs).
+        // 1. React to structural settings changes live (from prefs).
+        // Must be initialized FIRST so all layout and menu checks have settings.
         try {
             this._settings = this._extension?.getSettings?.() ?? null;
         } catch (_e) {
@@ -121,6 +108,20 @@ export class PanelController {
             this._settingsChangedId = this._settings.connect(
                 'changed', (_s, key) => this._onSettingsChanged(key));
         }
+
+        // 2. Snapshot the pristine layout BEFORE any mutation.
+        this.captureOriginalState();
+
+        // 3. Apply our layout.
+        this.applyLintelLayout();
+
+        // 4. Re-assert after GNOME rebuilds the panel on session changes, and
+        // after monitor hotplug / resolution / fractional-scale changes (which
+        // reallocate the panel). Both funnel through the same coalesced idle.
+        this._sessionModeId = Main.sessionMode.connect(
+            'updated', () => this._queueReapply());
+        this._monitorsId = Main.layoutManager.connect(
+            'monitors-changed', () => this._queueReapply());
     }
 
     // ---- Stage 1: capture / apply / restore ---------------------------------
@@ -378,10 +379,14 @@ export class PanelController {
 
         const right = PanelAdapter.rightBox;
         let pos = right ? right.get_n_children() : 0;
-        if (!this._fluidGlassMenu && (this._settings?.get_boolean('show-fluid-glass-menu') ?? true)) {
+        const showFluidGlass = this._settingBool('show-fluid-glass-menu', false);
+        if (showFluidGlass && !this._fluidGlassMenu) {
             const menu = new LintelFluidGlassMenu(this._extension);
             PanelAdapter.addToStatusArea(FLUID_GLASS_ROLE, menu, pos++, 'right');
             this._fluidGlassMenu = menu;
+        } else if (!showFluidGlass && this._fluidGlassMenu) {
+            this._fluidGlassMenu.destroy();
+            this._fluidGlassMenu = null;
         }
         if (!this._wifiMenu) {
             const menu = new LintelWifiMenu();

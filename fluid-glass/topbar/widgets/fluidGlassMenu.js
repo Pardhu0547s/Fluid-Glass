@@ -306,38 +306,48 @@ export const LintelFluidGlassMenu = GObject.registerClass({
 
     _bindSettings() {
         if (this._masterSettings) {
-            this._settingsIds.push(
+            this._settingsIds.push([
+                this._masterSettings,
                 this._masterSettings.connect('changed::enable-glass-shaders', () => {
                     const en = this._masterSettings.get_boolean('enable-glass-shaders');
                     this._toggle.setToggleState(en);
-                }),
+                })
+            ]);
+            this._settingsIds.push([
+                this._masterSettings,
                 this._masterSettings.connect('changed::glass-preset', () => {
                     const preset = this._masterSettings.get_string('glass-preset');
                     this._syncPresets(preset);
                 })
-            );
+            ]);
         }
 
         if (this._glassSettings) {
-            this._settingsIds.push(
+            this._settingsIds.push([
+                this._glassSettings,
                 this._glassSettings.connect('changed::dock-blur-radius', () => {
                     this._blurSlider.setValue(this._glassSettings.get_int('dock-blur-radius'));
-                }),
+                })
+            ]);
+            this._settingsIds.push([
+                this._glassSettings,
                 this._glassSettings.connect('changed::dock-tint-strength', () => {
                     this._tintSlider.setValue(this._glassSettings.get_double('dock-tint-strength'));
-                }),
+                })
+            ]);
+            this._settingsIds.push([
+                this._glassSettings,
                 this._glassSettings.connect('changed::dock-saturation', () => {
                     this._satSlider.setValue(this._glassSettings.get_double('dock-saturation'));
                 })
-            );
+            ]);
         }
     }
 
     destroy() {
         this._disposed = true;
-        for (const id of this._settingsIds) {
-            try { this._masterSettings?.disconnect(id); } catch (_e) {}
-            try { this._glassSettings?.disconnect(id); } catch (_e) {}
+        for (const [settings, id] of this._settingsIds) {
+            try { settings.disconnect(id); } catch (_e) {}
         }
         this._settingsIds = [];
         this._presetItems.clear();

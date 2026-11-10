@@ -143,8 +143,12 @@ export class PanelMenuManager {
         if (entry?.openSignalId) {
             try { menu.disconnect(entry.openSignalId); } catch (_e) {}
         }
-        menu.actor?.remove_style_class_name?.('lintel-status-menu');
-        menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
+        try {
+            menu.actor?.remove_style_class_name?.('lintel-status-menu');
+        } catch (_e) {}
+        try {
+            menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
+        } catch (_e) {}
     }
 
     _detachUnwanted(wanted) {
