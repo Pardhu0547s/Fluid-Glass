@@ -378,7 +378,7 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
 
         const regions = [];
         const pad = options.padding ?? SHADER_PADDING;
-        const expand = options.expand ?? 0;
+        const expand = 0;
 
         const lastGoodSizes = handle._lastGoodSizes ?? (handle._lastGoodSizes = new WeakMap());
 

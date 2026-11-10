@@ -457,7 +457,8 @@ class ControlCenter extends PanelMenu.Button {
                 const contrast = glassSettings.get_double('panel-menu-contrast') || glassSettings.get_double('dock-contrast') || 1.0;
                 const sat = glassSettings.get_double('panel-menu-saturation') || glassSettings.get_double('dock-saturation') || 1.5;
                 const corner = glassSettings.get_double('panel-menu-corner-radius') || 26.0;
-                const exp = glassSettings.get_int('panel-menu-glass-expand') || 3;
+                const useBack = this._settings?.get_boolean(BACK_GLASS_KEY) ?? false;
+                const exp = useBack ? (glassSettings.get_int('panel-menu-glass-expand') || 3) : 0;
 
                 this._glassHandle?.update({
                     blurRadius: blur,
@@ -567,7 +568,7 @@ class ControlCenter extends PanelMenu.Button {
             brightness,
             contrast,
             saturation,
-            expand,
+            expand: useBackGlass ? expand : 0,
         };
 
         try {
