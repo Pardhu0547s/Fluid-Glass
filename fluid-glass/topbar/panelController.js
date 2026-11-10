@@ -24,6 +24,7 @@ import {ExternalIndicators} from './externalIndicators.js';
 import {LintelSystemMenu} from './widgets/systemMenu.js';
 import {ActiveApp} from './widgets/activeApp.js';
 import {ControlCenter} from './widgets/controlCenter.js';
+import {LintelFluidGlassMenu} from './widgets/fluidGlassMenu.js';
 import {LintelWifiMenu} from './widgets/wifiMenu.js';
 import {LintelBluetoothMenu} from './widgets/bluetoothMenu.js';
 import {LintelBatteryMenu} from './widgets/batteryMenu.js';
@@ -41,6 +42,7 @@ const ACTIVE_APP_ROLE = 'lintel-active-app';
 const WIFI_ROLE = 'lintel-wifi';
 const BLUETOOTH_ROLE = 'lintel-bluetooth';
 const BATTERY_ROLE = 'lintel-battery';
+const FLUID_GLASS_ROLE = 'lintel-fluid-glass';
 const CONTROL_CENTER_ROLE = 'lintel-control-center';
 const CLOCK_STYLE_CLASS = 'lintel-clock-button';
 
@@ -56,6 +58,7 @@ const STRUCTURAL_KEYS = new Set([
     'empty-app-label',
     'control-center-mode',
     'notification-center-enabled',
+    'show-fluid-glass-menu',
 ]);
 
 export class PanelController {
@@ -73,6 +76,7 @@ export class PanelController {
         this._notificationCenter = null;
         this._systemMenu = null;
         this._activeApp = null;
+        this._fluidGlassMenu = null;
         this._wifiMenu = null;
         this._bluetoothMenu = null;
         this._batteryMenu = null;
@@ -373,27 +377,32 @@ export class PanelController {
             return;
 
         const right = PanelAdapter.rightBox;
-        const pos = right ? right.get_n_children() : 0;
+        let pos = right ? right.get_n_children() : 0;
+        if (!this._fluidGlassMenu && (this._settings?.get_boolean('show-fluid-glass-menu') ?? true)) {
+            const menu = new LintelFluidGlassMenu(this._extension);
+            PanelAdapter.addToStatusArea(FLUID_GLASS_ROLE, menu, pos++, 'right');
+            this._fluidGlassMenu = menu;
+        }
         if (!this._wifiMenu) {
             const menu = new LintelWifiMenu();
-            PanelAdapter.addToStatusArea(WIFI_ROLE, menu, pos, 'right');
+            PanelAdapter.addToStatusArea(WIFI_ROLE, menu, pos++, 'right');
             this._wifiMenu = menu;
         }
         if (!this._bluetoothMenu) {
             const menu = new LintelBluetoothMenu();
-            PanelAdapter.addToStatusArea(BLUETOOTH_ROLE, menu, pos + 1, 'right');
+            PanelAdapter.addToStatusArea(BLUETOOTH_ROLE, menu, pos++, 'right');
             this._bluetoothMenu = menu;
         }
         if (!this._batteryMenu) {
             const menu = new LintelBatteryMenu();
-            PanelAdapter.addToStatusArea(BATTERY_ROLE, menu, pos + 2, 'right');
+            PanelAdapter.addToStatusArea(BATTERY_ROLE, menu, pos++, 'right');
             this._batteryMenu = menu;
         }
     }
 
     /**
      * Keep the Tahoe controls as independent hit targets immediately
-     * left of the clock: Wi-Fi, Bluetooth, battery, then Control Center.
+     * left of the clock: Fluid Glass, Wi-Fi, Bluetooth, battery, then Control Center.
      */
     _positionRightControls() {
         const right = PanelAdapter.rightBox;
@@ -402,11 +411,12 @@ export class PanelController {
 
         const clock = PanelAdapter.containerOf(PanelAdapter.dateMenu);
         const controls = [
+            this._fluidGlassMenu,
             this._wifiMenu,
             this._bluetoothMenu,
             this._batteryMenu,
             this._controlCenter,
-        ].map(widget => PanelAdapter.containerOf(widget))
+        ].filter(Boolean).map(widget => PanelAdapter.containerOf(widget))
             .filter(container => container?.get_parent() === right);
         if (!controls.length)
             return;
@@ -422,6 +432,8 @@ export class PanelController {
     }
 
     _removeStatusMenus() {
+        this._fluidGlassMenu?.destroy();
+        this._fluidGlassMenu = null;
         this._wifiMenu?.destroy();
         this._bluetoothMenu?.destroy();
         this._batteryMenu?.destroy();

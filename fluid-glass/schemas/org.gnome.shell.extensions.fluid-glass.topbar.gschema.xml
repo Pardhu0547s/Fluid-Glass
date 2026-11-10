@@ -123,6 +123,12 @@
       <summary>Text shown when no window is focused (empty = hide)</summary>
     </key>
 
+    <!-- Fluid Glass Quick Menu -->
+    <key name="show-fluid-glass-menu" type="b">
+      <default>true</default>
+      <summary>Show Fluid Glass quick adjustment menu in the top bar</summary>
+    </key>
+
     <!-- Control Center (Stage 6) -->
     <key name="control-center-mode" enum="org.gnome.shell.extensions.fluid-glass.topbar.control-center-mode">
       <default>'custom'</default>

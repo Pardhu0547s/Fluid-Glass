@@ -452,6 +452,8 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
 
         const groupBar = new Adw.PreferencesGroup({title: _('Layout')});
         page.add(groupBar);
+        this._switchRow(groupBar, this.sLintel, 'show-fluid-glass-menu',
+            _('Fluid Glass Quick Menu'), _('Quick live adjustment menu in the top bar'));
         this._switchRow(groupBar, this.sLintel, 'show-system-menu',
             _('System Logo Menu'), _('Logo menu on the far left'));
         this._switchRow(groupBar, this.sLintel, 'show-active-app',

@@ -323,6 +323,55 @@
     width: 176px;
 }
 
+.lintel-system-menu-content.lintel-status-menu-content.lintel-fluid-glass-menu-content,
+.lintel-system-menu-content.lintel-fluid-glass-menu-content {
+    width: 240px;
+}
+
+.lintel-fg-slider-item {
+    padding: 3px 10px 4px 10px;
+}
+
+.lintel-fg-slider-header {
+    spacing: 6px;
+    margin-bottom: 2px;
+}
+
+.lintel-fg-slider-title {
+    font-size: 8.5pt;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.lintel-system-menu-content.lintel-light .lintel-fg-slider-title {
+    color: rgba(0, 0, 0, 0.85);
+}
+
+.lintel-fg-slider-val {
+    font-size: 8pt;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.60);
+    font-feature-settings: "tnum";
+}
+
+.lintel-system-menu-content.lintel-light .lintel-fg-slider-val {
+    color: rgba(0, 0, 0, 0.55);
+}
+
+.lintel-fg-track {
+    height: 14px;
+    -barlevel-height: 5px;
+    -barlevel-background-color: rgba(255, 255, 255, 0.18);
+    -barlevel-active-background-color: #007aff;
+    -barlevel-border-radius: 999px;
+    -slider-handle-radius: 5px;
+}
+
+.lintel-system-menu-content.lintel-light .lintel-fg-track {
+    -barlevel-background-color: rgba(0, 0, 0, 0.12);
+    -barlevel-active-background-color: #007aff;
+}
+
 .lintel-status-menu-content .popup-menu-item,
 .lintel-extra-status-menu-content .popup-menu-item {
     min-height: 22px;
