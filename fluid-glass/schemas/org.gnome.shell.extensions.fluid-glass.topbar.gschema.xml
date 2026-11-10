@@ -125,7 +125,7 @@
 
     <!-- Fluid Glass Quick Menu -->
     <key name="show-fluid-glass-menu" type="b">
-      <default>true</default>
+      <default>false</default>
       <summary>Show Fluid Glass quick adjustment menu in the top bar</summary>
     </key>
 

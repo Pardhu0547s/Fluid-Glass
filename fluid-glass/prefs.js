@@ -342,6 +342,18 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             for (const [key, title, subtitle] of targets)
                 this._switchRow(groupTargets, this.sGlass, key, title, subtitle);
         }
+
+        if (this.sLintel) {
+            const groupMenu = new Adw.PreferencesGroup({
+                title: _('Top Bar Quick Adjust'),
+                description: _('Quick access menu in the top bar to adjust glass settings live'),
+            });
+            page.add(groupMenu);
+
+            this._switchRow(groupMenu, this.sLintel, 'show-fluid-glass-menu',
+                _('Show in Top Bar'),
+                _('Add a Fluid Glass status icon to the top bar with live sliders and presets'));
+        }
     }
 
     // ── 3. Control Center ──────────────────────────────────────────────────
@@ -452,8 +464,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
 
         const groupBar = new Adw.PreferencesGroup({title: _('Layout')});
         page.add(groupBar);
-        this._switchRow(groupBar, this.sLintel, 'show-fluid-glass-menu',
-            _('Fluid Glass Quick Menu'), _('Quick live adjustment menu in the top bar'));
         this._switchRow(groupBar, this.sLintel, 'show-system-menu',
             _('System Logo Menu'), _('Logo menu on the far left'));
         this._switchRow(groupBar, this.sLintel, 'show-active-app',
