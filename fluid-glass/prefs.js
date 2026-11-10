@@ -580,10 +580,17 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             img.set_from_gicon(Gio.FileIcon.new(file));
         } else {
             const cleanName = val.endsWith('.svg') ? val.slice(0, -4) : val;
-            const distrosDir = this.dir.get_child('icons').get_child('distros');
-            let distroFile = distrosDir.get_child(`${cleanName}.svg`);
+            const iconsDir = this.dir.get_child('icons');
+            const distrosDir = iconsDir.get_child('distros');
+            let distroFile = iconsDir.get_child(`${cleanName}.svg`);
+            if (!distroFile.query_exists(null))
+                distroFile = distrosDir.get_child(`${cleanName}.svg`);
+            if (!distroFile.query_exists(null))
+                distroFile = iconsDir.get_child(`${cleanName}-logo-symbolic.svg`);
             if (!distroFile.query_exists(null))
                 distroFile = distrosDir.get_child(`${cleanName}-logo-symbolic.svg`);
+            if (!distroFile.query_exists(null))
+                distroFile = iconsDir.get_child(`${cleanName}-logo.svg`);
             if (!distroFile.query_exists(null))
                 distroFile = distrosDir.get_child(`${cleanName}-logo.svg`);
 
@@ -663,7 +670,9 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 tooltip_text: distro.name,
                 css_classes: ['flat'],
             });
-            const file = this.dir.get_child('icons').get_child('distros').get_child(`${distro.id}.svg`);
+            let file = this.dir.get_child('icons').get_child(`${distro.id}.svg`);
+            if (!file.query_exists(null))
+                file = this.dir.get_child('icons').get_child('distros').get_child(`${distro.id}.svg`);
             const img = new Gtk.Image({
                 pixel_size: 28,
             });
@@ -710,7 +719,9 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 tooltip_text: distro.name,
                 css_classes: ['flat'],
             });
-            const file = this.dir.get_child('icons').get_child('distros').get_child(`${distro.id}.svg`);
+            let file = this.dir.get_child('icons').get_child(`${distro.id}.svg`);
+            if (!file.query_exists(null))
+                file = this.dir.get_child('icons').get_child('distros').get_child(`${distro.id}.svg`);
             const img = new Gtk.Image({
                 pixel_size: 28,
             });

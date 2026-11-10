@@ -261,10 +261,17 @@ export const LintelSystemMenu = GObject.registerClass({
             icon.gicon = Gio.FileIcon.new(file);
         } else if (value) {
             const cleanName = value.endsWith('.svg') ? value.slice(0, -4) : value;
-            const distrosDir = this._extension?.dir?.get_child('icons')?.get_child('distros');
-            let distroFile = distrosDir?.get_child(`${cleanName}.svg`);
+            const iconsDir = this._extension?.dir?.get_child('icons');
+            const distrosDir = iconsDir?.get_child('distros');
+            let distroFile = iconsDir?.get_child(`${cleanName}.svg`);
+            if (!distroFile?.query_exists(null))
+                distroFile = distrosDir?.get_child(`${cleanName}.svg`);
+            if (!distroFile?.query_exists(null))
+                distroFile = iconsDir?.get_child(`${cleanName}-logo-symbolic.svg`);
             if (!distroFile?.query_exists(null))
                 distroFile = distrosDir?.get_child(`${cleanName}-logo-symbolic.svg`);
+            if (!distroFile?.query_exists(null))
+                distroFile = iconsDir?.get_child(`${cleanName}-logo.svg`);
             if (!distroFile?.query_exists(null))
                 distroFile = distrosDir?.get_child(`${cleanName}-logo.svg`);
 
