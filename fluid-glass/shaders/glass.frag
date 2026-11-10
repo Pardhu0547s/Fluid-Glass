@@ -640,9 +640,9 @@ void main() {
 
     float lensBand = lensBandFor(min(box_size.x, box_size.y));
     if (multi_region_mode > 0.5) {
-        // Multi-region capsules: sleek 7.5px refractive curved bevel along the perimeter
-        // for authentic glass depth, refraction and chromatic dispersion.
-        lensBand = min(lensBand, 7.5);
+        // Multi-region capsules: sleek, ultra-subtle 2.2px curved bevel along perimeter
+        // matching native macOS Tahoe / Sequoia control center modules.
+        lensBand = min(lensBand, 2.2);
     }
 
 #ifdef LG_SHAPE_TEXTURE
@@ -882,10 +882,13 @@ void main() {
     vec3 reflectDir = reflect(-lightDir, normal);
     float response = 1.0;
 
-    // The rim band. The width is kept above 0 for smoothstep(), and the step()
-    // makes a rim width of 0 really turn it off.
-    float safeRimWidth = max(rim_width, 0.001);
-    float edgeBand = (1.0 - smoothstep(0.0, safeRimWidth, abs(d))) * step(0.0005, rim_width);
+    // The rim band. In multi-region mode (e.g. Control Center capsules),
+    // reduce rim width and intensity so capsules have a crisp, subtle edge highlight
+    // rather than thick glowing halos.
+    float safeRimWidth = (multi_region_mode > 0.5)
+        ? min(max(rim_width * 0.32, 0.001), 0.70)
+        : max(rim_width, 0.001);
+    float edgeBand = (1.0 - smoothstep(0.0, safeRimWidth, abs(d))) * step(0.0005, safeRimWidth);
 
     float rimDot = 1.0 - max(dot(normal, viewDir), 0.0);
     float rimFresnel = pow(max(rimDot, 0.0), max(rim_power, 0.001));
@@ -901,6 +904,9 @@ void main() {
 
     float rimShape = mix(pow(edgeBand, 0.85), rimFresnel, 0.55) * edgeBand;
     float finalRimLight = rimShape * lightMask * rim_intensity * rim_light_color_intensity;
+    if (multi_region_mode > 0.5) {
+        finalRimLight *= 0.35;
+    }
     finalRimLight *= response;
 
     float specularDot = max(dot(reflectDir, viewDir), 0.0);
@@ -908,8 +914,11 @@ void main() {
     specularLight *= specular_intensity * response;
     float specMask = mix(0.25, 1.0, insideMask) * clamp(edgeBand + insideMask * 0.65, 0.0, 1.0);
     specularLight *= specMask;
+    if (multi_region_mode > 0.5) {
+        specularLight *= 0.25;
+    }
 
-    float idleRim = edgeBand * 0.008;
+    float idleRim = edgeBand * ((multi_region_mode > 0.5) ? 0.002 : 0.008);
 
     float sheenFacing = max(dot(normal, lightDir), 0.0);
     float surfaceSheen = pow(sheenFacing, 1.65);
@@ -939,7 +948,8 @@ void main() {
     // Over the lighting, so the line keeps its colour. Only its inner border
     // is blended here; the outer one is the glass's own coverage.
     if (outline_width > 0.0) {
-        float outlineMask = smoothstep(-outline_width - 0.5, -outline_width + 0.5, d);
+        float effOutline = (multi_region_mode > 0.5) ? min(outline_width, 0.5) : outline_width;
+        float outlineMask = smoothstep(-effOutline - 0.5, -effOutline + 0.5, d);
         litColor = mix(litColor, vec3(outline_r, outline_g, outline_b), outlineMask);
     }
 

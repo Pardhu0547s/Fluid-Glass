@@ -267,7 +267,7 @@ export const LintelFluidGlassMenu = GObject.registerClass({
     _setGlassInt(suffix, val) {
         if (!this._glassSettings)
             return;
-        for (const prefix of ['dock', 'panel-menu', 'menu']) {
+        for (const prefix of ['dock', 'panel-menu', 'menu', 'quick-settings', 'top-bar', 'notification', 'osd']) {
             const k = `${prefix}-${suffix}`;
             if (this._glassSettings.settings_schema.has_key(k))
                 this._glassSettings.set_int(k, val);
@@ -277,7 +277,7 @@ export const LintelFluidGlassMenu = GObject.registerClass({
     _setGlassDouble(suffix, val) {
         if (!this._glassSettings)
             return;
-        for (const prefix of ['dock', 'panel-menu', 'menu']) {
+        for (const prefix of ['dock', 'panel-menu', 'menu', 'quick-settings', 'top-bar', 'notification', 'osd']) {
             const k = `${prefix}-${suffix}`;
             if (this._glassSettings.settings_schema.has_key(k))
                 this._glassSettings.set_double(k, val);

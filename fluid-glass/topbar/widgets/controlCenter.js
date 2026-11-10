@@ -450,15 +450,24 @@ class ControlCenter extends PanelMenu.Button {
         const glassSettings = this._extension?.getGlassSettings?.();
         if (glassSettings) {
             const updateGlass = () => {
+                const blur = glassSettings.get_int('panel-menu-blur-radius') || glassSettings.get_int('dock-blur-radius') || 10;
+                const tintCol = glassSettings.get_string('panel-menu-tint-color') || glassSettings.get_string('dock-tint-color') || '#ffffff';
+                const tintStr = glassSettings.get_double('panel-menu-tint-strength') || glassSettings.get_double('dock-tint-strength') || 0.12;
+                const bright = glassSettings.get_double('panel-menu-brightness') || glassSettings.get_double('dock-brightness') || 1.0;
+                const contrast = glassSettings.get_double('panel-menu-contrast') || glassSettings.get_double('dock-contrast') || 1.0;
+                const sat = glassSettings.get_double('panel-menu-saturation') || glassSettings.get_double('dock-saturation') || 1.5;
+                const corner = glassSettings.get_double('panel-menu-corner-radius') || 26.0;
+                const exp = glassSettings.get_int('panel-menu-glass-expand') || 3;
+
                 this._glassHandle?.update({
-                    blurRadius: glassSettings.get_int('panel-menu-blur-radius'),
-                    tintColor: glassSettings.get_string('panel-menu-tint-color'),
-                    tintStrength: glassSettings.get_double('panel-menu-tint-strength'),
-                    brightness: glassSettings.get_double('panel-menu-brightness'),
-                    contrast: glassSettings.get_double('panel-menu-contrast'),
-                    saturation: glassSettings.get_double('panel-menu-saturation'),
-                    cornerRadius: glassSettings.get_double('panel-menu-corner-radius'),
-                    expand: glassSettings.get_int('panel-menu-glass-expand'),
+                    blurRadius: blur,
+                    tintColor: tintCol,
+                    tintStrength: tintStr,
+                    brightness: bright,
+                    contrast,
+                    saturation: sat,
+                    cornerRadius: corner,
+                    expand: exp,
                 });
             };
             for (const k of [
@@ -466,8 +475,12 @@ class ControlCenter extends PanelMenu.Button {
                 'panel-menu-tint-strength', 'panel-menu-brightness',
                 'panel-menu-contrast', 'panel-menu-saturation',
                 'panel-menu-corner-radius', 'panel-menu-glass-expand',
+                'dock-blur-radius', 'dock-tint-color',
+                'dock-tint-strength', 'dock-brightness',
+                'dock-contrast', 'dock-saturation',
             ]) {
-                this._glassSettingsIds.push(glassSettings.connect(`changed::${k}`, updateGlass));
+                if (glassSettings.settings_schema.has_key(k))
+                    this._glassSettingsIds.push(glassSettings.connect(`changed::${k}`, updateGlass));
             }
         }
 

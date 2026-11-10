@@ -169,6 +169,7 @@ export class GlassHandle {
         applyGlassParameters(this.glass, this.options);
         if (this._syncFn)
             this._syncFn(this);
+        this.glass.queue_redraw();
     }
 
     hide() {

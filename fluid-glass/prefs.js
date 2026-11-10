@@ -288,7 +288,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             page.add(groupShaders);
 
             const setAll = (suffix, fn) => {
-                for (const prefix of ['dock', 'panel-menu', 'menu']) {
+                for (const prefix of ['dock', 'panel-menu', 'menu', 'quick-settings', 'top-bar', 'notification', 'osd']) {
                     const key = `${prefix}-${suffix}`;
                     if (this._hasKey(this.sGlass, key))
                         fn(key);
@@ -545,51 +545,45 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
 
     // ── Preset Handlers ────────────────────────────────────────────────────
     _applyPreset(presetId) {
-        if (presetId === 'tahoe-crystal') {
-            if (this.sGlass) {
-                this.sGlass.set_int('dock-blur-radius', 10);
-                this.sGlass.set_int('panel-menu-blur-radius', 10);
-                this.sGlass.set_int('menu-blur-radius', 10);
-                this.sGlass.set_double('dock-tint-strength', 0.12);
-                this.sGlass.set_double('panel-menu-tint-strength', 0.12);
-                this.sGlass.set_double('menu-tint-strength', 0.12);
-                this.sGlass.set_double('dock-saturation', 1.5);
-                this.sGlass.set_double('dock-brightness', 1.0);
+        const setGlass = (suffix, val, isInt = false) => {
+            if (!this.sGlass)
+                return;
+            for (const prefix of ['dock', 'panel-menu', 'menu', 'quick-settings', 'top-bar', 'notification', 'osd']) {
+                const key = `${prefix}-${suffix}`;
+                if (this._hasKey(this.sGlass, key)) {
+                    if (isInt)
+                        this.sGlass.set_int(key, val);
+                    else
+                        this.sGlass.set_double(key, val);
+                }
             }
+        };
+
+        if (presetId === 'tahoe-crystal') {
+            setGlass('blur-radius', 10, true);
+            setGlass('tint-strength', 0.12);
+            setGlass('saturation', 1.5);
+            setGlass('brightness', 1.0);
             if (this.sLintel)
                 this.sLintel.set_string('control-center-mode', 'custom');
             this._setAccentColor('#007aff');
         } else if (presetId === 'deep-frosted') {
-            if (this.sGlass) {
-                this.sGlass.set_int('dock-blur-radius', 20);
-                this.sGlass.set_int('panel-menu-blur-radius', 20);
-                this.sGlass.set_int('menu-blur-radius', 20);
-                this.sGlass.set_double('dock-tint-strength', 0.28);
-                this.sGlass.set_double('panel-menu-tint-strength', 0.28);
-                this.sGlass.set_double('menu-tint-strength', 0.28);
-            }
+            setGlass('blur-radius', 20, true);
+            setGlass('tint-strength', 0.28);
+            setGlass('saturation', 1.4);
+            setGlass('brightness', 1.0);
             this._setAccentColor('#007aff');
         } else if (presetId === 'midnight-glass') {
-            if (this.sGlass) {
-                this.sGlass.set_int('dock-blur-radius', 12);
-                this.sGlass.set_int('panel-menu-blur-radius', 12);
-                this.sGlass.set_int('menu-blur-radius', 12);
-                this.sGlass.set_double('dock-tint-strength', 0.08);
-                this.sGlass.set_double('panel-menu-tint-strength', 0.08);
-                this.sGlass.set_double('menu-tint-strength', 0.08);
-                this.sGlass.set_double('dock-brightness', 0.85);
-            }
+            setGlass('blur-radius', 12, true);
+            setGlass('tint-strength', 0.08);
+            setGlass('saturation', 1.3);
+            setGlass('brightness', 0.85);
             this._setAccentColor('#007aff');
         } else if (presetId === 'electric-neon') {
-            if (this.sGlass) {
-                this.sGlass.set_int('dock-blur-radius', 10);
-                this.sGlass.set_int('panel-menu-blur-radius', 10);
-                this.sGlass.set_int('menu-blur-radius', 10);
-                this.sGlass.set_double('dock-tint-strength', 0.18);
-                this.sGlass.set_double('panel-menu-tint-strength', 0.18);
-                this.sGlass.set_double('menu-tint-strength', 0.18);
-                this.sGlass.set_double('dock-saturation', 1.8);
-            }
+            setGlass('blur-radius', 10, true);
+            setGlass('tint-strength', 0.18);
+            setGlass('saturation', 1.8);
+            setGlass('brightness', 1.05);
             this._setAccentColor('#00c6ff');
         }
 

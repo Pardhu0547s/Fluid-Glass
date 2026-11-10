@@ -182,6 +182,7 @@ export class GlassRenderer {
 
     setBlurRadius(radius) {
         this.blur.setBlurRadius(radius);
+        this._repaintIfDirty();
     }
 
     setTintColor(r, g, b) {
@@ -279,18 +280,18 @@ export class GlassRenderer {
         this._repaintIfDirty();
     }
 
-    setBrightness(_brightness) {
-        this.uniforms.set('brightness', 1.0);
+    setBrightness(brightness) {
+        this.uniforms.set('brightness', brightness);
         this._repaintIfDirty();
     }
 
-    setContrast(_contrast) {
-        this.uniforms.set('contrast', 1.0);
+    setContrast(contrast) {
+        this.uniforms.set('contrast', contrast);
         this._repaintIfDirty();
     }
 
-    setSaturation(_saturation) {
-        this.uniforms.set('saturation', 1.0);
+    setSaturation(saturation) {
+        this.uniforms.set('saturation', saturation);
         this._repaintIfDirty();
     }
 }

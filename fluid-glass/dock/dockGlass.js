@@ -31,8 +31,10 @@ export function createDockGlass(extensionPath, settings, logger, owner) {
 export function followDockMaterial(settings, glass) {
     return DOCK_MATERIAL.map(([key, apply]) => settings.connect(`changed::${key}`, () => {
         const current = glass();
-        if (current)
+        if (current) {
             apply(current, settings);
+            current.queue_redraw();
+        }
     }));
 }
 
