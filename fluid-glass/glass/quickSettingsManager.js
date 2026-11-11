@@ -549,7 +549,7 @@ export class QuickSettingsManager {
         this._toggleStyles.resetDiagnostics();
         this._lastGoodRegions = null;
         this._regionGraceFrames = 0;
-        this._glassExpand = this._settings.get_int('quick-settings-glass-expand');
+        this._glassExpand = 0;
         this._toggleBaseStrength = this._settings.get_double('quick-settings-toggle-tint-strength');
         this._toggleCornerRadius = this._settings.get_double('quick-settings-toggle-corner-radius');
         this._adaptiveConfig = {

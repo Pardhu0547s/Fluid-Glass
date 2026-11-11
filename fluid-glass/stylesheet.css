@@ -2544,8 +2544,17 @@
 
 /* Clears the shell's own background from a surface that gets glass. */
 .liquid-glass-transparent,
-.liquid-glass-transparent-keep-border {
+.liquid-glass-transparent-keep-border,
+.liquid-glass-transparent.popup-menu,
+.liquid-glass-transparent .popup-menu-boxpointer,
+.liquid-glass-transparent.popup-menu-boxpointer {
     background-color: transparent !important;
+    background: transparent !important;
+    -arrow-background-color: transparent !important;
+    -arrow-border-color: transparent !important;
+    -arrow-border-width: 0 !important;
+    -arrow-base: 0 !important;
+    -arrow-rise: 0 !important;
     box-shadow: none !important;
     background-image: none !important;
 
