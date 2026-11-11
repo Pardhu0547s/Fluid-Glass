@@ -4,6 +4,7 @@ import Meta from 'gi://Meta';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import { safeRegisterClass } from './shellVersion.js';
 // gjs answers GObject.Object.prototype.toString from the JS wrapper, so it can
 // report "(DISPOSED)" without touching the C object. String(actor) is not an
 // option: the shell overrides Clutter.Actor.prototype.toString with
@@ -321,7 +322,7 @@ export function applyGlassScale(effect, cornerRadius, scaleX, scaleY) {
 // instead.
 // A plain Clutter.Actor rather than an St.Widget, so no theme padding gets in
 // the way of pixel-exact layout.
-export const UnpickableActor = GObject.registerClass(class UnpickableActor extends Clutter.Actor {
+export const UnpickableActor = safeRegisterClass(class UnpickableActor extends Clutter.Actor {
     _init(params = {}) {
         super._init(params);
         Shell.util_set_hidden_from_pick(this, true);
@@ -337,7 +338,7 @@ export const UnpickableActor = GObject.registerClass(class UnpickableActor exten
  * radius) without cloning the widget and its children. Only selectors that
  * match the class itself apply, not descendant selectors.
  */
-export const UnpickableWidget = GObject.registerClass(class UnpickableWidget extends St.Widget {
+export const UnpickableWidget = safeRegisterClass(class UnpickableWidget extends St.Widget {
     _init(params = {}) {
         super._init(params);
         Shell.util_set_hidden_from_pick(this, true);
@@ -354,7 +355,7 @@ export const UnpickableWidget = GObject.registerClass(class UnpickableWidget ext
  * sizes, and a full-screen child made Quick Settings cover the screen. The
  * caller positions it explicitly.
  */
-export const LayoutOpaqueActor = GObject.registerClass(class LayoutOpaqueActor extends UnpickableActor {
+export const LayoutOpaqueActor = safeRegisterClass(class LayoutOpaqueActor extends UnpickableActor {
     vfunc_get_preferred_width(_forHeight) {
         return [0, 0];
     }

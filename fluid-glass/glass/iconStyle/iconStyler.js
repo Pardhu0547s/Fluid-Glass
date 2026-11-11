@@ -12,7 +12,7 @@ import St from 'gi://St';
 import GObject from 'gi://GObject';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { hexToColorArray, startSyncLoop, stopStageLoop } from '../animation.js';
-import { accentColors, watchAccentColor, coglContext } from '../shellVersion.js';
+import { accentColors, watchAccentColor, coglContext, safeRegisterClass } from '../shellVersion.js';
 import { iconStyleColors, iconStyleUniforms } from './styleColors.js';
 import { LENS_SIZE, MAP_SIZE } from './styleMap.js';
 import { WorkerProcess } from '../workers/workerProcess.js';
@@ -741,7 +741,7 @@ function imageRect(actor) {
     return [box.x1 + (box.get_width() - side) / 2, box.y1 + (box.get_height() - side) / 2, side, side];
 }
 
-export const IconStyleEffect = GObject.registerClass(class IconStyleEffect extends Clutter.OffscreenEffect {
+export const IconStyleEffect = safeRegisterClass(class IconStyleEffect extends Clutter.OffscreenEffect {
     _init() {
         super._init();
         this._pipeline = null;
@@ -876,7 +876,7 @@ const MARGIN = 8;
 // The copy's size is rounded up to this (px), so that icons coming and going do not make new textures every frame.
 const QUANTUM = 32;
 
-export const IconBackdrop = GObject.registerClass(class IconBackdrop extends Clutter.Effect {
+export const IconBackdrop = safeRegisterClass(class IconBackdrop extends Clutter.Effect {
     _init(params) {
         super._init();
         this._params = params;

@@ -1,3 +1,4 @@
+import './guard.js';
 import GLib from 'gi://GLib';
 
 import {UIManager} from './glass/uiManager.js';

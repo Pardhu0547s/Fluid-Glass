@@ -1,7 +1,9 @@
+import '../../guard.js';
 import Clutter from 'gi://Clutter';
 import Cogl from 'gi://Cogl';
 import Meta from 'gi://Meta';
 import St from 'gi://St';
+import GObject from 'gi://GObject';
 import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 // What differs between the supported GNOME Shell versions (46 to 51).
 export const SHELL_MAJOR = parseInt(Config.PACKAGE_VERSION, 10);
@@ -197,4 +199,29 @@ export function paintNodeWithContext(klass) {
         parentPaint.call(this, paintContext);
     };
     return klass;
+}
+
+export function safeRegisterClass(...args) {
+    let metadata, classDef;
+    if (args.length === 1) {
+        metadata = {};
+        classDef = args[0];
+    } else {
+        metadata = Object.assign({}, args[0]);
+        classDef = args[1];
+    }
+    const baseName = metadata.GTypeName || classDef.name || 'GjsAnonymousClass';
+    const cacheKey = '__fg_gclass_' + baseName;
+    if (globalThis[cacheKey]) {
+        return globalThis[cacheKey];
+    }
+    let typeName = metadata.GTypeName || ('FluidGlass_' + baseName);
+    let counter = 1;
+    while (GObject.type_from_name(typeName)) {
+        typeName = (metadata.GTypeName || ('FluidGlass_' + baseName)) + '_' + (counter++);
+    }
+    metadata.GTypeName = typeName;
+    const registered = GObject.registerClass(metadata, classDef);
+    globalThis[cacheKey] = registered;
+    return registered;
 }

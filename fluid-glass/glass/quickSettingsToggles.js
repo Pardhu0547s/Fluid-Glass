@@ -5,7 +5,7 @@ import GObject from 'gi://GObject';
 import Cogl from 'gi://Cogl';
 import Graphene from 'gi://Graphene';
 import Shell from 'gi://Shell';
-import { QS_MENU_TOGGLE_CLASS, offscreenFormat, paintNodeWithContext, setUniformVector, uniformDeclarations } from './shellVersion.js';
+import { QS_MENU_TOGGLE_CLASS, offscreenFormat, paintNodeWithContext, setUniformVector, uniformDeclarations, safeRegisterClass } from './shellVersion.js';
 import { GlassActor, StageCopier, addBlit, createTarget, isPaintingView, RelaySet, localToStage } from './rendering/backdropGlass.js';
 import { configureSamplerLayer } from './rendering/pipelines.js';
 import { setTranslationIfChanged, setScaleIfChanged, isActorValid } from './actors.js';
@@ -464,7 +464,7 @@ export class ToggleStyles {
 // for the same reason as the sample area (rendering/backdropGlass.ts).
 const READER_BASE = 256;
 
-export const BackdropReader = GObject.registerClass(paintNodeWithContext(class BackdropReader extends Clutter.Actor {
+export const BackdropReader = safeRegisterClass(paintNodeWithContext(class BackdropReader extends Clutter.Actor {
     _init(logger) {
         super._init({ name: 'liquid-glass-backdrop-reader', reactive: false, width: READER_BASE, height: READER_BASE });
         Shell.util_set_hidden_from_pick(this, true);
@@ -508,7 +508,7 @@ const COMPOSE_BODY = 'vec2 uv = cogl_tex_coord_in[0].st;\n' +
     'vec4 m = texture2D(cogl_sampler1, mix(m_rect.xy, m_rect.zw, uv));\n' +
     'cogl_color_out = m + d * (1.0 - m.a);\n';
 
-export const ToggleBackdropGlass = GObject.registerClass(paintNodeWithContext(class ToggleBackdropGlass extends GlassActor {
+export const ToggleBackdropGlass = safeRegisterClass(paintNodeWithContext(class ToggleBackdropGlass extends GlassActor {
     _init(params = {}) {
         super._init(params);
         this.reader = new BackdropReader(params.logger);

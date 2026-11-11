@@ -1,3 +1,4 @@
+import './guard.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 import GLib from 'gi://GLib';
 

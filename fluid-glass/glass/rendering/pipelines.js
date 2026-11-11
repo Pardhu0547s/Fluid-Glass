@@ -2,7 +2,7 @@ import Cogl from 'gi://Cogl';
 import Gio from 'gi://Gio';
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
-import { uniformDeclarations, setUniformVector, coglContext } from '../shellVersion.js';
+import { uniformDeclarations, setUniformVector, coglContext, safeRegisterClass } from '../shellVersion.js';
 
 /**
  * Splits a GLSL source string into { decl, body } at the "void main()" boundary.
@@ -795,7 +795,7 @@ export function rectInOffscreen(actor, rect) {
 }
 
 /** Put on the actor that holds the items, clipped to the glass's box. */
-export const ContentLens = GObject.registerClass(class ContentLens extends Clutter.OffscreenEffect {
+export const ContentLens = safeRegisterClass(class ContentLens extends Clutter.OffscreenEffect {
     _init() {
         super._init();
         this._pipeline = null;

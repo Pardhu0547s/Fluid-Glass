@@ -12,7 +12,7 @@ import Graphene from 'gi://Graphene';
 import Meta from 'gi://Meta';
 import Mtk from 'gi://Mtk';
 import { GlassRenderer } from './glassRenderer.js';
-import { coglContext, paintNodeWithContext, canCloneSource, undoCloneScale, newRootNode, offscreenFormat } from '../shellVersion.js';
+import { coglContext, paintNodeWithContext, canCloneSource, undoCloneScale, newRootNode, offscreenFormat, safeRegisterClass } from '../shellVersion.js';
 import { windowMayCover, UnpickableActor, setTranslationIfChanged, setScaleIfChanged } from '../actors.js';
 import { registerGlass, unregisterGlass } from '../diagnostics.js';
 
@@ -21,7 +21,7 @@ import { registerGlass, unregisterGlass } from '../diagnostics.js';
  * shaders, the paint-time geometry hook, the sample rect and the composite.
  * Subclasses supply the backdrop texture.
  */
-export const GlassActor = GObject.registerClass(class GlassActor extends Clutter.Actor {
+export const GlassActor = safeRegisterClass(class GlassActor extends Clutter.Actor {
     _init(params = {}) {
         super._init({ name: 'liquid-glass-bg-actor', reactive: false });
         Shell.util_set_hidden_from_pick(this, true);
@@ -340,7 +340,7 @@ export const GlassActor = GObject.registerClass(class GlassActor extends Clutter
  * Quick Settings' background mode): it copies its own backdrop from the
  * stage view it is painted on.
  */
-export const BackdropGlass = GObject.registerClass(paintNodeWithContext(class BackdropGlass extends GlassActor {
+export const BackdropGlass = safeRegisterClass(paintNodeWithContext(class BackdropGlass extends GlassActor {
     _init(params = {}) {
         super._init(params);
         this._relays = new RelaySet(this);
@@ -492,7 +492,7 @@ const RELAY_KEEP_MARGIN = 16;
  * redraw anywhere in the source then damages exactly the sample area,
  * whatever happens to the source's size in that frame.
  */
-const BackdropRelay = GObject.registerClass(class BackdropRelay extends Clutter.Clone {
+const BackdropRelay = safeRegisterClass(class BackdropRelay extends Clutter.Clone {
     _init(params) {
         super._init(params);
         Shell.util_set_hidden_from_pick(this, true);
