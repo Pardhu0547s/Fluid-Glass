@@ -1,4 +1,4 @@
-import '../../guard.js';
+import '../guard.js';
 import Clutter from 'gi://Clutter';
 import Cogl from 'gi://Cogl';
 import Meta from 'gi://Meta';
