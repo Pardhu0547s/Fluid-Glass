@@ -603,7 +603,7 @@
 .lintel-cc-tile {
     min-height: 0;
     height: 58px;
-    background-color: rgba(34, 34, 40, 0.22) !important;
+    background-color: transparent !important;
     border: none !important;
     border-radius: 999px;
     padding: 0 11px;
@@ -616,7 +616,7 @@
 .lintel-cc-tile:active,
 .lintel-cc-tile:checked,
 .lintel-cc-tile:checked:hover {
-    background-color: rgba(44, 44, 52, 0.28) !important;
+    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }
@@ -695,7 +695,7 @@
 .lintel-cc-media {
     min-width: 0;
     min-height: 0;
-    background-color: rgba(34, 34, 40, 0.22) !important;
+    background-color: transparent !important;
     border: none !important;
     border-radius: 26px;
     padding: 10px 12px 8px 12px;
@@ -781,7 +781,7 @@
     min-height: 0;
     padding: 0;
     border-radius: 999px;
-    background-color: rgba(34, 34, 40, 0.22) !important;
+    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     transition-duration: 160ms;
@@ -839,7 +839,7 @@
 .lintel-cc-slider:hover {
     min-width: 280px;
     min-height: 0;
-    background-color: rgba(34, 34, 40, 0.22) !important;
+    background-color: transparent !important;
     border: none !important;
     border-radius: 18px;
     padding: 5px 12px 5px 14px;
@@ -917,7 +917,7 @@
 .lintel-cc-edit-controls:focus,
 .lintel-cc-edit-controls.lintel-cc-edit-done {
     color: rgba(255, 255, 255, 0.95);
-    background-color: rgba(34, 34, 40, 0.22) !important;
+    background-color: transparent !important;
     border: none !important;
     border-radius: 999px;
     padding: 5px 16px;
@@ -935,7 +935,7 @@
 .lintel-cc-light .lintel-cc-media,
 .lintel-cc-light .lintel-cc-slider,
 .lintel-cc-light .lintel-cc-edit-controls {
-    background-color: rgba(255, 255, 255, 0.42) !important;
+    background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }

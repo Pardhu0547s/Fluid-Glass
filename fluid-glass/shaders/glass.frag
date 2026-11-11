@@ -639,10 +639,6 @@ void main() {
     float d = sdRoundRect(local_pos, box_size, corner);
 
     float lensBand = lensBandFor(min(box_size.x, box_size.y));
-    if (multi_region_mode > 0.5) {
-        // Multi-region capsules: completely flat glass with zero edge lens distortion or border bands
-        lensBand = 0.0;
-    }
 
 #ifdef LG_SHAPE_TEXTURE
     d = shapeTextureSD(local_pos);
@@ -881,10 +877,10 @@ void main() {
     vec3 reflectDir = reflect(-lightDir, normal);
     float response = 1.0;
 
-    // The rim band. In multi-region mode (Control Center modules), completely remove
-    // borders, outlines, specular rims, and inner shadows as requested.
-    float safeRimWidth = (multi_region_mode > 0.5) ? 0.0 : max(rim_width, 0.001);
-    float edgeBand = (multi_region_mode > 0.5) ? 0.0 : ((1.0 - smoothstep(0.0, safeRimWidth, abs(d))) * step(0.0005, safeRimWidth));
+    // The rim band. The width is kept above 0 for smoothstep(), and the step()
+    // makes a rim width of 0 really turn it off.
+    float safeRimWidth = max(rim_width, 0.001);
+    float edgeBand = (1.0 - smoothstep(0.0, safeRimWidth, abs(d))) * step(0.0005, rim_width);
 
     float rimDot = 1.0 - max(dot(normal, viewDir), 0.0);
     float rimFresnel = pow(max(rimDot, 0.0), max(rim_power, 0.001));
@@ -893,29 +889,22 @@ void main() {
     // The inner shadow falls where the rim light does not, as on macOS. With
     // the surface light off it runs all the way round.
     float aoLight = mix(1.0, 1.0 - lightMask, surface_light_enabled);
-    if (multi_region_mode > 0.5) {
-        aoLight = 0.0;
-    }
     baseColor *= (1.0 - aoMask * ao_intensity * aoLight);
 
     float rimShape = mix(pow(edgeBand, 0.85), rimFresnel, 0.55) * edgeBand;
-    float finalRimLight = (multi_region_mode > 0.5)
-        ? 0.0
-        : (rimShape * lightMask * rim_intensity * rim_light_color_intensity * response);
+    float finalRimLight = rimShape * lightMask * rim_intensity * rim_light_color_intensity * response;
 
     float specularDot = max(dot(reflectDir, viewDir), 0.0);
-    float specularLight = (multi_region_mode > 0.5)
-        ? 0.0
-        : (pow(specularDot, max(shininess, 1.0)) * specular_intensity * response);
+    float specularLight = pow(specularDot, max(shininess, 1.0)) * specular_intensity * response;
     float specMask = mix(0.25, 1.0, insideMask) * clamp(edgeBand + insideMask * 0.65, 0.0, 1.0);
     specularLight *= specMask;
 
-    float idleRim = (multi_region_mode > 0.5) ? 0.0 : (edgeBand * 0.008);
+    float idleRim = edgeBand * 0.008;
 
     float sheenFacing = max(dot(normal, lightDir), 0.0);
     float surfaceSheen = pow(sheenFacing, 1.65);
     surfaceSheen *= mix(1.0, 0.55, edgeBand);
-    float sheenLight = (multi_region_mode > 0.5) ? 0.0 : (surfaceSheen * sheen_intensity);
+    float sheenLight = surfaceSheen * sheen_intensity;
 
     float alpha = insideMask;
 
