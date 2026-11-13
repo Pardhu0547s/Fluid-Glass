@@ -389,14 +389,13 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
             const isSlider = item.has_style_class_name?.('fluid-glass-cc-slider') ||
                 parent?.has_style_class_name?.('fluid-glass-cc-sliders');
             if (isSlider) {
-                const sliderContainer = item.has_style_class_name?.('fluid-glass-cc-slider')
-                    ? parent?.get_parent?.() ?? parent
-                    : parent;
-                const [pw] = sliderContainer?.get_transformed_size?.() ?? [0, 0];
-                if (pw > iw)
+                const [pw] = parent?.get_transformed_size?.() ?? [0, 0];
+                if (iw < 40 && pw >= 40)
+                    iw = pw;
+                else if (pw >= 40 && iw > pw)
                     iw = pw;
                 const prev = lastGoodSizes.get(item);
-                if (prev && iw < prev.w * 0.6 && prev.w >= 120) {
+                if (iw < 40 && prev && prev.w >= 40) {
                     iw = prev.w;
                 } else if (iw >= 40) {
                     lastGoodSizes.set(item, { w: iw, h: ih });
