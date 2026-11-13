@@ -159,7 +159,7 @@ export class Launcher {
         if (!monitor)
             return;
         const root = new St.Widget({
-            name: 'liquid-glass-launcher', reactive: true,
+            name: 'fluid-glass-launcher', reactive: true,
             x: monitor.x, y: monitor.y, width: monitor.width, height: monitor.height, opacity: 0
         });
         const glass = new BackdropGlass({
@@ -171,7 +171,7 @@ export class Launcher {
         root.add_child(glass);
         const width = this._panelWidth(false, monitor.width);
         const panel = new St.BoxLayout({
-            style_class: 'liquid-glass-launcher', reactive: true, can_focus: true, width,
+            style_class: 'fluid-glass-launcher', reactive: true, can_focus: true, width,
             x: Math.round((monitor.width - width) / 2), y: this._panelTop(monitor.height), ...verticalBoxParams()
         });
         // Keys on the pinned page, where the panel has the focus.
@@ -224,7 +224,7 @@ export class Launcher {
         // Painted just before the panel, which is drawn through an offscreen while
         // it fades and bends to another page; the stage cannot be read in there, so
         // the clear icons' backdrop is copied here and they stay glass meanwhile.
-        const iconBackdropHost = new St.Widget({ name: 'liquid-glass-launcher-icons', width: monitor.width, height: monitor.height });
+        const iconBackdropHost = new St.Widget({ name: 'fluid-glass-launcher-icons', width: monitor.width, height: monitor.height });
         root.add_child(iconBackdropHost);
         this._icons.prepareLauncherHost(iconBackdropHost);
         root.add_child(panel);
@@ -728,7 +728,7 @@ export class Launcher {
         const formatted = formatNumber(value);
         return {
             provider: null, order: -1, meta: {
-                id: 'liquid-glass-calculation', name: formatted, value: formatted,
+                id: 'fluid-glass-calculation', name: formatted, value: formatted,
                 description: `${text.replace(/=\s*$/, '').trim()} = ${formatted} · Enter copies the result`,
                 createIcon: (size) => new St.Icon({ icon_name: 'accessories-calculator-symbolic', icon_size: size }),
             }

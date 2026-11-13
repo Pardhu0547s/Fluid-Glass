@@ -351,7 +351,7 @@ export class ApplicationManager {
             owner: profile,
             outline: profile,
         });
-        glass.set_name('liquid-glass-window');
+        glass.set_name('fluid-glass-window');
         glass.setPadding(this._glassMargin);
         this._applyAppearance(glass, profile);
         glass.setIsDock(false);

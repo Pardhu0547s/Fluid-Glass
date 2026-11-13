@@ -4,13 +4,13 @@
 // font, hover/active opacity, text colour) can't live in a static stylesheet, so
 // we GENERATE CSS from settings and load it over the shell theme via
 // St.Theme.load_stylesheet — the standard dynamic-theming pattern. Everything is
-// scoped under `.lintel` / `#panel.lintel` (the class PanelController adds),
+// scoped under `.fluid-glass` / `#panel.fluid-glass` (the class PanelController adds),
 // so it only affects our panel and vanishes when the sheet is unloaded on
 // disable.
 //
 // Overview safety: forcing a background on #panel would make the panel opaque in
 // the Overview (where GNOME wants it transparent). We instead toggle a
-// `lintel-overview-transparent` class on the panel across Overview show/hide
+// `fluid-glass-overview-transparent` class on the panel across Overview show/hide
 // (per the `overview-mode` setting) which zeroes the background there.
 
 import Gio from 'gi://Gio';
@@ -23,8 +23,8 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {sanitizeFontFamily, sanitizeFontWeight} from './cssValues.js';
 import {resolveAccentColor} from '../distroColors.js';
 
-const FILE_NAME = 'lintel-dynamic.css';
-const OVERVIEW_CLASS = 'lintel-overview-transparent';
+const FILE_NAME = 'fluid-glass-dynamic.css';
+const OVERVIEW_CLASS = 'fluid-glass-overview-transparent';
 const CONTRAST_SAMPLE_FRACTIONS = [0.08, 0.20, 0.34, 0.50, 0.66, 0.80, 0.92];
 const DARK_TEXT_THRESHOLD = 0.18;
 const CONTRAST_HYSTERESIS = 0.035;
@@ -145,7 +145,7 @@ export class ThemeManager {
                 bytes, null, false,
                 Gio.FileCreateFlags.REPLACE_DESTINATION, null);
         } catch (e) {
-            logError(e, 'lintel: writing dynamic stylesheet');
+            logError(e, 'fluid-glass: writing dynamic stylesheet');
             return;
         }
         this._reload();
@@ -162,7 +162,7 @@ export class ThemeManager {
             theme.load_stylesheet(this._file);
             this._loaded = true;
         } catch (e) {
-            logError(e, 'lintel: loading dynamic stylesheet');
+            logError(e, 'fluid-glass: loading dynamic stylesheet');
         } finally {
             this._applying = false;
         }
@@ -188,7 +188,7 @@ export class ThemeManager {
             GLib.PRIORITY_DEFAULT, Math.max(0, delay), () => {
                 this._contrastId = 0;
                 this._sampleContrast().catch(e =>
-                    logError(e, 'lintel: sampling panel contrast'));
+                    logError(e, 'fluid-glass: sampling panel contrast'));
                 return GLib.SOURCE_REMOVE;
             });
     }
@@ -333,7 +333,7 @@ export class ThemeManager {
         if (fw)
             panel.push(`font-weight: ${fw};`);
 
-        lines.push(`#panel.lintel { ${panel.join(' ')} }`);
+        lines.push(`#panel.fluid-glass { ${panel.join(' ')} }`);
 
         // Both GNOME and third-party themes set the weight on the button as
         // well as on #panel, so the panel-level declaration alone leaves every
@@ -343,23 +343,23 @@ export class ThemeManager {
             buttonText.push(`font-size: ${fs}pt;`);
         if (fw)
             buttonText.push(`font-weight: ${fw};`);
-        lines.push(`#panel.lintel .panel-button { ${buttonText.join(' ')} }`);
-        lines.push('#panel.lintel .panel-button .lintel-active-app ' +
+        lines.push(`#panel.fluid-glass .panel-button { ${buttonText.join(' ')} }`);
+        lines.push('#panel.fluid-glass .panel-button .fluid-glass-active-app ' +
             `{ font-weight: 600; color: rgb(${fg}) !important; }`);
-        lines.push(`#panel.lintel .system-status-icon, #panel.lintel StIcon { color: rgb(${fg}) !important; }`);
-        lines.push(`#panel.lintel .clock-display-box .clock { color: rgb(${fg}) !important; }`);
-        lines.push(`#panel.lintel .lintel-battery-percentage { color: rgb(${fg}) !important; }`);
-        lines.push(`.lintel-control-center-icon { color: rgb(${fg}) !important; }`);
+        lines.push(`#panel.fluid-glass .system-status-icon, #panel.fluid-glass StIcon { color: rgb(${fg}) !important; }`);
+        lines.push(`#panel.fluid-glass .clock-display-box .clock { color: rgb(${fg}) !important; }`);
+        lines.push(`#panel.fluid-glass .fluid-glass-battery-percentage { color: rgb(${fg}) !important; }`);
+        lines.push(`.fluid-glass-control-center-icon { color: rgb(${fg}) !important; }`);
 
         // Readability over the wallpaper in fully-transparent mode.
         const shadow = fg === '255, 255, 255'
             ? '0 1px 2px rgba(0, 0, 0, 0.40)'
             : 'none';
-        lines.push(`#panel.lintel { text-shadow: ${shadow}; }`);
-        lines.push(`#panel.lintel StIcon { icon-shadow: ${shadow}; }`);
+        lines.push(`#panel.fluid-glass { text-shadow: ${shadow}; }`);
+        lines.push(`#panel.fluid-glass StIcon { icon-shadow: ${shadow}; }`);
 
         // Overview: zero the background when our class is present.
-        lines.push(`#panel.lintel.${OVERVIEW_CLASS} { background-color: transparent; }`);
+        lines.push(`#panel.fluid-glass.${OVERVIEW_CLASS} { background-color: transparent; }`);
 
         // Buttons: Tahoe hover/press treatment (Stage 9).
         //
@@ -384,31 +384,31 @@ export class ThemeManager {
         }
         if (spacing >= 0)
             base.push(`margin-left: ${spacing}px; margin-right: ${spacing}px;`);
-        lines.push(`#panel.lintel .panel-button { ${base.join(' ')} }`);
+        lines.push(`#panel.fluid-glass .panel-button { ${base.join(' ')} }`);
 
         const hov = clamp01(gd('hover-opacity', 0.12));
         const act = clamp01(gd('active-opacity', 0.20));
-        lines.push(`#panel.lintel .panel-button:hover { background-color: rgba(${fg}, ${hov}); }`);
+        lines.push(`#panel.fluid-glass .panel-button:hover { background-color: rgba(${fg}, ${hov}); }`);
         if (gb('show-menu-background', true)) {
-            lines.push(`#panel.lintel .panel-button:active, #panel.lintel .panel-button:checked, #panel.lintel .panel-button:focus { background-color: rgba(${fg}, ${act}); }`);
+            lines.push(`#panel.fluid-glass .panel-button:active, #panel.fluid-glass .panel-button:checked, #panel.fluid-glass .panel-button:focus { background-color: rgba(${fg}, ${act}); }`);
             // Hovering an already-open button reads a touch stronger.
-            lines.push(`#panel.lintel .panel-button:checked:hover, #panel.lintel .panel-button:active:hover { background-color: rgba(${fg}, ${clamp01(act + 0.04)}); }`);
+            lines.push(`#panel.fluid-glass .panel-button:checked:hover, #panel.fluid-glass .panel-button:active:hover { background-color: rgba(${fg}, ${clamp01(act + 0.04)}); }`);
         } else {
-            lines.push('#panel.lintel .panel-button:active, #panel.lintel .panel-button:checked { background-color: transparent; }');
+            lines.push('#panel.fluid-glass .panel-button:active, #panel.fluid-glass .panel-button:checked { background-color: transparent; }');
         }
 
         const accent = resolveAccentColor(this._masterSettings, this._settings);
         lines.push(`
 /* Dynamic Accent Color */
-.lintel-cc-tile-icon:checked,
-.lintel-cc-tile:checked .lintel-cc-tile-icon,
-.lintel-cc-light .lintel-cc-tile-icon:checked,
-.lintel-cc-light .lintel-cc-tile:checked .lintel-cc-tile-icon {
+.fluid-glass-cc-tile-icon:checked,
+.fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-light .fluid-glass-cc-tile-icon:checked,
+.fluid-glass-cc-light .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon {
     color: ${accent} !important;
 }
 
-.lintel-fg-track,
-.lintel-system-menu-content.lintel-light .lintel-fg-track {
+.fluid-glass-fg-track,
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-fg-track {
     -barlevel-active-background-color: ${accent} !important;
 }
 
@@ -416,11 +416,11 @@ export class ThemeManager {
     background-color: ${accent} !important;
 }
 
-.lintel-status-menu-content .popup-menu-item:checked,
-.lintel-extra-status-menu-content .popup-menu-item:checked,
-.lintel-system-menu-content .popup-menu-item:checked,
-.lintel-system-menu-content.lintel-dark .popup-menu-item:checked,
-.lintel-system-menu-content.lintel-light .popup-menu-item:checked {
+.fluid-glass-status-menu-content .popup-menu-item:checked,
+.fluid-glass-extra-status-menu-content .popup-menu-item:checked,
+.fluid-glass-system-menu-content .popup-menu-item:checked,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:checked,
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:checked {
     color: ${accent} !important;
 }
 
@@ -429,12 +429,12 @@ export class ThemeManager {
     color: ${accent} !important;
 }
 
-.liquid-glass-menu-root .calendar-today,
-.liquid-glass-menu-root .calendar-today:hover,
-.liquid-glass-menu-root .calendar-today:active,
-.liquid-glass-menu-root .calendar-today:checked,
-.liquid-glass-menu-root .calendar-today:selected,
-.liquid-glass-menu-root .calendar-today:focus {
+.fluid-glass-menu-root .calendar-today,
+.fluid-glass-menu-root .calendar-today:hover,
+.fluid-glass-menu-root .calendar-today:active,
+.fluid-glass-menu-root .calendar-today:checked,
+.fluid-glass-menu-root .calendar-today:selected,
+.fluid-glass-menu-root .calendar-today:focus {
     background-color: ${accent} !important;
 }
 `);

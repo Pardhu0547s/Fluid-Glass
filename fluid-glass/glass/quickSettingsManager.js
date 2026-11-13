@@ -25,7 +25,7 @@ const INTRO_MAX_STEP_S = 1 / 30;
 // back in the button, so the fade is held and the menu is hidden by the morph.
 const BOXPOINTER_EASED = ['opacity', 'translation-x', 'translation-y', 'scale-x', 'scale-y'];
 const BOXPOINTER_HOLD_MS = 10000;
-const CONTENT_LENS = 'liquid-glass-content-lens';
+const CONTENT_LENS = 'fluid-glass-content-lens';
 // What the refraction (displacement scale) and the blur radius come down to,
 // whatever they are set to, as the closing glass settles on the button.
 const SOFT_REFRACTION = 0.3;
@@ -413,10 +413,10 @@ export class QuickSettingsManager {
     _applyClassStyles() {
         if (!this.targetActor)
             return;
-        if (!this._hasStyleClass(this.targetActor, 'liquid-glass-transparent'))
-            this.targetActor.add_style_class_name('liquid-glass-transparent');
-        if (!this._hasStyleClass(this.animActor, 'liquid-glass-transparent'))
-            this.animActor.add_style_class_name('liquid-glass-transparent');
+        if (!this._hasStyleClass(this.targetActor, 'fluid-glass-transparent'))
+            this.targetActor.add_style_class_name('fluid-glass-transparent');
+        if (!this._hasStyleClass(this.animActor, 'fluid-glass-transparent'))
+            this.animActor.add_style_class_name('fluid-glass-transparent');
     }
 
     _applyEffect() {
@@ -575,7 +575,7 @@ export class QuickSettingsManager {
         // glass stays in monitor coordinates.
         if (!this._toggleGlassHost) {
             this._toggleGlassHost = new LayoutOpaqueActor();
-            this._toggleGlassHost.set_name('liquid-glass-toggle-host');
+            this._toggleGlassHost.set_name('fluid-glass-toggle-host');
         }
         this._toggleGlassHost.add_child(glass);
         this.animActor.insert_child_at_index(this._toggleGlassHost, 0);
@@ -1890,9 +1890,9 @@ export class QuickSettingsManager {
     }
 
     _restoreMenuActors() {
-        this.targetActor.remove_style_class_name('liquid-glass-transparent');
+        this.targetActor.remove_style_class_name('fluid-glass-transparent');
         if (this.animActor) {
-            this.animActor.remove_style_class_name('liquid-glass-transparent');
+            this.animActor.remove_style_class_name('fluid-glass-transparent');
             this.animActor.translation_x = 0;
             this.animActor.translation_y = 0;
             this.animActor.set_scale(1.0, 1.0);

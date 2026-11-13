@@ -41,7 +41,7 @@ export const WifiService = GObject.registerClass({
                 client = NM.Client.new_finish(result);
             } catch (e) {
                 if (!this._destroyed)
-                    logError(e, 'lintel: create NetworkManager client');
+                    logError(e, 'fluid-glass: create NetworkManager client');
                 return;
             }
             if (this._destroyed) {
@@ -70,7 +70,7 @@ export const WifiService = GObject.registerClass({
         try {
             this._client.wireless_enabled = Boolean(enabled);
         } catch (e) {
-            logError(e, 'lintel: change Wi-Fi state');
+            logError(e, 'fluid-glass: change Wi-Fi state');
         }
     }
 
@@ -191,11 +191,11 @@ export const WifiService = GObject.registerClass({
                         try {
                             client.activate_connection_finish(result);
                         } catch (e) {
-                            logError(e, `lintel: connect to ${network.name}`);
+                            logError(e, `fluid-glass: connect to ${network.name}`);
                         }
                     });
             } catch (e) {
-                logError(e, `lintel: connect to ${network.name}`);
+                logError(e, `fluid-glass: connect to ${network.name}`);
             }
             return true;
         }
@@ -218,11 +218,11 @@ export const WifiService = GObject.registerClass({
                     try {
                         client.add_and_activate_connection_finish(result);
                     } catch (e) {
-                        logError(e, `lintel: connect to ${network.name}`);
+                        logError(e, `fluid-glass: connect to ${network.name}`);
                     }
                 });
         } catch (e) {
-            logError(e, `lintel: connect to ${network.name}`);
+            logError(e, `fluid-glass: connect to ${network.name}`);
         }
         return true;
     }
@@ -258,11 +258,11 @@ export const WifiService = GObject.registerClass({
                     try {
                         source.request_scan_finish(result);
                     } catch (e) {
-                        logError(e, 'lintel: request Wi-Fi scan');
+                        logError(e, 'fluid-glass: request Wi-Fi scan');
                     }
                 });
             } catch (e) {
-                logError(e, 'lintel: request Wi-Fi scan');
+                logError(e, 'fluid-glass: request Wi-Fi scan');
             }
         }
     }
@@ -354,11 +354,11 @@ export const WifiService = GObject.registerClass({
                     try {
                         client.deactivate_connection_finish(result);
                     } catch (e) {
-                        logError(e, 'lintel: disconnect Wi-Fi');
+                        logError(e, 'fluid-glass: disconnect Wi-Fi');
                     }
                 });
         } catch (e) {
-            logError(e, 'lintel: disconnect Wi-Fi');
+            logError(e, 'fluid-glass: disconnect Wi-Fi');
         }
     }
 
@@ -366,7 +366,7 @@ export const WifiService = GObject.registerClass({
         try {
             bucket.push([object, object.connect(signal, callback)]);
         } catch (e) {
-            logError(e, `lintel: connect Wi-Fi signal ${signal}`);
+            logError(e, `fluid-glass: connect Wi-Fi signal ${signal}`);
         }
     }
 

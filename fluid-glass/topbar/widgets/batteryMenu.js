@@ -17,12 +17,12 @@ import {
 } from '../services/powerProfiles.js';
 import {styleStatusMenu} from './statusMenu.js';
 
-export const LintelBatteryMenu = GObject.registerClass({
-    GTypeName: 'FluidGlass_LintelBatteryMenu',
-}, class LintelBatteryMenu extends PanelMenu.Button {
+export const FluidGlassBatteryMenu = GObject.registerClass({
+    GTypeName: 'FluidGlass_BatteryMenu',
+}, class FluidGlassBatteryMenu extends PanelMenu.Button {
     _init() {
         super._init(0.5, _('Battery'), false);
-        this.add_style_class_name('lintel-status-button');
+        this.add_style_class_name('fluid-glass-status-button');
 
         this._battery = new BatteryService();
         this._profiles = new PowerProfilesService();
@@ -31,18 +31,18 @@ export const LintelBatteryMenu = GObject.registerClass({
         this._profileSignature = '';
 
         const indicator = new St.BoxLayout({
-            style_class: 'lintel-battery-indicator',
+            style_class: 'fluid-glass-battery-indicator',
         });
         this._panelIcon = new St.Icon({style_class: 'system-status-icon'});
         this._panelLabel = new St.Label({
-            style_class: 'lintel-battery-percentage',
+            style_class: 'fluid-glass-battery-percentage',
             y_align: Clutter.ActorAlign.CENTER,
         });
         indicator.add_child(this._panelIcon);
         indicator.add_child(this._panelLabel);
         this.add_child(indicator);
 
-        styleStatusMenu(this.menu, 'lintel-battery-menu-content');
+        styleStatusMenu(this.menu, 'fluid-glass-battery-menu-content');
         this._buildMenu();
 
         this._batteryChangedId = this._battery.connect(
@@ -56,28 +56,28 @@ export const LintelBatteryMenu = GObject.registerClass({
         const summary = new PopupMenu.PopupBaseMenuItem({
             reactive: false,
             can_focus: false,
-            style_class: 'lintel-battery-summary',
+            style_class: 'fluid-glass-battery-summary',
         });
         this._summaryIcon = new St.Icon({
-            style_class: 'lintel-battery-summary-icon',
+            style_class: 'fluid-glass-battery-summary-icon',
             y_align: Clutter.ActorAlign.CENTER,
         });
         summary.add_child(this._summaryIcon);
 
         const labels = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
-            style_class: 'lintel-battery-summary-labels',
+            style_class: 'fluid-glass-battery-summary-labels',
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
         });
         this._summaryPercentage = new St.Label({
-            style_class: 'lintel-battery-summary-percentage',
+            style_class: 'fluid-glass-battery-summary-percentage',
         });
         this._summaryStatus = new St.Label({
-            style_class: 'lintel-battery-summary-status',
+            style_class: 'fluid-glass-battery-summary-status',
         });
         this._summaryTime = new St.Label({
-            style_class: 'lintel-battery-summary-time',
+            style_class: 'fluid-glass-battery-summary-time',
         });
         labels.add_child(this._summaryPercentage);
         labels.add_child(this._summaryStatus);
@@ -89,14 +89,14 @@ export const LintelBatteryMenu = GObject.registerClass({
             reactive: false,
             can_focus: false,
         });
-        this._powerSourceItem.add_style_class_name('lintel-battery-source');
+        this._powerSourceItem.add_style_class_name('fluid-glass-battery-source');
         this.menu.addMenuItem(this._powerSourceItem);
 
         this._profileHeading = new PopupMenu.PopupMenuItem(_('Power Mode'), {
             reactive: false,
             can_focus: false,
         });
-        this._profileHeading.add_style_class_name('lintel-status-section-title');
+        this._profileHeading.add_style_class_name('fluid-glass-status-section-title');
         this.menu.addMenuItem(this._profileHeading);
 
         this._profilesSection = new PopupMenu.PopupMenuSection();

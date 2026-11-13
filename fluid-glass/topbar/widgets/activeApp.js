@@ -32,7 +32,7 @@ export const ActiveApp = GObject.registerClass({
         this.track_hover = false;
 
         this._label = new St.Label({
-            style_class: 'lintel-active-app',
+            style_class: 'fluid-glass-active-app',
             y_align: Clutter.ActorAlign.CENTER,
             text: '',
         });

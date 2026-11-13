@@ -23,7 +23,7 @@ import { registerGlass, unregisterGlass } from '../diagnostics.js';
  */
 export const GlassActor = safeRegisterClass(class GlassActor extends Clutter.Actor {
     _init(params = {}) {
-        super._init({ name: 'liquid-glass-bg-actor', reactive: false });
+        super._init({ name: 'fluid-glass-bg-actor', reactive: false });
         Shell.util_set_hidden_from_pick(this, true);
         this._owner = params.owner ?? '?';
         this._diagOwnerLabel = '';
@@ -534,7 +534,7 @@ const holders = new WeakSet();
  * origin, so its coordinates are the stage's.
  */
 export function relayHolder() {
-    const holder = new UnpickableActor({ name: 'liquid-glass-relay-holder' });
+    const holder = new UnpickableActor({ name: 'fluid-glass-relay-holder' });
     holders.add(holder);
     return holder;
 }
@@ -556,7 +556,7 @@ export class RelaySet {
         this._owner = _owner;
         this._exclude = _exclude;
         this._holder = _holder;
-        this.area = new UnpickableActor({ name: 'liquid-glass-sample-area', width: SAMPLE_BASE, height: SAMPLE_BASE });
+        this.area = new UnpickableActor({ name: 'fluid-glass-sample-area', width: SAMPLE_BASE, height: SAMPLE_BASE });
         _holder.add_child(this.area);
     }
 

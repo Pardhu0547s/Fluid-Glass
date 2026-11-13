@@ -138,7 +138,7 @@ export const QS_MENU_TOGGLE_CLASS = SHELL_MAJOR >= 48 ? 'quick-toggle-has-menu' 
 // across the monitor and its content gets no width, so there the banner's
 // border is only made transparent.
 export const BANNER_TRANSPARENT_CLASS = SHELL_MAJOR >= 47
-    ? 'liquid-glass-transparent' : 'liquid-glass-transparent-keep-border';
+    ? 'fluid-glass-transparent' : 'fluid-glass-transparent-keep-border';
 // Cogl.Pipeline.set_uniform_float() takes its values as an array from GNOME 48
 // on. Before, the binding passes a single float where the call expects a
 // pointer, which crashes the shell, so only set_uniform_1f() is usable there:

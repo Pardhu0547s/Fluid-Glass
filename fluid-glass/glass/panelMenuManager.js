@@ -90,7 +90,7 @@ export class PanelMenuManager {
                 // Dummy menus and custom non-popup actors cannot use UIManager.
                 // Calendar and Quick Settings already have their own managers.
                 // Control Center uses floating individual modules (Tahoe design), not an enclosing outer background card.
-                if (!(menu instanceof PopupMenu.PopupMenu) || reserved.has(menu) || !menu.actor || !menu.box || menuName === 'lintel-control-center' || menuName.includes('control-center'))
+                if (!(menu instanceof PopupMenu.PopupMenu) || reserved.has(menu) || !menu.actor || !menu.box || menuName === 'fluid-glass-control-center' || menuName.includes('control-center'))
                     continue;
                 detected.push(menuName);
                 const allowed = LEGACY_KEYS[menuName]
@@ -133,8 +133,8 @@ export class PanelMenuManager {
             menu._boxPointer.setSourceAlignment?.(0.5);
         }
         menu.setSourceAlignment?.(0.5);
-        menu.actor?.add_style_class_name?.('lintel-status-menu');
-        menu.box?.add_style_class_name?.('lintel-extra-status-menu-content');
+        menu.actor?.add_style_class_name?.('fluid-glass-status-menu');
+        menu.box?.add_style_class_name?.('fluid-glass-extra-status-menu-content');
     }
 
     _unstyleMenu(menu, entry) {
@@ -144,10 +144,10 @@ export class PanelMenuManager {
             try { menu.disconnect(entry.openSignalId); } catch (_e) {}
         }
         try {
-            menu.actor?.remove_style_class_name?.('lintel-status-menu');
+            menu.actor?.remove_style_class_name?.('fluid-glass-status-menu');
         } catch (_e) {}
         try {
-            menu.box?.remove_style_class_name?.('lintel-extra-status-menu-content');
+            menu.box?.remove_style_class_name?.('fluid-glass-extra-status-menu-content');
         } catch (_e) {}
     }
 

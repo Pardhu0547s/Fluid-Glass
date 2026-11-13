@@ -18,7 +18,7 @@ const getMonochromeShaderSource = (extensionDir) => {
   try {
     return Shell.get_file_contents_utf8_sync(SHADER_PATH);
   } catch (e) {
-    log(`[d2dl] error loading shader from ${SHADER_PATH}: ${e}`);
+    log(`[fluid-glass-dock] error loading shader from ${SHADER_PATH}: ${e}`);
     return null;
   }
 };
@@ -34,8 +34,8 @@ const getMonochromeShaderSource = (extensionDir) => {
 /// https://gjs-docs.gnome.org/clutter10~10_api/clutter.shadereffect
 export const MonochromeEffect = GObject.registerClass(
   {
-    GTypeName: 'FluidGlass_Dock_D2DAMonochromeEffect',},
-  class D2DAMonochromeEffect extends Clutter.ShaderEffect {
+    GTypeName: 'FluidGlass_Dock_MonochromeEffect',},
+  class FluidGlassDockMonochromeEffect extends Clutter.ShaderEffect {
     _init(params) {
       this._red = null;
       this._green = null;

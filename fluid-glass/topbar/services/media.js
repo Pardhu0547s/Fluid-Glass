@@ -69,7 +69,7 @@ export const MediaService = GObject.registerClass({
                         return;
                     this._bind(playerName);
                 } catch (e) {
-                    logError(e, 'lintel: discover MPRIS player');
+                    logError(e, 'fluid-glass: discover MPRIS player');
                 }
             });
     }
@@ -157,5 +157,5 @@ function _metadataValue(metadata, key) {
 
 function _finishCall(_result, error) {
     if (error)
-        logError(error, 'lintel: MPRIS command');
+        logError(error, 'fluid-glass: MPRIS command');
 }

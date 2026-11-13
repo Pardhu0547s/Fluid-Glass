@@ -161,7 +161,7 @@ async function librsvg() {
 
 // Cairo keeps its pixels premultiplied and cannot hand them over; its PNG writer unpremultiplies them.
 function pixelsOf(surface) {
-    const [fd, path] = GLib.file_open_tmp('liquid-glass-icon-XXXXXX.png');
+    const [fd, path] = GLib.file_open_tmp('fluid-glass-icon-XXXXXX.png');
     GLib.close(fd);
     try {
         surface.writeToPNG(path);

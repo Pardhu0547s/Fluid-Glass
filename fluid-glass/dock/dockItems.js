@@ -259,7 +259,7 @@ export const DockItemContainer = GObject.registerClass(
       this.custom_icon = true;
 
       // hack to get DesktopAppInfo class
-      let DesktopAppInfo = Main.overview.d2dl.DesktopAppInfo;
+      let DesktopAppInfo = Main.overview.fluidGlassDock.DesktopAppInfo;
       if (!DesktopAppInfo) {
         try {
           DesktopAppInfo =
@@ -268,7 +268,7 @@ export const DockItemContainer = GObject.registerClass(
           // should be unreachable
           console.log(err);
         }
-        Main.overview.d2dl.DesktopAppInfo = DesktopAppInfo;
+        Main.overview.fluidGlassDock.DesktopAppInfo = DesktopAppInfo;
       }
 
       let desktopApp = params.app;

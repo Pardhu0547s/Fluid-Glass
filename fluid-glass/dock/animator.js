@@ -73,7 +73,7 @@ export let Animator = class {
       let target = dock.renderArea;
       let renderer = new St.Icon({
         icon_name: 'file',
-        name: 'd2daIcon',
+        name: 'fluidGlassDockIcon',
         reactive: true,
         icon_size: 24,
       });

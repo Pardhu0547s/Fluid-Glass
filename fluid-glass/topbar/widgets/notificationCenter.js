@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// LintelNotificationCenter — Tahoe-style clock surface.
+// FluidGlassNotificationCenter — Tahoe-style clock surface.
 //
 // GNOME's DateMenuButton combines notifications, a calendar and displays in one
 // opaque BoxPointer.  Tahoe instead places independent cards directly over the
@@ -62,7 +62,7 @@ const WIDGET_SIZE_LABELS = Object.freeze({
     large: pgettext('widget size', 'L'),
 });
 
-export class LintelNotificationCenter {
+export class FluidGlassNotificationCenter {
     constructor(extension) {
         this._extension = extension;
         this._settings = null;
@@ -168,7 +168,7 @@ export class LintelNotificationCenter {
     _buildOverlay() {
         this._root = new St.Widget({
             name: 'lintelNotificationCenterRoot',
-            style_class: 'lintel-notification-center-root',
+            style_class: 'fluid-glass-notification-center-root',
             layout_manager: new Clutter.FixedLayout(),
             reactive: true,
             can_focus: true,
@@ -176,14 +176,14 @@ export class LintelNotificationCenter {
         });
         this._column = new St.BoxLayout({
             name: 'lintelNotificationCenter',
-            style_class: 'lintel-notification-center',
+            style_class: 'fluid-glass-notification-center',
             orientation: Clutter.Orientation.VERTICAL,
             reactive: true,
             can_focus: true,
             width: COLUMN_WIDTH,
         });
         this._columnScroll = new St.ScrollView({
-            style_class: 'lintel-nc-column-scroll',
+            style_class: 'fluid-glass-nc-column-scroll',
             overlay_scrollbars: true,
             hscrollbar_policy: St.PolicyType.NEVER,
             // Keep wheel/touchpad scrolling, but Tahoe does not draw a
@@ -195,19 +195,19 @@ export class LintelNotificationCenter {
         this._root.add_child(this._columnScroll);
 
         this._header = new St.BoxLayout({
-            style_class: 'lintel-nc-header',
+            style_class: 'fluid-glass-nc-header',
             x_expand: true,
         });
         this._header.add_child(new St.Label({
             text: _('Notification Center'),
-            style_class: 'lintel-nc-heading',
+            style_class: 'fluid-glass-nc-heading',
             x_expand: true,
             x_align: Clutter.ActorAlign.START,
             y_align: Clutter.ActorAlign.CENTER,
         }));
         this._clearButton = new St.Button({
             icon_name: 'window-close-symbolic',
-            style_class: 'lintel-nc-clear-button',
+            style_class: 'fluid-glass-nc-clear-button',
             accessible_name: _('Clear all notifications'),
             can_focus: true,
             y_align: Clutter.ActorAlign.CENTER,
@@ -218,7 +218,7 @@ export class LintelNotificationCenter {
 
         this._messageView = new MessageList.MessageView();
         this._notificationScroll = new St.ScrollView({
-            style_class: 'lintel-nc-notifications vfade',
+            style_class: 'fluid-glass-nc-notifications vfade',
             overlay_scrollbars: true,
             hscrollbar_policy: St.PolicyType.NEVER,
             vscrollbar_policy: St.PolicyType.NEVER,
@@ -244,14 +244,14 @@ export class LintelNotificationCenter {
             this._trackNotificationGroup(message);
 
         this._widgetsBox = new St.BoxLayout({
-            style_class: 'lintel-nc-widgets',
+            style_class: 'fluid-glass-nc-widgets',
             orientation: Clutter.Orientation.VERTICAL,
             x_expand: true,
         });
         this._column.add_child(this._widgetsBox);
 
         this._gallery = new St.BoxLayout({
-            style_class: 'lintel-nc-widget-gallery',
+            style_class: 'fluid-glass-nc-widget-gallery',
             orientation: Clutter.Orientation.VERTICAL,
             x_expand: true,
             visible: false,
@@ -260,7 +260,7 @@ export class LintelNotificationCenter {
 
         this._editButton = new St.Button({
             label: _('Edit Widgets'),
-            style_class: 'lintel-nc-edit-button',
+            style_class: 'fluid-glass-nc-edit-button',
             accessible_name: _('Edit Widgets'),
             can_focus: true,
             x_align: Clutter.ActorAlign.CENTER,
@@ -294,7 +294,7 @@ export class LintelNotificationCenter {
                 }
             );
         } catch (e) {
-            logError(e, 'lintel: attachMultiRegionGlass notificationCenter');
+            logError(e, 'fluid-glass: attachMultiRegionGlass notificationCenter');
         }
     }
 
@@ -401,9 +401,9 @@ export class LintelNotificationCenter {
         // normal material once GNOME lays them out vertically.
         const collapsedFront = !record.group.expanded && !stacked;
         if (collapsedFront)
-            message.add_style_class_name('lintel-nc-collapsed-stack-front');
+            message.add_style_class_name('fluid-glass-nc-collapsed-stack-front');
         else
-            message.remove_style_class_name('lintel-nc-collapsed-stack-front');
+            message.remove_style_class_name('fluid-glass-nc-collapsed-stack-front');
     }
 
     _installClockHook() {
@@ -588,9 +588,9 @@ export class LintelNotificationCenter {
             dark = true;
         }
         this._column.remove_style_class_name(
-            dark ? 'lintel-nc-light' : 'lintel-nc-dark');
+            dark ? 'fluid-glass-nc-light' : 'fluid-glass-nc-dark');
         this._column.add_style_class_name(
-            dark ? 'lintel-nc-dark' : 'lintel-nc-light');
+            dark ? 'fluid-glass-nc-dark' : 'fluid-glass-nc-light');
     }
 
     _syncNotifications() {
@@ -651,7 +651,7 @@ export class LintelNotificationCenter {
         try {
             this._settings?.set_strv('notification-center-widgets', order);
         } catch (e) {
-            logError(e, 'lintel: saving Notification Center widgets');
+            logError(e, 'fluid-glass: saving Notification Center widgets');
         }
     }
 
@@ -663,7 +663,7 @@ export class LintelNotificationCenter {
                 'notification-center-widget-sizes',
                 new GLib.Variant('a{ss}', sizes));
         } catch (e) {
-            logError(e, 'lintel: saving Notification Center widget size');
+            logError(e, 'fluid-glass: saving Notification Center widget size');
         }
     }
 
@@ -695,7 +695,7 @@ export class LintelNotificationCenter {
     }
 
     _newEditButton(iconName, accessibleName, callback,
-        styleClass = 'lintel-nc-widget-edit-control') {
+        styleClass = 'fluid-glass-nc-widget-edit-control') {
         const button = new St.Button({
             icon_name: iconName,
             style_class: styleClass,
@@ -715,7 +715,7 @@ export class LintelNotificationCenter {
         // Tahoe edits widgets in place: the controls float over the widget
         // rather than pushing a toolbar into the column and moving every card.
         const slot = new St.Widget({
-            style_class: `lintel-nc-widget-slot lintel-nc-slot-${size}`,
+            style_class: `fluid-glass-nc-widget-slot fluid-glass-nc-slot-${size}`,
             layout_manager: new Clutter.BinLayout(),
             x_expand: size !== 'small',
         });
@@ -723,8 +723,8 @@ export class LintelNotificationCenter {
         // A widget with nothing to show (no battery, nothing playing) hides
         // itself; while editing it still needs a surface to carry its controls.
         const placeholder = new St.Bin({
-            style_class: `lintel-nc-widget-card lintel-nc-widget-${size} ` +
-                'lintel-nc-widget-placeholder',
+            style_class: `fluid-glass-nc-widget-card fluid-glass-nc-widget-${size} ` +
+                'fluid-glass-nc-widget-placeholder',
             child: new St.Label({
                 text: title,
                 x_align: Clutter.ActorAlign.CENTER,
@@ -737,7 +737,7 @@ export class LintelNotificationCenter {
         slot.add_child(widget);
 
         const controls = new St.BoxLayout({
-            style_class: 'lintel-nc-widget-edit-bar',
+            style_class: 'fluid-glass-nc-widget-edit-bar',
             x_expand: true,
             y_expand: true,
             y_align: Clutter.ActorAlign.START,
@@ -746,9 +746,9 @@ export class LintelNotificationCenter {
         controls.add_child(this._newEditButton(
             'list-remove-symbolic', _('Remove %s').format(title), () => {
                 this._setWidgetOrder(order.filter(widgetId => widgetId !== id));
-            }, 'lintel-nc-widget-remove'));
+            }, 'fluid-glass-nc-widget-remove'));
         controls.add_child(new St.Widget({x_expand: true}));
-        const pill = new St.BoxLayout({style_class: 'lintel-nc-widget-edit-pill'});
+        const pill = new St.BoxLayout({style_class: 'fluid-glass-nc-widget-edit-pill'});
         pill.add_child(this._newEditButton(
             'go-up-symbolic', _('Move %s up').format(title),
             () => this._moveWidget(id, -1)));
@@ -757,7 +757,7 @@ export class LintelNotificationCenter {
             () => this._moveWidget(id, 1)));
         const sizeButton = new St.Button({
             label: WIDGET_SIZE_LABELS[size],
-            style_class: 'lintel-nc-widget-size-control',
+            style_class: 'fluid-glass-nc-widget-size-control',
             accessible_name: _('Change %s widget size').format(title),
             can_focus: true,
         });
@@ -812,7 +812,7 @@ export class LintelNotificationCenter {
                 pair = null;
             } else {
                 pair = new St.BoxLayout({
-                    style_class: 'lintel-nc-widget-pair',
+                    style_class: 'fluid-glass-nc-widget-pair',
                     x_expand: true,
                 });
                 pair._lintelPair = true;
@@ -827,18 +827,18 @@ export class LintelNotificationCenter {
         if (disabled.length) {
             this._gallery.add_child(new St.Label({
                 text: _('Add Widgets'),
-                style_class: 'lintel-nc-gallery-title',
+                style_class: 'fluid-glass-nc-gallery-title',
                 x_align: Clutter.ActorAlign.START,
             }));
         }
         for (const widget of disabled) {
             const content = new St.BoxLayout({
-                style_class: 'lintel-nc-gallery-item-box',
+                style_class: 'fluid-glass-nc-gallery-item-box',
                 x_expand: true,
             });
             content.add_child(new St.Icon({
                 icon_name: 'list-add-symbolic',
-                style_class: 'lintel-nc-gallery-add',
+                style_class: 'fluid-glass-nc-gallery-add',
                 y_align: Clutter.ActorAlign.CENTER,
             }));
             content.add_child(new St.Label({
@@ -848,7 +848,7 @@ export class LintelNotificationCenter {
             }));
             const button = new St.Button({
                 child: content,
-                style_class: 'lintel-nc-gallery-item',
+                style_class: 'fluid-glass-nc-gallery-item',
                 accessible_name: _('Add %s').format(widget.title),
                 can_focus: true,
                 x_expand: true,
@@ -882,9 +882,9 @@ export class LintelNotificationCenter {
         this._editButton.label = editing ? _('Done') : _('Edit Widgets');
         this._editButton.accessible_name = this._editButton.label;
         if (editing)
-            this._editButton.add_style_class_name('lintel-nc-edit-done');
+            this._editButton.add_style_class_name('fluid-glass-nc-edit-done');
         else
-            this._editButton.remove_style_class_name('lintel-nc-edit-done');
+            this._editButton.remove_style_class_name('fluid-glass-nc-edit-done');
         for (const slot of this._widgetRows.values())
             this._syncSlot(slot);
         this._gallery.visible = editing && this._gallery.get_n_children() > 0;
@@ -973,7 +973,7 @@ export class LintelNotificationCenter {
                 actionMode: Shell.ActionMode.POPUP,
             });
         } catch (e) {
-            logError(e, 'lintel: acquire Notification Center input grab');
+            logError(e, 'fluid-glass: acquire Notification Center input grab');
             this.close(false);
             return;
         }

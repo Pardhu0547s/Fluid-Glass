@@ -37,7 +37,7 @@ export const BatteryService = GObject.registerClass({
                 if (this._destroyed)
                     return;
                 if (error) {
-                    logError(error, 'lintel: UPower DisplayDevice');
+                    logError(error, 'fluid-glass: UPower DisplayDevice');
                     return;
                 }
                 this._proxy = proxy;

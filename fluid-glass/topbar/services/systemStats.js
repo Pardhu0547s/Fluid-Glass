@@ -241,7 +241,7 @@ const SystemStatsStore = GObject.registerClass({
                 _push(this.cpuHistory, this.cpu);
             }
         } catch (e) {
-            console.warn(`lintel: reading CPU time: ${e.message}`);
+            console.warn(`fluid-glass: reading CPU time: ${e.message}`);
             this.cpu = null;
         }
 
@@ -249,7 +249,7 @@ const SystemStatsStore = GObject.registerClass({
             const {total, available} = parseMeminfo(_read('/proc/meminfo'));
             this.memory = {used: total - available, total};
         } catch (e) {
-            console.warn(`lintel: reading memory: ${e.message}`);
+            console.warn(`fluid-glass: reading memory: ${e.message}`);
             this.memory = null;
         }
 
@@ -269,7 +269,7 @@ const SystemStatsStore = GObject.registerClass({
                 _push(this.txHistory, this.network.tx);
             }
         } catch (e) {
-            console.warn(`lintel: reading network counters: ${e.message}`);
+            console.warn(`fluid-glass: reading network counters: ${e.message}`);
             this.network = null;
         }
 
@@ -308,7 +308,7 @@ const SystemStatsStore = GObject.registerClass({
                     const free = info.get_attribute_uint64('filesystem::free');
                     this.storage = total > 0 ? {used: total - free, total} : null;
                 } catch (e) {
-                    console.warn(`lintel: reading storage: ${e.message}`);
+                    console.warn(`fluid-glass: reading storage: ${e.message}`);
                     this.storage = null;
                 }
                 this.emit('changed');

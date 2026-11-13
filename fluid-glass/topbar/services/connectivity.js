@@ -49,7 +49,7 @@ export const ConnectivityService = GObject.registerClass({
                 client = NM.Client.new_finish(result);
             } catch (e) {
                 if (!e.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
-                    logError(e, 'lintel: create NetworkManager client');
+                    logError(e, 'fluid-glass: create NetworkManager client');
                 return; // NM absent — network tiles hidden.
             }
             if (this._destroyed) {
@@ -211,7 +211,7 @@ export const ConnectivityService = GObject.registerClass({
                 try {
                     src.call_finish(res);
                 } catch (e) {
-                    logError(e, `lintel: set ${prop}`);
+                    logError(e, `fluid-glass: set ${prop}`);
                 }
             });
     }

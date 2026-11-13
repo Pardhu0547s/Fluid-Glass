@@ -7,7 +7,7 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Adw from 'gi://Adw';
 
-const GETTEXT_DOMAIN = 'dash2dock-light';
+const GETTEXT_DOMAIN = 'fluid-glass@pardhu0547s.github.io';
 
 import { schemaId, SettingsKeys } from './preferences/keys.js';
 import { MonitorsConfig } from './monitors.js';
@@ -225,7 +225,7 @@ export default class Preferences extends ExtensionPreferences {
     this._themed_presets = [];
     this.preloadPresets(`${this.path}/themes`);
     this.preloadPresets(
-      Gio.File.new_for_path('.config/d2da/themes').get_path()
+      Gio.File.new_for_path('.config/fluid-glass-dock/themes').get_path()
     );
     this._buildThemesMenu(window);
     this.updateMonitors();

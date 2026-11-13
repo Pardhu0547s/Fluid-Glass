@@ -15,15 +15,15 @@ const getBlurShaderSource = (extensionDir) => {
   try {
     return Shell.get_file_contents_utf8_sync(SHADER_PATH);
   } catch (e) {
-    log(`[d2dl] error loading shader from ${SHADER_PATH}: ${e}`);
+    log(`[fluid-glass-dock] error loading shader from ${SHADER_PATH}: ${e}`);
     return null;
   }
 };
 
 export const BlurEffect = GObject.registerClass(
   {
-    GTypeName: 'FluidGlass_Dock_D2DABlurEffect',},
-  class D2DABlurEffect extends Clutter.ShaderEffect {
+    GTypeName: 'FluidGlass_Dock_BlurEffect',},
+  class FluidGlassDockBlurEffect extends Clutter.ShaderEffect {
     _init(params) {
       this._red = null;
       this._green = null;

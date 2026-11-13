@@ -64,7 +64,7 @@ export const BluetoothService = GObject.registerClass({
             );
             this._retrackDevices();
         } catch (e) {
-            logError(e, 'lintel: create GnomeBluetooth client');
+            logError(e, 'fluid-glass: create GnomeBluetooth client');
         }
 
         new RfkillProxy(Gio.DBus.session, RFKILL_NAME, RFKILL_PATH,
@@ -136,14 +136,14 @@ export const BluetoothService = GObject.registerClass({
             try {
                 this._rfkill.BluetoothAirplaneMode = !enabled;
             } catch (e) {
-                logError(e, 'lintel: set BluetoothAirplaneMode');
+                logError(e, 'fluid-glass: set BluetoothAirplaneMode');
             }
         }
         if (this._client) {
             try {
                 this._client.default_adapter_powered = Boolean(enabled);
             } catch (e) {
-                logError(e, 'lintel: set default_adapter_powered');
+                logError(e, 'fluid-glass: set default_adapter_powered');
             }
         }
         this.emit('changed');
@@ -206,7 +206,7 @@ export const BluetoothService = GObject.registerClass({
             this.emit('changed');
             return true;
         } catch (e) {
-            logError(e, `lintel: toggle Bluetooth device ${rawDev.alias}`);
+            logError(e, `fluid-glass: toggle Bluetooth device ${rawDev.alias}`);
             return false;
         }
     }

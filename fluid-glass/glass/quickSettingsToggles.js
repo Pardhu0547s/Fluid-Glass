@@ -466,7 +466,7 @@ const READER_BASE = 256;
 
 export const BackdropReader = safeRegisterClass(paintNodeWithContext(class BackdropReader extends Clutter.Actor {
     _init(logger) {
-        super._init({ name: 'liquid-glass-backdrop-reader', reactive: false, width: READER_BASE, height: READER_BASE });
+        super._init({ name: 'fluid-glass-backdrop-reader', reactive: false, width: READER_BASE, height: READER_BASE });
         Shell.util_set_hidden_from_pick(this, true);
         this.copier = new StageCopier(logger);
         this._rect = null;

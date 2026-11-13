@@ -1,4 +1,4 @@
-// LintelSystemMenu — Stage 3, Tahoe visual pass.
+// FluidGlassSystemMenu — Stage 3, Tahoe visual pass.
 //
 // The macOS Apple-menu analogue on the far left: a logo button whose popup holds
 // About / Settings / App Center, Recent Items, Force Quit, and the power/session
@@ -159,7 +159,7 @@ function distributorLogoPath() {
  */
 function newLogoSilhouette(path) {
     const area = new St.DrawingArea({
-        style_class: 'system-status-icon lintel-system-logo-silhouette',
+        style_class: 'system-status-icon fluid-glass-system-logo-silhouette',
         reactive: false,
     });
 
@@ -191,7 +191,7 @@ function newLogoSilhouette(path) {
             cr.maskSurface(surface, 0, 0);
             cr.restore();
         } catch (e) {
-            logError(e, 'lintel: painting distributor logo');
+            logError(e, 'fluid-glass: painting distributor logo');
         } finally {
             cr.$dispose();
         }
@@ -200,9 +200,9 @@ function newLogoSilhouette(path) {
     return area;
 }
 
-export const LintelSystemMenu = GObject.registerClass({
-    GTypeName: 'FluidGlass_LintelSystemMenu',
-}, class LintelSystemMenu extends PanelMenu.Button {
+export const FluidGlassSystemMenu = GObject.registerClass({
+    GTypeName: 'FluidGlass_SystemMenu',
+}, class FluidGlassSystemMenu extends PanelMenu.Button {
     _init(extension) {
         super._init(0.0, _('Lintel System Menu'), false);
 
@@ -233,7 +233,7 @@ export const LintelSystemMenu = GObject.registerClass({
         if (value && !this._isIconLike(value)) {
             return new St.Label({
                 text: value,
-                style_class: 'lintel-system-logo-glyph',
+                style_class: 'fluid-glass-system-logo-glyph',
                 y_align: Clutter.ActorAlign.CENTER,
             });
         }
@@ -250,7 +250,7 @@ export const LintelSystemMenu = GObject.registerClass({
         // The logo reads slightly larger than a status glyph in the reference
         // bar, so it carries its own size class (see stylesheet.css).
         const icon = new St.Icon({
-            style_class: 'system-status-icon lintel-system-logo-icon',
+            style_class: 'system-status-icon fluid-glass-system-logo-icon',
         });
         if (value && (value.startsWith('/') || value.startsWith('~') ||
                       value.startsWith('file:'))) {
@@ -311,11 +311,11 @@ export const LintelSystemMenu = GObject.registerClass({
 
     _styleMenu() {
         const clearStyle = 'background: transparent !important; background-color: transparent !important; background-image: none !important; border: none !important; box-shadow: none !important; -boxpointer-gap: 0px;';
-        this.menu.actor.add_style_class_name('lintel-system-menu');
-        this.menu.actor.add_style_class_name('liquid-glass-transparent');
+        this.menu.actor.add_style_class_name('fluid-glass-system-menu');
+        this.menu.actor.add_style_class_name('fluid-glass-transparent');
         this.menu.actor.set_style(clearStyle);
-        this.menu.box.add_style_class_name('lintel-system-menu-content');
-        this.menu.box.add_style_class_name('liquid-glass-transparent');
+        this.menu.box.add_style_class_name('fluid-glass-system-menu-content');
+        this.menu.box.add_style_class_name('fluid-glass-transparent');
         const syncAll = () => {
             syncMenuTheme(this.menu.box);
             syncMenuTheme(this.menu.actor);
@@ -366,7 +366,7 @@ export const LintelSystemMenu = GObject.registerClass({
         if (aboutItem) {
             const separator = new PopupMenu.PopupSeparatorMenuItem();
             separator.add_style_class_name(
-                'lintel-system-menu-about-separator');
+                'fluid-glass-system-menu-about-separator');
             this.menu.addMenuItem(separator);
             addUserOnly(separator);
         }
@@ -432,7 +432,7 @@ export const LintelSystemMenu = GObject.registerClass({
             try {
                 Util.spawn([program, ...args]);
             } catch (e) {
-                logError(e, `LintelSystemMenu: failed to launch ${program}`);
+                logError(e, `FluidGlassSystemMenu: failed to launch ${program}`);
             }
         });
     }
@@ -484,7 +484,7 @@ export const LintelSystemMenu = GObject.registerClass({
 
     _createItem(label, iconName, activate) {
         const item = new PopupMenu.PopupImageMenuItem(label, iconName, {
-            style_class: 'lintel-system-menu-item',
+            style_class: 'fluid-glass-system-menu-item',
         });
         item.label.x_expand = true;
 
@@ -503,7 +503,7 @@ export const LintelSystemMenu = GObject.registerClass({
             try {
                 activate();
             } catch (e) {
-                logError(e, `LintelSystemMenu: action failed (${label})`);
+                logError(e, `FluidGlassSystemMenu: action failed (${label})`);
             }
         });
         const sa = this._systemActions;

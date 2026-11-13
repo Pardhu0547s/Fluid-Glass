@@ -50,7 +50,7 @@ const ANIM_ICON_QUALITY = 2.0;
 const ANIM_INTERVAL = 15;
 const ANIM_INTERVAL_PAD = 15;
 
-export default class Dash2DockLiteExt extends Extension {
+export default class FluidGlassDockExt extends Extension {
   createDock() {
     let d = new Dock({ extension: this });
     d.extension = this;
@@ -164,7 +164,7 @@ export default class Dash2DockLiteExt extends Extension {
   }
 
   enable() {
-    Main.overview.d2dl = this;
+    Main.overview.fluidGlassDock = this;
 
     // Use UUID to avoid conflicting with other instances of this extensions (multi user setup)
     try {
@@ -235,7 +235,7 @@ export default class Dash2DockLiteExt extends Extension {
     this._queryDisplay();
     // this.startUp();
 
-    console.log('dash2dock-lite enabled');
+    console.log('fluid-glass dock enabled');
 
     // to allow dynamic imports
     this._loTimer.runOnce(() => {
@@ -280,8 +280,8 @@ export default class Dash2DockLiteExt extends Extension {
     delete this.icon_theme;
     this.icon_theme = null;
 
-    Main.overview.d2dl = null;
-    console.log('dash2dock-lite disabled');
+    Main.overview.fluidGlassDock = null;
+    console.log('fluid-glass dock disabled');
   }
 
   animate(settings = {}) {
@@ -352,7 +352,7 @@ export default class Dash2DockLiteExt extends Extension {
 
   async _loadConfig() {
     this._config = {};
-    let fn_config = Gio.File.new_for_path('.config/d2da/config.json');
+    let fn_config = Gio.File.new_for_path('.config/fluid-glass-dock/config.json');
     if (fn_config.query_exists(null)) {
       try {
         const contents = await loadFile(fn_config);
@@ -385,7 +385,7 @@ export default class Dash2DockLiteExt extends Extension {
       }
     }
 
-    let fn_icons = Gio.File.new_for_path('.config/d2da/icons.json');
+    let fn_icons = Gio.File.new_for_path('.config/fluid-glass-dock/icons.json');
     if (fn_icons.query_exists(null)) {
       try {
         const contents = await loadFile(fn_icons);
@@ -396,7 +396,7 @@ export default class Dash2DockLiteExt extends Extension {
           Object.keys(this.icon_map).forEach((k) => {
             let path = this.icon_map[k];
             if (path.toLowerCase().endsWith('.svg')) {
-              let file = Gio.File.new_for_path(`.config/d2da/${path}`);
+              let file = Gio.File.new_for_path(`.config/fluid-glass-dock/${path}`);
               if (file.query_exists(null)) {
                 console.log(`loading icon ${file.get_path()}`);
                 this.icon_map_cache[k] = new Gio.FileIcon({ file: file });
@@ -410,7 +410,7 @@ export default class Dash2DockLiteExt extends Extension {
           Object.keys(this.app_map).forEach((k) => {
             let path = this.app_map[k];
             if (path.toLowerCase().endsWith('.svg')) {
-              let file = Gio.File.new_for_path(`.config/d2da/${path}`);
+              let file = Gio.File.new_for_path(`.config/fluid-glass-dock/${path}`);
               if (file.query_exists(null)) {
                 console.log(`loading icon ${file.get_path()}`);
                 this.app_map_cache[k] = new Gio.FileIcon({ file: file });
@@ -423,7 +423,7 @@ export default class Dash2DockLiteExt extends Extension {
       }
     }
 
-    let fn_style = Gio.File.new_for_path('.config/d2da/style.css');
+    let fn_style = Gio.File.new_for_path('.config/fluid-glass-dock/style.css');
     if (fn_style.query_exists(null)) {
       let ctx = St.ThemeContext.get_for_stage(global.stage);
       let theme = ctx.get_theme();
@@ -436,7 +436,7 @@ export default class Dash2DockLiteExt extends Extension {
     this.icon_map_cache = {};
     this.app_map_cache = {};
 
-    let fn_style = Gio.File.new_for_path('.config/d2da/style.css');
+    let fn_style = Gio.File.new_for_path('.config/fluid-glass-dock/style.css');
     if (fn_style.query_exists(null)) {
       let ctx = St.ThemeContext.get_for_stage(global.stage);
       let theme = ctx.get_theme();
@@ -1004,7 +1004,7 @@ export default class Dash2DockLiteExt extends Extension {
     // icons-shadow
     if (this.icon_shadow) {
       styles.push(
-        '#d2daIcon, #DockItemList StIcon {icon-shadow: rgba(0, 0, 0, 0.32) 0 2px 6px;}'
+        '#fluidGlassDockIcon, #DockItemList StIcon {icon-shadow: rgba(0, 0, 0, 0.32) 0 2px 6px;}'
       );
       // styles.push(
       //   '#dash StIcon:hover, #DockItemList StIcon:hover {icon-shadow: rgba(0, 0, 0, 0.24) 0 2px 8px;}'
@@ -1021,7 +1021,7 @@ export default class Dash2DockLiteExt extends Extension {
       ss.push(`border-radius: ${r}px;`);
       this.computed_border_radius = r;
       ss.push(`background: transparent !important; background-color: transparent !important; border: none !important; box-shadow: none !important;`);
-      styles.push(`#d2daBackground { ${ss.join(' ')}}`);
+      styles.push(`#fluidGlassDockBackground { ${ss.join(' ')}}`);
     }
 
     // icon backgrounds
@@ -1116,7 +1116,7 @@ export default class Dash2DockLiteExt extends Extension {
       styles.push(`.dash-separator { background-color: rgba(${rgba}); }`);
     }
 
-    this._style.build('custom-d2dl', styles);
+    this._style.build('custom-fluid-glass-dock', styles);
 
     this._updateBorderStyle();
   }

@@ -23,7 +23,7 @@ import { RelaySet, SAMPLE_MARGIN, relayHolder, StageCopier } from '../rendering/
 export const SHOW_APPS_ID = 'show-apps';
 // Icons are looked up at the size their maps are taken from.
 const LOOKUP_SIZE = 128;
-const STYLE_EFFECT_NAME = 'liquid-glass-icon-style';
+const STYLE_EFFECT_NAME = 'fluid-glass-icon-style';
 // After the extension starts or what is styled changes, the icons not in the cache yet are made after this wait,
 // so that the session's start is not slowed.
 const PREPARE_DELAY_S = 5;
@@ -580,7 +580,7 @@ export class IconMaps {
     _idleId = 0;
     _prepareSerial = 0;
     _cancellable = new Gio.Cancellable();
-    _dir = `${GLib.get_user_cache_dir()}/liquid-glass/icon-maps`;
+    _dir = `${GLib.get_user_cache_dir()}/fluid-glass/icon-maps`;
 
     constructor(extensionPath, _logger) {
         this._logger = _logger;
@@ -870,7 +870,7 @@ export const IconStyleEffect = safeRegisterClass(class IconStyleEffect extends C
 // that surface's own glass, and blurred once. Relays (rendering/backdropGlass.ts) redraw the
 // whole copied area whenever anything behind it changes, so the copy follows
 // a backdrop that moves or plays.
-const BACKDROP_EFFECT_NAME = 'liquid-glass-icon-backdrop';
+const BACKDROP_EFFECT_NAME = 'fluid-glass-icon-backdrop';
 // Room (px) around the icons for the samples spread around each pixel.
 const MARGIN = 8;
 // The copy's size is rounded up to this (px), so that icons coming and going do not make new textures every frame.

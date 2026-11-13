@@ -99,7 +99,7 @@ export const GeoLocator = GObject.registerClass({
                     const denied = Gio.DBusError.get_remote_error(e) ===
                         'org.freedesktop.DBus.Error.AccessDenied';
                     if (!denied)
-                        console.warn(`lintel: GeoClue: ${e.message}`);
+                        console.warn(`fluid-glass: GeoClue: ${e.message}`);
                     this._setState(denied ? 'disabled' : 'error');
                     return;
                 }

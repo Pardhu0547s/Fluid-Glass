@@ -126,12 +126,12 @@ export class DashManager {
         this._settingsSignals.push(...followDockMaterial(this._settings, () => this.glass));
     }
 
-    _isD2DLite() {
+    _isDock() {
         if (!this.targetActor)
             return false;
         return this.targetActor.get_children().some(c => {
             const name = c.get_name?.() ?? '';
-            return name === 'd2daBackground' || name === 'DockBackground';
+            return name === 'fluidGlassDockBackground' || name === 'DockBackground';
         });
     }
 
@@ -150,7 +150,7 @@ export class DashManager {
     // Moves the dock away from the screen edge it is closest to by
     // dock-margin-bottom.
     _applyMargin() {
-        if (!this.targetActor || this._isD2DLite())
+        if (!this.targetActor || this._isDock())
             return;
         let marginBottom = this._settings.get_int('dock-margin-bottom');
         let [w, h] = this.targetActor.get_size();
@@ -196,10 +196,10 @@ export class DashManager {
         this._lastTW = this._lastTH = undefined;
         this._stableDeltaW = this._stableDeltaH = undefined;
         this._lastHidden = undefined;
-        this.targetActor.add_style_class_name('liquid-glass-transparent');
+        this.targetActor.add_style_class_name('fluid-glass-transparent');
         this._dockParent = this.targetActor.get_parent();
         if (this._dockParent) {
-            this._dockParent.add_style_class_name('liquid-glass-transparent');
+            this._dockParent.add_style_class_name('fluid-glass-transparent');
         }
         const glass = createDockGlass(this.extensionPath, this._settings, this._logger, 'dock');
         this.glass = glass;
@@ -327,7 +327,7 @@ export class DashManager {
         for (let i = 0; i < children.length; i++) {
             const childName = children[i].get_name?.() ?? '';
             if (children[i].has_style_class_name('dash-background') ||
-                childName === 'd2daBackground' ||
+                childName === 'fluidGlassDockBackground' ||
                 childName === 'DockBackground') {
                 children[i].opacity = 0;
                 sourceActor = children[i];
@@ -341,7 +341,7 @@ export class DashManager {
         // The uncorrected position, which _syncGlassGeometryLive() compares against.
         this._liveSource = { actor: sourceActor, rawX: absX, rawY: absY };
         const bounds = { absX, absY, baseW, baseH };
-        if (sourceActor !== this.targetActor && (sourceActor.get_name?.() === 'd2daBackground' || sourceActor.get_name?.() === 'DockBackground')) {
+        if (sourceActor !== this.targetActor && (sourceActor.get_name?.() === 'fluidGlassDockBackground' || sourceActor.get_name?.() === 'DockBackground')) {
             return bounds;
         }
         return sourceActor === this.targetActor ? bounds : clipDockBounds(bounds, this._actorBounds(this.targetActor));
@@ -369,7 +369,7 @@ export class DashManager {
     }
 
     _applyDockMargin(bounds, monitor, edges) {
-        if (this._isD2DLite())
+        if (this._isDock())
             return bounds;
         const marginValue = this._marginValue || 0;
         if (!monitor || !(marginValue > 0))
@@ -506,18 +506,18 @@ export class DashManager {
         }
         this._signals = [];
         if (dockAlive) {
-            this.targetActor.remove_style_class_name('liquid-glass-transparent');
+            this.targetActor.remove_style_class_name('fluid-glass-transparent');
             if (this._originalStyle !== undefined)
                 this.targetActor.set_style(this._originalStyle);
             for (const child of this.targetActor.get_children()) {
                 const name = child.get_name?.() ?? '';
-                if (child.has_style_class_name('dash-background') || name === 'd2daBackground' || name === 'DockBackground')
+                if (child.has_style_class_name('dash-background') || name === 'fluidGlassDockBackground' || name === 'DockBackground')
                     child.opacity = 255;
             }
         }
         this._originalStyle = undefined;
         if (isActorValid(this._dockParent))
-            this._dockParent.remove_style_class_name('liquid-glass-transparent');
+            this._dockParent.remove_style_class_name('fluid-glass-transparent');
         this._dockParent = null;
         const glass = this.glass;
         this.glass = null;

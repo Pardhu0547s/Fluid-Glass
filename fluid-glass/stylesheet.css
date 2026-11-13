@@ -1,9 +1,9 @@
 /*
  * Lintel — static fallback stylesheet.
  *
- * Panel styling is scoped under .lintel. Control Center lives in Shell's
+ * Panel styling is scoped under .fluid-glass. Control Center lives in Shell's
  * popup layer (outside the panel actor), so every popup selector has its own
- * lintel-cc prefix and cannot leak into stock Quick Settings.
+ * fluid-glass-cc prefix and cannot leak into stock Quick Settings.
  */
 
 /* ── Tahoe menu-bar metrics ───────────────────────────────────────────────
@@ -14,34 +14,34 @@
  * side of their button, status glyphs are 16px, and the bar's own leading and
  * trailing insets are 8px.
  *
- * Every selector is anchored on `#panel.lintel` rather than `.lintel`.
+ * Every selector is anchored on `#panel.fluid-glass` rather than `.fluid-glass`.
  * Shell themes style the bar through `#panel .panel-button`, which outranks a
  * class-only selector, so the class-only form silently lost its padding and
  * icon metrics under any third-party theme. `!important` is used only for the
  * three properties themes themselves mark important (panel height, button
  * border, clock-label inset); everything else wins on specificity alone. */
 
-#panel.lintel .panel-button {
+#panel.fluid-glass .panel-button {
     background-color: transparent;
     border: 2px solid transparent !important;
     border-radius: 99px;
     transition-duration: 120ms;
 }
 
-#panel.lintel .panel-button:hover {
+#panel.fluid-glass .panel-button:hover {
     background-color: rgba(127, 127, 127, 0.12);
 }
 
-#panel.lintel .panel-button:active,
-#panel.lintel .panel-button:checked,
-#panel.lintel .panel-button:focus {
+#panel.fluid-glass .panel-button:active,
+#panel.fluid-glass .panel-button:checked,
+#panel.fluid-glass .panel-button:focus {
     background-color: rgba(127, 127, 127, 0.20);
 }
 
 /* GNOME pads every status glyph by a further 6px + 4px margin (MacTahoe-style
  * themes use 4px), on top of the button inset. Tahoe puts the whole gutter on
  * the item, so zero the icon's own boxes and let -natural-hpadding own it. */
-#panel.lintel .panel-button .system-status-icon {
+#panel.fluid-glass .panel-button .system-status-icon {
     icon-size: 16px;
     padding: 0;
     margin: 0;
@@ -53,24 +53,24 @@
  * exists for this — it has no combined indicator — so this is a judgement call:
  * wide enough to read as separate glyphs, tighter than the gap between real
  * items so the group still reads as one button. */
-#panel.lintel .panel-button .panel-status-indicators-box {
+#panel.fluid-glass .panel-button .panel-status-indicators-box {
     spacing: 12px;
 }
 
 /* Tahoe's leading/trailing screen inset: the Apple glyph's ink starts ~18px in
  * (8px bar inset + 8px button inset + icon slack) and the clock ends ~17px
  * from the right edge. */
-#panel.lintel #panelLeft {
+#panel.fluid-glass #panelLeft {
     padding-left: 8px;
 }
 
-#panel.lintel #panelRight {
+#panel.fluid-glass #panelRight {
     padding-right: 8px;
 }
 
 /* Fixed-size, code-rendered Tahoe sliders glyph. Its paint color is inherited
  * from the panel, so it remains visible on light, dark and wallpaper panels. */
-.lintel-control-center-icon {
+.fluid-glass-control-center-icon {
     width: 16px;
     height: 16px;
 }
@@ -79,13 +79,13 @@
  * own with a large !important inset (MacTahoe: 16px padding + 6px border),
  * which pushes the time far away from the Control Center glyph. Reset it and
  * let the button inset position the clock like every other status item. */
-#panel.lintel .panel-button .clock-display-box {
+#panel.fluid-glass .panel-button .clock-display-box {
     spacing: 6px;
     padding: 0 !important;
     margin: 0 !important;
 }
 
-#panel.lintel .panel-button .clock-display-box .clock {
+#panel.fluid-glass .panel-button .clock-display-box .clock {
     padding: 0 !important;
     margin: 0 !important;
     border: 0 solid transparent !important;
@@ -95,39 +95,39 @@
  * the stock clock changes width as the time ticks — measured at 13px, "11:11"
  * is 24px wide against 36px for "00:00", shoving the whole trailing cluster
  * sideways every minute. macOS never moves. */
-#panel.lintel .lintel-clock {
+#panel.fluid-glass .fluid-glass-clock {
     font-feature-settings: "tnum";
 }
 
 /* Tahoe's unread dot is a small solid circle, not a 16px glyph. */
-#panel.lintel .panel-button .clock-display-box .messages-indicator {
+#panel.fluid-glass .panel-button .clock-display-box .messages-indicator {
     icon-size: 8px;
 }
 
 /* Only the application title is emphasised in the menu bar; every other item
  * (menu titles, status text, clock) stays at the regular panel weight. The
  * horizontal gutter belongs to the button, so the label adds none. */
-.lintel-active-app {
+.fluid-glass-active-app {
     font-weight: 600;
     padding: 0;
 }
 
 /* The logo reads a little larger than a status icon: ~13 x 15px of ink, against
  * ~14px for a 16px symbolic status glyph. */
-.lintel-system-logo-icon {
+.fluid-glass-system-logo-icon {
     icon-size: 17px;
 }
 
 /* The distributor logo is painted by hand (St.DrawingArea has no icon-size, so
  * it needs explicit box dimensions) — see newLogoSilhouette() in systemMenu.js. */
-.lintel-system-logo-silhouette {
+.fluid-glass-system-logo-silhouette {
     width: 17px;
     height: 17px;
 }
 
 /* Emoji / symbol logo in the system menu (when the icon is a glyph, not an
  * icon-theme name or file). Sized to sit like the default logo icon. */
-.lintel-system-logo-glyph {
+.fluid-glass-system-logo-glyph {
     font-size: 15px;
     padding: 0 2px;
 }
@@ -138,7 +138,7 @@
  * selectors carry their own lintel prefix.  The stock GNOME popup uses a
  * 20px radius, 16px-ish icons and 9px vertical item padding; the Tahoe menu is
  * a much denser 315px-wide material with ~14px icons and ~25px rows. */
-.lintel-system-menu {
+.fluid-glass-system-menu {
     min-width: 0;
     color: #181a1e;
     -arrow-background-color: transparent;
@@ -149,7 +149,7 @@
     -boxpointer-gap: 4px;
 }
 
-.lintel-system-menu-content {
+.fluid-glass-system-menu-content {
     width: 200px;
     padding: 7px 5px 1px 5px;
     border-radius: 16px;
@@ -160,8 +160,8 @@
 }
 
 /* Fluid Glass Pure Liquid Glass material */
-.lintel-system-menu-content,
-.lintel-system-menu-content.lintel-dark {
+.fluid-glass-system-menu-content,
+.fluid-glass-system-menu-content.fluid-glass-dark {
     color: #ffffff;
     background-color: transparent !important;
     border: none !important;
@@ -169,7 +169,7 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
-.lintel-system-menu-content.lintel-light {
+.fluid-glass-system-menu-content.fluid-glass-light {
     color: #000000;
     background-color: transparent !important;
     border: none !important;
@@ -177,7 +177,7 @@
     text-shadow: none;
 }
 
-.lintel-system-menu-content .popup-menu-item {
+.fluid-glass-system-menu-content .popup-menu-item {
     min-height: 19px;
     padding: 3px 7px 3px 15px;
     spacing: 9px;
@@ -189,79 +189,79 @@
     transition-duration: 80ms;
 }
 
-.lintel-system-menu-content .popup-menu-item:hover,
-.lintel-system-menu-content .popup-menu-item:selected,
-.lintel-system-menu-content .popup-menu-item:focus,
-.lintel-system-menu-content .popup-menu-item:active,
-.lintel-system-menu-content .popup-menu-item:checked,
-.lintel-system-menu-content.lintel-dark .popup-menu-item:hover,
-.lintel-system-menu-content.lintel-dark .popup-menu-item:selected,
-.lintel-system-menu-content.lintel-dark .popup-menu-item:focus,
-.lintel-system-menu-content.lintel-dark .popup-menu-item:active,
-.lintel-system-menu-content.lintel-dark .popup-menu-item:checked {
+.fluid-glass-system-menu-content .popup-menu-item:hover,
+.fluid-glass-system-menu-content .popup-menu-item:selected,
+.fluid-glass-system-menu-content .popup-menu-item:focus,
+.fluid-glass-system-menu-content .popup-menu-item:active,
+.fluid-glass-system-menu-content .popup-menu-item:checked,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:hover,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:selected,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:focus,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:active,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:checked {
     color: #ffffff;
     background-color: rgba(255, 255, 255, 0.16);
     border-radius: 6px;
 }
 
-.lintel-system-menu-content.lintel-light .popup-menu-item:hover,
-.lintel-system-menu-content.lintel-light .popup-menu-item:selected,
-.lintel-system-menu-content.lintel-light .popup-menu-item:focus,
-.lintel-system-menu-content.lintel-light .popup-menu-item:active,
-.lintel-system-menu-content.lintel-light .popup-menu-item:checked {
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:hover,
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:selected,
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:focus,
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:active,
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:checked {
     color: #000000;
     background-color: rgba(0, 0, 0, 0.08);
     border-radius: 6px;
 }
 
-.lintel-system-menu-content .popup-menu-item:active:hover,
-.lintel-system-menu-content .popup-menu-item:checked:hover,
-.lintel-system-menu-content.lintel-dark .popup-menu-item:active:hover,
-.lintel-system-menu-content.lintel-dark .popup-menu-item:checked:hover {
+.fluid-glass-system-menu-content .popup-menu-item:active:hover,
+.fluid-glass-system-menu-content .popup-menu-item:checked:hover,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:active:hover,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:checked:hover {
     background-color: rgba(255, 255, 255, 0.22);
 }
 
-.lintel-system-menu-content.lintel-light .popup-menu-item:active:hover,
-.lintel-system-menu-content.lintel-light .popup-menu-item:checked:hover {
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:active:hover,
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:checked:hover {
     background-color: rgba(0, 0, 0, 0.14);
 }
 
-.lintel-system-menu-content .popup-menu-item:insensitive,
-.lintel-system-menu-content.lintel-dark .popup-menu-item:insensitive {
+.fluid-glass-system-menu-content .popup-menu-item:insensitive,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:insensitive {
     color: rgba(255, 255, 255, 0.45);
     background-color: transparent !important;
 }
 
-.lintel-system-menu-content.lintel-light .popup-menu-item:insensitive {
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:insensitive {
     color: rgba(0, 0, 0, 0.35);
     background-color: transparent !important;
 }
 
-.lintel-system-menu-content .popup-menu-icon,
-.lintel-system-menu-content.lintel-dark .popup-menu-icon {
+.fluid-glass-system-menu-content .popup-menu-icon,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-icon {
     icon-size: 14px;
     min-width: 14px;
     color: rgba(255, 255, 255, 0.92);
 }
 
-.lintel-system-menu-content.lintel-light .popup-menu-icon {
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-icon {
     icon-size: 14px;
     min-width: 14px;
     color: rgba(0, 0, 0, 0.88);
 }
 
-.lintel-system-menu-content .popup-menu-arrow,
-.lintel-system-menu-content.lintel-dark .popup-menu-arrow {
+.fluid-glass-system-menu-content .popup-menu-arrow,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-arrow {
     icon-size: 10px;
     color: rgba(255, 255, 255, 0.78);
 }
 
-.lintel-system-menu-content.lintel-light .popup-menu-arrow {
+.fluid-glass-system-menu-content.fluid-glass-light .popup-menu-arrow {
     icon-size: 10px;
     color: rgba(0, 0, 0, 0.60);
 }
 
-.lintel-system-menu-content .popup-separator-menu-item {
+.fluid-glass-system-menu-content .popup-separator-menu-item {
     min-height: 0;
     height: 12px;
     padding: 0 11px;
@@ -269,20 +269,20 @@
     border-radius: 0;
 }
 
-.lintel-system-menu-content
-    .lintel-system-menu-about-separator {
+.fluid-glass-system-menu-content
+    .fluid-glass-system-menu-about-separator {
     height: 10px;
 }
 
-.lintel-system-menu-content .popup-separator-menu-item
+.fluid-glass-system-menu-content .popup-separator-menu-item
     .popup-separator-menu-item-separator,
-.lintel-system-menu-content.lintel-dark .popup-separator-menu-item
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-separator-menu-item
     .popup-separator-menu-item-separator {
     height: 1px;
     background-color: rgba(255, 255, 255, 0.18);
 }
 
-.lintel-system-menu-content.lintel-light .popup-separator-menu-item
+.fluid-glass-system-menu-content.fluid-glass-light .popup-separator-menu-item
     .popup-separator-menu-item-separator {
     height: 1px;
     background-color: rgba(0, 0, 0, 0.12);
@@ -290,9 +290,9 @@
 
 /* GNOME expands submenus in-place. Keep the Recent Items disclosure visually
  * continuous with the outer glass instead of exposing GNOME's opaque inset. */
-.lintel-system-menu-content .popup-sub-menu,
-.lintel-system-menu-content.lintel-dark .popup-sub-menu,
-.lintel-system-menu-content.lintel-light .popup-sub-menu {
+.fluid-glass-system-menu-content .popup-sub-menu,
+.fluid-glass-system-menu-content.fluid-glass-dark .popup-sub-menu,
+.fluid-glass-system-menu-content.fluid-glass-light .popup-sub-menu {
     margin: 0 5px 3px 5px;
     background-color: transparent;
     border: 0 solid transparent;
@@ -301,7 +301,7 @@
 
 /* ── macOS Tahoe status menus ─────────────────────────────────────────── */
 
-.lintel-status-menu {
+.fluid-glass-status-menu {
     -arrow-background-color: transparent;
     -arrow-border-color: transparent;
     -arrow-border-width: 0;
@@ -309,8 +309,8 @@
     -arrow-rise: 0;
 }
 
-.lintel-system-menu-content.lintel-status-menu-content,
-.lintel-extra-status-menu-content {
+.fluid-glass-system-menu-content.fluid-glass-status-menu-content,
+.fluid-glass-extra-status-menu-content {
     width: 232px;
     padding: 5px 4px 4px 4px;
     border-radius: 14px;
@@ -318,47 +318,47 @@
     font-size: 9pt;
 }
 
-.lintel-system-menu-content.lintel-status-menu-content.lintel-battery-menu-content,
-.lintel-system-menu-content.lintel-battery-menu-content {
+.fluid-glass-system-menu-content.fluid-glass-status-menu-content.fluid-glass-battery-menu-content,
+.fluid-glass-system-menu-content.fluid-glass-battery-menu-content {
     width: 176px;
 }
 
-.lintel-system-menu-content.lintel-status-menu-content.lintel-fluid-glass-menu-content,
-.lintel-system-menu-content.lintel-fluid-glass-menu-content {
+.fluid-glass-system-menu-content.fluid-glass-status-menu-content.fluid-glass-menu-content,
+.fluid-glass-system-menu-content.fluid-glass-menu-content {
     width: 240px;
 }
 
-.lintel-fg-slider-item {
+.fluid-glass-fg-slider-item {
     padding: 3px 10px 4px 10px;
 }
 
-.lintel-fg-slider-header {
+.fluid-glass-fg-slider-header {
     spacing: 6px;
     margin-bottom: 2px;
 }
 
-.lintel-fg-slider-title {
+.fluid-glass-fg-slider-title {
     font-size: 8.5pt;
     font-weight: 500;
     color: rgba(255, 255, 255, 0.85);
 }
 
-.lintel-system-menu-content.lintel-light .lintel-fg-slider-title {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-fg-slider-title {
     color: rgba(0, 0, 0, 0.85);
 }
 
-.lintel-fg-slider-val {
+.fluid-glass-fg-slider-val {
     font-size: 8pt;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.60);
     font-feature-settings: "tnum";
 }
 
-.lintel-system-menu-content.lintel-light .lintel-fg-slider-val {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-fg-slider-val {
     color: rgba(0, 0, 0, 0.55);
 }
 
-.lintel-fg-track {
+.fluid-glass-fg-track {
     height: 14px;
     -barlevel-height: 5px;
     -barlevel-background-color: rgba(255, 255, 255, 0.18);
@@ -367,21 +367,21 @@
     -slider-handle-radius: 5px;
 }
 
-.lintel-system-menu-content.lintel-light .lintel-fg-track {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-fg-track {
     -barlevel-background-color: rgba(0, 0, 0, 0.12);
     -barlevel-active-background-color: #007aff;
 }
 
-.lintel-status-menu-content .popup-menu-item,
-.lintel-extra-status-menu-content .popup-menu-item {
+.fluid-glass-status-menu-content .popup-menu-item,
+.fluid-glass-extra-status-menu-content .popup-menu-item {
     min-height: 22px;
     padding: 2px 8px;
     font-size: 9pt;
     border-radius: 5px;
 }
 
-.lintel-status-menu-content .popup-separator-menu-item,
-.lintel-extra-status-menu-content .popup-separator-menu-item {
+.fluid-glass-status-menu-content .popup-separator-menu-item,
+.fluid-glass-extra-status-menu-content .popup-separator-menu-item {
     min-height: 0;
     height: 7px;
     padding: 0 8px;
@@ -389,12 +389,12 @@
     border-radius: 0;
 }
 
-.lintel-status-toggle {
+.fluid-glass-status-toggle {
     font-weight: 600;
 }
 
-.lintel-status-section-title,
-.lintel-system-menu-content.lintel-dark .lintel-status-section-title {
+.fluid-glass-status-section-title,
+.fluid-glass-system-menu-content.fluid-glass-dark .fluid-glass-status-section-title {
     color: rgba(255, 255, 255, 0.65);
     font-size: 7.75pt;
     font-weight: 600;
@@ -404,7 +404,7 @@
     padding-right: 8px;
 }
 
-.lintel-system-menu-content.lintel-light .lintel-status-section-title {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-status-section-title {
     color: rgba(0, 0, 0, 0.55);
     font-size: 7.75pt;
     font-weight: 600;
@@ -414,65 +414,65 @@
     padding-right: 8px;
 }
 
-.lintel-status-empty,
-.lintel-system-menu-content.lintel-dark .lintel-status-empty {
+.fluid-glass-status-empty,
+.fluid-glass-system-menu-content.fluid-glass-dark .fluid-glass-status-empty {
     color: rgba(255, 255, 255, 0.60);
     font-size: 8.5pt;
     padding: 2px 8px;
 }
 
-.lintel-system-menu-content.lintel-light .lintel-status-empty {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-status-empty {
     color: rgba(0, 0, 0, 0.50);
     font-size: 8.5pt;
     padding: 2px 8px;
 }
 
-.lintel-wifi-network-item,
-.lintel-bluetooth-device-item {
+.fluid-glass-wifi-network-item,
+.fluid-glass-bluetooth-device-item {
     spacing: 7px;
 }
 
-.lintel-wifi-secure-icon,
-.lintel-system-menu-content.lintel-dark .lintel-wifi-secure-icon {
+.fluid-glass-wifi-secure-icon,
+.fluid-glass-system-menu-content.fluid-glass-dark .fluid-glass-wifi-secure-icon {
     icon-size: 10px;
     color: rgba(255, 255, 255, 0.65);
 }
 
-.lintel-system-menu-content.lintel-light .lintel-wifi-secure-icon {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-wifi-secure-icon {
     icon-size: 10px;
     color: rgba(0, 0, 0, 0.60);
 }
 
-.lintel-battery-indicator {
+.fluid-glass-battery-indicator {
     spacing: 3px;
 }
 
-.lintel-battery-percentage {
+.fluid-glass-battery-percentage {
     font-feature-settings: "tnum";
 }
 
-.lintel-status-menu-content .lintel-battery-summary {
+.fluid-glass-status-menu-content .fluid-glass-battery-summary {
     spacing: 8px;
     padding: 4px 8px 3px 8px;
 }
 
-.lintel-battery-summary-icon,
-.lintel-system-menu-content.lintel-dark .lintel-battery-summary-icon {
+.fluid-glass-battery-summary-icon,
+.fluid-glass-system-menu-content.fluid-glass-dark .fluid-glass-battery-summary-icon {
     icon-size: 18px;
     color: #ffffff;
 }
 
-.lintel-system-menu-content.lintel-light .lintel-battery-summary-icon {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-battery-summary-icon {
     icon-size: 18px;
     color: #000000;
 }
 
-.lintel-battery-summary-labels {
+.fluid-glass-battery-summary-labels {
     spacing: 0;
 }
 
-.lintel-battery-summary-percentage,
-.lintel-system-menu-content.lintel-dark .lintel-battery-summary-percentage {
+.fluid-glass-battery-summary-percentage,
+.fluid-glass-system-menu-content.fluid-glass-dark .fluid-glass-battery-summary-percentage {
     color: #ffffff;
     font-size: 12pt;
     font-weight: 650;
@@ -480,7 +480,7 @@
     line-height: 1.1;
 }
 
-.lintel-system-menu-content.lintel-light .lintel-battery-summary-percentage {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-battery-summary-percentage {
     color: #000000;
     font-size: 12pt;
     font-weight: 650;
@@ -488,39 +488,39 @@
     line-height: 1.1;
 }
 
-.lintel-battery-summary-status,
-.lintel-system-menu-content.lintel-dark .lintel-battery-summary-status {
+.fluid-glass-battery-summary-status,
+.fluid-glass-system-menu-content.fluid-glass-dark .fluid-glass-battery-summary-status {
     color: rgba(255, 255, 255, 0.85);
     font-size: 8.25pt;
     font-weight: 500;
 }
 
-.lintel-system-menu-content.lintel-light .lintel-battery-summary-status {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-battery-summary-status {
     color: rgba(0, 0, 0, 0.70);
     font-size: 8.25pt;
     font-weight: 500;
 }
 
-.lintel-battery-summary-time,
-.lintel-status-menu-content .lintel-battery-source,
-.lintel-system-menu-content.lintel-dark .lintel-battery-summary-time,
-.lintel-system-menu-content.lintel-dark .lintel-status-menu-content .lintel-battery-source {
+.fluid-glass-battery-summary-time,
+.fluid-glass-status-menu-content .fluid-glass-battery-source,
+.fluid-glass-system-menu-content.fluid-glass-dark .fluid-glass-battery-summary-time,
+.fluid-glass-system-menu-content.fluid-glass-dark .fluid-glass-status-menu-content .fluid-glass-battery-source {
     color: rgba(255, 255, 255, 0.65);
     font-size: 8pt;
 }
 
-.lintel-system-menu-content.lintel-light .lintel-battery-summary-time,
-.lintel-system-menu-content.lintel-light .lintel-status-menu-content .lintel-battery-source {
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-battery-summary-time,
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-status-menu-content .fluid-glass-battery-source {
     color: rgba(0, 0, 0, 0.55);
     font-size: 8pt;
 }
 
-.lintel-status-menu-content .lintel-battery-source {
+.fluid-glass-status-menu-content .fluid-glass-battery-source {
     padding-top: 1px;
     padding-bottom: 2px;
 }
 
-.lintel-status-menu-content .popup-separator-menu-item {
+.fluid-glass-status-menu-content .popup-separator-menu-item {
     min-height: 0;
     height: 7px;
     padding: 0 8px;
@@ -535,10 +535,10 @@
  * has nothing behind it to sample, and the alternatives all mean compositing a
  * copy of the screen (see docs/DESIGN_QA.md, Pass 8-12). The modules rely on their
  * tint alone for contrast. */
-.lintel-cc-menu,
-.popup-menu-boxpointer.lintel-cc-menu,
-.popup-menu.lintel-cc-menu,
-.lintel-cc-menu.popup-menu-boxpointer {
+.fluid-glass-cc-menu,
+.popup-menu-boxpointer.fluid-glass-cc-menu,
+.popup-menu.fluid-glass-cc-menu,
+.fluid-glass-cc-menu.popup-menu-boxpointer {
     -arrow-background-color: transparent !important;
     -arrow-border-color: transparent !important;
     -arrow-border-width: 0 !important;
@@ -550,11 +550,11 @@
     border: none !important;
 }
 
-.lintel-cc-popup,
-.lintel-cc-popup.popup-menu-content,
-.lintel-cc-dark.lintel-cc-popup,
-.lintel-cc-light.lintel-cc-popup,
-.lintel-cc-menu .popup-menu-content {
+.fluid-glass-cc-popup,
+.fluid-glass-cc-popup.popup-menu-content,
+.fluid-glass-cc-dark.fluid-glass-cc-popup,
+.fluid-glass-cc-light.fluid-glass-cc-popup,
+.fluid-glass-cc-menu .popup-menu-content {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -563,7 +563,7 @@
     padding: 0 !important;
 }
 
-.lintel-cc-popup.lintel-cc-back-glass {
+.fluid-glass-cc-popup.fluid-glass-cc-back-glass {
     border-radius: 26px !important;
     padding: 6px !important;
 }
@@ -577,7 +577,7 @@
  * inside, so this is the width the modules actually get, not a border box to
  * subtract padding from. Measured on a render: width 308 produced 308.4px of
  * module. 140 + 12 gutter + 140 = 292, so the grid columns fill it exactly. */
-.lintel-cc-content {
+.fluid-glass-cc-content {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -589,18 +589,18 @@
 
 /* Module grid (src/widgets/ccGrid.js): four cells per row in two halves.
  * 58 + 18 pair gap + 58 = 134 per half, 134 + 12 gutter + 134 = 280. */
-.lintel-cc-grid {
-    -lintel-grid-gutter: 12px;
-    -lintel-grid-pair-gap: 18px;
-    -lintel-grid-row-gap: 10px;
+.fluid-glass-cc-grid {
+    -fluid-glass-grid-gutter: 12px;
+    -fluid-glass-grid-pair-gap: 18px;
+    -fluid-glass-grid-row-gap: 10px;
 }
 
-.lintel-cc-sliders {
+.fluid-glass-cc-sliders {
     spacing: 10px;
 }
 
 /* Connectivity and Focus 2×1 stadium capsules (macOS GoldenGate / Tahoe). */
-.lintel-cc-tile {
+.fluid-glass-cc-tile {
     min-height: 0;
     height: 58px;
     background-color: transparent !important;
@@ -611,27 +611,27 @@
     transition-duration: 160ms;
 }
 
-.lintel-cc-tile:hover,
-.lintel-cc-tile:focus,
-.lintel-cc-tile:active,
-.lintel-cc-tile:checked,
-.lintel-cc-tile:checked:hover {
+.fluid-glass-cc-tile:hover,
+.fluid-glass-cc-tile:focus,
+.fluid-glass-cc-tile:active,
+.fluid-glass-cc-tile:checked,
+.fluid-glass-cc-tile:checked:hover {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }
 
-.lintel-cc-tile-box {
+.fluid-glass-cc-tile-box {
     spacing: 9px;
 }
 
-.lintel-cc-tile-labels {
+.fluid-glass-cc-tile-labels {
     spacing: 1px;
 }
 
 /* Circular icon badge inside 2×1 capsules: translucent white when off,
  * solid white with macOS blue icon when active/checked. */
-.lintel-cc-tile-icon-badge {
+.fluid-glass-cc-tile-icon-badge {
     width: 34px;
     height: 34px;
     min-width: 34px;
@@ -641,13 +641,13 @@
     transition-duration: 160ms;
 }
 
-.lintel-cc-tile-icon-badge:checked,
-.lintel-cc-tile:checked .lintel-cc-tile-icon-badge {
+.fluid-glass-cc-tile-icon-badge:checked,
+.fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon-badge {
     background-color: #ffffff !important;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
 }
 
-.lintel-cc-tile-icon {
+.fluid-glass-cc-tile-icon {
     icon-size: 17px;
     color: #ffffff;
     background: transparent !important;
@@ -658,8 +658,8 @@
     transition-duration: 160ms;
 }
 
-.lintel-cc-tile-icon:checked,
-.lintel-cc-tile:checked .lintel-cc-tile-icon {
+.fluid-glass-cc-tile-icon:checked,
+.fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon {
     color: #007aff !important;
     background: transparent !important;
     background-color: transparent !important;
@@ -667,20 +667,20 @@
     box-shadow: none !important;
 }
 
-.lintel-cc-tile-title,
-.lintel-cc-media-title,
-.lintel-cc-slider-title {
+.fluid-glass-cc-tile-title,
+.fluid-glass-cc-media-title,
+.fluid-glass-cc-slider-title {
     color: #ffffff;
     font-family: "SF Pro Text";
     font-weight: 700;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.38);
 }
 
-.lintel-cc-tile-title {
+.fluid-glass-cc-tile-title {
     font-size: 9.5pt;
 }
 
-.lintel-cc-tile-status {
+.fluid-glass-cc-tile-status {
     color: rgba(255, 255, 255, 0.78);
     font-family: "SF Pro Text";
     font-weight: 500;
@@ -692,7 +692,7 @@
  * artist in the middle, transport controls across the bottom.
  * Sized by CCGrid (134px × 126px outer box); min-width/min-height 0 prevents
  * St from adding padding outside the allocated grid bounds. */
-.lintel-cc-media {
+.fluid-glass-cc-media {
     min-width: 0;
     min-height: 0;
     background-color: transparent !important;
@@ -702,12 +702,12 @@
     box-shadow: none !important;
 }
 
-.lintel-cc-media-metadata {
+.fluid-glass-cc-media-metadata {
     spacing: 1px;
     padding-top: 2px;
 }
 
-.lintel-cc-media-artwork-bin {
+.fluid-glass-cc-media-artwork-bin {
     width: 44px;
     height: 44px;
     min-width: 44px;
@@ -718,7 +718,7 @@
     background-color: rgba(255, 255, 255, 0.14);
 }
 
-.lintel-cc-media-artwork {
+.fluid-glass-cc-media-artwork {
     icon-size: 20px;
     width: 44px;
     height: 44px;
@@ -732,35 +732,35 @@
     color: rgba(255, 255, 255, 0.90);
 }
 
-.lintel-cc-media-title {
+.fluid-glass-cc-media-title {
     font-size: 9.5pt;
 }
 
-.lintel-cc-media-artist {
+.fluid-glass-cc-media-artist {
     color: rgba(255, 255, 255, 0.68);
     font-weight: 500;
     font-size: 8pt;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
-.lintel-cc-media-controls {
+.fluid-glass-cc-media-controls {
     spacing: 4px;
 }
 
-.lintel-cc-media-control {
+.fluid-glass-cc-media-control {
     icon-size: 15px;
     color: rgba(255, 255, 255, 0.86);
 }
 
-.lintel-cc-media-play-icon {
+.fluid-glass-cc-media-play-icon {
     icon-size: 19px;
     color: #ffffff;
 }
 
-.lintel-cc-media-button,
-.lintel-cc-media-play,
-.lintel-cc-media-button:hover,
-.lintel-cc-media-button:focus {
+.fluid-glass-cc-media-button,
+.fluid-glass-cc-media-play,
+.fluid-glass-cc-media-button:hover,
+.fluid-glass-cc-media-button:focus {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -773,8 +773,8 @@
 /* 1×1 Compact Circle Button (58px × 58px perfect circle).
  * When active/checked (e.g. Dark Mode in macOS GoldenGate), the entire circle
  * fills with solid white and the icon turns dark charcoal. */
-.lintel-cc-tile.lintel-cc-tile-compact,
-.lintel-cc-tile.lintel-cc-tile-compact:hover {
+.fluid-glass-cc-tile.fluid-glass-cc-tile-compact,
+.fluid-glass-cc-tile.fluid-glass-cc-tile-compact:hover {
     width: 58px;
     height: 58px;
     min-width: 0;
@@ -787,8 +787,8 @@
     transition-duration: 160ms;
 }
 
-.lintel-cc-tile.lintel-cc-tile-compact:checked,
-.lintel-cc-tile.lintel-cc-tile-compact:checked:hover {
+.fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked,
+.fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked:hover {
     width: 58px;
     height: 58px;
     min-width: 0;
@@ -800,13 +800,13 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
 }
 
-.lintel-cc-tile-compact .lintel-cc-tile-box {
+.fluid-glass-cc-tile-compact .fluid-glass-cc-tile-box {
     spacing: 0;
 }
 
-.lintel-cc-tile-compact .lintel-cc-tile-icon-badge,
-.lintel-cc-tile-compact .lintel-cc-tile-icon-badge:checked,
-.lintel-cc-tile.lintel-cc-tile-compact:checked .lintel-cc-tile-icon-badge {
+.fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon-badge,
+.fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon-badge:checked,
+.fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked .fluid-glass-cc-tile-icon-badge {
     width: 58px;
     height: 58px;
     min-width: 0;
@@ -815,7 +815,7 @@
     box-shadow: none !important;
 }
 
-.lintel-cc-tile-compact .lintel-cc-tile-icon {
+.fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon {
     icon-size: 20px;
     padding: 0;
     color: #ffffff !important;
@@ -825,8 +825,8 @@
     box-shadow: none !important;
 }
 
-.lintel-cc-tile.lintel-cc-tile-compact:checked .lintel-cc-tile-icon,
-.lintel-cc-tile-compact .lintel-cc-tile-icon:checked {
+.fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon:checked {
     color: #1c1c1e !important;
     background: transparent !important;
     background-color: transparent !important;
@@ -835,8 +835,8 @@
 }
 
 /* Labelled Display and Sound rounded-pill modules (280px × 52px outer box). */
-.lintel-cc-slider,
-.lintel-cc-slider:hover {
+.fluid-glass-cc-slider,
+.fluid-glass-cc-slider:hover {
     min-width: 280px;
     min-height: 0;
     background-color: transparent !important;
@@ -847,17 +847,17 @@
     box-shadow: none !important;
 }
 
-.lintel-cc-slider-title {
+.fluid-glass-cc-slider-title {
     font-size: 9.5pt;
 }
 
-.lintel-cc-slider-row {
+.fluid-glass-cc-slider-row {
     spacing: 8px;
 }
 
-.lintel-cc-slider-icon-button,
-.lintel-cc-slider-icon-button:hover,
-.lintel-cc-slider-icon-button:focus {
+.fluid-glass-cc-slider-icon-button,
+.fluid-glass-cc-slider-icon-button:hover,
+.fluid-glass-cc-slider-icon-button:focus {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -867,18 +867,18 @@
     transition-duration: 140ms;
 }
 
-.lintel-cc-slider-icon {
+.fluid-glass-cc-slider-icon {
     icon-size: 14px;
     color: rgba(255, 255, 255, 0.92);
 }
 
-.lintel-cc-slider-trailing-icon {
+.fluid-glass-cc-slider-trailing-icon {
     icon-size: 16px;
     color: #ffffff;
 }
 
-.lintel-cc-slider-accessory-button,
-.lintel-cc-slider-accessory-button:focus {
+.fluid-glass-cc-slider-accessory-button,
+.fluid-glass-cc-slider-accessory-button:focus {
     width: 24px;
     height: 24px;
     min-width: 24px;
@@ -891,16 +891,16 @@
     transition-duration: 140ms;
 }
 
-.lintel-cc-slider-accessory-button:hover {
+.fluid-glass-cc-slider-accessory-button:hover {
     background-color: rgba(255, 255, 255, 0.28) !important;
 }
 
-.lintel-cc-slider-accessory-icon {
+.fluid-glass-cc-slider-accessory-icon {
     icon-size: 13px;
     color: #ffffff;
 }
 
-.lintel-cc-track {
+.fluid-glass-cc-track {
     color: #ffffff;
     height: 10px;
     -barlevel-height: 6px;
@@ -912,10 +912,10 @@
     -slider-handle-radius: 0px;
 }
 
-.lintel-cc-edit-controls,
-.lintel-cc-edit-controls:hover,
-.lintel-cc-edit-controls:focus,
-.lintel-cc-edit-controls.lintel-cc-edit-done {
+.fluid-glass-cc-edit-controls,
+.fluid-glass-cc-edit-controls:hover,
+.fluid-glass-cc-edit-controls:focus,
+.fluid-glass-cc-edit-controls.fluid-glass-cc-edit-done {
     color: rgba(255, 255, 255, 0.95);
     background-color: transparent !important;
     border: none !important;
@@ -930,63 +930,63 @@
 
 /* ── Control Center Light Theme Variant ── */
 
-.lintel-cc-light .lintel-cc-tile,
-.lintel-cc-light .lintel-cc-tile:hover,
-.lintel-cc-light .lintel-cc-media,
-.lintel-cc-light .lintel-cc-slider,
-.lintel-cc-light .lintel-cc-edit-controls {
+.fluid-glass-cc-light .fluid-glass-cc-tile,
+.fluid-glass-cc-light .fluid-glass-cc-tile:hover,
+.fluid-glass-cc-light .fluid-glass-cc-media,
+.fluid-glass-cc-light .fluid-glass-cc-slider,
+.fluid-glass-cc-light .fluid-glass-cc-edit-controls {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
 }
 
-.lintel-cc-light .lintel-cc-tile-title,
-.lintel-cc-light .lintel-cc-media-title,
-.lintel-cc-light .lintel-cc-slider-title {
+.fluid-glass-cc-light .fluid-glass-cc-tile-title,
+.fluid-glass-cc-light .fluid-glass-cc-media-title,
+.fluid-glass-cc-light .fluid-glass-cc-slider-title {
     color: #000000;
     text-shadow: none;
 }
 
-.lintel-cc-light .lintel-cc-tile-status {
+.fluid-glass-cc-light .fluid-glass-cc-tile-status {
     color: rgba(0, 0, 0, 0.65);
     text-shadow: none;
 }
 
-.lintel-cc-light .lintel-cc-tile-icon {
+.fluid-glass-cc-light .fluid-glass-cc-tile-icon {
     color: #000000;
 }
 
-.lintel-cc-light .lintel-cc-tile-icon:checked,
-.lintel-cc-light .lintel-cc-tile:checked .lintel-cc-tile-icon {
+.fluid-glass-cc-light .fluid-glass-cc-tile-icon:checked,
+.fluid-glass-cc-light .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon {
     color: #007aff !important;
 }
 
-.lintel-cc-light .lintel-cc-media-artist {
+.fluid-glass-cc-light .fluid-glass-cc-media-artist {
     color: rgba(0, 0, 0, 0.65);
     text-shadow: none;
 }
 
-.lintel-cc-light .lintel-cc-media-control,
-.lintel-cc-light .lintel-cc-media-play-icon {
+.fluid-glass-cc-light .fluid-glass-cc-media-control,
+.fluid-glass-cc-light .fluid-glass-cc-media-play-icon {
     color: rgba(0, 0, 0, 0.85);
 }
 
-.lintel-cc-light .lintel-cc-slider-icon,
-.lintel-cc-light .lintel-cc-slider-trailing-icon,
-.lintel-cc-light .lintel-cc-slider-accessory-icon {
+.fluid-glass-cc-light .fluid-glass-cc-slider-icon,
+.fluid-glass-cc-light .fluid-glass-cc-slider-trailing-icon,
+.fluid-glass-cc-light .fluid-glass-cc-slider-accessory-icon {
     color: rgba(0, 0, 0, 0.85);
 }
 
-.lintel-cc-light .lintel-cc-track {
+.fluid-glass-cc-light .fluid-glass-cc-track {
     color: #000000;
     -barlevel-background-color: rgba(0, 0, 0, 0.15);
     -barlevel-active-background-color: #000000;
 }
 
-.lintel-cc-light .lintel-cc-edit-controls,
-.lintel-cc-light .lintel-cc-edit-controls:hover,
-.lintel-cc-light .lintel-cc-edit-controls:focus,
-.lintel-cc-light .lintel-cc-edit-controls.lintel-cc-edit-done {
+.fluid-glass-cc-light .fluid-glass-cc-edit-controls,
+.fluid-glass-cc-light .fluid-glass-cc-edit-controls:hover,
+.fluid-glass-cc-light .fluid-glass-cc-edit-controls:focus,
+.fluid-glass-cc-light .fluid-glass-cc-edit-controls.fluid-glass-cc-edit-done {
     color: #000000;
     text-shadow: none;
 }
@@ -995,30 +995,30 @@
  * corner, the popup otherwise unchanged. Selecting a control (the shield over
  * it takes the click so the control itself is not operated) opens a toolbar to
  * move or resize it; removed controls wait in the gallery below. */
-.lintel-cc-slot-shield {
+.fluid-glass-cc-slot-shield {
     border: 2px solid transparent;
     border-radius: 22px;
     transition-duration: 120ms;
 }
 
-.lintel-cc-slot-shield.lintel-cc-shape-small {
+.fluid-glass-cc-slot-shield.fluid-glass-cc-shape-small {
     border-radius: 999px;
 }
 
-.lintel-cc-slot-shield.lintel-cc-shape-large {
+.fluid-glass-cc-slot-shield.fluid-glass-cc-shape-large {
     border-radius: 24px;
 }
 
-.lintel-cc-slot-shield:hover {
+.fluid-glass-cc-slot-shield:hover {
     background-color: rgba(255, 255, 255, 0.08);
 }
 
-.lintel-cc-slot-shield:checked,
-.lintel-cc-slot-shield:focus {
+.fluid-glass-cc-slot-shield:checked,
+.fluid-glass-cc-slot-shield:focus {
     border-color: #0a84ff;
 }
 
-.lintel-cc-slot-remove {
+.fluid-glass-cc-slot-remove {
     width: 20px;
     height: 20px;
     padding: 0;
@@ -1028,38 +1028,38 @@
     box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.35);
 }
 
-.lintel-cc-slot-remove StIcon {
+.fluid-glass-cc-slot-remove StIcon {
     icon-size: 10px;
 }
 
-.lintel-cc-edit-toolbar,
-.lintel-cc-gallery {
+.fluid-glass-cc-edit-toolbar,
+.fluid-glass-cc-gallery {
     background-color: rgba(35, 41, 48, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 22px;
     box-shadow: 0 7px 20px 0 rgba(0, 0, 0, 0.18);
 }
 
-.lintel-cc-edit-toolbar {
+.fluid-glass-cc-edit-toolbar {
     padding: 6px 8px 6px 12px;
     spacing: 3px;
     max-width: 292px;
 }
 
-.lintel-cc-edit-toolbar-title,
-.lintel-cc-gallery-title,
-.lintel-cc-gallery-item {
+.fluid-glass-cc-edit-toolbar-title,
+.fluid-glass-cc-gallery-title,
+.fluid-glass-cc-gallery-item {
     color: #ffffff;
     font-family: "SF Pro Text";
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.48);
 }
 
-.lintel-cc-edit-toolbar-title {
+.fluid-glass-cc-edit-toolbar-title {
     font-size: 8.75pt;
     font-weight: 600;
 }
 
-.lintel-cc-edit-tool {
+.fluid-glass-cc-edit-tool {
     min-width: 24px;
     height: 24px;
     padding: 0 4px;
@@ -1071,52 +1071,52 @@
     transition-duration: 100ms;
 }
 
-.lintel-cc-edit-tool:hover,
-.lintel-cc-edit-tool:focus {
+.fluid-glass-cc-edit-tool:hover,
+.fluid-glass-cc-edit-tool:focus {
     background-color: rgba(255, 255, 255, 0.28);
 }
 
-.lintel-cc-edit-tool:insensitive {
+.fluid-glass-cc-edit-tool:insensitive {
     color: rgba(255, 255, 255, 0.30);
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-.lintel-cc-edit-tool StIcon {
+.fluid-glass-cc-edit-tool StIcon {
     icon-size: 11px;
 }
 
-.lintel-cc-gallery {
+.fluid-glass-cc-gallery {
     padding: 8px;
     spacing: 2px;
 }
 
-.lintel-cc-gallery-title {
+.fluid-glass-cc-gallery-title {
     padding: 0 6px 4px 6px;
     font-size: 9.25pt;
     font-weight: 600;
 }
 
-.lintel-cc-gallery-item {
+.fluid-glass-cc-gallery-item {
     padding: 5px 6px;
     border-radius: 14px;
     font-size: 9pt;
     transition-duration: 100ms;
 }
 
-.lintel-cc-gallery-item:hover,
-.lintel-cc-gallery-item:focus {
+.fluid-glass-cc-gallery-item:hover,
+.fluid-glass-cc-gallery-item:focus {
     background-color: rgba(255, 255, 255, 0.12);
 }
 
-.lintel-cc-gallery-item-box {
+.fluid-glass-cc-gallery-item-box {
     spacing: 10px;
 }
 
-.lintel-cc-gallery-icon {
+.fluid-glass-cc-gallery-icon {
     icon-size: 16px;
 }
 
-.lintel-cc-gallery-add {
+.fluid-glass-cc-gallery-add {
     icon-size: 10px;
     padding: 4px;
     color: #ffffff;
@@ -1140,49 +1140,49 @@
  * #lintelNotificationCenter: GNOME's theme styles messages through selectors
  * like `.message .message-box .message-icon` and `.message-view .message
  * { margin-bottom: 12px !important }`, which outrank any two-class selector.
- * The previous `.lintel-notification-center .message-icon` rules lost to them
+ * The previous `.fluid-glass-notification-center .message-icon` rules lost to them
  * silently — 48px icons, 12px gaps and identical cards in a collapsed stack.
  *
  * Material tint, like the Control Center's: there is no backdrop blur, so the
  * plate alone carries contrast. Dark plates are rgba(30,32,36,0.76): white text
  * over a WHITE wallpaper still reaches 7.5:1, and 70% secondary text 4.6:1. */
 
-.lintel-notification-center {
+.fluid-glass-notification-center {
     spacing: 8px;
     padding: 0;
     font-family: "SF Pro Text";
     font-size: 9.75pt;
 }
 
-.lintel-nc-column-scroll {
+.fluid-glass-nc-column-scroll {
     padding: 0;
     -st-vfade-offset: 22px;
 }
 
 /* Heading and clear button sit directly on the wallpaper in both appearances. */
-.lintel-nc-header {
+.fluid-glass-nc-header {
     min-height: 24px;
     padding: 0 0 0 2px;
     spacing: 8px;
 }
 
-.lintel-nc-heading,
-.lintel-nc-dark .lintel-nc-heading {
+.fluid-glass-nc-heading,
+.fluid-glass-nc-dark .fluid-glass-nc-heading {
     color: #ffffff;
     font-size: 13.5pt;
     font-weight: 700;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
-.lintel-nc-light .lintel-nc-heading {
+.fluid-glass-nc-light .fluid-glass-nc-heading {
     color: #000000;
     font-size: 13.5pt;
     font-weight: 700;
     text-shadow: none;
 }
 
-.lintel-nc-clear-button,
-.lintel-nc-dark .lintel-nc-clear-button {
+.fluid-glass-nc-clear-button,
+.fluid-glass-nc-dark .fluid-glass-nc-clear-button {
     width: 22px;
     height: 22px;
     min-width: 22px;
@@ -1196,7 +1196,7 @@
     transition-duration: 120ms;
 }
 
-.lintel-nc-light .lintel-nc-clear-button {
+.fluid-glass-nc-light .fluid-glass-nc-clear-button {
     width: 22px;
     height: 22px;
     min-width: 22px;
@@ -1210,32 +1210,32 @@
     transition-duration: 120ms;
 }
 
-.lintel-nc-clear-button StIcon {
+.fluid-glass-nc-clear-button StIcon {
     icon-size: 14px;
 }
 
-.lintel-nc-dark .lintel-nc-clear-button:hover,
-.lintel-nc-clear-button:hover {
+.fluid-glass-nc-dark .fluid-glass-nc-clear-button:hover,
+.fluid-glass-nc-clear-button:hover {
     color: #ffffff;
     background-color: rgba(255, 255, 255, 0.28) !important;
     border: none;
 }
 
-.lintel-nc-light .lintel-nc-clear-button:hover {
+.fluid-glass-nc-light .fluid-glass-nc-clear-button:hover {
     color: #000000;
     background-color: rgba(0, 0, 0, 0.16) !important;
     border: none;
 }
 
-.lintel-nc-clear-button:active {
+.fluid-glass-nc-clear-button:active {
     background-color: rgba(255, 255, 255, 0.38) !important;
 }
 
-.lintel-nc-clear-button:focus {
+.fluid-glass-nc-clear-button:focus {
     border: none;
 }
 
-.lintel-nc-notifications {
+.fluid-glass-nc-notifications {
     padding: 0;
     margin: 0;
     -st-vfade-offset: 24px;
@@ -1268,7 +1268,7 @@
     transition-duration: 140ms;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message {
+#lintelNotificationCenter.fluid-glass-nc-dark .message {
     color: rgba(255, 255, 255, 0.96);
     background-color: transparent;
     border: none;
@@ -1276,7 +1276,7 @@
     box-shadow: none;
 }
 
-#lintelNotificationCenter.lintel-nc-light .message {
+#lintelNotificationCenter.fluid-glass-nc-light .message {
     color: #000000;
     background-color: transparent;
     border: none;
@@ -1284,8 +1284,8 @@
     box-shadow: none;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message:hover,
-#lintelNotificationCenter.lintel-nc-light .message:hover {
+#lintelNotificationCenter.fluid-glass-nc-dark .message:hover,
+#lintelNotificationCenter.fluid-glass-nc-light .message:hover {
     background-color: transparent;
     border: none;
 }
@@ -1295,19 +1295,19 @@
 }
 
 /* A collapsed group hides stacked cards underneath so only the pure glass front card shows. */
-#lintelNotificationCenter.lintel-nc-dark .message:second-in-stack,
-#lintelNotificationCenter.lintel-nc-dark .message:lower-in-stack,
-#lintelNotificationCenter.lintel-nc-light .message:second-in-stack,
-#lintelNotificationCenter.lintel-nc-light .message:lower-in-stack {
+#lintelNotificationCenter.fluid-glass-nc-dark .message:second-in-stack,
+#lintelNotificationCenter.fluid-glass-nc-dark .message:lower-in-stack,
+#lintelNotificationCenter.fluid-glass-nc-light .message:second-in-stack,
+#lintelNotificationCenter.fluid-glass-nc-light .message:lower-in-stack {
     background-color: transparent;
     border: none;
     box-shadow: none;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message.lintel-nc-collapsed-stack-front,
-#lintelNotificationCenter.lintel-nc-dark .message.lintel-nc-collapsed-stack-front:hover,
-#lintelNotificationCenter.lintel-nc-light .message.lintel-nc-collapsed-stack-front,
-#lintelNotificationCenter.lintel-nc-light .message.lintel-nc-collapsed-stack-front:hover {
+#lintelNotificationCenter.fluid-glass-nc-dark .message.fluid-glass-nc-collapsed-stack-front,
+#lintelNotificationCenter.fluid-glass-nc-dark .message.fluid-glass-nc-collapsed-stack-front:hover,
+#lintelNotificationCenter.fluid-glass-nc-light .message.fluid-glass-nc-collapsed-stack-front,
+#lintelNotificationCenter.fluid-glass-nc-light .message.fluid-glass-nc-collapsed-stack-front:hover {
     background-color: transparent;
     border: none;
     box-shadow: none;
@@ -1333,13 +1333,13 @@
     font-weight: 600;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message .message-header,
-#lintelNotificationCenter.lintel-nc-dark .message .message-header .event-time {
+#lintelNotificationCenter.fluid-glass-nc-dark .message .message-header,
+#lintelNotificationCenter.fluid-glass-nc-dark .message .message-header .event-time {
     color: rgba(255, 255, 255, 0.72);
 }
 
-#lintelNotificationCenter.lintel-nc-light .message .message-header,
-#lintelNotificationCenter.lintel-nc-light .message .message-header .event-time {
+#lintelNotificationCenter.fluid-glass-nc-light .message .message-header,
+#lintelNotificationCenter.fluid-glass-nc-light .message .message-header .event-time {
     color: rgba(0, 0, 0, 0.65);
 }
 
@@ -1364,29 +1364,29 @@
     icon-size: 13px;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button,
-#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button,
-#lintelNotificationCenter.lintel-nc-dark .message-notification-group .message-collapse-button {
+#lintelNotificationCenter.fluid-glass-nc-dark .message .message-header .message-expand-button,
+#lintelNotificationCenter.fluid-glass-nc-dark .message .message-header .message-close-button,
+#lintelNotificationCenter.fluid-glass-nc-dark .message-notification-group .message-collapse-button {
     color: rgba(255, 255, 255, 0.90);
     background-color: rgba(255, 255, 255, 0.14) !important;
 }
 
-#lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button,
-#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button,
-#lintelNotificationCenter.lintel-nc-light .message-notification-group .message-collapse-button {
+#lintelNotificationCenter.fluid-glass-nc-light .message .message-header .message-expand-button,
+#lintelNotificationCenter.fluid-glass-nc-light .message .message-header .message-close-button,
+#lintelNotificationCenter.fluid-glass-nc-light .message-notification-group .message-collapse-button {
     color: rgba(0, 0, 0, 0.80);
     background-color: rgba(0, 0, 0, 0.08) !important;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-expand-button:hover,
-#lintelNotificationCenter.lintel-nc-dark .message .message-header .message-close-button:hover,
+#lintelNotificationCenter.fluid-glass-nc-dark .message .message-header .message-expand-button:hover,
+#lintelNotificationCenter.fluid-glass-nc-dark .message .message-header .message-close-button:hover,
 #lintelNotificationCenter .message .message-header .message-close-button:hover {
     color: #ffffff;
     background-color: rgba(255, 255, 255, 0.28) !important;
 }
 
-#lintelNotificationCenter.lintel-nc-light .message .message-header .message-expand-button:hover,
-#lintelNotificationCenter.lintel-nc-light .message .message-header .message-close-button:hover {
+#lintelNotificationCenter.fluid-glass-nc-light .message .message-header .message-expand-button:hover,
+#lintelNotificationCenter.fluid-glass-nc-light .message .message-header .message-close-button:hover {
     color: #000000;
     background-color: rgba(0, 0, 0, 0.16) !important;
 }
@@ -1418,8 +1418,8 @@
     background-color: transparent;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message .message-box .message-icon.message-themed-icon,
-#lintelNotificationCenter.lintel-nc-light .message .message-box .message-icon.message-themed-icon {
+#lintelNotificationCenter.fluid-glass-nc-dark .message .message-box .message-icon.message-themed-icon,
+#lintelNotificationCenter.fluid-glass-nc-light .message .message-box .message-icon.message-themed-icon {
     background-color: transparent;
 }
 
@@ -1436,11 +1436,11 @@
     font-size: 9.75pt;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message .message-body {
+#lintelNotificationCenter.fluid-glass-nc-dark .message .message-body {
     color: rgba(255, 255, 255, 0.88);
 }
 
-#lintelNotificationCenter.lintel-nc-light .message .message-body {
+#lintelNotificationCenter.fluid-glass-nc-light .message .message-body {
     color: rgba(0, 0, 0, 0.85);
 }
 
@@ -1459,20 +1459,20 @@
     border: none;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .notification-button {
+#lintelNotificationCenter.fluid-glass-nc-dark .notification-button {
     color: #ffffff;
     background-color: transparent;
     border: none;
 }
 
-#lintelNotificationCenter.lintel-nc-light .notification-button {
+#lintelNotificationCenter.fluid-glass-nc-light .notification-button {
     color: #000000;
     background-color: transparent;
     border: none;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .notification-button:hover,
-#lintelNotificationCenter.lintel-nc-dark .notification-button:focus,
+#lintelNotificationCenter.fluid-glass-nc-dark .notification-button:hover,
+#lintelNotificationCenter.fluid-glass-nc-dark .notification-button:focus,
 #lintelNotificationCenter .notification-button:hover,
 #lintelNotificationCenter .notification-button:focus {
     color: #ffffff;
@@ -1480,8 +1480,8 @@
     border: none;
 }
 
-#lintelNotificationCenter.lintel-nc-light .notification-button:hover,
-#lintelNotificationCenter.lintel-nc-light .notification-button:focus {
+#lintelNotificationCenter.fluid-glass-nc-light .notification-button:hover,
+#lintelNotificationCenter.fluid-glass-nc-light .notification-button:focus {
     color: #000000;
     background-color: transparent;
     border: none;
@@ -1492,7 +1492,7 @@
     padding: 0 2px 2px 2px;
 }
 
-#lintelNotificationCenter.lintel-nc-dark .message-notification-group .message-group-header .message-group-title,
+#lintelNotificationCenter.fluid-glass-nc-dark .message-notification-group .message-group-header .message-group-title,
 #lintelNotificationCenter .message-notification-group .message-group-header .message-group-title {
     margin: 0;
     color: #ffffff;
@@ -1501,7 +1501,7 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
-#lintelNotificationCenter.lintel-nc-light .message-notification-group .message-group-header .message-group-title {
+#lintelNotificationCenter.fluid-glass-nc-light .message-notification-group .message-group-header .message-group-title {
     margin: 0;
     color: #000000;
     font-size: 11.25pt;
@@ -1519,19 +1519,19 @@
  * St's `height` is the CONTENT height; padding and the 1px border are added
  * outside it (see docs/DESIGN_QA.md, Pass 5). 165 = 135 + 2 x 14 + 2 x 1. */
 
-.lintel-nc-widgets {
+.fluid-glass-nc-widgets {
     spacing: 15px;
 }
 
-.lintel-nc-widget-pair {
+.fluid-glass-nc-widget-pair {
     spacing: 15px;
 }
 
-.lintel-nc-slot-small {
+.fluid-glass-nc-slot-small {
     width: 165px;
 }
 
-.lintel-nc-widget-card {
+.fluid-glass-nc-widget-card {
     padding: 15px 17px;
     border-radius: 24px;
     border: none;
@@ -1540,17 +1540,17 @@
     transition-duration: 140ms;
 }
 
-.lintel-nc-widget-small,
-.lintel-nc-widget-medium {
+.fluid-glass-nc-widget-small,
+.fluid-glass-nc-widget-medium {
     height: 135px;
 }
 
-.lintel-nc-widget-large {
+.fluid-glass-nc-widget-large {
     height: 315px;
 }
 
-.lintel-nc-dark .lintel-nc-widget-card,
-.lintel-nc-dark .lintel-nc-widget-gallery {
+.fluid-glass-nc-dark .fluid-glass-nc-widget-card,
+.fluid-glass-nc-dark .fluid-glass-nc-widget-gallery {
     color: rgba(255, 255, 255, 0.96);
     background-color: transparent;
     border: none;
@@ -1558,8 +1558,8 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
-.lintel-nc-light .lintel-nc-widget-card,
-.lintel-nc-light .lintel-nc-widget-gallery {
+.fluid-glass-nc-light .fluid-glass-nc-widget-card,
+.fluid-glass-nc-light .fluid-glass-nc-widget-gallery {
     color: #000000;
     background-color: transparent;
     border: none;
@@ -1567,116 +1567,116 @@
     text-shadow: none;
 }
 
-.lintel-nc-widget-card:hover,
-.lintel-nc-dark .lintel-nc-widget-card:hover,
-.lintel-nc-light .lintel-nc-widget-card:hover,
-.lintel-nc-widget-card:focus {
+.fluid-glass-nc-widget-card:hover,
+.fluid-glass-nc-dark .fluid-glass-nc-widget-card:hover,
+.fluid-glass-nc-light .fluid-glass-nc-widget-card:hover,
+.fluid-glass-nc-widget-card:focus {
     background-color: transparent;
     border: none;
 }
 
-.lintel-nc-widget-title,
-.lintel-nc-dark .lintel-nc-widget-title {
+.fluid-glass-nc-widget-title,
+.fluid-glass-nc-dark .fluid-glass-nc-widget-title {
     color: #ffffff;
     font-size: 10.5pt;
     font-weight: 700;
 }
 
-.lintel-nc-light .lintel-nc-widget-title {
+.fluid-glass-nc-light .fluid-glass-nc-widget-title {
     color: #000000;
     font-size: 10.5pt;
     font-weight: 700;
 }
 
-.lintel-nc-widget-subtitle {
+.fluid-glass-nc-widget-subtitle {
     font-size: 8.75pt;
     font-weight: 500;
 }
 
-.lintel-nc-dark .lintel-nc-widget-subtitle,
-.lintel-nc-dark .lintel-nc-calendar-weekday,
-.lintel-nc-dark .lintel-nc-calendar-year,
-.lintel-nc-dark .lintel-nc-forecast-time {
+.fluid-glass-nc-dark .fluid-glass-nc-widget-subtitle,
+.fluid-glass-nc-dark .fluid-glass-nc-calendar-weekday,
+.fluid-glass-nc-dark .fluid-glass-nc-calendar-year,
+.fluid-glass-nc-dark .fluid-glass-nc-forecast-time {
     color: rgba(255, 255, 255, 0.72);
 }
 
-.lintel-nc-light .lintel-nc-widget-subtitle,
-.lintel-nc-light .lintel-nc-calendar-weekday,
-.lintel-nc-light .lintel-nc-calendar-year,
-.lintel-nc-light .lintel-nc-forecast-time {
+.fluid-glass-nc-light .fluid-glass-nc-widget-subtitle,
+.fluid-glass-nc-light .fluid-glass-nc-calendar-weekday,
+.fluid-glass-nc-light .fluid-glass-nc-calendar-year,
+.fluid-glass-nc-light .fluid-glass-nc-forecast-time {
     color: rgba(0, 0, 0, 0.65);
 }
 
 /* Calendar — the small layout follows Tahoe's desktop calendar widget: red
  * month caps, single-letter weekdays, dimmed weekends, a red disc for today. */
 
-.lintel-nc-widget-small.lintel-nc-calendar-widget {
+.fluid-glass-nc-widget-small.fluid-glass-nc-calendar-widget {
     padding: 12px 13px;
     height: 141px;
 }
 
-.lintel-nc-calendar-month {
+.fluid-glass-nc-calendar-month {
     font-size: 8.25pt;
     font-weight: 700;
 }
 
-.lintel-nc-dark .lintel-nc-calendar-month,
-.lintel-nc-light .lintel-nc-calendar-month {
+.fluid-glass-nc-dark .fluid-glass-nc-calendar-month,
+.fluid-glass-nc-light .fluid-glass-nc-calendar-month {
     color: #ff453a;
 }
 
-.lintel-nc-calendar-year {
+.fluid-glass-nc-calendar-year {
     font-size: 8.25pt;
     font-weight: 700;
 }
 
-.lintel-nc-calendar-split {
+.fluid-glass-nc-calendar-split {
     spacing: 12px;
 }
 
-.lintel-nc-calendar-big-day,
-.lintel-nc-dark .lintel-nc-calendar-big-day {
+.fluid-glass-nc-calendar-big-day,
+.fluid-glass-nc-dark .fluid-glass-nc-calendar-big-day {
     color: #ffffff;
     font-size: 30pt;
     font-weight: 300;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-light .lintel-nc-calendar-big-day {
+.fluid-glass-nc-light .fluid-glass-nc-calendar-big-day {
     color: #000000;
     font-size: 30pt;
     font-weight: 300;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-calendar-grid {
+.fluid-glass-nc-calendar-grid {
     margin-top: 3px;
 }
 
-.lintel-nc-widget-medium .lintel-nc-calendar-grid {
+.fluid-glass-nc-widget-medium .fluid-glass-nc-calendar-grid {
     width: 140px;
     margin-top: 8px;
 }
 
-.lintel-nc-calendar-cell {
+.fluid-glass-nc-calendar-cell {
     height: 17px;
 }
 
-.lintel-nc-calendar-weekday {
+.fluid-glass-nc-calendar-weekday {
     font-size: 7.25pt;
     font-weight: 700;
 }
 
-.lintel-nc-calendar-header {
+.fluid-glass-nc-calendar-header {
     spacing: 6px;
     margin-bottom: 2px;
 }
 
-.lintel-nc-calendar-nav-box {
+.fluid-glass-nc-calendar-nav-box {
     spacing: 4px;
 }
 
-.lintel-nc-calendar-nav-btn {
+.fluid-glass-nc-calendar-nav-btn {
     width: 22px;
     height: 22px;
     border-radius: 999px;
@@ -1689,31 +1689,31 @@
     transition-duration: 150ms;
 }
 
-.lintel-nc-light .lintel-nc-calendar-nav-btn {
+.fluid-glass-nc-light .fluid-glass-nc-calendar-nav-btn {
     background-color: rgba(0, 0, 0, 0.08);
     color: rgba(0, 0, 0, 0.75);
 }
 
-.lintel-nc-calendar-nav-btn:hover,
-.lintel-nc-calendar-nav-btn:active,
-.lintel-nc-calendar-nav-btn:focus {
+.fluid-glass-nc-calendar-nav-btn:hover,
+.fluid-glass-nc-calendar-nav-btn:active,
+.fluid-glass-nc-calendar-nav-btn:focus {
     background-color: rgba(255, 255, 255, 0.28);
     color: #ffffff;
 }
 
-.lintel-nc-light .lintel-nc-calendar-nav-btn:hover,
-.lintel-nc-light .lintel-nc-calendar-nav-btn:active,
-.lintel-nc-light .lintel-nc-calendar-nav-btn:focus {
+.fluid-glass-nc-light .fluid-glass-nc-calendar-nav-btn:hover,
+.fluid-glass-nc-light .fluid-glass-nc-calendar-nav-btn:active,
+.fluid-glass-nc-light .fluid-glass-nc-calendar-nav-btn:focus {
     background-color: rgba(0, 0, 0, 0.16);
     color: #000000;
 }
 
-.lintel-nc-widget-large .lintel-nc-calendar-nav-btn {
+.fluid-glass-nc-widget-large .fluid-glass-nc-calendar-nav-btn {
     width: 28px;
     height: 28px;
 }
 
-.lintel-nc-calendar-title-btn {
+.fluid-glass-nc-calendar-title-btn {
     padding: 0;
     margin: 0;
     border: none;
@@ -1721,11 +1721,11 @@
     box-shadow: none;
 }
 
-.lintel-nc-calendar-medium-footer {
+.fluid-glass-nc-calendar-medium-footer {
     spacing: 6px;
 }
 
-.lintel-nc-calendar-day {
+.fluid-glass-nc-calendar-day {
     width: 17px;
     height: 17px;
     border-radius: 999px;
@@ -1737,144 +1737,144 @@
     transition-duration: 100ms;
 }
 
-.lintel-nc-calendar-day:hover,
-.lintel-nc-calendar-day:focus {
+.fluid-glass-nc-calendar-day:hover,
+.fluid-glass-nc-calendar-day:focus {
     background-color: rgba(255, 255, 255, 0.15);
 }
 
-.lintel-nc-light .lintel-nc-calendar-day:hover,
-.lintel-nc-light .lintel-nc-calendar-day:focus {
+.fluid-glass-nc-light .fluid-glass-nc-calendar-day:hover,
+.fluid-glass-nc-light .fluid-glass-nc-calendar-day:focus {
     background-color: rgba(0, 0, 0, 0.10);
 }
 
-.lintel-nc-calendar-day.lintel-nc-calendar-selected {
+.fluid-glass-nc-calendar-day.fluid-glass-nc-calendar-selected {
     background-color: rgba(255, 255, 255, 0.35);
     border: 1.5px solid rgba(255, 255, 255, 0.75);
 }
 
-.lintel-nc-light .lintel-nc-calendar-day.lintel-nc-calendar-selected {
+.fluid-glass-nc-light .fluid-glass-nc-calendar-day.fluid-glass-nc-calendar-selected {
     background-color: rgba(0, 0, 0, 0.20);
     border: 1.5px solid rgba(0, 0, 0, 0.50);
 }
 
-.lintel-nc-calendar-day-number {
+.fluid-glass-nc-calendar-day-number {
     font-size: 8pt;
     font-weight: 600;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-dark .lintel-nc-calendar-day-number.lintel-nc-calendar-weekend,
-.lintel-nc-dark .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend {
+.fluid-glass-nc-dark .fluid-glass-nc-calendar-day-number.fluid-glass-nc-calendar-weekend,
+.fluid-glass-nc-dark .fluid-glass-nc-calendar-weekday.fluid-glass-nc-calendar-weekend {
     color: rgba(255, 255, 255, 0.50);
 }
 
-.lintel-nc-light .lintel-nc-calendar-day-number.lintel-nc-calendar-weekend,
-.lintel-nc-light .lintel-nc-calendar-weekday.lintel-nc-calendar-weekend {
+.fluid-glass-nc-light .fluid-glass-nc-calendar-day-number.fluid-glass-nc-calendar-weekend,
+.fluid-glass-nc-light .fluid-glass-nc-calendar-weekday.fluid-glass-nc-calendar-weekend {
     color: rgba(0, 0, 0, 0.40);
 }
 
-.lintel-nc-calendar-today {
+.fluid-glass-nc-calendar-today {
     background-color: #ff3b30;
 }
 
-.lintel-nc-calendar-today .lintel-nc-calendar-day-number {
+.fluid-glass-nc-calendar-today .fluid-glass-nc-calendar-day-number {
     color: #ffffff;
     font-weight: 700;
 }
 
-.lintel-nc-widget-large .lintel-nc-calendar-month,
-.lintel-nc-widget-large .lintel-nc-calendar-year {
+.fluid-glass-nc-widget-large .fluid-glass-nc-calendar-month,
+.fluid-glass-nc-widget-large .fluid-glass-nc-calendar-year {
     font-size: 10.5pt;
 }
 
-.lintel-nc-widget-large .lintel-nc-calendar-grid {
+.fluid-glass-nc-widget-large .fluid-glass-nc-calendar-grid {
     margin-top: 8px;
 }
 
-.lintel-nc-widget-large .lintel-nc-calendar-cell {
+.fluid-glass-nc-widget-large .fluid-glass-nc-calendar-cell {
     height: 40px;
 }
 
-.lintel-nc-widget-large .lintel-nc-calendar-weekday {
+.fluid-glass-nc-widget-large .fluid-glass-nc-calendar-weekday {
     font-size: 8.25pt;
 }
 
-.lintel-nc-widget-large .lintel-nc-calendar-day {
+.fluid-glass-nc-widget-large .fluid-glass-nc-calendar-day {
     width: 32px;
     height: 32px;
 }
 
-.lintel-nc-widget-large .lintel-nc-calendar-day-number {
+.fluid-glass-nc-widget-large .fluid-glass-nc-calendar-day-number {
     font-size: 10.5pt;
 }
 
 /* Weather — pure glass card without opaque sky gradient. */
 
-.lintel-nc-weather-location {
+.fluid-glass-nc-weather-location {
     font-size: 11.25pt;
     font-weight: 700;
 }
 
-.lintel-nc-weather-temperature {
+.fluid-glass-nc-weather-temperature {
     font-size: 31pt;
     font-weight: 300;
 }
 
-.lintel-nc-widget-large .lintel-nc-weather-temperature {
+.fluid-glass-nc-widget-large .fluid-glass-nc-weather-temperature {
     font-size: 42pt;
 }
 
-.lintel-nc-weather-icon {
+.fluid-glass-nc-weather-icon {
     icon-size: 18px;
 }
 
-.lintel-nc-widget-small .lintel-nc-weather-icon {
+.fluid-glass-nc-widget-small .fluid-glass-nc-weather-icon {
     margin-bottom: 3px;
 }
 
-.lintel-nc-weather-conditions {
+.fluid-glass-nc-weather-conditions {
     font-size: 9pt;
     font-weight: 600;
 }
 
-.lintel-nc-forecast {
+.fluid-glass-nc-forecast {
     spacing: 4px;
 }
 
-.lintel-nc-forecast-time {
+.fluid-glass-nc-forecast-time {
     font-size: 8.25pt;
     font-weight: 600;
 }
 
-.lintel-nc-forecast-icon {
+.fluid-glass-nc-forecast-icon {
     icon-size: 18px;
 }
 
-.lintel-nc-forecast-temperature {
+.fluid-glass-nc-forecast-temperature {
     font-size: 9.75pt;
     font-weight: 600;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-weather-sunny {
+.fluid-glass-nc-weather-sunny {
     color: #ffd60a;
 }
 
-.lintel-nc-weather-placeholder {
+.fluid-glass-nc-weather-placeholder {
     spacing: 2px;
 }
 
-.lintel-nc-weather-placeholder-icon {
+.fluid-glass-nc-weather-placeholder-icon {
     icon-size: 28px;
     margin-bottom: 6px;
 }
 
-.lintel-notification-center .lintel-nc-weather-clear,
-.lintel-notification-center .lintel-nc-weather-night,
-.lintel-notification-center .lintel-nc-weather-cloudy,
-.lintel-nc-dark .lintel-nc-weather-clear,
-.lintel-nc-dark .lintel-nc-weather-night,
-.lintel-nc-dark .lintel-nc-weather-cloudy {
+.fluid-glass-notification-center .fluid-glass-nc-weather-clear,
+.fluid-glass-notification-center .fluid-glass-nc-weather-night,
+.fluid-glass-notification-center .fluid-glass-nc-weather-cloudy,
+.fluid-glass-nc-dark .fluid-glass-nc-weather-clear,
+.fluid-glass-nc-dark .fluid-glass-nc-weather-night,
+.fluid-glass-nc-dark .fluid-glass-nc-weather-cloudy {
     color: #ffffff;
     border: none;
     background-color: transparent;
@@ -1882,13 +1882,13 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 
-.lintel-nc-light .lintel-nc-weather-clear,
-.lintel-nc-light .lintel-nc-weather-night,
-.lintel-nc-light .lintel-nc-weather-cloudy,
-.lintel-nc-light .lintel-nc-weather-location,
-.lintel-nc-light .lintel-nc-weather-temperature,
-.lintel-nc-light .lintel-nc-weather-conditions,
-.lintel-nc-light .lintel-nc-forecast-temperature {
+.fluid-glass-nc-light .fluid-glass-nc-weather-clear,
+.fluid-glass-nc-light .fluid-glass-nc-weather-night,
+.fluid-glass-nc-light .fluid-glass-nc-weather-cloudy,
+.fluid-glass-nc-light .fluid-glass-nc-weather-location,
+.fluid-glass-nc-light .fluid-glass-nc-weather-temperature,
+.fluid-glass-nc-light .fluid-glass-nc-weather-conditions,
+.fluid-glass-nc-light .fluid-glass-nc-forecast-temperature {
     color: #000000;
     border: none;
     background-color: transparent;
@@ -1896,76 +1896,76 @@
     text-shadow: none;
 }
 
-.lintel-nc-weather-clear .lintel-nc-forecast-time,
-.lintel-nc-weather-night .lintel-nc-forecast-time,
-.lintel-nc-weather-cloudy .lintel-nc-forecast-time,
-.lintel-nc-dark .lintel-nc-weather-clear .lintel-nc-forecast-time,
-.lintel-nc-dark .lintel-nc-weather-night .lintel-nc-forecast-time,
-.lintel-nc-dark .lintel-nc-weather-cloudy .lintel-nc-forecast-time {
+.fluid-glass-nc-weather-clear .fluid-glass-nc-forecast-time,
+.fluid-glass-nc-weather-night .fluid-glass-nc-forecast-time,
+.fluid-glass-nc-weather-cloudy .fluid-glass-nc-forecast-time,
+.fluid-glass-nc-dark .fluid-glass-nc-weather-clear .fluid-glass-nc-forecast-time,
+.fluid-glass-nc-dark .fluid-glass-nc-weather-night .fluid-glass-nc-forecast-time,
+.fluid-glass-nc-dark .fluid-glass-nc-weather-cloudy .fluid-glass-nc-forecast-time {
     color: rgba(255, 255, 255, 0.80);
 }
 
-.lintel-nc-light .lintel-nc-weather-clear .lintel-nc-forecast-time,
-.lintel-nc-light .lintel-nc-weather-night .lintel-nc-forecast-time,
-.lintel-nc-light .lintel-nc-weather-cloudy .lintel-nc-forecast-time {
+.fluid-glass-nc-light .fluid-glass-nc-weather-clear .fluid-glass-nc-forecast-time,
+.fluid-glass-nc-light .fluid-glass-nc-weather-night .fluid-glass-nc-forecast-time,
+.fluid-glass-nc-light .fluid-glass-nc-weather-cloudy .fluid-glass-nc-forecast-time {
     color: rgba(0, 0, 0, 0.65);
 }
 
 /* Batteries — Tahoe's ring gauge. The ring is painted in RingGauge's Cairo
  * code, which reads these colours back through lookup_color(). */
 
-.lintel-nc-battery-ring,
-.lintel-nc-dark .lintel-nc-battery-ring {
+.fluid-glass-nc-battery-ring,
+.fluid-glass-nc-dark .fluid-glass-nc-battery-ring {
     width: 64px;
     height: 64px;
-    -lintel-ring-fill: #30d158;
-    -lintel-ring-low: #ff453a;
-    -lintel-ring-track: rgba(255, 255, 255, 0.22);
+    -fluid-glass-ring-fill: #30d158;
+    -fluid-glass-ring-low: #ff453a;
+    -fluid-glass-ring-track: rgba(255, 255, 255, 0.22);
 }
 
-.lintel-nc-light .lintel-nc-battery-ring {
+.fluid-glass-nc-light .fluid-glass-nc-battery-ring {
     width: 64px;
     height: 64px;
-    -lintel-ring-fill: #30d158;
-    -lintel-ring-low: #ff453a;
-    -lintel-ring-track: rgba(0, 0, 0, 0.15);
+    -fluid-glass-ring-fill: #30d158;
+    -fluid-glass-ring-low: #ff453a;
+    -fluid-glass-ring-track: rgba(0, 0, 0, 0.15);
 }
 
-.lintel-nc-widget-medium .lintel-nc-battery-ring {
+.fluid-glass-nc-widget-medium .fluid-glass-nc-battery-ring {
     width: 100px;
     height: 100px;
 }
 
-.lintel-nc-widget-large .lintel-nc-battery-ring {
+.fluid-glass-nc-widget-large .fluid-glass-nc-battery-ring {
     width: 150px;
     height: 150px;
 }
 
-.lintel-nc-battery-device {
+.fluid-glass-nc-battery-device {
     icon-size: 24px;
 }
 
-.lintel-nc-widget-medium .lintel-nc-battery-device {
+.fluid-glass-nc-widget-medium .fluid-glass-nc-battery-device {
     icon-size: 34px;
 }
 
-.lintel-nc-widget-large .lintel-nc-battery-device {
+.fluid-glass-nc-widget-large .fluid-glass-nc-battery-device {
     icon-size: 52px;
 }
 
-.lintel-nc-battery-row {
+.fluid-glass-nc-battery-row {
     spacing: 18px;
 }
 
-.lintel-nc-battery-percentage,
-.lintel-nc-dark .lintel-nc-battery-percentage {
+.fluid-glass-nc-battery-percentage,
+.fluid-glass-nc-dark .fluid-glass-nc-battery-percentage {
     color: #ffffff;
     font-size: 20pt;
     font-weight: 600;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-light .lintel-nc-battery-percentage {
+.fluid-glass-nc-light .fluid-glass-nc-battery-percentage {
     color: #000000;
     font-size: 20pt;
     font-weight: 600;
@@ -1974,48 +1974,48 @@
 
 /* Clock — an analogue face, like Tahoe's Clock widget. */
 
-.lintel-nc-clock-face,
-.lintel-nc-dark .lintel-nc-clock-face {
+.fluid-glass-nc-clock-face,
+.fluid-glass-nc-dark .fluid-glass-nc-clock-face {
     width: 128px;
     height: 128px;
-    -lintel-clock-second: #ff9f0a;
-    -lintel-clock-face: rgba(255, 255, 255, 0.14);
-    -lintel-clock-tick: #ffffff;
-    -lintel-clock-hand: #ffffff;
+    -fluid-glass-clock-second: #ff9f0a;
+    -fluid-glass-clock-face: rgba(255, 255, 255, 0.14);
+    -fluid-glass-clock-tick: #ffffff;
+    -fluid-glass-clock-hand: #ffffff;
 }
 
-.lintel-nc-light .lintel-nc-clock-face {
+.fluid-glass-nc-light .fluid-glass-nc-clock-face {
     width: 128px;
     height: 128px;
-    -lintel-clock-second: #ff9f0a;
-    -lintel-clock-face: rgba(0, 0, 0, 0.08);
-    -lintel-clock-tick: #000000;
-    -lintel-clock-hand: #000000;
+    -fluid-glass-clock-second: #ff9f0a;
+    -fluid-glass-clock-face: rgba(0, 0, 0, 0.08);
+    -fluid-glass-clock-tick: #000000;
+    -fluid-glass-clock-hand: #000000;
 }
 
-.lintel-nc-widget-medium .lintel-nc-clock-face {
+.fluid-glass-nc-widget-medium .fluid-glass-nc-clock-face {
     width: 124px;
     height: 124px;
 }
 
-.lintel-nc-widget-large .lintel-nc-clock-face {
+.fluid-glass-nc-widget-large .fluid-glass-nc-clock-face {
     width: 230px;
     height: 230px;
 }
 
-.lintel-nc-clock-row {
+.fluid-glass-nc-clock-row {
     spacing: 18px;
 }
 
-.lintel-nc-clock-time,
-.lintel-nc-dark .lintel-nc-clock-time {
+.fluid-glass-nc-clock-time,
+.fluid-glass-nc-dark .fluid-glass-nc-clock-time {
     color: #ffffff;
     font-size: 30pt;
     font-weight: 300;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-light .lintel-nc-clock-time {
+.fluid-glass-nc-light .fluid-glass-nc-clock-time {
     color: #000000;
     font-size: 30pt;
     font-weight: 300;
@@ -2024,38 +2024,38 @@
 
 /* Now Playing reuses CCMediaCard as content, so its own Control Center plate
  * must not become a second card inside this one. */
-.lintel-nc-media-content {
+.fluid-glass-nc-media-content {
     spacing: 10px;
 }
 
-.lintel-nc-media-widget .lintel-cc-media-artwork {
+.fluid-glass-nc-media-widget .fluid-glass-cc-media-artwork {
     width: 52px;
     height: 52px;
     icon-size: 26px;
     border-radius: 12px;
 }
 
-.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-title {
+.fluid-glass-nc-light .fluid-glass-nc-media-widget .fluid-glass-cc-media-title {
     color: #000000;
     text-shadow: none;
 }
 
-.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-artist {
+.fluid-glass-nc-light .fluid-glass-nc-media-widget .fluid-glass-cc-media-artist {
     color: rgba(0, 0, 0, 0.65);
     text-shadow: none;
 }
 
-.lintel-nc-light .lintel-nc-media-widget .lintel-cc-media-control {
+.fluid-glass-nc-light .fluid-glass-nc-media-widget .fluid-glass-cc-media-control {
     color: rgba(0, 0, 0, 0.85);
 }
 
 /* ── Editing ── controls float over the widget instead of shifting the column. */
 
-.lintel-nc-widget-edit-bar {
+.fluid-glass-nc-widget-edit-bar {
     padding: 8px;
 }
 
-.lintel-nc-widget-remove {
+.fluid-glass-nc-widget-remove {
     width: 22px;
     height: 22px;
     padding: 0;
@@ -2065,17 +2065,17 @@
     box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.30);
 }
 
-.lintel-nc-widget-remove:hover,
-.lintel-nc-widget-remove:focus {
+.fluid-glass-nc-widget-remove:hover,
+.fluid-glass-nc-widget-remove:focus {
     color: #ffffff;
     background-color: #ff453a;
 }
 
-.lintel-nc-widget-remove StIcon {
+.fluid-glass-nc-widget-remove StIcon {
     icon-size: 12px;
 }
 
-.lintel-nc-widget-edit-pill {
+.fluid-glass-nc-widget-edit-pill {
     padding: 2px;
     spacing: 2px;
     background-color: rgba(20, 22, 26, 0.80);
@@ -2084,8 +2084,8 @@
     box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.25);
 }
 
-.lintel-nc-widget-edit-control,
-.lintel-nc-widget-size-control {
+.fluid-glass-nc-widget-edit-control,
+.fluid-glass-nc-widget-size-control {
     width: 22px;
     height: 22px;
     padding: 0;
@@ -2094,37 +2094,37 @@
     transition-duration: 100ms;
 }
 
-.lintel-nc-widget-edit-control:hover,
-.lintel-nc-widget-edit-control:focus {
+.fluid-glass-nc-widget-edit-control:hover,
+.fluid-glass-nc-widget-edit-control:focus {
     background-color: rgba(255, 255, 255, 0.20);
 }
 
-.lintel-nc-widget-edit-control StIcon {
+.fluid-glass-nc-widget-edit-control StIcon {
     icon-size: 11px;
 }
 
-.lintel-nc-widget-size-control {
+.fluid-glass-nc-widget-size-control {
     background-color: #0a84ff;
     font-size: 7.5pt;
     font-weight: 700;
 }
 
-.lintel-nc-widget-size-control:hover,
-.lintel-nc-widget-size-control:focus {
+.fluid-glass-nc-widget-size-control:hover,
+.fluid-glass-nc-widget-size-control:focus {
     background-color: #2b95ff;
 }
 
-.lintel-nc-widget-placeholder {
+.fluid-glass-nc-widget-placeholder {
     font-weight: 600;
 }
 
-.lintel-nc-dark .lintel-nc-widget-placeholder,
-.lintel-nc-light .lintel-nc-widget-placeholder {
+.fluid-glass-nc-dark .fluid-glass-nc-widget-placeholder,
+.fluid-glass-nc-light .fluid-glass-nc-widget-placeholder {
     color: rgba(255, 255, 255, 0.70);
     background-color: transparent;
 }
 
-.lintel-nc-widget-gallery {
+.fluid-glass-nc-widget-gallery {
     padding: 13px;
     spacing: 2px;
     border-radius: 24px;
@@ -2133,30 +2133,30 @@
     box-shadow: none;
 }
 
-.lintel-nc-gallery-title {
+.fluid-glass-nc-gallery-title {
     padding: 0 4px 6px 4px;
     font-size: 10.5pt;
     font-weight: 700;
 }
 
-.lintel-nc-gallery-item {
+.fluid-glass-nc-gallery-item {
     padding: 6px 8px;
     border-radius: 10px;
     transition-duration: 100ms;
 }
 
-.lintel-nc-gallery-item-box {
+.fluid-glass-nc-gallery-item-box {
     spacing: 10px;
 }
 
-.lintel-nc-dark .lintel-nc-gallery-item:hover,
-.lintel-nc-dark .lintel-nc-gallery-item:focus,
-.lintel-nc-light .lintel-nc-gallery-item:hover,
-.lintel-nc-light .lintel-nc-gallery-item:focus {
+.fluid-glass-nc-dark .fluid-glass-nc-gallery-item:hover,
+.fluid-glass-nc-dark .fluid-glass-nc-gallery-item:focus,
+.fluid-glass-nc-light .fluid-glass-nc-gallery-item:hover,
+.fluid-glass-nc-light .fluid-glass-nc-gallery-item:focus {
     background-color: transparent;
 }
 
-.lintel-nc-gallery-add {
+.fluid-glass-nc-gallery-add {
     icon-size: 12px;
     padding: 4px;
     color: #ffffff;
@@ -2165,8 +2165,8 @@
 }
 
 /* "Edit Widgets" is a small glass pill on the wallpaper. */
-.lintel-nc-edit-button,
-.lintel-nc-dark .lintel-nc-edit-button {
+.fluid-glass-nc-edit-button,
+.fluid-glass-nc-dark .fluid-glass-nc-edit-button {
     margin-top: 8px;
     padding: 6px 16px;
     color: rgba(255, 255, 255, 0.92);
@@ -2180,7 +2180,7 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
-.lintel-nc-light .lintel-nc-edit-button {
+.fluid-glass-nc-light .fluid-glass-nc-edit-button {
     margin-top: 8px;
     padding: 6px 16px;
     color: rgba(0, 0, 0, 0.85);
@@ -2194,21 +2194,21 @@
     text-shadow: none;
 }
 
-.lintel-nc-edit-button:hover,
-.lintel-nc-edit-button:focus,
-.lintel-nc-edit-button.lintel-nc-edit-done,
-.lintel-nc-dark .lintel-nc-edit-button:hover,
-.lintel-nc-dark .lintel-nc-edit-button:focus,
-.lintel-nc-dark .lintel-nc-edit-button.lintel-nc-edit-done {
+.fluid-glass-nc-edit-button:hover,
+.fluid-glass-nc-edit-button:focus,
+.fluid-glass-nc-edit-button.fluid-glass-nc-edit-done,
+.fluid-glass-nc-dark .fluid-glass-nc-edit-button:hover,
+.fluid-glass-nc-dark .fluid-glass-nc-edit-button:focus,
+.fluid-glass-nc-dark .fluid-glass-nc-edit-button.fluid-glass-nc-edit-done {
     color: #ffffff;
     background-color: transparent;
     border: none;
     box-shadow: none;
 }
 
-.lintel-nc-light .lintel-nc-edit-button:hover,
-.lintel-nc-light .lintel-nc-edit-button:focus,
-.lintel-nc-light .lintel-nc-edit-button.lintel-nc-edit-done {
+.fluid-glass-nc-light .fluid-glass-nc-edit-button:hover,
+.fluid-glass-nc-light .fluid-glass-nc-edit-button:focus,
+.fluid-glass-nc-light .fluid-glass-nc-edit-button.fluid-glass-nc-edit-done {
     color: #000000;
     background-color: transparent;
     border: none;
@@ -2218,336 +2218,336 @@
 /* Up Next — Tahoe's calendar widget: red weekday and day number, then the
  * coming events, each marked by a calendar-coloured bar. */
 
-.lintel-nc-upnext-stack {
+.fluid-glass-nc-upnext-stack {
     spacing: 8px;
 }
 
-.lintel-nc-upnext-split {
+.fluid-glass-nc-upnext-split {
     spacing: 16px;
 }
 
-.lintel-nc-upnext-split .lintel-nc-upnext-header {
+.fluid-glass-nc-upnext-split .fluid-glass-nc-upnext-header {
     width: 92px;
 }
 
-.lintel-nc-upnext-widget.lintel-nc-widget-small .lintel-nc-calendar-big-day {
+.fluid-glass-nc-upnext-widget.fluid-glass-nc-widget-small .fluid-glass-nc-calendar-big-day {
     font-size: 22pt;
 }
 
-.lintel-nc-upnext-list {
+.fluid-glass-nc-upnext-list {
     spacing: 6px;
 }
 
-.lintel-nc-event {
+.fluid-glass-nc-event {
     spacing: 8px;
 }
 
-.lintel-nc-event-bar {
+.fluid-glass-nc-event-bar {
     width: 3px;
     border-radius: 2px;
     background-color: #ff453a;
 }
 
-.lintel-nc-light .lintel-nc-event-bar {
+.fluid-glass-nc-light .fluid-glass-nc-event-bar {
     background-color: #e0382e;
 }
 
-.lintel-nc-event-title,
-.lintel-nc-dark .lintel-nc-event-title {
+.fluid-glass-nc-event-title,
+.fluid-glass-nc-dark .fluid-glass-nc-event-title {
     color: #ffffff;
     font-size: 9pt;
     font-weight: 600;
 }
 
-.lintel-nc-light .lintel-nc-event-title {
+.fluid-glass-nc-light .fluid-glass-nc-event-title {
     color: #000000;
     font-size: 9pt;
     font-weight: 600;
 }
 
-.lintel-nc-event-time,
-.lintel-nc-upnext-empty {
+.fluid-glass-nc-event-time,
+.fluid-glass-nc-upnext-empty {
     font-size: 8.25pt;
 }
 
-.lintel-nc-upnext-section {
+.fluid-glass-nc-upnext-section {
     margin-top: 2px;
     font-size: 8.25pt;
     font-weight: 700;
 }
 
-.lintel-nc-dark .lintel-nc-event-time,
-.lintel-nc-dark .lintel-nc-upnext-empty,
-.lintel-nc-dark .lintel-nc-upnext-section,
-.lintel-nc-dark .lintel-nc-screentime-title,
-.lintel-nc-dark .lintel-nc-screentime-message,
-.lintel-nc-dark .lintel-nc-chart-axis-label {
+.fluid-glass-nc-dark .fluid-glass-nc-event-time,
+.fluid-glass-nc-dark .fluid-glass-nc-upnext-empty,
+.fluid-glass-nc-dark .fluid-glass-nc-upnext-section,
+.fluid-glass-nc-dark .fluid-glass-nc-screentime-title,
+.fluid-glass-nc-dark .fluid-glass-nc-screentime-message,
+.fluid-glass-nc-dark .fluid-glass-nc-chart-axis-label {
     color: rgba(255, 255, 255, 0.72);
 }
 
-.lintel-nc-light .lintel-nc-event-time,
-.lintel-nc-light .lintel-nc-upnext-empty,
-.lintel-nc-light .lintel-nc-upnext-section,
-.lintel-nc-light .lintel-nc-screentime-title,
-.lintel-nc-light .lintel-nc-screentime-message,
-.lintel-nc-light .lintel-nc-chart-axis-label {
+.fluid-glass-nc-light .fluid-glass-nc-event-time,
+.fluid-glass-nc-light .fluid-glass-nc-upnext-empty,
+.fluid-glass-nc-light .fluid-glass-nc-upnext-section,
+.fluid-glass-nc-light .fluid-glass-nc-screentime-title,
+.fluid-glass-nc-light .fluid-glass-nc-screentime-message,
+.fluid-glass-nc-light .fluid-glass-nc-chart-axis-label {
     color: rgba(0, 0, 0, 0.65);
 }
 
 /* Screen Time — today's total, a week of daily bars with a dashed line at the
  * daily average and, on large, today hour by hour. Bars and meter are painted
- * in Cairo from the -lintel-* colours below. */
+ * in Cairo from the -fluid-glass-* colours below. */
 
-.lintel-nc-screentime-stack {
+.fluid-glass-nc-screentime-stack {
     spacing: 4px;
 }
 
-.lintel-nc-screentime-split {
+.fluid-glass-nc-screentime-split {
     spacing: 16px;
 }
 
-.lintel-nc-screentime-summary {
+.fluid-glass-nc-screentime-summary {
     width: 118px;
     spacing: 4px;
 }
 
-.lintel-nc-screentime-title {
+.fluid-glass-nc-screentime-title {
     font-size: 8.25pt;
     font-weight: 700;
 }
 
-.lintel-nc-screentime-total,
-.lintel-nc-dark .lintel-nc-screentime-total {
+.fluid-glass-nc-screentime-total,
+.fluid-glass-nc-dark .fluid-glass-nc-screentime-total {
     color: #ffffff;
     font-size: 20pt;
     font-weight: 600;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-light .lintel-nc-screentime-total {
+.fluid-glass-nc-light .fluid-glass-nc-screentime-total {
     color: #000000;
     font-size: 20pt;
     font-weight: 600;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-widget-large .lintel-nc-screentime-total {
+.fluid-glass-nc-widget-large .fluid-glass-nc-screentime-total {
     font-size: 26pt;
 }
 
-.lintel-nc-screentime-message {
+.fluid-glass-nc-screentime-message {
     font-size: 8.75pt;
     font-weight: 500;
 }
 
-.lintel-nc-chart {
+.fluid-glass-nc-chart {
     spacing: 3px;
 }
 
-.lintel-nc-bar-chart,
-.lintel-nc-dark .lintel-nc-bar-chart {
-    -lintel-bar-fill: rgba(10, 132, 255, 0.55);
-    -lintel-bar-highlight: #0a84ff;
-    -lintel-bar-reference: rgba(255, 255, 255, 0.55);
-    -lintel-bar-baseline: rgba(255, 255, 255, 0.18);
+.fluid-glass-nc-bar-chart,
+.fluid-glass-nc-dark .fluid-glass-nc-bar-chart {
+    -fluid-glass-bar-fill: rgba(10, 132, 255, 0.55);
+    -fluid-glass-bar-highlight: #0a84ff;
+    -fluid-glass-bar-reference: rgba(255, 255, 255, 0.55);
+    -fluid-glass-bar-baseline: rgba(255, 255, 255, 0.18);
 }
 
-.lintel-nc-light .lintel-nc-bar-chart {
-    -lintel-bar-fill: rgba(10, 132, 255, 0.55);
-    -lintel-bar-highlight: #0a84ff;
-    -lintel-bar-reference: rgba(0, 0, 0, 0.40);
-    -lintel-bar-baseline: rgba(0, 0, 0, 0.15);
+.fluid-glass-nc-light .fluid-glass-nc-bar-chart {
+    -fluid-glass-bar-fill: rgba(10, 132, 255, 0.55);
+    -fluid-glass-bar-highlight: #0a84ff;
+    -fluid-glass-bar-reference: rgba(0, 0, 0, 0.40);
+    -fluid-glass-bar-baseline: rgba(0, 0, 0, 0.15);
 }
 
-.lintel-nc-week-chart {
+.fluid-glass-nc-week-chart {
     height: 44px;
 }
 
-.lintel-nc-widget-large .lintel-nc-week-chart,
-.lintel-nc-hour-chart {
+.fluid-glass-nc-widget-large .fluid-glass-nc-week-chart,
+.fluid-glass-nc-hour-chart {
     height: 80px;
 }
 
-.lintel-nc-chart-axis-label {
+.fluid-glass-nc-chart-axis-label {
     font-size: 7.25pt;
     font-weight: 600;
 }
 
-.lintel-nc-limit-meter,
-.lintel-nc-dark .lintel-nc-limit-meter {
+.fluid-glass-nc-limit-meter,
+.fluid-glass-nc-dark .fluid-glass-nc-limit-meter {
     height: 5px;
     margin: 2px 0;
-    -lintel-meter-fill: #30d158;
-    -lintel-meter-over: #ff9f0a;
-    -lintel-meter-track: rgba(255, 255, 255, 0.22);
+    -fluid-glass-meter-fill: #30d158;
+    -fluid-glass-meter-over: #ff9f0a;
+    -fluid-glass-meter-track: rgba(255, 255, 255, 0.22);
 }
 
-.lintel-nc-light .lintel-nc-limit-meter {
+.fluid-glass-nc-light .fluid-glass-nc-limit-meter {
     height: 5px;
     margin: 2px 0;
-    -lintel-meter-fill: #30d158;
-    -lintel-meter-over: #ff9f0a;
-    -lintel-meter-track: rgba(0, 0, 0, 0.15);
+    -fluid-glass-meter-fill: #30d158;
+    -fluid-glass-meter-over: #ff9f0a;
+    -fluid-glass-meter-track: rgba(0, 0, 0, 0.15);
 }
 
 /* System — processor, memory, storage and temperature as ring gauges (the
  * RingGauge Batteries uses), network rates and, on large, two minutes of
  * processor and network history. A gauge turns red at 90% or 90 °C. */
 
-.lintel-nc-ring,
-.lintel-nc-dark .lintel-nc-ring {
-    -lintel-ring-low: #ff453a;
-    -lintel-ring-track: rgba(255, 255, 255, 0.22);
+.fluid-glass-nc-ring,
+.fluid-glass-nc-dark .fluid-glass-nc-ring {
+    -fluid-glass-ring-low: #ff453a;
+    -fluid-glass-ring-track: rgba(255, 255, 255, 0.22);
 }
 
-.lintel-nc-light .lintel-nc-ring {
-    -lintel-ring-low: #ff453a;
-    -lintel-ring-track: rgba(0, 0, 0, 0.15);
+.fluid-glass-nc-light .fluid-glass-nc-ring {
+    -fluid-glass-ring-low: #ff453a;
+    -fluid-glass-ring-track: rgba(0, 0, 0, 0.15);
 }
 
-.lintel-nc-system-ring {
+.fluid-glass-nc-system-ring {
     width: 44px;
     height: 44px;
 }
 
-.lintel-nc-widget-medium .lintel-nc-system-ring {
+.fluid-glass-nc-widget-medium .fluid-glass-nc-system-ring {
     width: 70px;
     height: 70px;
 }
 
-.lintel-nc-widget-large .lintel-nc-system-ring {
+.fluid-glass-nc-widget-large .fluid-glass-nc-system-ring {
     width: 64px;
     height: 64px;
 }
 
-.lintel-nc-ring-cpu,
-.lintel-nc-light .lintel-nc-ring-cpu {
-    -lintel-ring-fill: #0a84ff;
+.fluid-glass-nc-ring-cpu,
+.fluid-glass-nc-light .fluid-glass-nc-ring-cpu {
+    -fluid-glass-ring-fill: #0a84ff;
 }
 
-.lintel-nc-ring-memory,
-.lintel-nc-light .lintel-nc-ring-memory {
-    -lintel-ring-fill: #30d158;
+.fluid-glass-nc-ring-memory,
+.fluid-glass-nc-light .fluid-glass-nc-ring-memory {
+    -fluid-glass-ring-fill: #30d158;
 }
 
-.lintel-nc-ring-storage,
-.lintel-nc-light .lintel-nc-ring-storage {
-    -lintel-ring-fill: #bf5af2;
+.fluid-glass-nc-ring-storage,
+.fluid-glass-nc-light .fluid-glass-nc-ring-storage {
+    -fluid-glass-ring-fill: #bf5af2;
 }
 
-.lintel-nc-ring-temperature,
-.lintel-nc-light .lintel-nc-ring-temperature {
-    -lintel-ring-fill: #ff9f0a;
+.fluid-glass-nc-ring-temperature,
+.fluid-glass-nc-light .fluid-glass-nc-ring-temperature {
+    -fluid-glass-ring-fill: #ff9f0a;
 }
 
-.lintel-nc-ring-value,
-.lintel-nc-dark .lintel-nc-ring-value {
+.fluid-glass-nc-ring-value,
+.fluid-glass-nc-dark .fluid-glass-nc-ring-value {
     color: #ffffff;
     font-size: 7.5pt;
     font-weight: 700;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-light .lintel-nc-ring-value {
+.fluid-glass-nc-light .fluid-glass-nc-ring-value {
     color: #000000;
     font-size: 7.5pt;
     font-weight: 700;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-widget-medium .lintel-nc-ring-value,
-.lintel-nc-widget-large .lintel-nc-ring-value {
+.fluid-glass-nc-widget-medium .fluid-glass-nc-ring-value,
+.fluid-glass-nc-widget-large .fluid-glass-nc-ring-value {
     font-size: 9.75pt;
 }
 
-.lintel-nc-gauge {
+.fluid-glass-nc-gauge {
     spacing: 3px;
 }
 
-.lintel-nc-gauge-caption,
-.lintel-nc-gauge-detail {
+.fluid-glass-nc-gauge-caption,
+.fluid-glass-nc-gauge-detail {
     font-size: 7.25pt;
     font-weight: 600;
 }
 
-.lintel-nc-gauge-detail {
+.fluid-glass-nc-gauge-detail {
     font-weight: 500;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-system-stack {
+.fluid-glass-nc-system-stack {
     spacing: 8px;
 }
 
-.lintel-nc-widget-large .lintel-nc-system-stack {
+.fluid-glass-nc-widget-large .fluid-glass-nc-system-stack {
     spacing: 10px;
 }
 
-.lintel-nc-system-header {
+.fluid-glass-nc-system-header {
     spacing: 8px;
 }
 
-.lintel-nc-system-title {
+.fluid-glass-nc-system-title {
     font-size: 8.25pt;
     font-weight: 700;
 }
 
-.lintel-nc-system-rates {
+.fluid-glass-nc-system-rates {
     font-size: 8.25pt;
     font-weight: 600;
     font-feature-settings: "tnum";
 }
 
-.lintel-nc-system-row {
+.fluid-glass-nc-system-row {
     spacing: 6px;
 }
 
-.lintel-nc-system-chart {
+.fluid-glass-nc-system-chart {
     spacing: 4px;
 }
 
-.lintel-nc-dark .lintel-nc-system-title,
-.lintel-nc-dark .lintel-nc-gauge-caption,
-.lintel-nc-dark .lintel-nc-gauge-detail,
-.lintel-nc-dark .lintel-nc-system-rates {
+.fluid-glass-nc-dark .fluid-glass-nc-system-title,
+.fluid-glass-nc-dark .fluid-glass-nc-gauge-caption,
+.fluid-glass-nc-dark .fluid-glass-nc-gauge-detail,
+.fluid-glass-nc-dark .fluid-glass-nc-system-rates {
     color: rgba(255, 255, 255, 0.72);
 }
 
-.lintel-nc-light .lintel-nc-system-title,
-.lintel-nc-light .lintel-nc-gauge-caption,
-.lintel-nc-light .lintel-nc-gauge-detail,
-.lintel-nc-light .lintel-nc-system-rates {
+.fluid-glass-nc-light .fluid-glass-nc-system-title,
+.fluid-glass-nc-light .fluid-glass-nc-gauge-caption,
+.fluid-glass-nc-light .fluid-glass-nc-gauge-detail,
+.fluid-glass-nc-light .fluid-glass-nc-system-rates {
     color: rgba(0, 0, 0, 0.65);
 }
 
-.lintel-nc-sparkline,
-.lintel-nc-dark .lintel-nc-sparkline {
+.fluid-glass-nc-sparkline,
+.fluid-glass-nc-dark .fluid-glass-nc-sparkline {
     height: 56px;
-    -lintel-spark-primary: #0a84ff;
-    -lintel-spark-secondary: #ff9f0a;
-    -lintel-spark-baseline: rgba(255, 255, 255, 0.18);
+    -fluid-glass-spark-primary: #0a84ff;
+    -fluid-glass-spark-secondary: #ff9f0a;
+    -fluid-glass-spark-baseline: rgba(255, 255, 255, 0.18);
 }
 
-.lintel-nc-light .lintel-nc-sparkline {
+.fluid-glass-nc-light .fluid-glass-nc-sparkline {
     height: 56px;
-    -lintel-spark-primary: #0a84ff;
-    -lintel-spark-secondary: #ff9f0a;
-    -lintel-spark-baseline: rgba(0, 0, 0, 0.15);
+    -fluid-glass-spark-primary: #0a84ff;
+    -fluid-glass-spark-secondary: #ff9f0a;
+    -fluid-glass-spark-baseline: rgba(0, 0, 0, 0.15);
 }
 
-.lintel-nc-sparkline-network,
-.lintel-nc-light .lintel-nc-sparkline-network {
-    -lintel-spark-primary: #30d158;
+.fluid-glass-nc-sparkline-network,
+.fluid-glass-nc-light .fluid-glass-nc-sparkline-network {
+    -fluid-glass-spark-primary: #30d158;
 }
 
 /* --- Liquid Glass Transparent Overrides --- */
 
 /* Clears the shell's own background from a surface that gets glass. */
-.liquid-glass-transparent,
-.liquid-glass-transparent-keep-border,
-.liquid-glass-transparent.popup-menu,
-.liquid-glass-transparent .popup-menu-boxpointer,
-.liquid-glass-transparent.popup-menu-boxpointer {
+.fluid-glass-transparent,
+.fluid-glass-transparent-keep-border,
+.fluid-glass-transparent.popup-menu,
+.fluid-glass-transparent .popup-menu-boxpointer,
+.fluid-glass-transparent.popup-menu-boxpointer {
     background-color: transparent !important;
     background: transparent !important;
     -arrow-background-color: transparent !important;
@@ -2563,23 +2563,23 @@
     transition-duration: 0ms !important;
 }
 
-.liquid-glass-transparent {
+.fluid-glass-transparent {
     border: none !important;
 }
 
-.liquid-glass-transparent-keep-border {
+.fluid-glass-transparent-keep-border {
     border-color: transparent !important;
 }
 
 /* Dash to Dock and Dash2Dock Animated/Lite own background, only while it has glass. */
-#dashtodockDashContainer.liquid-glass-transparent,
-.liquid-glass-transparent #dashtodockContainer,
-#dashtodockContainer.liquid-glass-transparent,
-.liquid-glass-transparent .dash-background,
-.liquid-glass-transparent #d2daBackground,
-#d2daBackground.liquid-glass-transparent,
-.liquid-glass-transparent #DockBackground,
-#DockBackground.liquid-glass-transparent {
+#dashtodockDashContainer.fluid-glass-transparent,
+.fluid-glass-transparent #dashtodockContainer,
+#dashtodockContainer.fluid-glass-transparent,
+.fluid-glass-transparent .dash-background,
+.fluid-glass-transparent #fluidGlassDockBackground,
+#fluidGlassDockBackground.fluid-glass-transparent,
+.fluid-glass-transparent #DockBackground,
+#DockBackground.fluid-glass-transparent {
     background-color: transparent !important;
     background-image: none !important;
     border: none !important;
@@ -2587,7 +2587,7 @@
 }
 
 /* Plain calendar days; today and interactive states keep their theme style. */
-.liquid-glass-transparent .calendar-day:not(.calendar-today):not(:hover):not(:active):not(:focus):not(:checked) {
+.fluid-glass-transparent .calendar-day:not(.calendar-today):not(:hover):not(:active):not(:focus):not(:checked) {
     background-color: transparent !important;
     background-image: none !important;
     border-color: transparent !important;
@@ -2595,125 +2595,125 @@
 }
 
 /* Calendar menu: the calendar sits on a translucent rounded card. */
-.liquid-glass-menu-root .calendar {
+.fluid-glass-menu-root .calendar {
     background-color: rgba(255, 255, 255, 0.3) !important;
     border-radius: 24px !important;
     padding: 12px !important;
     margin: 4px !important;
 }
 
-.liquid-glass-menu-root StButton,
-.liquid-glass-menu-root StLabel {
+.fluid-glass-menu-root StButton,
+.fluid-glass-menu-root StLabel {
     background-color: transparent !important;
     border-color: transparent !important;
     box-shadow: none !important;
 }
 
-.liquid-glass-menu-root StButton:hover {
+.fluid-glass-menu-root StButton:hover {
     background-color: rgba(255, 255, 255, 0.15) !important;
 }
 
-.liquid-glass-menu-root StButton:active,
-.liquid-glass-menu-root StButton:checked,
-.liquid-glass-menu-root StButton:focus {
+.fluid-glass-menu-root StButton:active,
+.fluid-glass-menu-root StButton:checked,
+.fluid-glass-menu-root StButton:focus {
     background-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 /* Today is drawn as a circle in every state. */
-.liquid-glass-menu-root .calendar-today,
-.liquid-glass-menu-root .calendar-today:hover,
-.liquid-glass-menu-root .calendar-today:active,
-.liquid-glass-menu-root .calendar-today:checked,
-.liquid-glass-menu-root .calendar-today:focus {
+.fluid-glass-menu-root .calendar-today,
+.fluid-glass-menu-root .calendar-today:hover,
+.fluid-glass-menu-root .calendar-today:active,
+.fluid-glass-menu-root .calendar-today:checked,
+.fluid-glass-menu-root .calendar-today:focus {
     border-radius: 99px !important;
 }
 
 /* Notification, events and world clock cards. These come after the rules
    above so they win over the transparent buttons. */
-.liquid-glass-menu-root .events-button,
-.liquid-glass-menu-root .world-clocks-button {
+.fluid-glass-menu-root .events-button,
+.fluid-glass-menu-root .world-clocks-button {
     background-color: rgba(51, 51, 51, 0.8) !important;
     border-radius: 16px !important;
     margin-bottom: 6px !important;
 }
 
-.liquid-glass-menu-root .message {
+.fluid-glass-menu-root .message {
     background-color: rgba(51, 51, 51, 0.8) !important;
     border-radius: 24px !important;
     margin-bottom: 6px !important;
 }
 
-.liquid-glass-menu-root .message:hover,
-.liquid-glass-menu-root .message:focus,
-.liquid-glass-menu-root .events-button:hover,
-.liquid-glass-menu-root .events-button:focus,
-.liquid-glass-menu-root .world-clocks-button:hover,
-.liquid-glass-menu-root .world-clocks-button:focus {
+.fluid-glass-menu-root .message:hover,
+.fluid-glass-menu-root .message:focus,
+.fluid-glass-menu-root .events-button:hover,
+.fluid-glass-menu-root .events-button:focus,
+.fluid-glass-menu-root .world-clocks-button:hover,
+.fluid-glass-menu-root .world-clocks-button:focus {
     background-color: rgba(65, 65, 65, 0.8) !important;
 }
 
 /* The cards' text is set here, as the adaptive colours do not reach it: they follow what is behind the glass,
    and a card has its own background. */
-.liquid-glass-menu-root .events-button,
-.liquid-glass-menu-root .world-clocks-button,
-.liquid-glass-menu-root .message,
-.liquid-glass-menu-root .world-clocks-header.no-world-clocks,
-.liquid-glass-menu-root .message-expand-button,
-.liquid-glass-menu-root .message-close-button,
-.liquid-glass-menu-root .message-media-control {
+.fluid-glass-menu-root .events-button,
+.fluid-glass-menu-root .world-clocks-button,
+.fluid-glass-menu-root .message,
+.fluid-glass-menu-root .world-clocks-header.no-world-clocks,
+.fluid-glass-menu-root .message-expand-button,
+.fluid-glass-menu-root .message-close-button,
+.fluid-glass-menu-root .message-media-control {
     color: rgba(255, 255, 255, 0.95) !important;
 }
 
-.liquid-glass-menu-root .events-title,
-.liquid-glass-menu-root .event-time,
-.liquid-glass-menu-root .event-placeholder,
-.liquid-glass-menu-root .world-clocks-header,
-.liquid-glass-menu-root .world-clocks-timezone,
-.liquid-glass-menu-root .message-header {
+.fluid-glass-menu-root .events-title,
+.fluid-glass-menu-root .event-time,
+.fluid-glass-menu-root .event-placeholder,
+.fluid-glass-menu-root .world-clocks-header,
+.fluid-glass-menu-root .world-clocks-timezone,
+.fluid-glass-menu-root .message-header {
     color: rgba(255, 255, 255, 0.7) !important;
 }
 
 /* The same cards when the colour scheme is not dark: pale, under dark text. The text colours are set here
    because the shell theme stays dark for the default scheme. */
-.liquid-glass-menu-root.liquid-glass-light StButton:hover {
+.fluid-glass-menu-root.fluid-glass-light StButton:hover {
     background-color: rgba(0, 0, 0, 0.08) !important;
 }
 
-.liquid-glass-menu-root.liquid-glass-light StButton:active,
-.liquid-glass-menu-root.liquid-glass-light StButton:checked,
-.liquid-glass-menu-root.liquid-glass-light StButton:focus {
+.fluid-glass-menu-root.fluid-glass-light StButton:active,
+.fluid-glass-menu-root.fluid-glass-light StButton:checked,
+.fluid-glass-menu-root.fluid-glass-light StButton:focus {
     background-color: rgba(0, 0, 0, 0.14) !important;
 }
 
-.liquid-glass-menu-root.liquid-glass-light .events-button,
-.liquid-glass-menu-root.liquid-glass-light .world-clocks-button,
-.liquid-glass-menu-root.liquid-glass-light .message {
+.fluid-glass-menu-root.fluid-glass-light .events-button,
+.fluid-glass-menu-root.fluid-glass-light .world-clocks-button,
+.fluid-glass-menu-root.fluid-glass-light .message {
     background-color: rgba(255, 255, 255, 0.6) !important;
     color: rgba(0, 0, 0, 0.87) !important;
 }
 
-.liquid-glass-menu-root.liquid-glass-light .message:hover,
-.liquid-glass-menu-root.liquid-glass-light .message:focus,
-.liquid-glass-menu-root.liquid-glass-light .events-button:hover,
-.liquid-glass-menu-root.liquid-glass-light .events-button:focus,
-.liquid-glass-menu-root.liquid-glass-light .world-clocks-button:hover,
-.liquid-glass-menu-root.liquid-glass-light .world-clocks-button:focus {
+.fluid-glass-menu-root.fluid-glass-light .message:hover,
+.fluid-glass-menu-root.fluid-glass-light .message:focus,
+.fluid-glass-menu-root.fluid-glass-light .events-button:hover,
+.fluid-glass-menu-root.fluid-glass-light .events-button:focus,
+.fluid-glass-menu-root.fluid-glass-light .world-clocks-button:hover,
+.fluid-glass-menu-root.fluid-glass-light .world-clocks-button:focus {
     background-color: rgba(255, 255, 255, 0.75) !important;
 }
 
-.liquid-glass-menu-root.liquid-glass-light .events-title,
-.liquid-glass-menu-root.liquid-glass-light .event-time,
-.liquid-glass-menu-root.liquid-glass-light .event-placeholder,
-.liquid-glass-menu-root.liquid-glass-light .world-clocks-header,
-.liquid-glass-menu-root.liquid-glass-light .world-clocks-timezone,
-.liquid-glass-menu-root.liquid-glass-light .message-header {
+.fluid-glass-menu-root.fluid-glass-light .events-title,
+.fluid-glass-menu-root.fluid-glass-light .event-time,
+.fluid-glass-menu-root.fluid-glass-light .event-placeholder,
+.fluid-glass-menu-root.fluid-glass-light .world-clocks-header,
+.fluid-glass-menu-root.fluid-glass-light .world-clocks-timezone,
+.fluid-glass-menu-root.fluid-glass-light .message-header {
     color: rgba(0, 0, 0, 0.6) !important;
 }
 
-.liquid-glass-menu-root.liquid-glass-light .world-clocks-header.no-world-clocks,
-.liquid-glass-menu-root.liquid-glass-light .message-expand-button,
-.liquid-glass-menu-root.liquid-glass-light .message-close-button,
-.liquid-glass-menu-root.liquid-glass-light .message-media-control {
+.fluid-glass-menu-root.fluid-glass-light .world-clocks-header.no-world-clocks,
+.fluid-glass-menu-root.fluid-glass-light .message-expand-button,
+.fluid-glass-menu-root.fluid-glass-light .message-close-button,
+.fluid-glass-menu-root.fluid-glass-light .message-media-control {
     color: rgba(0, 0, 0, 0.87) !important;
 }
 
@@ -2812,90 +2812,90 @@
 
 /* Desktop widgets. The card's glass is drawn behind it; the colours here are
    the starting point that automatic text contrast adjusts. */
-.liquid-glass-desktop-card {
+.fluid-glass-desktop-card {
     padding: 16px 18px;
     spacing: 8px;
     color: #ffffff;
 }
 
-.liquid-glass-desktop-card .lg-title {
+.fluid-glass-desktop-card .lg-title {
     font-weight: bold;
     font-size: 11pt;
 }
 
-.liquid-glass-desktop-card .lg-big {
+.fluid-glass-desktop-card .lg-big {
     font-size: 30pt;
     font-weight: 300;
     padding: 0 10px;
 }
 
-.liquid-glass-desktop-card .lg-dim {
+.fluid-glass-desktop-card .lg-dim {
     font-size: 10pt;
 }
 
-.liquid-glass-desktop-card .lg-small {
+.fluid-glass-desktop-card .lg-small {
     font-size: 9pt;
 }
 
-.liquid-glass-desktop-card .lg-row,
-.liquid-glass-desktop-card .lg-event {
+.fluid-glass-desktop-card .lg-row,
+.fluid-glass-desktop-card .lg-event {
     spacing: 10px;
 }
 
-.liquid-glass-desktop-card .lg-hour,
-.liquid-glass-desktop-card .lg-list {
+.fluid-glass-desktop-card .lg-hour,
+.fluid-glass-desktop-card .lg-list {
     spacing: 4px;
 }
 
-.liquid-glass-desktop-card .lg-event-time {
+.fluid-glass-desktop-card .lg-event-time {
     font-feature-settings: "tnum";
     min-width: 64px;
     font-size: 10pt;
     font-weight: bold;
 }
 
-.liquid-glass-desktop-card .lg-heading {
+.fluid-glass-desktop-card .lg-heading {
     padding-top: 6px;
     font-weight: bold;
 }
 
-.liquid-glass-desktop-card .lg-controls {
+.fluid-glass-desktop-card .lg-controls {
     spacing: 18px;
 }
 
-.liquid-glass-desktop-card .lg-control {
+.fluid-glass-desktop-card .lg-control {
     padding: 6px;
     border-radius: 99px;
 }
 
-.liquid-glass-desktop-card .lg-control:hover {
+.fluid-glass-desktop-card .lg-control:hover {
     background-color: rgba(255, 255, 255, 0.18);
 }
 
-.liquid-glass-clock-date {
+.fluid-glass-clock-date {
     color: #ffffff;
     font-weight: bold;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 /* The frame a desktop item is moved and resized with. */
-.liquid-glass-edit-frame {
+.fluid-glass-edit-frame {
     border: 2px solid #3584e4;
     border-radius: 12px;
     background-color: rgba(53, 132, 228, 0.08);
 }
 
-.liquid-glass-edit-handle {
+.fluid-glass-edit-handle {
     border: 2px solid #3584e4;
     border-radius: 7px;
     background-color: #ffffff;
 }
 
-.liquid-glass-edit-guide {
+.fluid-glass-edit-guide {
     color: #ff4f8b;
 }
 
-.liquid-glass-edit-done {
+.fluid-glass-edit-done {
     padding: 6px 18px;
     border-radius: 99px;
     color: #ffffff;
@@ -2903,17 +2903,17 @@
     background-color: #3584e4;
 }
 
-.liquid-glass-edit-done:hover {
+.fluid-glass-edit-done:hover {
     background-color: #4a90e8;
 }
 
 /* The launcher: a search field and its results on one sheet of glass. */
-.liquid-glass-launcher {
+.fluid-glass-launcher {
     padding: 10px;
     color: #ffffff;
 }
 
-.liquid-glass-launcher .lg-launcher-entry {
+.fluid-glass-launcher .lg-launcher-entry {
     font-size: 16pt;
     padding: 10px 14px;
     border-radius: 18px;
@@ -2925,35 +2925,35 @@
     selected-color: #ffffff;
 }
 
-.liquid-glass-launcher .lg-launcher-entry .hint-text {
+.fluid-glass-launcher .lg-launcher-entry .hint-text {
     color: inherit;
 }
 
-.liquid-glass-launcher .lg-launcher-entry-icon {
+.fluid-glass-launcher .lg-launcher-entry-icon {
     icon-size: 22px;
     padding-right: 10px;
 }
 
-.liquid-glass-launcher .lg-launcher-list {
+.fluid-glass-launcher .lg-launcher-list {
     spacing: 2px;
 }
 
-.liquid-glass-launcher .lg-launcher-result {
+.fluid-glass-launcher .lg-launcher-result {
     padding: 8px 12px;
     border-radius: 16px;
     color: inherit;
     background-color: transparent;
 }
 
-.liquid-glass-launcher .lg-launcher-result:selected {
+.fluid-glass-launcher .lg-launcher-result:selected {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-.liquid-glass-launcher .lg-launcher-result-box {
+.fluid-glass-launcher .lg-launcher-result-box {
     spacing: 12px;
 }
 
-.liquid-glass-launcher .lg-launcher-badge {
+.fluid-glass-launcher .lg-launcher-badge {
     font-size: 9pt;
     font-weight: bold;
     padding: 2px 10px;
@@ -2961,80 +2961,80 @@
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-.liquid-glass-launcher .lg-launcher-name {
+.fluid-glass-launcher .lg-launcher-name {
     font-size: 12pt;
     font-weight: bold;
 }
 
-.liquid-glass-launcher .lg-launcher-detail {
+.fluid-glass-launcher .lg-launcher-detail {
     font-size: 9.5pt;
 }
 
-.liquid-glass-launcher .lg-launcher-page {
+.fluid-glass-launcher .lg-launcher-page {
     spacing: 6px;
 }
 
-.liquid-glass-launcher .lg-launcher-pin {
+.fluid-glass-launcher .lg-launcher-pin {
     color: inherit;
     padding: 2px;
     border-radius: 6px;
 }
 
-.liquid-glass-launcher .lg-launcher-pin:hover {
+.fluid-glass-launcher .lg-launcher-pin:hover {
     background-color: rgba(255, 255, 255, 0.18);
 }
 
-.liquid-glass-launcher .lg-launcher-header {
+.fluid-glass-launcher .lg-launcher-header {
     spacing: 10px;
     padding: 4px 4px 6px;
 }
 
-.liquid-glass-launcher .lg-launcher-back {
+.fluid-glass-launcher .lg-launcher-back {
     color: inherit;
     padding: 8px;
     border-radius: 99px;
     background-color: rgba(255, 255, 255, 0.12);
 }
 
-.liquid-glass-launcher .lg-launcher-back:hover {
+.fluid-glass-launcher .lg-launcher-back:hover {
     background-color: rgba(255, 255, 255, 0.24);
 }
 
-.liquid-glass-launcher .lg-launcher-title {
+.fluid-glass-launcher .lg-launcher-title {
     font-size: 15pt;
     font-weight: bold;
 }
 
-.liquid-glass-launcher .lg-launcher-section {
+.fluid-glass-launcher .lg-launcher-section {
     font-size: 10pt;
     font-weight: bold;
     padding: 6px 12px 2px;
 }
 
-.liquid-glass-launcher .lg-launcher-grid-row {
+.fluid-glass-launcher .lg-launcher-grid-row {
     spacing: 8px;
 }
 
-.liquid-glass-launcher .lg-launcher-tile {
+.fluid-glass-launcher .lg-launcher-tile {
     padding: 8px;
     border-radius: 22px;
     color: inherit;
     background-color: transparent;
 }
 
-.liquid-glass-launcher .lg-launcher-tile:selected {
+.fluid-glass-launcher .lg-launcher-tile:selected {
     background-color: rgba(255, 255, 255, 0.2);
 }
 
-.liquid-glass-launcher .lg-launcher-tile-box {
+.fluid-glass-launcher .lg-launcher-tile-box {
     spacing: 8px;
 }
 
-.liquid-glass-launcher .lg-launcher-tile-name {
+.fluid-glass-launcher .lg-launcher-tile-name {
     font-size: 10pt;
 }
 
-.liquid-glass-launcher .lg-launcher-empty {
+.fluid-glass-launcher .lg-launcher-empty {
     font-size: 11pt;
     padding: 24px;
 }

@@ -17,12 +17,12 @@ import {styleStatusMenu} from './statusMenu.js';
 
 const MAX_VISIBLE_NETWORKS = 8;
 
-export const LintelWifiMenu = GObject.registerClass({
-    GTypeName: 'FluidGlass_LintelWifiMenu',
-}, class LintelWifiMenu extends PanelMenu.Button {
+export const FluidGlassWifiMenu = GObject.registerClass({
+    GTypeName: 'FluidGlass_WifiMenu',
+}, class FluidGlassWifiMenu extends PanelMenu.Button {
     _init() {
         super._init(0.5, _('Wi-Fi'), false);
-        this.add_style_class_name('lintel-status-button');
+        this.add_style_class_name('fluid-glass-status-button');
 
         this._wifi = new WifiService();
         this._wifiChangedId = 0;
@@ -35,7 +35,7 @@ export const LintelWifiMenu = GObject.registerClass({
         });
         this.add_child(this._panelIcon);
 
-        styleStatusMenu(this.menu, 'lintel-wifi-menu-content');
+        styleStatusMenu(this.menu, 'fluid-glass-wifi-menu-content');
         this._buildMenu();
 
         this._wifiChangedId = this._wifi.connect('changed', () => this._sync());
@@ -52,7 +52,7 @@ export const LintelWifiMenu = GObject.registerClass({
 
     _buildMenu() {
         this._toggle = new PopupMenu.PopupSwitchMenuItem(_('Wi-Fi'), false);
-        this._toggle.add_style_class_name('lintel-status-toggle');
+        this._toggle.add_style_class_name('fluid-glass-status-toggle');
         this._toggle.connect('toggled', (_item, state) => {
             if (!this._syncing)
                 this._wifi.setEnabled(state);
@@ -63,7 +63,7 @@ export const LintelWifiMenu = GObject.registerClass({
             reactive: false,
             can_focus: false,
         });
-        this._networkHeading.add_style_class_name('lintel-status-section-title');
+        this._networkHeading.add_style_class_name('fluid-glass-status-section-title');
         this.menu.addMenuItem(this._networkHeading);
 
         this._networksSection = new PopupMenu.PopupMenuSection();
@@ -112,7 +112,7 @@ export const LintelWifiMenu = GObject.registerClass({
                 reactive: false,
                 can_focus: false,
             });
-            empty.add_style_class_name('lintel-status-empty');
+            empty.add_style_class_name('fluid-glass-status-empty');
             this._networksSection.addMenuItem(empty);
             return;
         }
@@ -120,7 +120,7 @@ export const LintelWifiMenu = GObject.registerClass({
         for (const network of networks) {
             const item = new PopupMenu.PopupImageMenuItem(
                 network.name, network.iconName);
-            item.add_style_class_name('lintel-wifi-network-item');
+            item.add_style_class_name('fluid-glass-wifi-network-item');
             item.label.x_expand = true;
             item.accessible_name = network.active
                 ? _('Disconnect from %s').format(network.name)
@@ -129,7 +129,7 @@ export const LintelWifiMenu = GObject.registerClass({
             if (network.secure) {
                 item.add_child(new St.Icon({
                     icon_name: 'network-wireless-encrypted-symbolic',
-                    style_class: 'lintel-wifi-secure-icon',
+                    style_class: 'fluid-glass-wifi-secure-icon',
                     y_align: Clutter.ActorAlign.CENTER,
                 }));
             }
@@ -151,7 +151,7 @@ export const LintelWifiMenu = GObject.registerClass({
             GioUnix.DesktopAppInfo.new(
                 'gnome-wifi-panel.desktop')?.launch([], null);
         } catch (e) {
-            logError(e, 'lintel: open Wi-Fi settings');
+            logError(e, 'fluid-glass: open Wi-Fi settings');
         }
     }
 

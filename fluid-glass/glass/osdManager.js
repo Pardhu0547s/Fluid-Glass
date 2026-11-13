@@ -218,7 +218,7 @@ export class OsdManager {
             this._logger.warn('[Liquid Glass] OSD UI container not found.');
             return;
         }
-        targetBox.add_style_class_name('liquid-glass-transparent');
+        targetBox.add_style_class_name('fluid-glass-transparent');
         targetBox.translation_y = -this._osdYOffset;
         const glass = new BackdropGlass({
             extensionPath: this.extensionPath, settings: this._settings, logger: this._logger, owner: 'osd', outline: 'osd',
@@ -413,7 +413,7 @@ export class OsdManager {
             state._destroyId = 0;
         }
         if (state.targetBox) {
-            state.targetBox.remove_style_class_name('liquid-glass-transparent');
+            state.targetBox.remove_style_class_name('fluid-glass-transparent');
             state.targetBox.translation_y = 0;
         }
     }

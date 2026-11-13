@@ -78,7 +78,7 @@ export class GlassCard {
     constructor(id, env, width) {
         this.id = id;
         this.env = env;
-        this.actor = new St.Widget({ name: `liquid-glass-desktop-${id}`, reactive: true, track_hover: true });
+        this.actor = new St.Widget({ name: `fluid-glass-desktop-${id}`, reactive: true, track_hover: true });
         this.glass = new BackdropGlass({
             extensionPath: env.path, settings: env.settings, logger: env.logger, owner: `desktop-${id}`,
             outline: 'desktop-widget', underWindows: true,
@@ -87,7 +87,7 @@ export class GlassCard {
         this.glass.setIsDock(false);
         this.glass.setShadowMaxRadius(SHADOW_MARGIN - 8);
         this.actor.add_child(this.glass);
-        this.box = new St.BoxLayout({ style_class: 'liquid-glass-desktop-card', width, ...verticalBoxParams() });
+        this.box = new St.BoxLayout({ style_class: 'fluid-glass-desktop-card', width, ...verticalBoxParams() });
         this.actor.add_child(this.box);
         connectClicks(this.actor, () => this.activate(), (x, y) => env.menu(this, x, y));
         this._text = new AdaptiveTextColor(() => [this.box], () => [this.glass], env.logger, `desktop ${id}`);

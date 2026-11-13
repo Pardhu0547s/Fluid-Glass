@@ -223,7 +223,7 @@ export const ScreenTimeService = GObject.registerClass({
                     this._history = [];
                     this._status = 'ok';
                 } else {
-                    console.warn(`lintel: reading screen time history: ${e.message}`);
+                    console.warn(`fluid-glass: reading screen time history: ${e.message}`);
                     this._history = null;
                     this._status = 'error';
                 }

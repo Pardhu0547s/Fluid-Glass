@@ -23,7 +23,7 @@ const POINT_DROP_SIZE = 20;
 // back in the button, so the fade is held and the menu is hidden by the morph.
 const BOXPOINTER_EASED = ['opacity', 'translation-x', 'translation-y', 'scale-x', 'scale-y'];
 const BOXPOINTER_HOLD_MS = 10000;
-const CONTENT_LENS = 'liquid-glass-content-lens';
+const CONTENT_LENS = 'fluid-glass-content-lens';
 // What the refraction (displacement scale) and the blur radius come down to,
 // whatever they are set to, as the closing glass settles on the button.
 const SOFT_REFRACTION = 0.3;
@@ -263,12 +263,12 @@ export class UIManager {
         // St loads stylesheets only from files, so the rule goes through the cache
         // directory.
         const cssContent = `
-      .liquid-glass-menu-root .calendar-today,
-      .liquid-glass-menu-root .calendar-today:hover,
-      .liquid-glass-menu-root .calendar-today:active,
-      .liquid-glass-menu-root .calendar-today:checked,
-      .liquid-glass-menu-root .calendar-today:selected,
-      .liquid-glass-menu-root .calendar-today:focus {
+      .fluid-glass-menu-root .calendar-today,
+      .fluid-glass-menu-root .calendar-today:hover,
+      .fluid-glass-menu-root .calendar-today:active,
+      .fluid-glass-menu-root .calendar-today:checked,
+      .fluid-glass-menu-root .calendar-today:selected,
+      .fluid-glass-menu-root .calendar-today:focus {
         background-color: ${colorStr} !important;
         color: ${fgStr} !important;
       }
@@ -276,7 +276,7 @@ export class UIManager {
         // Writing the file and parsing the stylesheet both throw a GError on failure.
         try {
             const cacheDir = GLib.get_user_cache_dir();
-            const filePath = GLib.build_filenamev([cacheDir, 'liquid-glass-accent.css']);
+            const filePath = GLib.build_filenamev([cacheDir, 'fluid-glass-accent.css']);
             GLib.file_set_contents(filePath, cssContent);
             const themeContext = St.ThemeContext.get_for_stage(global.stage);
             const theme = themeContext.get_theme();
@@ -652,9 +652,9 @@ export class UIManager {
         if (!this.targetActor)
             return;
         // The menu's own background is made transparent over the glass.
-        this.targetActor.add_style_class_name('liquid-glass-transparent');
-        this.animActor.add_style_class_name('liquid-glass-transparent');
-        this.animActor.add_style_class_name('liquid-glass-menu-root');
+        this.targetActor.add_style_class_name('fluid-glass-transparent');
+        this.animActor.add_style_class_name('fluid-glass-transparent');
+        this.animActor.add_style_class_name('fluid-glass-menu-root');
         this._syncStyleVariant();
         const settings = St.Settings.get();
         this._signals.push({ target: settings, id: settings.connect('notify::color-scheme', () => this._syncStyleVariant()) });
@@ -899,7 +899,7 @@ export class UIManager {
     // The calendar menu's cards get their text color from the stylesheet, not from what is behind the glass.
     _isCard(actor) {
         return CARD_CLASSES.some(name => this._hasStyleClass(actor, name)) &&
-            !!this.animActor?.has_style_class_name('liquid-glass-menu-root');
+            !!this.animActor?.has_style_class_name('fluid-glass-menu-root');
     }
 
     _findAllTextActors(actor, foundActors = []) {
@@ -1562,18 +1562,18 @@ export class UIManager {
     // The shell stays dark for the default scheme too, but that scheme asks for light apps, so the cards follow it.
     _syncStyleVariant() {
         if (St.Settings.get().color_scheme !== St.SystemColorScheme.PREFER_DARK)
-            this.animActor.add_style_class_name('liquid-glass-light');
+            this.animActor.add_style_class_name('fluid-glass-light');
         else
-            this.animActor.remove_style_class_name('liquid-glass-light');
+            this.animActor.remove_style_class_name('fluid-glass-light');
     }
 
     _restoreMenuActors() {
         if (!this._actorDestroyed)
-            this.targetActor.remove_style_class_name('liquid-glass-transparent');
+            this.targetActor.remove_style_class_name('fluid-glass-transparent');
         if (!this._actorDestroyed && this.animActor) {
-            this.animActor.remove_style_class_name('liquid-glass-transparent');
-            this.animActor.remove_style_class_name('liquid-glass-menu-root');
-            this.animActor.remove_style_class_name('liquid-glass-light');
+            this.animActor.remove_style_class_name('fluid-glass-transparent');
+            this.animActor.remove_style_class_name('fluid-glass-menu-root');
+            this.animActor.remove_style_class_name('fluid-glass-light');
             this.animActor.translation_x = 0;
             this.animActor.translation_y = 0;
             this.animActor.set_scale(1.0, 1.0);

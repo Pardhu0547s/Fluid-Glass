@@ -9,7 +9,7 @@ import { serveRequests } from './workerProcess.js';
 const maker = new DigitsMaker();
 
 function save(bytes) {
-    const [fd, path] = GLib.file_open_tmp('liquid-glass-digits-XXXXXX');
+    const [fd, path] = GLib.file_open_tmp('fluid-glass-digits-XXXXXX');
     GLib.close(fd);
     const file = Gio.File.new_for_path(path);
     return new Promise((resolve, reject) => {

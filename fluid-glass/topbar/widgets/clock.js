@@ -1,4 +1,4 @@
-// LintelClock — Stage 7.
+// FluidGlassClock — Stage 7.
 //
 // Re-formats the panel clock to a macOS-style string while leaving the native
 // dateMenu (calendar + notifications) completely intact — we only change the
@@ -57,7 +57,7 @@ function localeDayFirst() {
     }
 }
 
-export class LintelClock {
+export class FluidGlassClock {
     constructor(extension) {
         this._extension = extension;
         this._label = null;
@@ -90,7 +90,7 @@ export class LintelClock {
 
         this._nativeLabel = native;
         this._label = new St.Label({
-            style_class: 'clock lintel-clock',
+            style_class: 'clock fluid-glass-clock',
             y_align: Clutter.ActorAlign.CENTER,
         });
         const idx = box.get_children().indexOf(native);

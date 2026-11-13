@@ -19,7 +19,7 @@ const pointer_wrapper = {
  * @returns {string}
  */
 export const tempPath = (path) => {
-  let uuid = GLib.get_user_name(); // Main.overview.d2dl.uuid;
+  let uuid = GLib.get_user_name(); // Main.overview.fluidGlassDock.uuid;
   return `/tmp/${uuid}-${path}`;
 };
 

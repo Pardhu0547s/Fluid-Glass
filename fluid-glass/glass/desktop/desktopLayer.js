@@ -116,7 +116,7 @@ export class DesktopLayer {
     _ensureContainer() {
         if (this._container)
             return;
-        const container = new St.Widget({ name: 'liquid-glass-desktop', x: 0, y: 0 });
+        const container = new St.Widget({ name: 'fluid-glass-desktop', x: 0, y: 0 });
         this._container = container;
         Main.layoutManager._backgroundGroup.add_child(container);
         this._restack();
@@ -463,15 +463,15 @@ export class EditFrame {
     constructor(item, _callbacks) {
         this.item = item;
         this._callbacks = _callbacks;
-        this._layer = new St.Widget({ name: 'liquid-glass-edit', reactive: true, x: 0, y: 0 });
+        this._layer = new St.Widget({ name: 'fluid-glass-edit', reactive: true, x: 0, y: 0 });
         this._layer.set_size(global.stage.width, global.stage.height);
-        this._frame = new St.Widget({ style_class: 'liquid-glass-edit-frame', reactive: true });
+        this._frame = new St.Widget({ style_class: 'fluid-glass-edit-frame', reactive: true });
         setHoverCursor(this._frame, 'move');
         this._layer.add_child(this._frame);
         if (_callbacks.resized) {
             for (const [, , cursor] of HANDLES) {
                 const handle = new St.Widget({
-                    style_class: 'liquid-glass-edit-handle', reactive: true,
+                    style_class: 'fluid-glass-edit-handle', reactive: true,
                     width: HANDLE_SIZE, height: HANDLE_SIZE
                 });
                 setHoverCursor(handle, cursor);
@@ -479,7 +479,7 @@ export class EditFrame {
                 this._handles.push(handle);
             }
         }
-        this._done = new St.Button({ style_class: 'liquid-glass-edit-done', label: 'Done', can_focus: true });
+        this._done = new St.Button({ style_class: 'fluid-glass-edit-done', label: 'Done', can_focus: true });
         this._done.connect('clicked', () => this.end());
         this._layer.add_child(this._done);
         // Presses are told apart by where they are, not by the actor they reach:
@@ -535,7 +535,7 @@ export class EditFrame {
     _showGuides(guides) {
         this._guides = guides;
         while (this._guideActors.length < guides.length) {
-            const actor = new St.DrawingArea({ style_class: 'liquid-glass-edit-guide' });
+            const actor = new St.DrawingArea({ style_class: 'fluid-glass-edit-guide' });
             const index = this._guideActors.length;
             actor.connect('repaint', () => this._drawGuide(actor, this._guides[index]));
             this._layer.insert_child_below(actor, this._frame);

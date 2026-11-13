@@ -69,7 +69,7 @@ export const ExtensionAdapters = GObject.registerClass({
             try {
                 active = !!adapter.read(record.settings);
             } catch (e) {
-                logError(e, `lintel: read ${adapter.id} state`);
+                logError(e, `fluid-glass: read ${adapter.id} state`);
                 continue;
             }
             out.push({
@@ -92,7 +92,7 @@ export const ExtensionAdapters = GObject.registerClass({
             try {
                 adapter.write(record.settings, !adapter.read(record.settings));
             } catch (e) {
-                logError(e, `lintel: toggle ${adapter.id}`);
+                logError(e, `fluid-glass: toggle ${adapter.id}`);
             }
             return;
         }

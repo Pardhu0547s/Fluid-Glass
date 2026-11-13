@@ -160,8 +160,8 @@ const WidgetCard = GObject.registerClass({
 }, class WidgetCard extends St.Button {
     _init(kind, size, onActivated) {
         super._init({
-            style_class: `lintel-nc-widget-card lintel-nc-widget-${size} ` +
-                `lintel-nc-${kind}-widget`,
+            style_class: `fluid-glass-nc-widget-card fluid-glass-nc-widget-${size} ` +
+                `fluid-glass-nc-${kind}-widget`,
             style: CLEAR_THEME_STYLE,
             can_focus: true,
             x_expand: true,
@@ -219,7 +219,7 @@ export const CalendarWidget = GObject.registerClass({
 
     _createNavButton(iconName, tooltipText, onClick) {
         const btn = new St.Button({
-            style_class: 'lintel-nc-calendar-nav-btn',
+            style_class: 'fluid-glass-nc-calendar-nav-btn',
             child: new St.Icon({
                 icon_name: iconName,
                 icon_size: this._size === 'large' ? 14 : 11,
@@ -290,7 +290,7 @@ export const CalendarWidget = GObject.registerClass({
         const nextBtn = this._createNavButton('go-next-symbolic', 'Next', () => this._nextMonth());
 
         const navBox = new St.BoxLayout({
-            style_class: 'lintel-nc-calendar-nav-box',
+            style_class: 'fluid-glass-nc-calendar-nav-box',
             y_align: Clutter.ActorAlign.CENTER,
         });
         navBox.add_child(prevBtn);
@@ -298,11 +298,11 @@ export const CalendarWidget = GObject.registerClass({
 
         if (this._size === 'medium') {
             const box = new St.BoxLayout({
-                style_class: 'lintel-nc-calendar-split',
+                style_class: 'fluid-glass-nc-calendar-split',
                 x_expand: true,
                 y_expand: true,
             });
-            const summary = _vbox('lintel-nc-calendar-summary', {
+            const summary = _vbox('fluid-glass-nc-calendar-summary', {
                 x_expand: true,
             });
 
@@ -311,18 +311,18 @@ export const CalendarWidget = GObject.registerClass({
                 : (isCurrentMonth ? now.get_day_of_month() : 1);
             let summaryWeekday = (isCurrentMonth ? now.format('%A') : displayed.format('%B')) ?? '';
 
-            summary.add_child(_label(summaryWeekday.toLocaleUpperCase(), 'lintel-nc-calendar-month'));
-            summary.add_child(_label(`${summaryDayNumber}`, 'lintel-nc-calendar-big-day'));
+            summary.add_child(_label(summaryWeekday.toLocaleUpperCase(), 'fluid-glass-nc-calendar-month'));
+            summary.add_child(_label(`${summaryDayNumber}`, 'fluid-glass-nc-calendar-big-day'));
             summary.add_child(_spacer());
 
             const footer = new St.BoxLayout({
-                style_class: 'lintel-nc-calendar-medium-footer',
+                style_class: 'fluid-glass-nc-calendar-medium-footer',
                 x_expand: true,
                 y_align: Clutter.ActorAlign.CENTER,
             });
             const subtitleBtn = new St.Button({
-                style_class: 'lintel-nc-calendar-title-btn',
-                child: _label(`${_capitalize(month)} ${displayed.get_year()}`, 'lintel-nc-widget-subtitle'),
+                style_class: 'fluid-glass-nc-calendar-title-btn',
+                child: _label(`${_capitalize(month)} ${displayed.get_year()}`, 'fluid-glass-nc-widget-subtitle'),
                 can_focus: true,
                 reactive: true,
                 track_hover: true,
@@ -347,14 +347,14 @@ export const CalendarWidget = GObject.registerClass({
 
         const box = _vbox(null, {x_expand: true, y_expand: true});
         const header = new St.BoxLayout({
-            style_class: 'lintel-nc-calendar-header',
+            style_class: 'fluid-glass-nc-calendar-header',
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
         });
 
         const titleBtn = new St.Button({
-            style_class: 'lintel-nc-calendar-title-btn',
-            child: _label(month.toLocaleUpperCase(), 'lintel-nc-calendar-month'),
+            style_class: 'fluid-glass-nc-calendar-title-btn',
+            child: _label(month.toLocaleUpperCase(), 'fluid-glass-nc-calendar-month'),
             can_focus: true,
             reactive: true,
             track_hover: true,
@@ -368,7 +368,7 @@ export const CalendarWidget = GObject.registerClass({
         header.add_child(titleBtn);
 
         if (this._size === 'large') {
-            header.add_child(_label(`${displayed.get_year()}`, 'lintel-nc-calendar-year'));
+            header.add_child(_label(`${displayed.get_year()}`, 'fluid-glass-nc-calendar-year'));
         }
 
         header.add_child(navBox);
@@ -386,7 +386,7 @@ export const CalendarWidget = GObject.registerClass({
             row_homogeneous: true,
         });
         const grid = new St.Widget({
-            style_class: 'lintel-nc-calendar-grid',
+            style_class: 'fluid-glass-nc-calendar-grid',
             layout_manager: layout,
             x_expand: this._size !== 'medium',
             y_align: Clutter.ActorAlign.START,
@@ -400,12 +400,12 @@ export const CalendarWidget = GObject.registerClass({
             const dayIndex = (weekStart + col) % 7;
             const weekday = baseSunday.add_days(dayIndex).format('%a') ?? '';
             const label = _label(_firstCharacter(weekday).toLocaleUpperCase(),
-                'lintel-nc-calendar-weekday', {
+                'fluid-glass-nc-calendar-weekday', {
                     x_align: Clutter.ActorAlign.CENTER,
                     y_align: Clutter.ActorAlign.CENTER,
                 });
             if (isWeekend(dayIndex))
-                label.add_style_class_name('lintel-nc-calendar-weekend');
+                label.add_style_class_name('fluid-glass-nc-calendar-weekend');
             layout.attach(this._cell(label), col, 0, 1, 1);
         }
 
@@ -419,13 +419,13 @@ export const CalendarWidget = GObject.registerClass({
 
         for (let cell = offset; cell < offset + days; cell++) {
             const day = cell - offset + 1;
-            const label = _label(`${day}`, 'lintel-nc-calendar-day-number', {
+            const label = _label(`${day}`, 'fluid-glass-nc-calendar-day-number', {
                 x_align: Clutter.ActorAlign.CENTER,
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
             const disc = new St.Button({
-                style_class: 'lintel-nc-calendar-day',
+                style_class: 'fluid-glass-nc-calendar-day',
                 child: label,
                 can_focus: true,
                 reactive: true,
@@ -435,11 +435,11 @@ export const CalendarWidget = GObject.registerClass({
             });
 
             if (isCurrentMonth && day === today) {
-                disc.add_style_class_name('lintel-nc-calendar-today');
+                disc.add_style_class_name('fluid-glass-nc-calendar-today');
             } else if (this._selectedDay === day) {
-                disc.add_style_class_name('lintel-nc-calendar-selected');
+                disc.add_style_class_name('fluid-glass-nc-calendar-selected');
             } else if (isWeekend((weekStart + cell) % 7)) {
-                label.add_style_class_name('lintel-nc-calendar-weekend');
+                label.add_style_class_name('fluid-glass-nc-calendar-weekend');
             }
 
             // Touch and click on individual days
@@ -465,7 +465,7 @@ export const CalendarWidget = GObject.registerClass({
 
     _cell(child) {
         return new St.Bin({
-            style_class: 'lintel-nc-calendar-cell',
+            style_class: 'fluid-glass-nc-calendar-cell',
             child,
             x_expand: true,
         });
@@ -504,10 +504,10 @@ export const WeatherWidget = GObject.registerClass({
         if (this._sky === sky)
             return;
         if (this._sky)
-            this.remove_style_class_name(`lintel-nc-weather-${this._sky}`);
+            this.remove_style_class_name(`fluid-glass-nc-weather-${this._sky}`);
         this._sky = sky;
         if (sky)
-            this.add_style_class_name(`lintel-nc-weather-${sky}`);
+            this.add_style_class_name(`fluid-glass-nc-weather-${sky}`);
     }
 
     _icon(name, sunny, styleClass, xAlign = Clutter.ActorAlign.START) {
@@ -517,7 +517,7 @@ export const WeatherWidget = GObject.registerClass({
             x_align: xAlign,
         });
         if (sunny)
-            icon.add_style_class_name('lintel-nc-weather-sunny');
+            icon.add_style_class_name('fluid-glass-nc-weather-sunny');
         return icon;
     }
 
@@ -538,25 +538,25 @@ export const WeatherWidget = GObject.registerClass({
         const top = new St.BoxLayout({x_expand: true});
         const left = _vbox(null, {x_expand: true});
         left.add_child(_label(service.locationName || _('Weather'),
-            'lintel-nc-weather-location'));
+            'fluid-glass-nc-weather-location'));
         left.add_child(_label(service.temperature,
-            'lintel-nc-weather-temperature'));
+            'fluid-glass-nc-weather-temperature'));
         top.add_child(left);
         box.add_child(top);
 
         if (this._size === 'small') {
             box.add_child(_spacer());
             box.add_child(this._icon(service.iconName, sunny,
-                'lintel-nc-weather-icon'));
+                'fluid-glass-nc-weather-icon'));
             box.add_child(_label(service.conditions,
-                'lintel-nc-weather-conditions'));
+                'fluid-glass-nc-weather-conditions'));
         } else {
             const right = _vbox(null, {y_expand: true});
             right.add_child(this._icon(service.iconName, sunny,
-                'lintel-nc-weather-icon', Clutter.ActorAlign.END));
+                'fluid-glass-nc-weather-icon', Clutter.ActorAlign.END));
             right.add_child(_spacer());
             right.add_child(_label(service.conditions,
-                'lintel-nc-weather-conditions', {
+                'fluid-glass-nc-weather-conditions', {
                     x_align: Clutter.ActorAlign.END,
                 }));
             top.add_child(right);
@@ -567,7 +567,7 @@ export const WeatherWidget = GObject.registerClass({
     }
 
     _placeholder(service) {
-        const box = _vbox('lintel-nc-weather-placeholder', {
+        const box = _vbox('fluid-glass-nc-weather-placeholder', {
             x_expand: true,
             y_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
@@ -577,12 +577,12 @@ export const WeatherWidget = GObject.registerClass({
         box.add_child(new St.Icon({
             icon_name: iconName,
             fallback_icon_name: 'weather-few-clouds-symbolic',
-            style_class: 'lintel-nc-weather-placeholder-icon',
+            style_class: 'fluid-glass-nc-weather-placeholder-icon',
             x_align: Clutter.ActorAlign.START,
         }));
         box.add_child(_label(service.locationName || _('Weather'),
-            'lintel-nc-widget-title'));
-        const subtitle = _label(text, 'lintel-nc-widget-subtitle');
+            'fluid-glass-nc-widget-title'));
+        const subtitle = _label(text, 'fluid-glass-nc-widget-subtitle');
         // A small widget is 165px wide; the hint must wrap, not ellipsize.
         subtitle.clutter_text.line_wrap = true;
         subtitle.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
@@ -592,18 +592,18 @@ export const WeatherWidget = GObject.registerClass({
 
     _forecastRow(forecasts) {
         const row = new St.BoxLayout({
-            style_class: 'lintel-nc-weather-forecasts',
+            style_class: 'fluid-glass-nc-weather-forecasts',
             x_expand: true,
         });
         for (const forecast of forecasts) {
-            const item = _vbox('lintel-nc-forecast', {x_expand: true});
-            item.add_child(_label(forecast.time, 'lintel-nc-forecast-time', {
+            const item = _vbox('fluid-glass-nc-forecast', {x_expand: true});
+            item.add_child(_label(forecast.time, 'fluid-glass-nc-forecast-time', {
                 x_align: Clutter.ActorAlign.CENTER,
             }));
             item.add_child(this._icon(forecast.iconName, forecast.sunny,
-                'lintel-nc-forecast-icon', Clutter.ActorAlign.CENTER));
+                'fluid-glass-nc-forecast-icon', Clutter.ActorAlign.CENTER));
             item.add_child(_label(forecast.temperature,
-                'lintel-nc-forecast-temperature', {
+                'fluid-glass-nc-forecast-temperature', {
                     x_align: Clutter.ActorAlign.CENTER,
                 }));
             row.add_child(item);
@@ -621,13 +621,13 @@ export const WeatherWidget = GObject.registerClass({
 });
 
 // Tahoe's ring gauge, shared by Batteries and System. Its size and colours
-// (-lintel-ring-fill, -low, -track) come from the stylesheet.
+// (-fluid-glass-ring-fill, -low, -track) come from the stylesheet.
 const RingGauge = GObject.registerClass({
     GTypeName: 'FluidGlass_RingGauge',
 }, class RingGauge extends St.Widget {
     _init(styleClass, center = null) {
         super._init({
-            style_class: `lintel-nc-ring ${styleClass}`,
+            style_class: `fluid-glass-nc-ring ${styleClass}`,
             layout_manager: new Clutter.BinLayout(),
             y_align: Clutter.ActorAlign.CENTER,
         });
@@ -646,7 +646,7 @@ const RingGauge = GObject.registerClass({
 
     /**
      * @param {number} fraction filled part, 0..1
-     * @param {boolean} alert draw the fill in the -lintel-ring-low colour
+     * @param {boolean} alert draw the fill in the -fluid-glass-ring-low colour
      */
     setLevel(fraction, alert = false) {
         const level = Number.isFinite(fraction) ? Math.max(0, Math.min(1, fraction)) : 0;
@@ -671,20 +671,20 @@ const RingGauge = GObject.registerClass({
 
             cr.setLineWidth(lineWidth);
             cr.setLineCap(Cairo.LineCap.ROUND);
-            _setSource(cr, _themeColor(node, '-lintel-ring-track'));
+            _setSource(cr, _themeColor(node, '-fluid-glass-ring-track'));
             cr.arc(width / 2, height / 2, radius, 0, 2 * Math.PI);
             cr.stroke();
 
             if (this._level > 0) {
                 _setSource(cr, _themeColor(node, this._alert
-                    ? '-lintel-ring-low'
-                    : '-lintel-ring-fill'));
+                    ? '-fluid-glass-ring-low'
+                    : '-fluid-glass-ring-fill'));
                 cr.arc(width / 2, height / 2, radius,
                     start, start + 2 * Math.PI * this._level);
                 cr.stroke();
             }
         } catch (e) {
-            logError(e, 'lintel: painting ring gauge');
+            logError(e, 'fluid-glass: painting ring gauge');
         } finally {
             cr.$dispose();
         }
@@ -696,13 +696,13 @@ export const BatteryWidget = GObject.registerClass({
 }, class BatteryWidget extends WidgetCard {
     _init(size, onActivated) {
         super._init('battery', size, onActivated);
-        this._ring = new RingGauge('lintel-nc-battery-ring', new St.Icon({
+        this._ring = new RingGauge('fluid-glass-nc-battery-ring', new St.Icon({
             icon_name: 'computer-laptop-symbolic',
             fallback_icon_name: 'computer-symbolic',
-            style_class: 'lintel-nc-battery-device',
+            style_class: 'fluid-glass-nc-battery-device',
         }));
-        this._percentage = _label('', 'lintel-nc-battery-percentage');
-        this._status = _label('', 'lintel-nc-widget-subtitle');
+        this._percentage = _label('', 'fluid-glass-nc-battery-percentage');
+        this._status = _label('', 'fluid-glass-nc-widget-subtitle');
 
         if (size === 'small') {
             const box = _vbox(null, {x_expand: true, y_expand: true});
@@ -714,7 +714,7 @@ export const BatteryWidget = GObject.registerClass({
             this.setContent(box);
         } else {
             const box = new St.BoxLayout({
-                style_class: 'lintel-nc-battery-row',
+                style_class: 'fluid-glass-nc-battery-row',
                 x_expand: true,
                 y_expand: true,
             });
@@ -723,7 +723,7 @@ export const BatteryWidget = GObject.registerClass({
                 x_expand: true,
                 y_align: Clutter.ActorAlign.CENTER,
             });
-            labels.add_child(_label(_('Battery'), 'lintel-nc-widget-title'));
+            labels.add_child(_label(_('Battery'), 'fluid-glass-nc-widget-title'));
             labels.add_child(this._percentage);
             labels.add_child(this._status);
             box.add_child(labels);
@@ -774,15 +774,15 @@ export const MediaWidget = GObject.registerClass({
 }, class MediaWidget extends St.BoxLayout {
     _init(size) {
         super._init({
-            style_class: `lintel-nc-widget-card lintel-nc-widget-${size} ` +
-                'lintel-nc-media-widget',
+            style_class: `fluid-glass-nc-widget-card fluid-glass-nc-widget-${size} ` +
+                'fluid-glass-nc-media-widget',
             style: CLEAR_THEME_STYLE,
             orientation: Clutter.Orientation.VERTICAL,
             x_expand: true,
         });
         this._destroyed = false;
         this._service = new MediaService();
-        this._card = new CCMediaCard('lintel-nc-media-content');
+        this._card = new CCMediaCard('fluid-glass-nc-media-content');
         this._card.y_expand = true;
         this._card.connect('previous', () => this._service?.previous());
         this._card.connect('play-pause', () => this._service?.playPause());
@@ -830,13 +830,13 @@ export const ClockWidget = GObject.registerClass({
         super._init('clock', size, onActivated);
         this._timerId = 0;
         this._face = new St.DrawingArea({
-            style_class: 'lintel-nc-clock-face',
+            style_class: 'fluid-glass-nc-clock-face',
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
         });
         this._face.connect('repaint', area => this._repaintFace(area));
-        this._time = _label('', 'lintel-nc-clock-time');
-        this._date = _label('', 'lintel-nc-widget-subtitle');
+        this._time = _label('', 'fluid-glass-nc-clock-time');
+        this._date = _label('', 'fluid-glass-nc-widget-subtitle');
 
         if (size === 'small') {
             const box = _vbox(null, {x_expand: true, y_expand: true});
@@ -845,7 +845,7 @@ export const ClockWidget = GObject.registerClass({
             this.setContent(box);
         } else if (size === 'medium') {
             const box = new St.BoxLayout({
-                style_class: 'lintel-nc-clock-row',
+                style_class: 'fluid-glass-nc-clock-row',
                 x_expand: true,
                 y_expand: true,
             });
@@ -909,12 +909,12 @@ export const ClockWidget = GObject.registerClass({
             const radius = size / 2;
             cr.translate(width / 2, height / 2);
 
-            _setSource(cr, _themeColor(node, '-lintel-clock-face'));
+            _setSource(cr, _themeColor(node, '-fluid-glass-clock-face'));
             cr.arc(0, 0, radius, 0, 2 * Math.PI);
             cr.fill();
 
             cr.setLineCap(Cairo.LineCap.ROUND);
-            const tick = _themeColor(node, '-lintel-clock-tick');
+            const tick = _themeColor(node, '-fluid-glass-clock-tick');
             for (let i = 0; i < 60; i++) {
                 const hour = i % 5 === 0;
                 const angle = i * Math.PI / 30;
@@ -931,8 +931,8 @@ export const ClockWidget = GObject.registerClass({
             const seconds = Math.floor(now.get_seconds());
             const minutes = now.get_minute() + seconds / 60;
             const hours = now.get_hour() % 12 + minutes / 60;
-            const hand = _themeColor(node, '-lintel-clock-hand');
-            const second = _themeColor(node, '-lintel-clock-second');
+            const hand = _themeColor(node, '-fluid-glass-clock-hand');
+            const second = _themeColor(node, '-fluid-glass-clock-second');
 
             this._hand(cr, hand, hours * Math.PI / 6, radius * 0.48, size * 0.045);
             this._hand(cr, hand, minutes * Math.PI / 30, radius * 0.72, size * 0.03);
@@ -946,7 +946,7 @@ export const ClockWidget = GObject.registerClass({
             cr.arc(0, 0, size * 0.018, 0, 2 * Math.PI);
             cr.fill();
         } catch (e) {
-            logError(e, 'lintel: painting clock face');
+            logError(e, 'fluid-glass: painting clock face');
         } finally {
             cr.$dispose();
         }
@@ -969,11 +969,11 @@ export const ClockWidget = GObject.registerClass({
 
 // Big red weekday over the day number, shared with the Calendar widget's look.
 function _dayHeader(now) {
-    const header = _vbox('lintel-nc-upnext-header');
+    const header = _vbox('fluid-glass-nc-upnext-header');
     header.add_child(_label((now.format('%A') ?? '').toLocaleUpperCase(),
-        'lintel-nc-calendar-month'));
+        'fluid-glass-nc-calendar-month'));
     header.add_child(_label(`${now.get_day_of_month()}`,
-        'lintel-nc-calendar-big-day'));
+        'fluid-glass-nc-calendar-big-day'));
     return header;
 }
 
@@ -1016,7 +1016,7 @@ export const UpNextWidget = GObject.registerClass({
 
         if (this._size === 'medium') {
             const box = new St.BoxLayout({
-                style_class: 'lintel-nc-upnext-split',
+                style_class: 'fluid-glass-nc-upnext-split',
                 x_expand: true,
                 y_expand: true,
             });
@@ -1026,7 +1026,7 @@ export const UpNextWidget = GObject.registerClass({
             return;
         }
 
-        const box = _vbox('lintel-nc-upnext-stack', {
+        const box = _vbox('fluid-glass-nc-upnext-stack', {
             x_expand: true,
             y_expand: true,
         });
@@ -1036,13 +1036,13 @@ export const UpNextWidget = GObject.registerClass({
     }
 
     _eventList(agenda) {
-        const list = _vbox('lintel-nc-upnext-list', {
+        const list = _vbox('fluid-glass-nc-upnext-list', {
             x_expand: true,
             y_expand: true,
         });
         if (!agenda.length) {
             list.add_child(_wrap(_label(shellText('No Events'),
-                'lintel-nc-upnext-empty')));
+                'fluid-glass-nc-upnext-empty')));
             return list;
         }
 
@@ -1054,7 +1054,7 @@ export const UpNextWidget = GObject.registerClass({
                 if (budget < 3)
                     break;
                 list.add_child(_label(_dayName(day, '%A, %-d %B'),
-                    'lintel-nc-upnext-section'));
+                    'fluid-glass-nc-upnext-section'));
                 budget -= 1;
             }
             for (const event of day.events) {
@@ -1070,19 +1070,19 @@ export const UpNextWidget = GObject.registerClass({
 
     _eventRow(event, day, withDay) {
         const row = new St.BoxLayout({
-            style_class: 'lintel-nc-event',
+            style_class: 'fluid-glass-nc-event',
             x_expand: true,
         });
         row.add_child(new St.Widget({
-            style_class: 'lintel-nc-event-bar',
+            style_class: 'fluid-glass-nc-event-bar',
             y_expand: true,
         }));
-        const text = _vbox('lintel-nc-event-text', {x_expand: true});
-        text.add_child(_label(event.summary, 'lintel-nc-event-title'));
+        const text = _vbox('fluid-glass-nc-event-text', {x_expand: true});
+        text.add_child(_label(event.summary, 'fluid-glass-nc-event-title'));
         const when = this._when(event);
         text.add_child(_label(withDay && day.offset > 0
             ? `${_dayName(day, '%a')}, ${when}`
-            : when, 'lintel-nc-event-time'));
+            : when, 'fluid-glass-nc-event-time'));
         row.add_child(text);
         return row;
     }
@@ -1113,7 +1113,7 @@ const BarChart = GObject.registerClass({
 }, class BarChart extends St.DrawingArea {
     _init(styleClass) {
         super._init({
-            style_class: `lintel-nc-bar-chart ${styleClass}`,
+            style_class: `fluid-glass-nc-bar-chart ${styleClass}`,
             x_expand: true,
         });
         this._values = [];
@@ -1157,12 +1157,12 @@ const BarChart = GObject.registerClass({
             const radius = Math.min(barWidth / 2, 3 * scale);
             const minHeight = 2 * scale;
 
-            _setSource(cr, _themeColor(node, '-lintel-bar-baseline'));
+            _setSource(cr, _themeColor(node, '-fluid-glass-bar-baseline'));
             cr.rectangle(0, height - scale, width, scale);
             cr.fill();
 
-            const fill = _themeColor(node, '-lintel-bar-fill');
-            const highlight = _themeColor(node, '-lintel-bar-highlight');
+            const fill = _themeColor(node, '-fluid-glass-bar-fill');
+            const highlight = _themeColor(node, '-fluid-glass-bar-highlight');
             this._values.forEach((value, i) => {
                 if (!(value > 0))
                     return;
@@ -1175,7 +1175,7 @@ const BarChart = GObject.registerClass({
 
             if (this._reference !== null && this._reference > 0) {
                 const y = Math.round(height - height * this._reference / max) + 0.5;
-                _setSource(cr, _themeColor(node, '-lintel-bar-reference'));
+                _setSource(cr, _themeColor(node, '-fluid-glass-bar-reference'));
                 cr.setLineWidth(scale);
                 cr.setDash([3 * scale, 3 * scale], 0);
                 cr.moveTo(0, y);
@@ -1183,7 +1183,7 @@ const BarChart = GObject.registerClass({
                 cr.stroke();
             }
         } catch (e) {
-            logError(e, 'lintel: painting bar chart');
+            logError(e, 'fluid-glass: painting bar chart');
         } finally {
             cr.$dispose();
         }
@@ -1194,7 +1194,7 @@ const LimitMeter = GObject.registerClass({
     GTypeName: 'FluidGlass_LimitMeter',
 }, class LimitMeter extends St.DrawingArea {
     _init() {
-        super._init({style_class: 'lintel-nc-limit-meter', x_expand: true});
+        super._init({style_class: 'fluid-glass-nc-limit-meter', x_expand: true});
         this._fraction = 0;
         this.connect('repaint', () => this._repaint());
     }
@@ -1211,18 +1211,18 @@ const LimitMeter = GObject.registerClass({
             if (!width || !height)
                 return;
             const node = this.get_theme_node();
-            _setSource(cr, _themeColor(node, '-lintel-meter-track'));
+            _setSource(cr, _themeColor(node, '-fluid-glass-meter-track'));
             _roundedRect(cr, 0, 0, width, height, height / 2);
             cr.fill();
             const over = this._fraction >= 1;
             _setSource(cr, _themeColor(node, over
-                ? '-lintel-meter-over'
-                : '-lintel-meter-fill'));
+                ? '-fluid-glass-meter-over'
+                : '-fluid-glass-meter-fill'));
             _roundedRect(cr, 0, 0, Math.max(height, width * Math.min(1, this._fraction)),
                 height, height / 2);
             cr.fill();
         } catch (e) {
-            logError(e, 'lintel: painting limit meter');
+            logError(e, 'fluid-glass: painting limit meter');
         } finally {
             cr.$dispose();
         }
@@ -1231,12 +1231,12 @@ const LimitMeter = GObject.registerClass({
 
 function _axis(texts, align = Clutter.ActorAlign.CENTER) {
     const row = new St.BoxLayout({
-        style_class: 'lintel-nc-chart-axis',
+        style_class: 'fluid-glass-nc-chart-axis',
         x_expand: true,
     });
     row.layout_manager.homogeneous = true;
     for (const text of texts) {
-        row.add_child(_label(text, 'lintel-nc-chart-axis-label', {
+        row.add_child(_label(text, 'fluid-glass-nc-chart-axis-label', {
             x_expand: true,
             x_align: align,
         }));
@@ -1265,7 +1265,7 @@ export const ScreenTimeWidget = GObject.registerClass({
             Gio.Subprocess.new(['gnome-control-center', 'wellbeing'],
                 Gio.SubprocessFlags.NONE);
         } catch (e) {
-            logError(e, 'lintel: opening Wellbeing settings');
+            logError(e, 'fluid-glass: opening Wellbeing settings');
         }
     }
 
@@ -1275,7 +1275,7 @@ export const ScreenTimeWidget = GObject.registerClass({
             return;
 
         const title = _label(settingsText('Screen Time'),
-            'lintel-nc-screentime-title');
+            'fluid-glass-nc-screentime-title');
         const summary = service.status === 'ok' ? service.summary : null;
         if (!summary) {
             const box = _vbox(null, {x_expand: true, y_expand: true});
@@ -1284,22 +1284,22 @@ export const ScreenTimeWidget = GObject.registerClass({
             if (service.status === 'disabled') {
                 box.add_child(_wrap(_label(
                     settingsText('Screen Time Recording Disabled'),
-                    'lintel-nc-screentime-message')));
+                    'fluid-glass-nc-screentime-message')));
             } else {
-                box.add_child(_label('—', 'lintel-nc-screentime-total'));
+                box.add_child(_label('—', 'fluid-glass-nc-screentime-total'));
             }
             this.setContent(box);
             return;
         }
 
         const total = _label(formatDuration(summary.today),
-            'lintel-nc-screentime-total');
+            'fluid-glass-nc-screentime-total');
         const limit = service.dailyLimit;
         const meter = limit ? new LimitMeter() : null;
         meter?.setFraction(summary.today / limit);
 
         if (this._size === 'small') {
-            const box = _vbox('lintel-nc-screentime-stack', {
+            const box = _vbox('fluid-glass-nc-screentime-stack', {
                 x_expand: true,
                 y_expand: true,
             });
@@ -1315,11 +1315,11 @@ export const ScreenTimeWidget = GObject.registerClass({
 
         if (this._size === 'medium') {
             const box = new St.BoxLayout({
-                style_class: 'lintel-nc-screentime-split',
+                style_class: 'fluid-glass-nc-screentime-split',
                 x_expand: true,
                 y_expand: true,
             });
-            const left = _vbox('lintel-nc-screentime-summary', {y_expand: true});
+            const left = _vbox('fluid-glass-nc-screentime-summary', {y_expand: true});
             left.add_child(title);
             left.add_child(total);
             left.add_child(_spacer());
@@ -1331,7 +1331,7 @@ export const ScreenTimeWidget = GObject.registerClass({
             return;
         }
 
-        const box = _vbox('lintel-nc-screentime-stack', {
+        const box = _vbox('fluid-glass-nc-screentime-stack', {
             x_expand: true,
             y_expand: true,
         });
@@ -1346,8 +1346,8 @@ export const ScreenTimeWidget = GObject.registerClass({
     }
 
     _weekChart(summary, withAxis) {
-        const box = _vbox('lintel-nc-chart', {x_expand: true, y_expand: withAxis});
-        const chart = new BarChart('lintel-nc-week-chart');
+        const box = _vbox('fluid-glass-nc-chart', {x_expand: true, y_expand: withAxis});
+        const chart = new BarChart('fluid-glass-nc-week-chart');
         chart.y_expand = withAxis && this._size === 'medium';
         chart.setData(summary.week.map(day => day.known ? day.seconds : 0), {
             highlight: summary.week.length - 1,
@@ -1363,8 +1363,8 @@ export const ScreenTimeWidget = GObject.registerClass({
     }
 
     _hourChart(summary) {
-        const box = _vbox('lintel-nc-chart', {x_expand: true});
-        const chart = new BarChart('lintel-nc-hour-chart');
+        const box = _vbox('fluid-glass-nc-chart', {x_expand: true});
+        const chart = new BarChart('fluid-glass-nc-hour-chart');
         chart.setData(summary.hours.map(hour => hour.seconds), {
             // Scale to a full hour, so a busy hour reads as a full bar.
             scaleMax: 60 * 60,
@@ -1424,7 +1424,7 @@ const Sparkline = GObject.registerClass({
 }, class Sparkline extends St.DrawingArea {
     _init(styleClass) {
         super._init({
-            style_class: `lintel-nc-sparkline ${styleClass}`,
+            style_class: `fluid-glass-nc-sparkline ${styleClass}`,
             x_expand: true,
         });
         this._series = [];
@@ -1453,7 +1453,7 @@ const Sparkline = GObject.registerClass({
             const scale = St.ThemeContext.get_for_stage(global.stage).scale_factor || 1;
             const lineWidth = 1.5 * scale;
 
-            _setSource(cr, _themeColor(node, '-lintel-spark-baseline'));
+            _setSource(cr, _themeColor(node, '-fluid-glass-spark-baseline'));
             cr.rectangle(0, height - scale, width, scale);
             cr.fill();
 
@@ -1468,8 +1468,8 @@ const Sparkline = GObject.registerClass({
                 if (values.length < 2)
                     return;
                 const color = _themeColor(node, index === 0
-                    ? '-lintel-spark-primary'
-                    : '-lintel-spark-secondary');
+                    ? '-fluid-glass-spark-primary'
+                    : '-fluid-glass-spark-secondary');
                 const left = width - (values.length - 1) * step;
                 cr.moveTo(left, y(values[0]));
                 values.forEach((value, i) => cr.lineTo(left + i * step, y(value)));
@@ -1486,7 +1486,7 @@ const Sparkline = GObject.registerClass({
                 cr.fill();
             });
         } catch (e) {
-            logError(e, 'lintel: painting sparkline');
+            logError(e, 'fluid-glass: painting sparkline');
         } finally {
             cr.$dispose();
         }
@@ -1533,22 +1533,22 @@ export const SystemWidget = GObject.registerClass({
     }
 
     _gauge(kind, caption, withDetail = false) {
-        const value = _label('—', 'lintel-nc-ring-value');
+        const value = _label('—', 'fluid-glass-nc-ring-value');
         const ring = new RingGauge(
-            `lintel-nc-system-ring lintel-nc-ring-${kind}`, value);
+            `fluid-glass-nc-system-ring fluid-glass-nc-ring-${kind}`, value);
         ring.x_align = Clutter.ActorAlign.CENTER;
 
-        const box = _vbox('lintel-nc-gauge', {
+        const box = _vbox('fluid-glass-nc-gauge', {
             x_expand: true,
             y_align: Clutter.ActorAlign.START,
         });
         box.add_child(ring);
-        box.add_child(_label(caption, 'lintel-nc-gauge-caption', {
+        box.add_child(_label(caption, 'fluid-glass-nc-gauge-caption', {
             x_align: Clutter.ActorAlign.CENTER,
         }));
         let detail = null;
         if (withDetail && this._size === 'large') {
-            detail = _label('', 'lintel-nc-gauge-detail', {
+            detail = _label('', 'fluid-glass-nc-gauge-detail', {
                 x_align: Clutter.ActorAlign.CENTER,
             });
             box.add_child(detail);
@@ -1562,15 +1562,15 @@ export const SystemWidget = GObject.registerClass({
 
     _header(withRates) {
         const header = new St.BoxLayout({
-            style_class: 'lintel-nc-system-header',
+            style_class: 'fluid-glass-nc-system-header',
             x_expand: true,
         });
-        header.add_child(_label(settingsText('System'), 'lintel-nc-system-title', {
+        header.add_child(_label(settingsText('System'), 'fluid-glass-nc-system-title', {
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
         }));
         if (withRates) {
-            this._rates = _label('', 'lintel-nc-system-rates', {
+            this._rates = _label('', 'fluid-glass-nc-system-rates', {
                 y_align: Clutter.ActorAlign.CENTER,
             });
             header.add_child(this._rates);
@@ -1580,7 +1580,7 @@ export const SystemWidget = GObject.registerClass({
 
     _gaugeRow() {
         const row = new St.BoxLayout({
-            style_class: 'lintel-nc-system-row',
+            style_class: 'fluid-glass-nc-system-row',
             x_expand: true,
         });
         row.layout_manager.homogeneous = true;
@@ -1608,7 +1608,7 @@ export const SystemWidget = GObject.registerClass({
     }
 
     _mediumLayout() {
-        const box = _vbox('lintel-nc-system-stack', {
+        const box = _vbox('fluid-glass-nc-system-stack', {
             x_expand: true,
             y_expand: true,
         });
@@ -1619,12 +1619,12 @@ export const SystemWidget = GObject.registerClass({
     }
 
     _chart(caption, styleClass) {
-        const section = _vbox('lintel-nc-system-chart', {x_expand: true});
+        const section = _vbox('fluid-glass-nc-system-chart', {x_expand: true});
         const header = new St.BoxLayout({x_expand: true});
-        header.add_child(_label(caption, 'lintel-nc-gauge-caption', {
+        header.add_child(_label(caption, 'fluid-glass-nc-gauge-caption', {
             x_expand: true,
         }));
-        const value = _label('', 'lintel-nc-system-rates');
+        const value = _label('', 'fluid-glass-nc-system-rates');
         header.add_child(value);
         section.add_child(header);
         const chart = new Sparkline(styleClass);
@@ -1633,7 +1633,7 @@ export const SystemWidget = GObject.registerClass({
     }
 
     _largeLayout() {
-        const box = _vbox('lintel-nc-system-stack', {
+        const box = _vbox('fluid-glass-nc-system-stack', {
             x_expand: true,
             y_expand: true,
         });
@@ -1641,9 +1641,9 @@ export const SystemWidget = GObject.registerClass({
         box.add_child(this._gaugeRow());
         box.add_child(_spacer());
         this._cpuChart = this._chart(settingsText('Processor'),
-            'lintel-nc-sparkline-cpu');
+            'fluid-glass-nc-sparkline-cpu');
         this._networkChart = this._chart(settingsText('Network'),
-            'lintel-nc-sparkline-network');
+            'fluid-glass-nc-sparkline-network');
         this._rates = this._networkChart.value;
         box.add_child(this._cpuChart.section);
         box.add_child(this._networkChart.section);

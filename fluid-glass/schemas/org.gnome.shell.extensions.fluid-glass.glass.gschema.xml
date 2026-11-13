@@ -155,7 +155,7 @@
       <description>Starts a 100 ms interval dump of every live glass into the journal for 60 seconds, or stops one already running.</description>
     </key>
     <key name="disabled-extra-menus" type="as">
-      <default>['lintel-control-center']</default>
+      <default>['fluid-glass-control-center']</default>
       <summary>Panel menus excluded from glass</summary>
       <description>Panel indicator names disabled individually in preferences.</description>
     </key>

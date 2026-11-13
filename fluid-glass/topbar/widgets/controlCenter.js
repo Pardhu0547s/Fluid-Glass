@@ -112,7 +112,7 @@ export const ControlCenter = GObject.registerClass(
 class ControlCenter extends PanelMenu.Button {
     _init(extension) {
         super._init(0.0, _('Control Center'), false);
-        this.add_style_class_name('lintel-control-center-button');
+        this.add_style_class_name('fluid-glass-control-center-button');
 
         this._extension = extension;
         this._openId = 0;
@@ -152,45 +152,45 @@ class ControlCenter extends PanelMenu.Button {
         try {
             this._volume = new VolumeService();
         } catch (e) {
-            logError(e, 'lintel: VolumeService');
+            logError(e, 'fluid-glass: VolumeService');
             this._volume = { available: false, level: 0, setLevel() {}, inputAvailable: false, inputLevel: 0, setInputLevel() {}, toggleMute() {}, connect() { return 0; }, disconnect() {} };
         }
         try {
             this._brightness = new BrightnessService();
         } catch (e) {
-            logError(e, 'lintel: BrightnessService');
+            logError(e, 'fluid-glass: BrightnessService');
             this._brightness = { available: false, level: 0, setLevel() {}, refresh() {}, connect() { return 0; }, disconnect() {} };
         }
         try {
             this._net = new ConnectivityService();
         } catch (e) {
-            logError(e, 'lintel: ConnectivityService');
+            logError(e, 'fluid-glass: ConnectivityService');
             this._net = { connect() { return 0; }, disconnect() {} };
         }
         try {
             this._media = new MediaService();
         } catch (e) {
-            logError(e, 'lintel: MediaService');
+            logError(e, 'fluid-glass: MediaService');
             this._media = { connect() { return 0; }, disconnect() {} };
         }
         try {
             this._powerProfiles = new PowerProfilesService();
         } catch (e) {
-            logError(e, 'lintel: PowerProfilesService');
+            logError(e, 'fluid-glass: PowerProfilesService');
             this._powerProfiles = { connect() { return 0; }, disconnect() {} };
         }
         try {
             this._qsBridge = new QuickSettingsBridge();
             this._qsBridge.enable();
         } catch (e) {
-            logError(e, 'lintel: QuickSettingsBridge');
+            logError(e, 'fluid-glass: QuickSettingsBridge');
             this._qsBridge = { items: [], enable() {}, destroy() {}, connect() { return 0; }, disconnect() {} };
         }
         try {
             this._adapters = new ExtensionAdapters();
             this._adapters.enable();
         } catch (e) {
-            logError(e, 'lintel: ExtensionAdapters');
+            logError(e, 'fluid-glass: ExtensionAdapters');
             this._adapters = { entries: [], enable() {}, destroy() {}, connect() { return 0; }, disconnect() {} };
         }
 
@@ -287,10 +287,10 @@ class ControlCenter extends PanelMenu.Button {
     }
 
     _buildPopup() {
-        this.menu.actor.add_style_class_name('lintel-cc-menu');
+        this.menu.actor.add_style_class_name('fluid-glass-cc-menu');
         this.menu.actor.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important;');
         this.menu.box.remove_style_class_name('popup-menu-content');
-        this.menu.box.add_style_class_name('lintel-cc-popup');
+        this.menu.box.add_style_class_name('fluid-glass-cc-popup');
         this.menu.box.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 6px !important;');
         if (this.menu._boxPointer?.bin)
             this.menu._boxPointer.bin.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
@@ -298,7 +298,7 @@ class ControlCenter extends PanelMenu.Button {
 
         const content = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
-            style_class: 'lintel-cc-content',
+            style_class: 'fluid-glass-cc-content',
         });
 
         this._wifiTile = this._tile(
@@ -425,7 +425,7 @@ class ControlCenter extends PanelMenu.Button {
         content.add_child(this._grid);
         this._sliderBox = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
-            style_class: 'lintel-cc-sliders',
+            style_class: 'fluid-glass-cc-sliders',
             x_expand: true,
             x_align: Clutter.ActorAlign.FILL,
         });
@@ -433,7 +433,7 @@ class ControlCenter extends PanelMenu.Button {
         this._buildEditor(content);
 
         this._editButton = new St.Button({
-            style_class: 'lintel-cc-edit-controls',
+            style_class: 'fluid-glass-cc-edit-controls',
             accessible_name: _('Edit Controls'),
             label: _('Edit Controls'),
             can_focus: true,
@@ -539,7 +539,7 @@ class ControlCenter extends PanelMenu.Button {
             try {
                 this._glassHandle.destroy();
             } catch (e) {
-                logError(e, 'lintel: destroy glass handle');
+                logError(e, 'fluid-glass: destroy glass handle');
             }
             this._glassHandle = null;
         }
@@ -582,7 +582,7 @@ class ControlCenter extends PanelMenu.Button {
                 );
             }
         } catch (e) {
-            logError(e, 'lintel: attachGlass / attachMultiRegionGlass');
+            logError(e, 'fluid-glass: attachGlass / attachMultiRegionGlass');
         }
     }
 
@@ -592,7 +592,7 @@ class ControlCenter extends PanelMenu.Button {
             for (const child of this._grid.get_children()) {
                 if (!child.visible || !child.mapped)
                     continue;
-                const actor = child.has_style_class_name?.('lintel-cc-tile')
+                const actor = child.has_style_class_name?.('fluid-glass-cc-tile')
                     ? child
                     : (child.get_first_child?.() ?? child);
                 if (actor.visible && actor.mapped)
@@ -682,7 +682,7 @@ class ControlCenter extends PanelMenu.Button {
         slot.add_child(control.actor);
 
         control.shield = new St.Button({
-            style_class: 'lintel-cc-slot-shield',
+            style_class: 'fluid-glass-cc-slot-shield',
             accessible_name: control.title,
             can_focus: true,
             x_expand: true,
@@ -694,7 +694,7 @@ class ControlCenter extends PanelMenu.Button {
         slot.add_child(control.shield);
 
         control.remove = new St.Button({
-            style_class: 'lintel-cc-slot-remove',
+            style_class: 'fluid-glass-cc-slot-remove',
             icon_name: 'list-remove-symbolic',
             accessible_name: _('Remove %s').format(control.title),
             can_focus: true,
@@ -714,11 +714,11 @@ class ControlCenter extends PanelMenu.Button {
 
     _buildEditor(content) {
         this._toolbar = new St.BoxLayout({
-            style_class: 'lintel-cc-edit-toolbar',
+            style_class: 'fluid-glass-cc-edit-toolbar',
             visible: false,
         });
         this._toolbarTitle = new St.Label({
-            style_class: 'lintel-cc-edit-toolbar-title',
+            style_class: 'fluid-glass-cc-edit-toolbar-title',
             x_expand: true,
             y_align: Clutter.ActorAlign.CENTER,
         });
@@ -739,7 +739,7 @@ class ControlCenter extends PanelMenu.Button {
 
         this._gallery = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
-            style_class: 'lintel-cc-gallery',
+            style_class: 'fluid-glass-cc-gallery',
             visible: false,
         });
         content.add_child(this._gallery);
@@ -747,7 +747,7 @@ class ControlCenter extends PanelMenu.Button {
 
     _editTool(params, callback) {
         const tool = new St.Button({
-            style_class: 'lintel-cc-edit-tool',
+            style_class: 'fluid-glass-cc-edit-tool',
             can_focus: true,
             y_align: Clutter.ActorAlign.CENTER,
             ...params,
@@ -769,9 +769,9 @@ class ControlCenter extends PanelMenu.Button {
         this._editButton.label = editing ? _('Done') : _('Edit Controls');
         this._editButton.accessible_name = this._editButton.label;
         if (editing)
-            this._editButton.add_style_class_name('lintel-cc-edit-done');
+            this._editButton.add_style_class_name('fluid-glass-cc-edit-done');
         else
-            this._editButton.remove_style_class_name('lintel-cc-edit-done');
+            this._editButton.remove_style_class_name('fluid-glass-cc-edit-done');
 
         for (const control of this._controls.values()) {
             control.shield.visible = editing;
@@ -842,16 +842,16 @@ class ControlCenter extends PanelMenu.Button {
             return;
         this._gallery.add_child(new St.Label({
             text: _('Add Controls'),
-            style_class: 'lintel-cc-gallery-title',
+            style_class: 'fluid-glass-cc-gallery-title',
         }));
         for (const control of hidden) {
             const box = new St.BoxLayout({
-                style_class: 'lintel-cc-gallery-item-box',
+                style_class: 'fluid-glass-cc-gallery-item-box',
                 x_expand: true,
             });
             box.add_child(new St.Icon({
                 icon_name: 'list-add-symbolic',
-                style_class: 'lintel-cc-gallery-add',
+                style_class: 'fluid-glass-cc-gallery-add',
                 y_align: Clutter.ActorAlign.CENTER,
             }));
             box.add_child(new St.Label({
@@ -861,7 +861,7 @@ class ControlCenter extends PanelMenu.Button {
             }));
             const item = new St.Button({
                 child: box,
-                style_class: 'lintel-cc-gallery-item',
+                style_class: 'fluid-glass-cc-gallery-item',
                 accessible_name: _('Add %s').format(control.title),
                 can_focus: true,
                 x_expand: true,
@@ -1033,9 +1033,9 @@ class ControlCenter extends PanelMenu.Button {
             control.actor.setCompact?.(control.shape === 'small');
             for (const shape of ['small', 'wide', 'large']) {
                 if (shape === control.shape)
-                    control.shield.add_style_class_name(`lintel-cc-shape-${shape}`);
+                    control.shield.add_style_class_name(`fluid-glass-cc-shape-${shape}`);
                 else
-                    control.shield.remove_style_class_name(`lintel-cc-shape-${shape}`);
+                    control.shield.remove_style_class_name(`fluid-glass-cc-shape-${shape}`);
             }
             grid.push({actor: control.slot, shape: control.shape});
         }
@@ -1090,7 +1090,7 @@ class ControlCenter extends PanelMenu.Button {
                 Gio.AppInfoCreateFlags.NONE).launch([], null);
             this.menu.close();
         } catch (e) {
-            logError(e, 'lintel: launch settings');
+            logError(e, 'fluid-glass: launch settings');
         }
     }
 
@@ -1105,20 +1105,20 @@ class ControlCenter extends PanelMenu.Button {
         }
         this.menu.box.remove_style_class_name('popup-menu-content');
         this.menu.box.remove_style_class_name(
-            dark ? 'lintel-cc-light' : 'lintel-cc-dark');
+            dark ? 'fluid-glass-cc-light' : 'fluid-glass-cc-dark');
         this.menu.box.add_style_class_name(
-            dark ? 'lintel-cc-dark' : 'lintel-cc-light');
+            dark ? 'fluid-glass-cc-dark' : 'fluid-glass-cc-light');
         if (this.menu.actor) {
             this.menu.actor.remove_style_class_name(
-                dark ? 'lintel-cc-light' : 'lintel-cc-dark');
+                dark ? 'fluid-glass-cc-light' : 'fluid-glass-cc-dark');
             this.menu.actor.add_style_class_name(
-                dark ? 'lintel-cc-dark' : 'lintel-cc-light');
+                dark ? 'fluid-glass-cc-dark' : 'fluid-glass-cc-light');
         }
         const useBackGlass = this._settings?.get_boolean(BACK_GLASS_KEY) ?? false;
         if (useBackGlass)
-            this.menu.box.add_style_class_name('lintel-cc-back-glass');
+            this.menu.box.add_style_class_name('fluid-glass-cc-back-glass');
         else
-            this.menu.box.remove_style_class_name('lintel-cc-back-glass');
+            this.menu.box.remove_style_class_name('fluid-glass-cc-back-glass');
 
         const pad = useBackGlass ? '6px' : '0';
         this.menu.box.set_style(`background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: ${pad} !important;`);
@@ -1195,7 +1195,7 @@ class ControlCenter extends PanelMenu.Button {
             if (this._editing)
                 this._syncEditor();
         } catch (e) {
-            logError(e, 'lintel: control center sync');
+            logError(e, 'fluid-glass: control center sync');
         } finally {
             this._syncing = false;
         }
@@ -1386,7 +1386,7 @@ const CC_KNOB_HEIGHT = 2.8;
 
 function _newControlCenterIcon() {
     const icon = new St.DrawingArea({
-        style_class: 'system-status-icon lintel-control-center-icon',
+        style_class: 'system-status-icon fluid-glass-control-center-icon',
         width: 16,
         height: 16,
         reactive: false,

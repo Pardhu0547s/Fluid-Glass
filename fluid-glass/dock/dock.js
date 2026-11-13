@@ -75,7 +75,7 @@ export let Dock = GObject.registerClass(
       this._alignment = DockAlignment.CENTER;
       this._monitorIndex = Main.layoutManager.primaryIndex;
 
-      this._background = new DockBackground({ name: 'd2daBackground' });
+      this._background = new DockBackground({ name: 'fluidGlassDockBackground' });
       this.add_child(this._background);
 
       // for blur-my-shell

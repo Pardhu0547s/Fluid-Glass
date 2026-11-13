@@ -6,7 +6,7 @@
 
 import Gettext from 'gettext';
 
-export const GETTEXT_DOMAIN = 'lintel@topbar';
+export const GETTEXT_DOMAIN = 'fluid-glass@pardhu0547s.github.io';
 
 export function gettext(message) {
     return Gettext.dgettext(GETTEXT_DOMAIN, message);

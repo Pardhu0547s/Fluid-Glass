@@ -4,10 +4,10 @@ import GLib from 'gi://GLib';
 
 import {PanelController} from './topbar/panelController.js';
 import {GlassEngine} from './glassEngine.js';
-import Dash2DockLiteExt from './dock/extension.js';
+import FluidGlassDockExt from './dock/extension.js';
 import {initGlassResources} from './glass/glassEffect.js';
 
-class DockSubsystem extends Dash2DockLiteExt {
+class DockSubsystem extends FluidGlassDockExt {
     constructor(parent) {
         super(parent.metadata);
         this._parent = parent;

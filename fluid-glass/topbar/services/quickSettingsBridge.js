@@ -92,7 +92,7 @@ export const QuickSettingsBridge = GObject.registerClass({
                 item.checked = !item.checked;
             item.emit('clicked', 0);
         } catch (e) {
-            logError(e, 'lintel: activate third-party quick settings item');
+            logError(e, 'fluid-glass: activate third-party quick settings item');
         }
     }
 

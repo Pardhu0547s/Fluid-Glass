@@ -184,7 +184,7 @@ export class NotificationManager {
         this._currentTint = this._baseTint;
         this._notificationYOffset = this._settings.get_int('notification-y-offset');
         this._signals.push(bannerBin.connect('child-added', (container, actor) => {
-            if (actor.get_name() === 'liquid-glass-bg-actor')
+            if (actor.get_name() === 'fluid-glass-bg-actor')
                 return;
             // Before the banner's first frame: an idle can wait until its slide-in has ended.
             removeBeforeRedraw(this._bannerLaterId);
@@ -204,7 +204,7 @@ export class NotificationManager {
             });
         }));
         this._signals.push(bannerBin.connect('child-removed', (container, actor) => {
-            if (actor.get_name() === 'liquid-glass-bg-actor')
+            if (actor.get_name() === 'fluid-glass-bg-actor')
                 return;
             if (actor === this._pendingBanner) {
                 removeBeforeRedraw(this._bannerLaterId);

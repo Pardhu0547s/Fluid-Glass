@@ -51,7 +51,7 @@ export class ExternalIndicators {
 
     /**
      * Custom Control Center mode: hide GNOME's indicators, keep third-party
-     * ones. Idempotent — safe to re-run on every applyLintelLayout().
+     * ones. Idempotent — safe to re-run on every applyFluidGlassLayout().
      */
     apply() {
         const box = PanelAdapter.quickSettingsIndicatorBox;

@@ -104,7 +104,7 @@ export class TopBarManager {
     _create() {
         const panel = this._panel;
         const panelBox = this._panelBox;
-        panel.add_style_class_name('liquid-glass-transparent');
+        panel.add_style_class_name('fluid-glass-transparent');
         const glass = new BackdropGlass({
             extensionPath: this._path, settings: this._settings, logger: this._logger, owner: this._owner, outline: 'top-bar',
         });
@@ -601,7 +601,7 @@ export class TopBarManager {
             glass.cleanup();
             if (isActorValid(glass))
                 glass.destroy();
-            this._panel.remove_style_class_name('liquid-glass-transparent');
+            this._panel.remove_style_class_name('fluid-glass-transparent');
         }
         if (this._panelStyleId)
             this._panel.disconnect(this._panelStyleId);

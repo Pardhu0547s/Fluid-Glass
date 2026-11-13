@@ -30,7 +30,7 @@
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Notice</property>
-            <property name="subtitle" translatable="yes">Edit your exported style at /tmp/theme.json and copy them to {HOME}/.config/d2da/themes/.</property>
+            <property name="subtitle" translatable="yes">Edit your exported style at /tmp/theme.json and copy them to {HOME}/.config/fluid-glass-dock/themes/.</property>
           </object>
         </child>
       </object>

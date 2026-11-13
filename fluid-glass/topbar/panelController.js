@@ -2,7 +2,7 @@
 //
 // Responsibilities in this stage:
 //   • captureOriginalState()  — snapshot the pristine top bar once, up front.
-//   • applyLintelLayout()        — idempotent macOS-style layout mutation. For the
+//   • applyFluidGlassLayout()        — idempotent macOS-style layout mutation. For the
 //                               skeleton this is limited to the two changes that
 //                               prove the framework: hide Activities, move the
 //                               clock (dateMenu) to the far right. Widgets come
@@ -21,34 +21,34 @@ import {PanelAdapter} from './compat/panelAdapter.js';
 import {PanelSnapshot} from './panelState.js';
 import {NotificationAlignment} from './notificationAlignment.js';
 import {ExternalIndicators} from './externalIndicators.js';
-import {LintelSystemMenu} from './widgets/systemMenu.js';
+import {FluidGlassSystemMenu} from './widgets/systemMenu.js';
 import {ActiveApp} from './widgets/activeApp.js';
 import {ControlCenter} from './widgets/controlCenter.js';
-import {LintelFluidGlassMenu} from './widgets/fluidGlassMenu.js';
-import {LintelWifiMenu} from './widgets/wifiMenu.js';
-import {LintelBluetoothMenu} from './widgets/bluetoothMenu.js';
-import {LintelBatteryMenu} from './widgets/batteryMenu.js';
-import {LintelClock} from './widgets/clock.js';
-import {LintelNotificationCenter} from './widgets/notificationCenter.js';
+import {FluidGlassMenu} from './widgets/fluidGlassMenu.js';
+import {FluidGlassWifiMenu} from './widgets/wifiMenu.js';
+import {FluidGlassBluetoothMenu} from './widgets/bluetoothMenu.js';
+import {FluidGlassBatteryMenu} from './widgets/batteryMenu.js';
+import {FluidGlassClock} from './widgets/clock.js';
+import {FluidGlassNotificationCenter} from './widgets/notificationCenter.js';
 import {ThemeManager} from './theme.js';
 import {FullscreenReveal} from './fullscreenReveal.js';
 import {TopBarManager, ExtraTopBarManager} from './topBarGlass.js';
 import {shutdownSystemStats} from './services/systemStats.js';
 import {shutdownWeather} from './services/weather.js';
 
-const PANEL_STYLE_CLASS = 'lintel';
-const SYSTEM_MENU_ROLE = 'lintel-system-menu';
-const ACTIVE_APP_ROLE = 'lintel-active-app';
-const WIFI_ROLE = 'lintel-wifi';
-const BLUETOOTH_ROLE = 'lintel-bluetooth';
-const BATTERY_ROLE = 'lintel-battery';
-const FLUID_GLASS_ROLE = 'lintel-fluid-glass';
-const CONTROL_CENTER_ROLE = 'lintel-control-center';
-const CLOCK_STYLE_CLASS = 'lintel-clock-button';
+const PANEL_STYLE_CLASS = 'fluid-glass';
+const SYSTEM_MENU_ROLE = 'fluid-glass-system-menu';
+const ACTIVE_APP_ROLE = 'fluid-glass-active-app';
+const WIFI_ROLE = 'fluid-glass-wifi';
+const BLUETOOTH_ROLE = 'fluid-glass-bluetooth';
+const BATTERY_ROLE = 'fluid-glass-battery';
+const FLUID_GLASS_ROLE = 'fluid-glass-fluid-glass';
+const CONTROL_CENTER_ROLE = 'fluid-glass-control-center';
+const CLOCK_STYLE_CLASS = 'fluid-glass-clock-button';
 
 // Keys that change the *structure* of the panel (which widgets exist, where the
 // clock and Activities sit). Appearance/clock-format/tunable keys are watched
-// live by ThemeManager and LintelClock, so they are intentionally NOT listed here.
+// live by ThemeManager and FluidGlassClock, so they are intentionally NOT listed here.
 const STRUCTURAL_KEYS = new Set([
     'hide-activities',
     'clock-on-right',
@@ -67,7 +67,7 @@ export class PanelController {
         this._snapshot = null;
         this._notifications = new NotificationAlignment();
         this._externalIndicators = new ExternalIndicators();
-        this._clock = new LintelClock(extension);
+        this._clock = new FluidGlassClock(extension);
         this._theme = new ThemeManager(extension);
         this._fullscreenReveal = new FullscreenReveal(
             extension,
@@ -113,7 +113,7 @@ export class PanelController {
         this.captureOriginalState();
 
         // 3. Apply our layout.
-        this.applyLintelLayout();
+        this.applyFluidGlassLayout();
 
         // 4. Re-assert after GNOME rebuilds the panel on session changes, and
         // after monitor hotplug / resolution / fractional-scale changes (which
@@ -139,7 +139,7 @@ export class PanelController {
             : null;
     }
 
-    applyLintelLayout() {
+    applyFluidGlassLayout() {
         if (!this._enabled)
             return;
 
@@ -287,7 +287,7 @@ export class PanelController {
         if (!this._settingBool('show-system-menu', true))
             return;
         if (!this._systemMenu) {
-            const menu = new LintelSystemMenu(this._extension);
+            const menu = new FluidGlassSystemMenu(this._extension);
             PanelAdapter.addToStatusArea(SYSTEM_MENU_ROLE, menu, 0, 'left');
             this._systemMenu = menu;
         }
@@ -369,7 +369,7 @@ export class PanelController {
             PanelAdapter.addToStatusArea(CONTROL_CENTER_ROLE, cc, pos, 'right');
             this._controlCenter = cc;
         } catch (e) {
-            logError(e, 'lintel: _addControlCenter');
+            logError(e, 'fluid-glass: _addControlCenter');
         }
     }
 
@@ -381,7 +381,7 @@ export class PanelController {
         let pos = right ? right.get_n_children() : 0;
         const showFluidGlass = this._settingBool('show-fluid-glass-menu', false);
         if (showFluidGlass && !this._fluidGlassMenu) {
-            const menu = new LintelFluidGlassMenu(this._extension);
+            const menu = new FluidGlassMenu(this._extension);
             PanelAdapter.addToStatusArea(FLUID_GLASS_ROLE, menu, pos++, 'right');
             this._fluidGlassMenu = menu;
         } else if (!showFluidGlass && this._fluidGlassMenu) {
@@ -389,17 +389,17 @@ export class PanelController {
             this._fluidGlassMenu = null;
         }
         if (!this._wifiMenu) {
-            const menu = new LintelWifiMenu();
+            const menu = new FluidGlassWifiMenu();
             PanelAdapter.addToStatusArea(WIFI_ROLE, menu, pos++, 'right');
             this._wifiMenu = menu;
         }
         if (!this._bluetoothMenu) {
-            const menu = new LintelBluetoothMenu();
+            const menu = new FluidGlassBluetoothMenu();
             PanelAdapter.addToStatusArea(BLUETOOTH_ROLE, menu, pos++, 'right');
             this._bluetoothMenu = menu;
         }
         if (!this._batteryMenu) {
-            const menu = new LintelBatteryMenu();
+            const menu = new FluidGlassBatteryMenu();
             PanelAdapter.addToStatusArea(BATTERY_ROLE, menu, pos++, 'right');
             this._batteryMenu = menu;
         }
@@ -484,7 +484,7 @@ export class PanelController {
             return;
         }
 
-        const center = new LintelNotificationCenter(this._extension);
+        const center = new FluidGlassNotificationCenter(this._extension);
         try {
             center.enable();
             this._notificationCenter = center;
@@ -492,9 +492,9 @@ export class PanelController {
             try {
                 center.destroy();
             } catch (cleanupError) {
-                logError(cleanupError, 'lintel: clean up Notification Center');
+                logError(cleanupError, 'fluid-glass: clean up Notification Center');
             }
-            logError(e, 'lintel: enable Notification Center');
+            logError(e, 'fluid-glass: enable Notification Center');
         }
     }
 
@@ -561,7 +561,7 @@ export class PanelController {
             return;
         if (!PanelAdapter.leftBox)
             return;
-        this.applyLintelLayout();
+        this.applyFluidGlassLayout();
     }
 
     _queueReapply() {

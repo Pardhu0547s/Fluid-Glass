@@ -17,13 +17,13 @@ import {styleStatusMenu} from './statusMenu.js';
 
 const MAX_VISIBLE_DEVICES = 10;
 
-export const LintelBluetoothMenu = GObject.registerClass({
-    GTypeName: 'FluidGlass_LintelBluetoothMenu',
-}, class LintelBluetoothMenu extends PanelMenu.Button {
+export const FluidGlassBluetoothMenu = GObject.registerClass({
+    GTypeName: 'FluidGlass_BluetoothMenu',
+}, class FluidGlassBluetoothMenu extends PanelMenu.Button {
     _init() {
-        console.log('[FluidGlass] Initializing LintelBluetoothMenu...');
+        console.log('[FluidGlass] Initializing FluidGlassBluetoothMenu...');
         super._init(0.5, _('Bluetooth'), false);
-        this.add_style_class_name('lintel-status-button');
+        this.add_style_class_name('fluid-glass-status-button');
 
         this._bluetooth = new BluetoothService();
         this._bluetoothChangedId = 0;
@@ -36,7 +36,7 @@ export const LintelBluetoothMenu = GObject.registerClass({
         });
         this.add_child(this._panelIcon);
 
-        styleStatusMenu(this.menu, 'lintel-bluetooth-menu-content');
+        styleStatusMenu(this.menu, 'fluid-glass-bluetooth-menu-content');
         this._buildMenu();
 
         this._bluetoothChangedId = this._bluetooth.connect('changed', () => this._sync());
@@ -50,7 +50,7 @@ export const LintelBluetoothMenu = GObject.registerClass({
 
     _buildMenu() {
         this._toggle = new PopupMenu.PopupSwitchMenuItem(_('Bluetooth'), false);
-        this._toggle.add_style_class_name('lintel-status-toggle');
+        this._toggle.add_style_class_name('fluid-glass-status-toggle');
         this._toggle.connect('toggled', (_item, state) => {
             if (!this._syncing)
                 this._bluetooth.setEnabled(state);
@@ -61,7 +61,7 @@ export const LintelBluetoothMenu = GObject.registerClass({
             reactive: false,
             can_focus: false,
         });
-        this._deviceHeading.add_style_class_name('lintel-status-section-title');
+        this._deviceHeading.add_style_class_name('fluid-glass-status-section-title');
         this.menu.addMenuItem(this._deviceHeading);
 
         this._devicesSection = new PopupMenu.PopupMenuSection();
@@ -107,7 +107,7 @@ export const LintelBluetoothMenu = GObject.registerClass({
                 reactive: false,
                 can_focus: false,
             });
-            empty.add_style_class_name('lintel-status-empty');
+            empty.add_style_class_name('fluid-glass-status-empty');
             this._devicesSection.addMenuItem(empty);
             return;
         }
@@ -115,8 +115,8 @@ export const LintelBluetoothMenu = GObject.registerClass({
         for (const device of devices) {
             const item = new PopupMenu.PopupImageMenuItem(
                 device.name, device.iconName);
-            item.add_style_class_name('lintel-wifi-network-item');
-            item.add_style_class_name('lintel-bluetooth-device-item');
+            item.add_style_class_name('fluid-glass-wifi-network-item');
+            item.add_style_class_name('fluid-glass-bluetooth-device-item');
             item.label.x_expand = true;
             item.accessible_name = device.connected
                 ? _('Disconnect %s').format(device.name)
@@ -140,7 +140,7 @@ export const LintelBluetoothMenu = GObject.registerClass({
             GioUnix.DesktopAppInfo.new(
                 'gnome-bluetooth-panel.desktop')?.launch([], null);
         } catch (e) {
-            logError(e, 'lintel: open Bluetooth settings');
+            logError(e, 'fluid-glass: open Bluetooth settings');
         }
     }
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 //
-// LintelFluidGlassMenu — Tahoe-style menu-bar status item for live Fluid Glass adjustment.
+// FluidGlassMenu — Tahoe-style menu-bar status item for live Fluid Glass adjustment.
 
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
@@ -64,7 +64,7 @@ class SliderItem extends PopupMenu.PopupBaseMenuItem {
             activate: false,
             hover: false,
             can_focus: false,
-            style_class: 'lintel-fg-slider-item',
+            style_class: 'fluid-glass-fg-slider-item',
         });
 
         this._min = min;
@@ -82,17 +82,17 @@ class SliderItem extends PopupMenu.PopupBaseMenuItem {
         const header = new St.BoxLayout({
             orientation: Clutter.Orientation.HORIZONTAL,
             x_expand: true,
-            style_class: 'lintel-fg-slider-header',
+            style_class: 'fluid-glass-fg-slider-header',
         });
 
         const label = new St.Label({
             text: title,
             x_expand: true,
-            style_class: 'lintel-fg-slider-title',
+            style_class: 'fluid-glass-fg-slider-title',
         });
         this._valLabel = new St.Label({
             text: formatFn(initialValue),
-            style_class: 'lintel-fg-slider-val',
+            style_class: 'fluid-glass-fg-slider-val',
         });
         header.add_child(label);
         header.add_child(this._valLabel);
@@ -100,7 +100,7 @@ class SliderItem extends PopupMenu.PopupBaseMenuItem {
 
         const norm = (initialValue - min) / (max - min);
         this._slider = new Slider.Slider(Math.max(0, Math.min(1, norm)));
-        this._slider.add_style_class_name('lintel-fg-track');
+        this._slider.add_style_class_name('fluid-glass-fg-track');
         this._slider.x_expand = true;
         this._slider.x_align = Clutter.ActorAlign.FILL;
 
@@ -125,12 +125,12 @@ class SliderItem extends PopupMenu.PopupBaseMenuItem {
     }
 }
 
-export const LintelFluidGlassMenu = GObject.registerClass({
-    GTypeName: 'FluidGlass_LintelFluidGlassMenu',
-}, class LintelFluidGlassMenu extends PanelMenu.Button {
+export const FluidGlassMenu = GObject.registerClass({
+    GTypeName: 'FluidGlass_Menu',
+}, class FluidGlassMenu extends PanelMenu.Button {
     _init(extension) {
         super._init(0.5, _('Fluid Glass'), false);
-        this.add_style_class_name('lintel-status-button');
+        this.add_style_class_name('fluid-glass-status-button');
         this._extension = extension;
         this._disposed = false;
         this._settingsIds = [];
@@ -157,7 +157,7 @@ export const LintelFluidGlassMenu = GObject.registerClass({
         });
         this.add_child(this._panelIcon);
 
-        styleStatusMenu(this.menu, 'lintel-fluid-glass-menu-content');
+        styleStatusMenu(this.menu, 'fluid-glass-menu-content');
         this._buildMenu();
         this._bindSettings();
     }
@@ -166,7 +166,7 @@ export const LintelFluidGlassMenu = GObject.registerClass({
         // 1. Master Toggle
         const isEnabled = this._masterSettings?.get_boolean('enable-glass-shaders') ?? true;
         this._toggle = new PopupMenu.PopupSwitchMenuItem(_('Liquid Glass'), isEnabled);
-        this._toggle.add_style_class_name('lintel-status-toggle');
+        this._toggle.add_style_class_name('fluid-glass-status-toggle');
         this._toggle.connect('toggled', (_item, state) => {
             if (this._masterSettings)
                 this._masterSettings.set_boolean('enable-glass-shaders', state);
@@ -178,7 +178,7 @@ export const LintelFluidGlassMenu = GObject.registerClass({
             reactive: false,
             can_focus: false,
         });
-        matHeader.add_style_class_name('lintel-status-section-title');
+        matHeader.add_style_class_name('fluid-glass-status-section-title');
         this.menu.addMenuItem(matHeader);
 
         const currentBlur = this._glassSettings?.get_int('dock-blur-radius') || 10;
@@ -227,7 +227,7 @@ export const LintelFluidGlassMenu = GObject.registerClass({
             reactive: false,
             can_focus: false,
         });
-        presetHeader.add_style_class_name('lintel-status-section-title');
+        presetHeader.add_style_class_name('fluid-glass-status-section-title');
         this.menu.addMenuItem(presetHeader);
 
         this._presetItems = new Map();
@@ -257,7 +257,7 @@ export const LintelFluidGlassMenu = GObject.registerClass({
                 try {
                     GLib.spawn_command_line_async('gnome-extensions prefs fluid-glass@pardhu0547s.github.io');
                 } catch (e) {
-                    logError(e, 'lintel: openPreferences');
+                    logError(e, 'fluid-glass: openPreferences');
                 }
             }
         });

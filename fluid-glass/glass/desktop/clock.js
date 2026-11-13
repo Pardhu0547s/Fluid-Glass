@@ -70,7 +70,7 @@ export class GlassClock {
 
     constructor(env) {
         this._env = env;
-        this.actor = new St.Widget({ name: 'liquid-glass-desktop-clock', reactive: true });
+        this.actor = new St.Widget({ name: 'fluid-glass-desktop-clock', reactive: true });
         this._glass = new BackdropGlass({
             extensionPath: env.path, settings: env.settings, logger: env.logger, owner: 'desktop-clock', shapeTexture: true, underWindows: true,
         });
@@ -78,7 +78,7 @@ export class GlassClock {
         this._glass.setIsDock(false);
         this._glass.setShadowMaxRadius(SHADOW_REACH);
         this._source = new DigitsSource(env.path, env.logger);
-        this._date = new St.Label({ style_class: 'liquid-glass-clock-date' });
+        this._date = new St.Label({ style_class: 'fluid-glass-clock-date' });
         this.actor.add_child(this._glass);
         this.actor.add_child(this._date);
         connectClicks(this.actor, () => { }, (x, y) => env.menu(this, x, y));

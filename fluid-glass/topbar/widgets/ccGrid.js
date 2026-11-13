@@ -16,7 +16,7 @@
 //
 // Placement is a layout manager over direct children, not nested boxes, so
 // rearranging never re-parents an actor (which would drop hover and key focus).
-// The gaps are read from stylesheet.css (`.lintel-cc-grid`).
+// The gaps are read from stylesheet.css (`.fluid-glass-cc-grid`).
 
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
@@ -113,9 +113,9 @@ class CCGridLayout extends Clutter.LayoutManager {
 
     /** Column offsets, cell width and row heights for a given width. */
     _geometry(container, width) {
-        const gutter = this._length(container, '-lintel-grid-gutter', 12);
-        const pairGap = this._length(container, '-lintel-grid-pair-gap', 18);
-        const rowGap = this._length(container, '-lintel-grid-row-gap', 10);
+        const gutter = this._length(container, '-fluid-glass-grid-gutter', 12);
+        const pairGap = this._length(container, '-fluid-glass-grid-pair-gap', 18);
+        const rowGap = this._length(container, '-fluid-glass-grid-row-gap', 10);
         const half = Math.max(0, (width - gutter) / 2);
         const cell = Math.max(0, (half - pairGap) / 2);
         const x = [0, cell + pairGap, half + gutter, half + gutter + cell + pairGap];
@@ -173,7 +173,7 @@ export const CCGrid = GObject.registerClass(
 class CCGrid extends St.Widget {
     _init() {
         super._init({
-            style_class: 'lintel-cc-grid',
+            style_class: 'fluid-glass-cc-grid',
             layout_manager: new CCGridLayout(),
             x_expand: true,
         });

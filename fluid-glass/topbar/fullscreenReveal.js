@@ -105,7 +105,7 @@ export class FullscreenReveal {
         this._pressureBarrier.connect('trigger', () => this._reveal());
 
         this._edge = new St.Widget({
-            name: 'lintel-fullscreen-edge',
+            name: 'fluid-glass-fullscreen-edge',
             reactive: true,
             track_hover: true,
             visible: false,
@@ -216,7 +216,7 @@ export class FullscreenReveal {
                 directions: Meta.BarrierDirection.POSITIVE_Y,
             });
         } catch (e) {
-            logError(e, 'lintel: fullscreen reveal barrier');
+            logError(e, 'fluid-glass: fullscreen reveal barrier');
             this._barrier = null;
             return false;
         }
@@ -316,7 +316,7 @@ export class FullscreenReveal {
         try {
             this._onReveal?.();
         } catch (e) {
-            logError(e, 'lintel: fullscreen reveal callback');
+            logError(e, 'fluid-glass: fullscreen reveal callback');
         }
         this._scheduleHide(INITIAL_HIDE_DELAY_MS);
     }
@@ -344,7 +344,7 @@ export class FullscreenReveal {
         try {
             externalEngaged = this._isEngaged?.() ?? false;
         } catch (e) {
-            logError(e, 'lintel: fullscreen engagement callback');
+            logError(e, 'fluid-glass: fullscreen engagement callback');
         }
         return Boolean(this._panel?.hover ||
             Main.panel?.menuManager?.activeMenu || externalEngaged);

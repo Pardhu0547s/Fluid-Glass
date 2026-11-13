@@ -447,7 +447,7 @@ let _probeClass = null;
 function createProbe(rect) {
     _probeClass ??= GObject.registerClass(paintNodeWithContext(class FullRedrawProbe extends Clutter.Actor {
         _init(r) {
-            super._init({ name: 'liquid-glass-monitor-probe', reactive: false, x: r[0], y: r[1], width: r[2], height: r[3] });
+            super._init({ name: 'fluid-glass-monitor-probe', reactive: false, x: r[0], y: r[1], width: r[2], height: r[3] });
             Shell.util_set_hidden_from_pick(this, true);
             this.rect = r;
             this.full = 0;

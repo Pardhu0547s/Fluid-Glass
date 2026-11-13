@@ -1132,7 +1132,7 @@ async function rasterize(face, text, scale, stretch, tall, margin, cancellable) 
     }
     face.draw(cr, text, scale);
     cr.$dispose();
-    const [fd, path] = GLib.file_open_tmp('liquid-glass-glyph-XXXXXX.png');
+    const [fd, path] = GLib.file_open_tmp('fluid-glass-glyph-XXXXXX.png');
     GLib.close(fd);
     const file = Gio.File.new_for_path(path);
     try {

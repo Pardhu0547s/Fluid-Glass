@@ -252,7 +252,7 @@ const WeatherStore = GObject.registerClass({
         } catch (e) {
             if (cancellable.is_cancelled())
                 return;
-            console.warn(`lintel: weather from ${provider} failed: ${e.message}`);
+            console.warn(`fluid-glass: weather from ${provider} failed: ${e.message}`);
             this._failedKey = key;
             this._failedAt = _now();
             // A forecast for this place that is merely old still beats nothing.

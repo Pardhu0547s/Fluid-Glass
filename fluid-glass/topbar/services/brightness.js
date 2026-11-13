@@ -43,7 +43,7 @@ export const BrightnessService = GObject.registerClass({
                 });
                 this._bindScale();
             } catch (e) {
-                logError(e, 'lintel: BrightnessService Main.brightnessManager');
+                logError(e, 'fluid-glass: BrightnessService Main.brightnessManager');
             }
         }
 
@@ -135,7 +135,7 @@ export const BrightnessService = GObject.registerClass({
                     try {
                         src.call_finish(res);
                     } catch (e) {
-                        logError(e, 'lintel: set Brightness (dbus)');
+                        logError(e, 'fluid-glass: set Brightness (dbus)');
                     }
                 });
             return;
@@ -146,7 +146,7 @@ export const BrightnessService = GObject.registerClass({
                     `brightnessctl -c backlight set ${pct}%`);
                 this._ctlLevel = pct / 100;
             } catch (e) {
-                logError(e, 'lintel: brightnessctl set');
+                logError(e, 'fluid-glass: brightnessctl set');
             }
         }
     }

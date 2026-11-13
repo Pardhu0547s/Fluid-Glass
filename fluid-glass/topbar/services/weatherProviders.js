@@ -24,7 +24,7 @@ import Soup from 'gi://Soup?version=3.0';
 
 import {_} from '../i18n.js';
 
-const USER_AGENT = 'Lintel GNOME Shell extension (lintel@topbar)';
+const USER_AGENT = 'Fluid Glass GNOME Shell extension (fluid-glass@pardhu0547s.github.io)';
 const TIMEOUT_SECONDS = 20;
 const FORECAST_HOURS = 12;
 

@@ -65,7 +65,7 @@ export const PowerProfilesService = GObject.registerClass({
         try {
             this._proxy.ActiveProfile = profile;
         } catch (e) {
-            logError(e, `lintel: set power profile ${profile}`);
+            logError(e, `fluid-glass: set power profile ${profile}`);
         }
     }
 

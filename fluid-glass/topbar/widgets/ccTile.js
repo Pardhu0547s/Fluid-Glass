@@ -19,7 +19,7 @@ import {_} from '../i18n.js';
 export const CCTile = GObject.registerClass(
 class CCTile extends St.Button {
     _init(iconName, title, styleClass = '') {
-        const classes = ['lintel-cc-tile', styleClass]
+        const classes = ['fluid-glass-cc-tile', styleClass]
             .filter(Boolean).join(' ');
         super._init({
             style_class: classes,
@@ -30,7 +30,7 @@ class CCTile extends St.Button {
         });
 
         const box = new St.BoxLayout({
-            style_class: 'lintel-cc-tile-box',
+            style_class: 'fluid-glass-cc-tile-box',
             x_expand: true,
             y_expand: true,
             x_align: Clutter.ActorAlign.FILL,
@@ -41,12 +41,12 @@ class CCTile extends St.Button {
             : {gicon: iconName};
         this._icon = new St.Icon({
             ...iconProps,
-            style_class: 'lintel-cc-tile-icon',
+            style_class: 'fluid-glass-cc-tile-icon',
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
         });
         this._iconBadge = new St.Bin({
-            style_class: 'lintel-cc-tile-icon-badge',
+            style_class: 'fluid-glass-cc-tile-icon-badge',
             x_align: Clutter.ActorAlign.START,
             y_align: Clutter.ActorAlign.CENTER,
             child: this._icon,
@@ -55,18 +55,18 @@ class CCTile extends St.Button {
         // right beside it.
         this._labels = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
-            style_class: 'lintel-cc-tile-labels',
+            style_class: 'fluid-glass-cc-tile-labels',
             x_expand: true,
             x_align: Clutter.ActorAlign.START,
             y_align: Clutter.ActorAlign.CENTER,
         });
         this._title = new St.Label({
             text: title,
-            style_class: 'lintel-cc-tile-title',
+            style_class: 'fluid-glass-cc-tile-title',
             x_align: Clutter.ActorAlign.START,
         });
         this._status = new St.Label({
-            style_class: 'lintel-cc-tile-status',
+            style_class: 'fluid-glass-cc-tile-status',
             x_align: Clutter.ActorAlign.START,
             visible: false,
         });
@@ -90,9 +90,9 @@ class CCTile extends St.Button {
             ? Clutter.ActorAlign.CENTER
             : Clutter.ActorAlign.START;
         if (compact)
-            this.add_style_class_name('lintel-cc-tile-compact');
+            this.add_style_class_name('fluid-glass-cc-tile-compact');
         else
-            this.remove_style_class_name('lintel-cc-tile-compact');
+            this.remove_style_class_name('fluid-glass-cc-tile-compact');
     }
 
     setTitle(text) {
@@ -148,7 +148,7 @@ export const CCMediaCard = GObject.registerClass({
     },
 },
 class CCMediaCard extends St.BoxLayout {
-    _init(styleClass = 'lintel-cc-media') {
+    _init(styleClass = 'fluid-glass-cc-media') {
         super._init({
             orientation: Clutter.Orientation.VERTICAL,
             style_class: styleClass,
@@ -163,7 +163,7 @@ class CCMediaCard extends St.BoxLayout {
         // Top-left rounded square artwork (macOS Tahoe vertical media layout)
         this._artwork = new St.Icon({
             icon_name: 'audio-x-generic-symbolic',
-            style_class: 'lintel-cc-media-artwork',
+            style_class: 'fluid-glass-cc-media-artwork',
             icon_size: 20,
             width: 42,
             height: 42,
@@ -171,7 +171,7 @@ class CCMediaCard extends St.BoxLayout {
             y_align: Clutter.ActorAlign.CENTER,
         });
         const artBin = new St.Bin({
-            style_class: 'lintel-cc-media-artwork-bin',
+            style_class: 'fluid-glass-cc-media-artwork-bin',
             width: 42,
             height: 42,
             x_align: Clutter.ActorAlign.START,
@@ -183,7 +183,7 @@ class CCMediaCard extends St.BoxLayout {
         // Middle: track title + artist stacked vertically below the artwork
         const metadata = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
-            style_class: 'lintel-cc-media-metadata',
+            style_class: 'fluid-glass-cc-media-metadata',
             x_expand: true,
             y_expand: true,
             x_align: Clutter.ActorAlign.FILL,
@@ -191,13 +191,13 @@ class CCMediaCard extends St.BoxLayout {
         });
         this._title = new St.Label({
             text: _('Not Playing'),
-            style_class: 'lintel-cc-media-title',
+            style_class: 'fluid-glass-cc-media-title',
             x_expand: true,
             x_align: Clutter.ActorAlign.START,
         });
         this._artist = new St.Label({
             text: '',
-            style_class: 'lintel-cc-media-artist',
+            style_class: 'fluid-glass-cc-media-artist',
             x_expand: true,
             x_align: Clutter.ActorAlign.START,
             visible: false,
@@ -210,7 +210,7 @@ class CCMediaCard extends St.BoxLayout {
 
         // Bottom: transport controls evenly distributed across the width
         const controls = new St.BoxLayout({
-            style_class: 'lintel-cc-media-controls',
+            style_class: 'fluid-glass-cc-media-controls',
             x_expand: true,
             x_align: Clutter.ActorAlign.FILL,
             y_align: Clutter.ActorAlign.END,
@@ -230,15 +230,15 @@ class CCMediaCard extends St.BoxLayout {
             const icon = new St.Icon({
                 ...iconProps,
                 style_class: isPlay
-                    ? 'lintel-cc-media-control lintel-cc-media-play-icon'
-                    : 'lintel-cc-media-control',
+                    ? 'fluid-glass-cc-media-control fluid-glass-cc-media-play-icon'
+                    : 'fluid-glass-cc-media-control',
             });
             if (isPlay)
                 this._playIcon = icon;
             const button = new St.Button({
                 style_class: isPlay
-                    ? 'lintel-cc-media-button lintel-cc-media-play'
-                    : 'lintel-cc-media-button',
+                    ? 'fluid-glass-cc-media-button fluid-glass-cc-media-play'
+                    : 'fluid-glass-cc-media-button',
                 accessible_name: label,
                 can_focus: true,
                 x_expand: true,
@@ -309,7 +309,7 @@ export const CCSlider = GObject.registerClass({
     _init(title, iconName, trailingIconName = '', iconClickable = false, accessoryIconName = '') {
         super._init({
             orientation: Clutter.Orientation.VERTICAL,
-            style_class: 'lintel-cc-slider',
+            style_class: 'fluid-glass-cc-slider',
             accessible_name: title,
             x_expand: true,
             x_align: Clutter.ActorAlign.FILL,
@@ -319,12 +319,12 @@ export const CCSlider = GObject.registerClass({
         this._iconClickable = iconClickable;
         this.add_child(new St.Label({
             text: title,
-            style_class: 'lintel-cc-slider-title',
+            style_class: 'fluid-glass-cc-slider-title',
             x_align: Clutter.ActorAlign.START,
         }));
 
         const row = new St.BoxLayout({
-            style_class: 'lintel-cc-slider-row',
+            style_class: 'fluid-glass-cc-slider-row',
             x_expand: true,
             x_align: Clutter.ActorAlign.FILL,
             y_align: Clutter.ActorAlign.CENTER,
@@ -334,11 +334,11 @@ export const CCSlider = GObject.registerClass({
             : {gicon: iconName};
         this._icon = new St.Icon({
             ...leadProps,
-            style_class: 'lintel-cc-slider-icon',
+            style_class: 'fluid-glass-cc-slider-icon',
             y_align: Clutter.ActorAlign.CENTER,
         });
         this._iconButton = new St.Button({
-            style_class: 'lintel-cc-slider-icon-button',
+            style_class: 'fluid-glass-cc-slider-icon-button',
             accessible_name: iconClickable ? _('Toggle %s').format(title) : title,
             can_focus: iconClickable,
             reactive: iconClickable,
@@ -349,7 +349,7 @@ export const CCSlider = GObject.registerClass({
         row.add_child(this._iconButton);
 
         this._slider = new Slider.Slider(0);
-        this._slider.add_style_class_name('lintel-cc-track');
+        this._slider.add_style_class_name('fluid-glass-cc-track');
         this._slider.accessible_name = _('%s level').format(title);
         this._slider.x_expand = true;
         this._slider.x_align = Clutter.ActorAlign.FILL;
@@ -366,7 +366,7 @@ export const CCSlider = GObject.registerClass({
                 : {gicon: trailingIconName};
             row.add_child(new St.Icon({
                 ...trailProps,
-                style_class: 'lintel-cc-slider-trailing-icon',
+                style_class: 'fluid-glass-cc-slider-trailing-icon',
                 y_align: Clutter.ActorAlign.CENTER,
             }));
         }
@@ -377,12 +377,12 @@ export const CCSlider = GObject.registerClass({
                 : {gicon: accessoryIconName};
             const accIcon = new St.Icon({
                 ...accProps,
-                style_class: 'lintel-cc-slider-accessory-icon',
+                style_class: 'fluid-glass-cc-slider-accessory-icon',
                 x_align: Clutter.ActorAlign.CENTER,
                 y_align: Clutter.ActorAlign.CENTER,
             });
             this._accessoryButton = new St.Button({
-                style_class: 'lintel-cc-slider-accessory-button',
+                style_class: 'fluid-glass-cc-slider-accessory-button',
                 accessible_name: _('%s Settings').format(title),
                 can_focus: true,
                 y_align: Clutter.ActorAlign.CENTER,
