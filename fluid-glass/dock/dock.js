@@ -916,7 +916,7 @@ export let Dock = GObject.registerClass(
           icon: '_recentFilesIcon',
           folder: 'recent:///',
           //! find a way to avoid this
-          path: `${this.extension.path}/apps/recents-dash2dock-lite.desktop`,
+          path: tempPath('recents-fluid-glass-dock.desktop'),
           // not ready for prime time
           // does not work on gnome 43 (debian)
           show: false, // this.extension.documents_icon,
@@ -933,7 +933,7 @@ export let Dock = GObject.registerClass(
           icon: '_downloadsIcon',
           folder: Gio.File.new_for_path('Downloads').get_path(),
           //! find a way to avoid this
-          path: tempPath('downloads-dash2dock-lite.desktop'),
+          path: tempPath('downloads-fluid-glass-dock.desktop'),
           show: this.extension.downloads_icon,
           items: '_downloadFiles',
           itemsLength: '_downloadFilesLength',
@@ -964,7 +964,7 @@ export let Dock = GObject.registerClass(
         // pin trash icon
         //! avoid creating app_info & /tmp/*.desktop files
         this._trashIcon = this.createItem(
-          tempPath('trash-dash2dock-lite.desktop')
+          tempPath('trash-fluid-glass-dock.desktop')
         );
         this._icons = null;
       } else if (this._trashIcon && !this.extension.trash_icon) {

@@ -188,7 +188,7 @@ export const Services = class {
 
     this.last_mounted = mount;
     let basename = this._getMountName(mount); // mount.get_default_location().get_basename();
-    // let appname = `mount-${this._toSafeFileName(basename)}-dash2dock-lite.desktop`;
+    // let appname = `mount-${this._toSafeFileName(basename)}-fluid-glass-dock.desktop`;
     this.setupMountIcon(mount);
     this.extension.animate();
     return true;
@@ -198,7 +198,7 @@ export const Services = class {
     let basename = this._getMountName(mount); //mount.get_default_location().get_basename();
     let appname = `mount-${this._toSafeFileName(
       basename
-    )}-dash2dock-lite.desktop`;
+    )}-fluid-glass-dock.desktop`;
     let mount_id = tempPath(appname);
     delete this._mounts[mount_id];
     this.extension.animate();
@@ -212,7 +212,7 @@ export const Services = class {
 
   setupTrashIcon() {
     let extension_path = this.extension.path;
-    let appname = `trash-dash2dock-lite.desktop`;
+    let appname = `trash-fluid-glass-dock.desktop`;
     let app_id = tempPath(appname);
     let fn = Gio.File.new_for_path(app_id);
     let open_app = 'nautilus --select';
@@ -223,7 +223,7 @@ export const Services = class {
       trash_action = `rm -rf "${fn.get_path()}"`;
     }
 
-    let content = `[Desktop Entry]\nVersion=1.0\nTerminal=false\nType=Application\nName=Trash\nExec=${open_app} trash:///\nIcon=user-trash\nStartupWMClass=trash-dash2dock-lite\nActions=trash\n\n[Desktop Action trash]\nName=Empty Trash\nExec=${trash_action}\nTerminal=true\n`;
+    let content = `[Desktop Entry]\nVersion=1.0\nTerminal=false\nType=Application\nName=Trash\nExec=${open_app} trash:///\nIcon=user-trash\nStartupWMClass=trash-fluid-glass-dock\nActions=trash\n\n[Desktop Action trash]\nName=Empty Trash\nExec=${trash_action}\nTerminal=true\n`;
     const [, etag] = fn.replace_contents(
       content,
       null,
@@ -237,13 +237,13 @@ export const Services = class {
     // expand
     let full_path = Gio.file_new_for_path(path).get_path();
     let extension_path = this.extension.path;
-    let appname = `${name}-dash2dock-lite.desktop`;
+    let appname = `${name}-fluid-glass-dock.desktop`;
     let app_id = tempPath(appname);
     let fn = Gio.File.new_for_path(app_id);
     // let open_app = 'xdg-open';
     let open_app = 'nautilus --select';
 
-    let content = `[Desktop Entry]\nVersion=1.0\nTerminal=false\nType=Application\nName=${title}\nExec=${open_app} ${full_path}\nIcon=${icon}\nStartupWMClass=${name}-dash2dock-lite\n`;
+    let content = `[Desktop Entry]\nVersion=1.0\nTerminal=false\nType=Application\nName=${title}\nExec=${open_app} ${full_path}\nIcon=${icon}\nStartupWMClass=${name}-fluid-glass-dock\n`;
     const [, etag] = fn.replace_contents(
       content,
       null,
@@ -288,7 +288,7 @@ export const Services = class {
     let label = mount.get_name();
     let appname = `mount-${this._toSafeFileName(
       basename
-    )}-dash2dock-lite.desktop`;
+    )}-fluid-glass-dock.desktop`;
     let fullpath = mount.get_default_location().get_path();
     let icon = 'drive-harddisk-solidstate';
     if (mount.get_icon() && mount.get_icon().names) {
@@ -303,7 +303,7 @@ export const Services = class {
     if (!fn.query_exists(null)) {
       let content = `[Desktop Entry]\nVersion=1.0\nTerminal=false\nType=Application\nName=${label}\nExec=xdg-open ${fullpath}\nIcon=${icon}\nStartupWMClass=mount-${this._toSafeFileName(
         basename
-      )}-dash2dock-lite\nActions=unmount;\n\n[Desktop Action mount]\nName=Mount\nExec=${mount_exec}\n\n[Desktop Action unmount]\nName=Unmount\nExec=${unmount_exec}\n`;
+      )}-fluid-glass-dock\nActions=unmount;\n\n[Desktop Action mount]\nName=Mount\nExec=${mount_exec}\n\n[Desktop Action unmount]\nName=Unmount\nExec=${unmount_exec}\n`;
       const [, etag] = fn.replace_contents(
         content,
         null,
@@ -666,7 +666,7 @@ export const Services = class {
       let basename = this._getMountName(mount);
       let appname = `mount-${this._toSafeFileName(
         basename
-      )}-dash2dock-lite.desktop`;
+      )}-fluid-glass-dock.desktop`;
       return appname;
     });
 
@@ -675,7 +675,7 @@ export const Services = class {
       let basename = this._getMountName(mount);
       let appname = `mount-${this._toSafeFileName(
         basename
-      )}-dash2dock-lite.desktop`;
+      )}-fluid-glass-dock.desktop`;
       this._deferredMounts.push(mount);
     });
 
