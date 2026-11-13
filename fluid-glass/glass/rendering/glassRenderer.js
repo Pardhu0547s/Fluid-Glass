@@ -257,6 +257,7 @@ export class GlassRenderer {
         const rTintG = new Array(MAX_GLASS_REGIONS).fill(1.0);
         const rTintB = new Array(MAX_GLASS_REGIONS).fill(1.0);
         const rBaseStrength = new Array(MAX_GLASS_REGIONS).fill(0.0);
+        const rRadius = new Array(MAX_GLASS_REGIONS).fill(0.0);
         clamped.forEach((region, i) => {
             rx[i] = region.x;
             ry[i] = region.y;
@@ -266,6 +267,7 @@ export class GlassRenderer {
             rTintG[i] = region.tintG ?? 1.0;
             rTintB[i] = region.tintB ?? 1.0;
             rBaseStrength[i] = region.baseStrength ?? 0.0;
+            rRadius[i] = region.cornerRadius ?? 0.0;
         });
         this.geometry.regions = clamped.map(r => [r.x, r.y, r.w, r.h]);
         this.uniforms.set('region_count', clamped.length);
@@ -277,6 +279,7 @@ export class GlassRenderer {
         this.uniforms.setArray('region_tint_g', rTintG);
         this.uniforms.setArray('region_tint_b', rTintB);
         this.uniforms.setArray('region_base_strength', rBaseStrength);
+        this.uniforms.setArray('region_r', rRadius);
         this._repaintIfDirty();
     }
 

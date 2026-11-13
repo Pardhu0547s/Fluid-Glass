@@ -413,6 +413,20 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
                 item.has_style_class_name?.('fluid-glass-cc-tile-compact') && item.checked
             );
 
+            // Compute corner radius from unscaled logical size so spring-scale
+            // animations keep each module's shape proportional instead of
+            // snapping between circle and box at pixel thresholds.
+            const [uw, uh] = item.get_size?.() ?? [iw, ih];
+            const scale = (uw >= 1 && uh >= 1) ? Math.min(iw / uw, ih / uh) : 1.0;
+            const halfMinUnscaled = Math.min(uw, uh) * 0.5;
+            let baseR;
+            if (item.has_style_class_name?.('fluid-glass-cc-media') || halfMinUnscaled > 45.0)
+                baseR = Math.min(options.cornerRadius ?? 26.0, 26.0);
+            else if (isSlider || (uw * 0.5) > 105.0)
+                baseR = Math.min(halfMinUnscaled, 22.0);
+            else
+                baseR = halfMinUnscaled;
+
             regions.push({
                 x: rx,
                 y: ry,
@@ -422,6 +436,7 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
                 tintG: 1.0,
                 tintB: 1.0,
                 baseStrength: isActiveCompact ? 0.92 : 0.0,
+                cornerRadius: baseR * scale,
             });
 
             minX = Math.min(minX, rx);
