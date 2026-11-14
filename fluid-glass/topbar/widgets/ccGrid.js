@@ -75,19 +75,9 @@ export function packModules(modules) {
         }
     }
 
-    // A single half-width 1-row capsule next to an empty half takes the whole row.
-    // Multi-row modules (like Now Playing: rows: 2) must never expand across all 4 columns.
-    for (const placement of placements) {
-        if (placement.columns !== 2 || placement.rows !== 1)
-            continue;
-        const other = placement.column === 0 ? 2 : 0;
-        if (!free(placement.row, other, 2, placement.rows))
-            continue;
-        take(placement.row, other, 2, placement.rows);
-        placement.column = 0;
-        placement.columns = COLUMNS;
-    }
-
+    // Keep 2x1 capsules at their fixed half-width (2 columns) so a sibling
+    // briefly hiding/rebuilding during a toggle never causes a capsule to
+    // flash to full width and snap back.
     return placements;
 }
 
