@@ -26,6 +26,7 @@ import { BackdropGlass } from './rendering/backdropGlass.js';
 import { hexToColorArray, startSyncLoop, stopStageLoop } from './animation.js';
 import {
     ensureGlassAllocated,
+    getAllocatedSize,
     placeScreenGlass,
     GLASS_SHADOW_MAX_RADIUS,
 } from './actors.js';
@@ -384,12 +385,27 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
 
         for (const item of items) {
             const [ix, iy] = item.get_transformed_position();
-            let [iw, ih] = item.get_transformed_size();
+            // Use the committed allocation box instead of get_transformed_size(),
+            // because Clutter falls back to preferred size while a relayout is
+            // pending (e.g. when a tile's status label or :checked state updates).
+            const [uw, uh] = getAllocatedSize(item);
+            let scaleX = 1.0;
+            let scaleY = 1.0;
+            for (let a = item; a && a !== global.stage; a = a.get_parent?.()) {
+                const [ax, ay] = a.get_scale?.() ?? [1.0, 1.0];
+                if (Number.isFinite(ax) && ax > 0)
+                    scaleX *= ax;
+                if (Number.isFinite(ay) && ay > 0)
+                    scaleY *= ay;
+            }
+            let iw = uw * scaleX;
+            let ih = uh * scaleY;
             const parent = item.get_parent?.();
             const isSlider = item.has_style_class_name?.('fluid-glass-cc-slider') ||
                 parent?.has_style_class_name?.('fluid-glass-cc-sliders');
             if (isSlider) {
-                const [pw] = parent?.get_transformed_size?.() ?? [0, 0];
+                const [puw] = parent ? getAllocatedSize(parent) : [0];
+                const pw = puw * scaleX;
                 if (iw < 40 && pw >= 40)
                     iw = pw;
                 else if (pw >= 40 && iw > pw)
@@ -416,8 +432,7 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
             // Compute corner radius from unscaled logical size so spring-scale
             // animations keep each module's shape proportional instead of
             // snapping between circle and box at pixel thresholds.
-            const [uw, uh] = item.get_size?.() ?? [iw, ih];
-            const scale = (uw >= 1 && uh >= 1) ? Math.min(iw / uw, ih / uh) : 1.0;
+            const scale = Math.min(scaleX, scaleY);
             const halfMinUnscaled = Math.min(uw, uh) * 0.5;
             let baseR;
             if (item.has_style_class_name?.('fluid-glass-cc-media') || halfMinUnscaled > 45.0)
