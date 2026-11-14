@@ -1,5 +1,6 @@
 import './guard.js';
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import GLib from 'gi://GLib';
 
 import {PanelController} from './topbar/panelController.js';
@@ -92,8 +93,9 @@ export default class FluidGlassExtension extends Extension {
             }
         }
 
-        // 3. Fluid Animated Dock Subsystem
-        if (this._masterSettings.get_boolean('enable-dock')) {
+        // 3. Fluid Animated Dock Subsystem (not used on login/lock screens)
+        const isLockedOrGreeter = !!(Main.sessionMode?.isGreeter || Main.sessionMode?.isLocked);
+        if (!isLockedOrGreeter && this._masterSettings.get_boolean('enable-dock')) {
             try {
                 this._dock = new DockSubsystem(this);
                 this._dock.enable();
@@ -115,7 +117,8 @@ export default class FluidGlassExtension extends Extension {
     }
 
     _syncDockState() {
-        const want = this._masterSettings.get_boolean('enable-dock');
+        const isLockedOrGreeter = !!(Main.sessionMode?.isGreeter || Main.sessionMode?.isLocked);
+        const want = !isLockedOrGreeter && this._masterSettings.get_boolean('enable-dock');
         if (want && !this._dock) {
             this._dock = new DockSubsystem(this);
             this._dock.enable();

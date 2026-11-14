@@ -1098,10 +1098,12 @@ class ControlCenter extends PanelMenu.Button {
         if (!this.menu?.box)
             return;
         let dark = true;
-        try {
-            dark = this._iface?.get_string('color-scheme') === 'prefer-dark';
-        } catch (_e) {
-            dark = true;
+        if (!(Main.sessionMode?.isGreeter || Main.sessionMode?.isLocked)) {
+            try {
+                dark = this._iface?.get_string('color-scheme') === 'prefer-dark';
+            } catch (_e) {
+                dark = true;
+            }
         }
         this.menu.box.remove_style_class_name('popup-menu-content');
         this.menu.box.remove_style_class_name(

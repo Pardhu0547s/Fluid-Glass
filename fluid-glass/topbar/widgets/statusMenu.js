@@ -11,6 +11,7 @@
 
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 let ifaceSettings = null;
 export function getIface() {
@@ -28,7 +29,8 @@ export function syncMenuTheme(actor) {
     if (!actor)
         return;
     const iface = getIface();
-    const isDark = iface ? iface.get_string('color-scheme') === 'prefer-dark' : false;
+    const forceDark = !!(Main.sessionMode?.isGreeter || Main.sessionMode?.isLocked);
+    const isDark = forceDark || (iface ? iface.get_string('color-scheme') === 'prefer-dark' : false);
     actor.remove_style_class_name(isDark ? 'fluid-glass-light' : 'fluid-glass-dark');
     actor.add_style_class_name(isDark ? 'fluid-glass-dark' : 'fluid-glass-light');
 }

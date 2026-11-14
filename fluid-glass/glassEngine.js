@@ -1,5 +1,6 @@
 import './guard.js';
 import GLib from 'gi://GLib';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import {UIManager} from './glass/uiManager.js';
 import {PanelMenuManager, ExtraDateMenuManager} from './glass/panelMenuManager.js';
@@ -46,14 +47,19 @@ export class GlassEngine {
     this._panelMenuManager = new PanelMenuManager(path, settings, logger);
     this._panelMenuManager.setup();
 
-    this._desktopLayer = new DesktopLayer(path, settings, logger, this._openPreferences);
-    this._desktopLayer.setup();
+    const hasOverview = Boolean(Main.overview?._overview?.controls) &&
+      !Main.sessionMode?.isGreeter;
 
-    this._iconStyler = new IconStyler(path, settings, logger);
-    this._iconStyler.setup();
+    if (hasOverview) {
+      this._desktopLayer = new DesktopLayer(path, settings, logger, this._openPreferences);
+      this._desktopLayer.setup();
 
-    this._launcher = new Launcher(path, settings, logger, this._iconStyler);
-    this._launcher.setup();
+      this._iconStyler = new IconStyler(path, settings, logger);
+      this._iconStyler.setup();
+
+      this._launcher = new Launcher(path, settings, logger, this._iconStyler);
+      this._launcher.setup();
+    }
 
     this._blurMyShellWatch = new BlurMyShellWatch(settings, logger);
     this._blurMyShellWatch.setup();

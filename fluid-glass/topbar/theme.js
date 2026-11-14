@@ -443,6 +443,8 @@ export class ThemeManager {
     }
 
     _isDark() {
+        if (Main.sessionMode?.isGreeter || Main.sessionMode?.isLocked)
+            return true;
         try {
             return this._desktop.get_string('color-scheme') === 'prefer-dark';
         } catch (_e) {
