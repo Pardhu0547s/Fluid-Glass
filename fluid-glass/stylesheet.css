@@ -3138,7 +3138,7 @@
     background-color: rgba(255, 255, 255, 0.18) !important;
     border: 1px solid rgba(255, 255, 255, 0.35) !important;
     border-radius: 99px !important;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28) !important;
+    box-shadow: none !important;
     color: #ffffff !important;
     caret-color: #ffffff !important;
     font-size: 1.15em !important;
@@ -3152,7 +3152,35 @@
 .unlock-dialog StEntry.login-dialog-prompt-entry:focus {
     background-color: rgba(255, 255, 255, 0.28) !important;
     border-color: rgba(255, 255, 255, 0.72) !important;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35) !important;
+    box-shadow: none !important;
+}
+
+/* User list item pill on GDM login screen */
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item {
+    background-color: rgba(255, 255, 255, 0.16) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    border-radius: 18px !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    transition-duration: 150ms;
+}
+
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:selected,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:focus,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:selected:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:focus:hover {
+    background-color: rgba(255, 255, 255, 0.26) !important;
+    border-color: rgba(255, 255, 255, 0.55) !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+}
+
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:active {
+    background-color: rgba(255, 255, 255, 0.36) !important;
+    border-color: rgba(255, 255, 255, 0.72) !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
 }
 
 /* User avatar and typography */
