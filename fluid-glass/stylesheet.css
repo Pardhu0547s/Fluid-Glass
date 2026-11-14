@@ -1299,6 +1299,7 @@
 #lintelNotificationCenter.fluid-glass-nc-dark .message:lower-in-stack,
 #lintelNotificationCenter.fluid-glass-nc-light .message:second-in-stack,
 #lintelNotificationCenter.fluid-glass-nc-light .message:lower-in-stack {
+    opacity: 0;
     background-color: transparent;
     border: none;
     box-shadow: none;

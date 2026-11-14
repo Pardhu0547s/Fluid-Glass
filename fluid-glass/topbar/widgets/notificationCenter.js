@@ -337,6 +337,12 @@ export class FluidGlassNotificationCenter {
             return;
 
         const ids = [
+            group.connect('child-added', () => {
+                this._syncNotificationGroup(group);
+            }),
+            group.connect('child-removed', () => {
+                this._syncNotificationGroup(group);
+            }),
             group.connect('notification-added', () => {
                 this._syncNotificationGroup(group);
             }),
@@ -596,6 +602,10 @@ export class FluidGlassNotificationCenter {
     _syncNotifications() {
         if (!this._messageView)
             return;
+        for (const message of this._messageView.messages) {
+            this._trackNotificationGroup(message);
+            this._syncNotificationGroup(message);
+        }
         const hasMessages = !this._messageView.empty;
         this._header.visible = hasMessages;
         this._notificationScroll.visible = hasMessages;
