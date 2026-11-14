@@ -13,7 +13,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import {_} from '../i18n.js';
 import {BluetoothService} from '../services/bluetooth.js';
-import {styleStatusMenu} from './statusMenu.js';
+import {bindStatusToggle, styleStatusMenu} from './statusMenu.js';
 
 const MAX_VISIBLE_DEVICES = 10;
 
@@ -51,10 +51,11 @@ export const FluidGlassBluetoothMenu = GObject.registerClass({
     _buildMenu() {
         this._toggle = new PopupMenu.PopupSwitchMenuItem(_('Bluetooth'), false);
         this._toggle.add_style_class_name('fluid-glass-status-toggle');
-        this._toggle.connect('toggled', (_item, state) => {
-            if (!this._syncing)
-                this._bluetooth.setEnabled(state);
-        });
+        this._toggleBinding = bindStatusToggle(
+            this._toggle,
+            () => this._bluetooth?.enabled,
+            state => this._bluetooth?.setEnabled(state),
+            () => this._sync());
         this.menu.addMenuItem(this._toggle);
 
         this._deviceHeading = new PopupMenu.PopupMenuItem(_('Devices'), {
@@ -74,26 +75,21 @@ export const FluidGlassBluetoothMenu = GObject.registerClass({
     _sync() {
         if (!this._bluetooth)
             return;
-        this._syncing = true;
-        try {
-            const available = this._bluetooth.available;
-            this.visible = available;
-            this._panelIcon.icon_name = this._bluetooth.iconName;
+        const available = this._bluetooth.available;
+        this.visible = available;
+        this._panelIcon.icon_name = this._bluetooth.iconName;
 
-            const connected = this._bluetooth.connectedDevices;
-            this.accessible_name = connected.length > 0
-                ? _('Bluetooth, %d connected').format(connected.length)
-                : _('Bluetooth, %s').format(this._bluetooth.enabled
-                    ? _('on')
-                    : _('off'));
+        const connected = this._bluetooth.connectedDevices;
+        this.accessible_name = connected.length > 0
+            ? _('Bluetooth, %d connected').format(connected.length)
+            : _('Bluetooth, %s').format(this._bluetooth.enabled
+                ? _('on')
+                : _('off'));
 
-            this._toggle.setToggleState(this._bluetooth.enabled);
-            this._toggle.sensitive = available;
-            this._deviceHeading.visible = this._bluetooth.enabled;
-            this._rebuildDevices();
-        } finally {
-            this._syncing = false;
-        }
+        this._toggleBinding.sync();
+        this._toggle.sensitive = available;
+        this._deviceHeading.visible = this._bluetooth.enabled;
+        this._rebuildDevices();
     }
 
     _rebuildDevices() {
@@ -151,6 +147,8 @@ export const FluidGlassBluetoothMenu = GObject.registerClass({
             this.menu.disconnect(this._openStateId);
         this._bluetoothChangedId = 0;
         this._openStateId = 0;
+        this._toggleBinding?.destroy();
+        this._toggleBinding = null;
         this._bluetooth?.destroy();
         this._bluetooth = null;
         super.destroy();

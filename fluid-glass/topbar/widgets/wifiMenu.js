@@ -13,7 +13,7 @@ import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
 import {_} from '../i18n.js';
 import {WifiService} from '../services/wifi.js';
-import {styleStatusMenu} from './statusMenu.js';
+import {bindStatusToggle, styleStatusMenu} from './statusMenu.js';
 
 const MAX_VISIBLE_NETWORKS = 8;
 
@@ -27,7 +27,6 @@ export const FluidGlassWifiMenu = GObject.registerClass({
         this._wifi = new WifiService();
         this._wifiChangedId = 0;
         this._openStateId = 0;
-        this._syncing = false;
 
         this._panelIcon = new St.Icon({
             style_class: 'system-status-icon',
@@ -53,10 +52,11 @@ export const FluidGlassWifiMenu = GObject.registerClass({
     _buildMenu() {
         this._toggle = new PopupMenu.PopupSwitchMenuItem(_('Wi-Fi'), false);
         this._toggle.add_style_class_name('fluid-glass-status-toggle');
-        this._toggle.connect('toggled', (_item, state) => {
-            if (!this._syncing)
-                this._wifi.setEnabled(state);
-        });
+        this._toggleBinding = bindStatusToggle(
+            this._toggle,
+            () => this._wifi?.enabled,
+            state => this._wifi?.setEnabled(state),
+            () => this._sync());
         this.menu.addMenuItem(this._toggle);
 
         this._networkHeading = new PopupMenu.PopupMenuItem(_('Networks'), {
@@ -76,29 +76,24 @@ export const FluidGlassWifiMenu = GObject.registerClass({
     _sync() {
         if (!this._wifi)
             return;
-        this._syncing = true;
-        try {
-            const available = this._wifi.available;
-            this.visible = available;
-            this._panelIcon.icon_name = this._wifi.iconName;
+        const available = this._wifi.available;
+        this.visible = available;
+        this._panelIcon.icon_name = this._wifi.iconName;
 
-            const active = this._wifi.activeNetwork;
-            this.accessible_name = active
-                ? _('Wi-Fi, connected to %s').format(active)
-                : _('Wi-Fi, %s').format(this._wifi.enabled
-                    ? _('not connected')
-                    : _('off'));
+        const active = this._wifi.activeNetwork;
+        this.accessible_name = active
+            ? _('Wi-Fi, connected to %s').format(active)
+            : _('Wi-Fi, %s').format(this._wifi.enabled
+                ? _('not connected')
+                : _('off'));
 
-            this._toggle.setToggleState(this._wifi.enabled);
-            this._toggle.sensitive = this._wifi.hardwareEnabled;
-            this._toggle.setStatus(this._wifi.hardwareEnabled
-                ? null
-                : _('Unavailable'));
-            this._networkHeading.visible = this._wifi.enabled;
-            this._rebuildNetworks();
-        } finally {
-            this._syncing = false;
-        }
+        this._toggleBinding.sync();
+        this._toggle.sensitive = this._wifi.hardwareEnabled;
+        this._toggle.setStatus(this._wifi.hardwareEnabled
+            ? null
+            : _('Unavailable'));
+        this._networkHeading.visible = this._wifi.enabled;
+        this._rebuildNetworks();
     }
 
     _rebuildNetworks() {
@@ -162,6 +157,8 @@ export const FluidGlassWifiMenu = GObject.registerClass({
             this.menu.disconnect(this._openStateId);
         this._wifiChangedId = 0;
         this._openStateId = 0;
+        this._toggleBinding?.destroy();
+        this._toggleBinding = null;
         this._wifi?.destroy();
         this._wifi = null;
         super.destroy();

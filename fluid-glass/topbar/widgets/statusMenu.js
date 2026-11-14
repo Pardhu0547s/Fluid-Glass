@@ -10,6 +10,7 @@
 // never did anything. See docs/DESIGN_QA.md, Pass 8.
 
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 
 let ifaceSettings = null;
 export function getIface() {
@@ -71,5 +72,58 @@ export function styleStatusMenu(menu, contentClass = '') {
             syncAll();
         }
     });
+}
+
+/**
+ * Bind a PopupSwitchMenuItem to an async hardware toggle without snapping back
+ * while D-Bus properties catch up.
+ */
+export function bindStatusToggle(toggleItem, getEnabled, setEnabled, onSettled) {
+    let pendingState = null;
+    let pendingTimerId = 0;
+    let syncing = false;
+
+    const clearPending = () => {
+        if (pendingTimerId) {
+            GLib.Source.remove(pendingTimerId);
+            pendingTimerId = 0;
+        }
+        pendingState = null;
+    };
+
+    toggleItem.connect('toggled', (_item, state) => {
+        if (syncing)
+            return;
+        clearPending();
+        pendingState = Boolean(state);
+        pendingTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1500, () => {
+            pendingTimerId = 0;
+            pendingState = null;
+            onSettled?.();
+            return GLib.SOURCE_REMOVE;
+        });
+        setEnabled(state);
+    });
+
+    return {
+        sync() {
+            const actual = Boolean(getEnabled());
+            if (pendingState !== null) {
+                if (actual === pendingState)
+                    clearPending();
+                else
+                    return;
+            }
+            syncing = true;
+            try {
+                toggleItem.setToggleState(actual);
+            } finally {
+                syncing = false;
+            }
+        },
+        destroy() {
+            clearPending();
+        },
+    };
 }
 

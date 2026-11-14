@@ -146,7 +146,6 @@ export const BluetoothService = GObject.registerClass({
                 logError(e, 'fluid-glass: set default_adapter_powered');
             }
         }
-        this.emit('changed');
     }
 
     get devices() {
