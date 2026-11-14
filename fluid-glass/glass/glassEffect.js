@@ -237,18 +237,25 @@ function applyGlassParameters(glass, options) {
 }
 
 /**
- * Parent glass actor safely into uiGroup below the widget's root window.
+ * Parent glass actor safely into the closest overlay group (modalDialogGroup,
+ * screenShieldGroup, or uiGroup) directly below the widget's root container.
  */
 function parentGlassActor(glass, targetActor) {
+    let container = Main.layoutManager.uiGroup;
+    if (Main.layoutManager.modalDialogGroup?.contains?.(targetActor))
+        container = Main.layoutManager.modalDialogGroup;
+    else if (Main.layoutManager.screenShieldGroup?.contains?.(targetActor))
+        container = Main.layoutManager.screenShieldGroup;
+
     let root = targetActor;
-    while (root.get_parent() && root.get_parent() !== Main.layoutManager.uiGroup) {
+    while (root.get_parent() && root.get_parent() !== container) {
         root = root.get_parent();
     }
 
-    if (root.get_parent() === Main.layoutManager.uiGroup) {
-        Main.layoutManager.uiGroup.insert_child_below(glass, root);
+    if (root.get_parent() === container) {
+        container.insert_child_below(glass, root);
     } else {
-        Main.layoutManager.uiGroup.add_child(glass);
+        container.add_child(glass);
     }
 }
 

@@ -3183,6 +3183,25 @@
     color: #ffffff !important;
 }
 
+/* Real GLSL glass backing for system ModalDialogs and login/lock pills */
+.modal-dialog.fluid-glass-modal-dialog {
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.fluid-glass-login-glass,
+.fluid-glass-login-glass:hover,
+.fluid-glass-login-glass:focus,
+.fluid-glass-login-glass:selected,
+.fluid-glass-login-glass:active {
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
 /* User avatar and typography */
 .login-dialog .user-widget .user-icon,
 .unlock-dialog .user-widget .user-icon {

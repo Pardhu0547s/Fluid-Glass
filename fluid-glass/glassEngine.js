@@ -8,6 +8,7 @@ import {BlurMyShellWatch} from './glass/blurMyShell.js';
 import {NotificationManager} from './glass/notificationManager.js';
 import {QuickSettingsManager} from './glass/quickSettingsManager.js';
 import {OsdManager} from './glass/osdManager.js';
+import {DialogManager} from './glass/dialogManager.js';
 import {ApplicationManager} from './glass/applicationManager.js';
 import {WindowListService} from './glass/windowListService.js';
 import {DesktopLayer} from './glass/desktop/desktopLayer.js';
@@ -70,6 +71,9 @@ export class GlassEngine {
     this._osdManager = new OsdManager(path, settings, logger);
     this._osdManager.setup();
 
+    this._dialogManager = new DialogManager(path, settings, logger);
+    this._dialogManager.setup();
+
     this._applicationManager = new ApplicationManager(path, settings, logger);
     this._applicationManager.setup();
 
@@ -100,6 +104,9 @@ export class GlassEngine {
 
     this._panelMenuManager?.cleanup();
     this._panelMenuManager = null;
+
+    this._dialogManager?.cleanup();
+    this._dialogManager = null;
 
     this._desktopLayer?.cleanup();
     this._desktopLayer = null;
