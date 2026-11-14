@@ -81,6 +81,7 @@ export function styleStatusMenu(menu, contentClass = '') {
 export function bindStatusToggle(toggleItem, getEnabled, setEnabled, onSettled) {
     let pendingState = null;
     let pendingTimerId = 0;
+    let settleTimerId = 0;
     let syncing = false;
 
     const clearPending = () => {
@@ -89,6 +90,34 @@ export function bindStatusToggle(toggleItem, getEnabled, setEnabled, onSettled) 
             pendingTimerId = 0;
         }
         pendingState = null;
+    };
+
+    const clearSettle = () => {
+        if (settleTimerId) {
+            GLib.Source.remove(settleTimerId);
+            settleTimerId = 0;
+        }
+    };
+
+    const scheduleSettle = () => {
+        clearSettle();
+        // GNOME Shell's .toggle-switch transition is 100ms; if a concurrent
+        // menu relayout interrupts the align-constraint ease, snap the handle.
+        settleTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 140, () => {
+            settleTimerId = 0;
+            const sw = toggleItem?._switch;
+            const align = sw?._handleAlignConstraint;
+            if (sw && align) {
+                const target = sw.state ? 1.0 : 0.0;
+                if (Math.abs(align.factor - target) > 0.01) {
+                    sw._handle?.remove_all_transitions?.();
+                    align.factor = target;
+                    sw._handle?.queue_relayout?.();
+                    sw.queue_relayout?.();
+                }
+            }
+            return GLib.SOURCE_REMOVE;
+        });
     };
 
     toggleItem.connect('toggled', (_item, state) => {
@@ -102,6 +131,7 @@ export function bindStatusToggle(toggleItem, getEnabled, setEnabled, onSettled) 
             onSettled?.();
             return GLib.SOURCE_REMOVE;
         });
+        scheduleSettle();
         setEnabled(state);
     });
 
@@ -120,9 +150,11 @@ export function bindStatusToggle(toggleItem, getEnabled, setEnabled, onSettled) 
             } finally {
                 syncing = false;
             }
+            scheduleSettle();
         },
         destroy() {
             clearPending();
+            clearSettle();
         },
     };
 }
