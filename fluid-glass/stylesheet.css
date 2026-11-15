@@ -3195,11 +3195,28 @@
 .login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:hover,
 .login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:focus,
 .login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:selected,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:selected:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:focus:hover,
 .login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:active,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:active:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:active:focus,
 .login-dialog .login-dialog-prompt-entry.fluid-glass-login-glass,
 .unlock-dialog .login-dialog-prompt-entry.fluid-glass-login-glass,
+.login-dialog StEntry.login-dialog-prompt-entry.fluid-glass-login-glass,
+.unlock-dialog StEntry.login-dialog-prompt-entry.fluid-glass-login-glass,
+.login-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:hover,
+.unlock-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:hover,
 .login-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:focus,
 .unlock-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:focus,
+.login-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:focus:hover,
+.unlock-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:focus:hover,
+.login-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:insensitive,
+.unlock-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:insensitive,
+.login-dialog StEntry.login-dialog-prompt-entry.fluid-glass-login-glass:focus,
+.unlock-dialog StEntry.login-dialog-prompt-entry.fluid-glass-login-glass:focus,
+.login-dialog StEntry.login-dialog-prompt-entry.fluid-glass-login-glass:insensitive,
+.unlock-dialog StEntry.login-dialog-prompt-entry.fluid-glass-login-glass:insensitive,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:insensitive,
 .login-dialog-not-listed-button.fluid-glass-login-glass,
 .login-dialog-not-listed-button.fluid-glass-login-glass:hover,
 .login-dialog-not-listed-button.fluid-glass-login-glass:focus,
@@ -3214,8 +3231,44 @@
 .fluid-glass-login-glass:active {
     background-color: transparent !important;
     background-image: none !important;
-    border: 1px solid rgba(255, 255, 255, 0.24) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
     box-shadow: none !important;
+    color: #ffffff !important;
+    transition: none !important;
+    transition-duration: 0ms !important;
+}
+
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass {
+    border-radius: 18px !important;
+}
+
+.login-dialog-not-listed-button.fluid-glass-login-glass {
+    border-radius: 99px !important;
+    padding: 5px 14px !important;
+}
+
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:focus,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:selected,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:selected:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass:focus:hover,
+.login-dialog-not-listed-button.fluid-glass-login-glass:hover,
+.login-dialog-not-listed-button.fluid-glass-login-glass:focus,
+.login-dialog-not-listed-button.fluid-glass-login-glass:focus:hover,
+.login-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:focus,
+.unlock-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:focus,
+.login-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:focus:hover,
+.unlock-dialog .login-dialog-prompt-entry.fluid-glass-login-glass:focus:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.34) !important;
+}
+
+.login-dialog .login-dialog-prompt-entry.fluid-glass-login-glass,
+.unlock-dialog .login-dialog-prompt-entry.fluid-glass-login-glass,
+.login-dialog .login-dialog-prompt-entry.fluid-glass-login-glass StLabel.hint-text,
+.unlock-dialog .login-dialog-prompt-entry.fluid-glass-login-glass StLabel.hint-text {
+    color: rgba(255, 255, 255, 0.92) !important;
+    caret-color: #ffffff !important;
 }
 
 /* User avatar and typography */

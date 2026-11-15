@@ -239,9 +239,22 @@ function applyGlassParameters(glass, options) {
     glass.setSaturation(saturation);
 }
 
+function getEffectiveOpacity(actor, stopParent = null) {
+    let opacity = actor?.opacity ?? 255;
+    for (let cur = actor?.get_parent?.(); cur && cur !== stopParent; cur = cur.get_parent?.()) {
+        if (cur.opacity < 255)
+            opacity = Math.round((opacity * cur.opacity) / 255);
+        if (opacity <= 0)
+            return 0;
+    }
+    return opacity;
+}
+
 /**
  * Parent glass actor safely into the closest overlay group (modalDialogGroup,
- * screenShieldGroup, or uiGroup) directly below the widget's root container.
+ * UnlockDialog, _lockDialogGroup, screenShieldGroup, or uiGroup) directly
+ * below the widget's root container so it renders above the container
+ * wallpaper without occluding UI widgets.
  */
 function parentGlassActor(glass, targetActor) {
     let container = Main.layoutManager.uiGroup;
@@ -253,8 +266,22 @@ function parentGlassActor(glass, targetActor) {
         // which is a child of UnlockDialog itself. Parenting into
         // _dialog places the glass above _backgroundGroup and below mainBox.
         container = Main.screenShield._dialog;
+    } else if (Main.screenShield?._lockDialogGroup?.contains?.(targetActor)) {
+        // LoginDialog on GDM sits inside _lockDialogGroup whose CSS paints the
+        // opaque wallpaper / #222226 background. Parenting into _lockDialogGroup
+        // keeps glass above the wallpaper and below LoginDialog.
+        container = Main.screenShield._lockDialogGroup;
     } else if (Main.layoutManager.screenShieldGroup?.contains?.(targetActor)) {
         container = Main.layoutManager.screenShieldGroup;
+    }
+
+    if (targetActor === container) {
+        if (container === Main.screenShield?._dialog && container._backgroundGroup) {
+            container.insert_child_above(glass, container._backgroundGroup);
+        } else {
+            container.insert_child_at_index(glass, 0);
+        }
+        return;
     }
 
     let root = targetActor;
@@ -289,6 +316,8 @@ export function attachGlass(targetActor, options = {}) {
         outline: options.outline ?? 'panel-menu',
     });
 
+    glass.set_size(1, 1);
+    glass.set_pivot_point(0, 0);
     applyGlassParameters(glass, options);
     parentGlassActor(glass, targetActor);
     glass.hide();
@@ -296,6 +325,12 @@ export function attachGlass(targetActor, options = {}) {
     const syncFn = handle => {
         const actor = handle.targetActor;
         if (!actor || !actor.mapped) {
+            handle.glass?.hide();
+            return;
+        }
+
+        const effOpacity = getEffectiveOpacity(actor, handle.glass?.get_parent?.() ?? null);
+        if (effOpacity <= 0) {
             handle.glass?.hide();
             return;
         }
@@ -330,10 +365,10 @@ export function attachGlass(targetActor, options = {}) {
         handle.glass.setResolution(screenW, screenH);
         handle.glass.setGlassGeometry(localBgX, localBgY, bgW, bgH);
         handle.glass.syncSources();
-        if (handle.glass && actor)
-            handle.glass.opacity = actor.opacity;
+        handle.glass.opacity = effOpacity;
         if (!handle.glass.visible)
             handle.glass.show();
+        options.onSync?.(handle);
     };
 
     const handle = new GlassHandle(glass, targetActor, options, syncFn);
@@ -364,6 +399,8 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
         outline: options.outline ?? 'panel-menu',
     });
 
+    glass.set_size(1, 1);
+    glass.set_pivot_point(0, 0);
     applyGlassParameters(glass, options);
     glass.setMultiRegionMode(true);
     parentGlassActor(glass, containerActor);
@@ -397,10 +434,17 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
         const regions = [];
         const pad = options.padding ?? SHADER_PADDING;
         const expand = 0;
+        const stopParent = handle.glass?.get_parent?.() ?? null;
+        let maxOpacity = 0;
 
         const lastGoodSizes = handle._lastGoodSizes ?? (handle._lastGoodSizes = new WeakMap());
 
         for (const item of items) {
+            const effOpacity = getEffectiveOpacity(item, stopParent);
+            if (effOpacity <= 0)
+                continue;
+            maxOpacity = Math.max(maxOpacity, effOpacity);
+
             const [ix, iy] = item.get_transformed_position();
             // Use the committed allocation box instead of get_transformed_size(),
             // because Clutter falls back to preferred size while a relayout is
@@ -450,14 +494,19 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
             // animations keep each module's shape proportional instead of
             // snapping between circle and box at pixel thresholds.
             const scale = Math.min(scaleX, scaleY);
-            const halfMinUnscaled = Math.min(uw, uh) * 0.5;
+            const customR = options.getCornerRadius?.(item, uw, uh);
             let baseR;
-            if (item.has_style_class_name?.('fluid-glass-cc-media') || halfMinUnscaled > 45.0)
-                baseR = Math.min(options.cornerRadius ?? 26.0, 26.0);
-            else if (isSlider || (uw * 0.5) > 105.0)
-                baseR = Math.min(halfMinUnscaled, 22.0);
-            else
-                baseR = halfMinUnscaled;
+            if (Number.isFinite(customR) && customR > 0) {
+                baseR = customR;
+            } else {
+                const halfMinUnscaled = Math.min(uw, uh) * 0.5;
+                if (item.has_style_class_name?.('fluid-glass-cc-media') || halfMinUnscaled > 45.0)
+                    baseR = Math.min(options.cornerRadius ?? 26.0, 26.0);
+                else if (isSlider || (uw * 0.5) > 105.0)
+                    baseR = Math.min(halfMinUnscaled, 22.0);
+                else
+                    baseR = halfMinUnscaled;
+            }
 
             regions.push({
                 x: rx,
@@ -477,7 +526,7 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
             maxY = Math.max(maxY, ry + rh);
         }
 
-        if (regions.length === 0 || !Number.isFinite(minX)) {
+        if (regions.length === 0 || maxOpacity <= 0 || !Number.isFinite(minX)) {
             handle.glass?.hide();
             return;
         }
@@ -498,10 +547,10 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
         handle.glass.setResolution(screenW, screenH);
         handle.glass.setGlassGeometry(unionX, unionY, unionW, unionH);
         handle.glass.syncSources();
-        if (handle.glass && containerActor)
-            handle.glass.opacity = containerActor.opacity;
+        handle.glass.opacity = maxOpacity;
         if (!handle.glass.visible)
             handle.glass.show();
+        options.onSync?.(handle);
     };
 
     const handle = new GlassHandle(glass, containerActor, options, syncFn);
