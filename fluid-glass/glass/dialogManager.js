@@ -96,6 +96,8 @@ export class DialogManager {
             this._attachLoginPill(item, 18.0);
         for (const entry of findByStyleClass(root, 'login-dialog-prompt-entry'))
             this._attachLoginPill(entry, 22.0);
+        for (const btn of findByStyleClass(root, 'login-dialog-not-listed-button'))
+            this._attachLoginPill(btn, 18.0);
 
         // Watch containers inside the login/unlock dialog so dynamically shown
         // user items or password entries get glass when created.
@@ -121,7 +123,10 @@ export class DialogManager {
             return;
         actor.add_style_class_name?.('fluid-glass-login-glass');
         const opts = this._glassOptions(cornerRadius);
-        opts.padding = 12;
+        opts.blurRadius = Math.max(opts.blurRadius ?? 4, 14);
+        opts.tintColor = '#10141c';
+        opts.tintStrength = 0.22;
+        opts.padding = 16;
         const handle = attachGlass(actor, opts);
         const destroyId = actor.connect('destroy', () => this._detachActor(actor));
         this._handles.set(actor, {handle, destroyId, styleClass: 'fluid-glass-login-glass'});
