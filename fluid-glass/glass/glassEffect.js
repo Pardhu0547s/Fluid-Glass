@@ -245,10 +245,17 @@ function applyGlassParameters(glass, options) {
  */
 function parentGlassActor(glass, targetActor) {
     let container = Main.layoutManager.uiGroup;
-    if (Main.layoutManager.modalDialogGroup?.contains?.(targetActor))
+    if (Main.layoutManager.modalDialogGroup?.contains?.(targetActor)) {
         container = Main.layoutManager.modalDialogGroup;
-    else if (Main.layoutManager.screenShieldGroup?.contains?.(targetActor))
+    } else if (Main.screenShield?._dialog?._backgroundGroup &&
+               Main.screenShield._dialog.contains?.(targetActor)) {
+        // UnlockDialog renders its blurred wallpaper inside _backgroundGroup,
+        // which is a child of UnlockDialog itself. Parenting into
+        // _dialog places the glass above _backgroundGroup and below mainBox.
+        container = Main.screenShield._dialog;
+    } else if (Main.layoutManager.screenShieldGroup?.contains?.(targetActor)) {
         container = Main.layoutManager.screenShieldGroup;
+    }
 
     let root = targetActor;
     while (root.get_parent() && root.get_parent() !== container) {

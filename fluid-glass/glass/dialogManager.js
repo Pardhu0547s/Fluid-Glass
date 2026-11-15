@@ -123,8 +123,10 @@ export class DialogManager {
             return;
         actor.add_style_class_name?.('fluid-glass-login-glass');
         const opts = this._glassOptions(cornerRadius);
-        opts.blurRadius = Math.max(opts.blurRadius ?? 4, 10);
-        opts.tintStrength = Math.max(opts.tintStrength ?? 0.04, 0.08);
+        opts.blurRadius = Math.max(opts.blurRadius ?? 4, 18);
+        opts.tintStrength = Math.max(opts.tintStrength ?? 0.04, 0.22);
+        opts.darkMode = true;
+        this._logger?.log?.(`DialogManager: attaching login glass (${actor.style_class ?? 'unknown'}, r=${cornerRadius})`);
         const handle = attachGlass(actor, opts);
         const destroyId = actor.connect('destroy', () => this._detachActor(actor));
         this._handles.set(actor, {handle, destroyId, styleClass: 'fluid-glass-login-glass'});
