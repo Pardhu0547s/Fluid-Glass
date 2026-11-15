@@ -42,6 +42,7 @@ export class DialogManager {
 
         const shieldGroup = Main.layoutManager.screenShieldGroup;
         if (shieldGroup) {
+            console.log(`[FluidGlass] DialogManager.setup: watching screenShieldGroup (${shieldGroup.get_n_children?.() ?? 0} children)`);
             this._groupSignals.push([
                 shieldGroup,
                 shieldGroup.connect('child-added', (_g, child) => this._watchShieldTree(child)),
@@ -123,10 +124,12 @@ export class DialogManager {
             return;
         actor.add_style_class_name?.('fluid-glass-login-glass');
         const opts = this._glassOptions(cornerRadius);
-        opts.blurRadius = Math.max(opts.blurRadius ?? 4, 18);
-        opts.tintStrength = Math.max(opts.tintStrength ?? 0.04, 0.22);
-        opts.darkMode = true;
-        this._logger?.log?.(`DialogManager: attaching login glass (${actor.style_class ?? 'unknown'}, r=${cornerRadius})`);
+        opts.blurRadius = Math.max(opts.blurRadius ?? 4, 20);
+        opts.tintColor = '#141822';
+        opts.tintStrength = 0.38;
+        opts.brightness = 0.92;
+        opts.saturation = 1.2;
+        console.log(`[FluidGlass] DialogManager: attaching login glass to "${actor.style_class ?? 'unknown'}" (mapped=${actor.mapped}, r=${cornerRadius})`);
         const handle = attachGlass(actor, opts);
         const destroyId = actor.connect('destroy', () => this._detachActor(actor));
         this._handles.set(actor, {handle, destroyId, styleClass: 'fluid-glass-login-glass'});
