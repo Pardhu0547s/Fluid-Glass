@@ -162,23 +162,46 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
     // ── Helpers ────────────────────────────────────────────────────────────
     _installCss(display) {
         const css = `
-            .fg-swatch {
+            .fg-swatch,
+            button.fg-swatch,
+            button.fg-swatch:hover,
+            button.fg-swatch:active,
+            button.fg-swatch:checked {
                 min-width: 24px;
                 min-height: 24px;
                 padding: 0;
                 margin: 0;
-                border-radius: 999px;
-                border: none;
-                box-shadow: inset 0 0 0 1px alpha(black, 0.15);
+                border-radius: 9999px;
+                border: 1px solid alpha(black, 0.20);
+                box-shadow: inset 0 1px 0 0 alpha(white, 0.28),
+                            0 0 0 1px alpha(white, 0.14);
             }
-            .fg-swatch:checked {
+            button.fg-swatch:hover {
+                box-shadow: inset 0 1px 0 0 alpha(white, 0.35),
+                            0 0 0 2px alpha(@window_fg_color, 0.25);
+            }
+            .fg-swatch:checked,
+            button.fg-swatch:checked {
                 outline: 2px solid @window_fg_color;
                 outline-offset: 2px;
             }
-            .fg-swatch-0 {
-                background: linear-gradient(135deg, #007aff 0%, #ff9500 50%, #34c759 100%);
+            .fg-swatch-0,
+            button.fg-swatch-0,
+            button.fg-swatch-0:hover,
+            button.fg-swatch-0:active,
+            button.fg-swatch-0:checked {
+                background-image: linear-gradient(135deg, #007aff 0%, #ff9500 50%, #34c759 100%);
+                background-color: transparent;
             }
-            ${ACCENT_COLORS.slice(1).map((c, i) => `.fg-swatch-${i + 1} { background: ${c[1]}; }`).join('\n')}
+            ${ACCENT_COLORS.slice(1).map((c, i) => `
+            .fg-swatch-${i + 1},
+            button.fg-swatch-${i + 1},
+            button.fg-swatch-${i + 1}:hover,
+            button.fg-swatch-${i + 1}:active,
+            button.fg-swatch-${i + 1}:checked {
+                background-image: none;
+                background-color: ${c[1]};
+            }`).join('\n')}
             .fg-scale,
             scale.fg-scale {
                 min-width: 230px;
@@ -201,7 +224,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             else
                 provider.load_from_data(css, -1);
             Gtk.StyleContext.add_provider_for_display(
-                display, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+                display, provider, Gtk.STYLE_PROVIDER_PRIORITY_USER + 1);
         } catch (_e) {}
     }
 
@@ -313,16 +336,22 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
 
         const boxColors = new Gtk.Box({
             orientation: Gtk.Orientation.HORIZONTAL,
-            spacing: 10,
+            spacing: 8,
             valign: Gtk.Align.CENTER,
-            margin_start: 6,
+            margin_start: 10,
         });
         const currentAccent = (this.sMaster?.get_string('accent-color') ?? 'auto').toLowerCase();
         let firstSwatch = null;
         ACCENT_COLORS.forEach(([name, hex], i) => {
+            const tip = hex === 'auto'
+                ? _('Auto (Fedora Blue, Ubuntu Orange, Manjaro Green)')
+                : _(name);
             const btn = new Gtk.ToggleButton({
-                tooltip_text: _(name),
+                tooltip_text: tip,
                 valign: Gtk.Align.CENTER,
+                halign: Gtk.Align.CENTER,
+                width_request: 24,
+                height_request: 24,
                 css_classes: ['fg-swatch', `fg-swatch-${i}`],
             });
             if (firstSwatch)
@@ -343,9 +372,9 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             const val = (this.sMaster?.get_string('accent-color') ?? 'auto').toLowerCase();
             if (val === 'auto' || val === '' || val === 'system') {
                 const resolved = resolveAccentColor(this.sMaster, this.sLintel);
-                rowAcc.set_subtitle(_('System / Distro default (Auto: %s — Blue for Fedora, Orange for Ubuntu, Green for Manjaro)').format(resolved));
+                rowAcc.set_subtitle(_('Auto: %s (matches OS / distro theme)').format(resolved));
             } else {
-                rowAcc.set_subtitle(_('Custom accent color: %s').format(val));
+                rowAcc.set_subtitle(_('Custom accent: %s').format(val));
             }
         };
         updateAccentSubtitle();
