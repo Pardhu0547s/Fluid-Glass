@@ -31,6 +31,7 @@ export class DialogManager {
         this._taggedActors = new Set();
         this._pendingIdles = new Set();
         this._groupSignals = [];
+        this._settingsSignals = [];
     }
 
     setup() {
@@ -54,6 +55,41 @@ export class DialogManager {
             for (const child of shieldGroup.get_children())
                 this._watchShieldTree(child);
         }
+
+        if (this._settings) {
+            const keys = [
+                'panel-menu-blur-radius',
+                'panel-menu-tint-color',
+                'panel-menu-tint-strength',
+                'panel-menu-brightness',
+                'panel-menu-contrast',
+                'panel-menu-saturation',
+                'panel-menu-corner-radius',
+            ];
+            for (const key of keys) {
+                this._settingsSignals.push(
+                    this._settings.connect(`changed::${key}`, () => this._syncThemeSettings())
+                );
+            }
+        }
+    }
+
+    _syncThemeSettings() {
+        const corner = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
+        const themeOpts = this._glassOptions(corner);
+        const updatePayload = {
+            blurRadius: themeOpts.blurRadius,
+            tintColor: themeOpts.tintColor,
+            tintStrength: themeOpts.tintStrength,
+            brightness: themeOpts.brightness,
+            contrast: themeOpts.contrast,
+            saturation: themeOpts.saturation,
+            cornerRadius: themeOpts.cornerRadius,
+        };
+        for (const entry of this._handles.values())
+            entry.handle?.update?.(updatePayload);
+        for (const entry of this._shieldDialogs.values())
+            entry.handle?.update?.(updatePayload);
     }
 
     _glassOptions(cornerRadius = 26.0) {
@@ -69,6 +105,7 @@ export class DialogManager {
             tintColor: s ? s.get_string('panel-menu-tint-color') : '#ffffff',
             tintStrength: s ? s.get_double('panel-menu-tint-strength') : 0.04,
             brightness: s ? s.get_double('panel-menu-brightness') : 1.0,
+            contrast: s ? s.get_double('panel-menu-contrast') : 1.0,
             saturation: s ? s.get_double('panel-menu-saturation') : 1.0,
         };
     }
@@ -184,32 +221,18 @@ export class DialogManager {
         if (!containerActor || !isActorValid(containerActor))
             return;
 
-        const opts = this._glassOptions(22.0);
-        if (isUnlock) {
-            // UnlockDialog already blurs & dims the wallpaper in _backgroundGroup.
-            opts.blurRadius = 16;
-            opts.tintColor = '#141822';
-            opts.tintStrength = 0.28;
-            opts.brightness = 0.96;
-            opts.saturation = 1.35;
-        } else {
-            // GDM LoginDialog sits directly over an undimmed wallpaper.
-            opts.blurRadius = 20;
-            opts.tintColor = '#121620';
-            opts.tintStrength = 0.34;
-            opts.brightness = 0.88;
-            opts.saturation = 1.30;
-        }
-        opts.padding = 18;
+        const corner = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
+        const opts = this._glassOptions(corner);
         opts.owner = isUnlock ? 'unlockDialogGlass' : 'loginDialogGlass';
         opts.getCornerRadius = (item, uw, uh) => {
+            const prefR = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
             if (item.has_style_class_name?.('login-dialog-user-list-item'))
-                return 18.0;
+                return Math.min(prefR, 18.0, uw * 0.5, uh * 0.5);
             if (item.has_style_class_name?.('login-dialog-not-listed-button'))
-                return Math.min(18.0, uw * 0.5, uh * 0.5);
+                return Math.min(prefR, 18.0, uw * 0.5, uh * 0.5);
             if (item.has_style_class_name?.('login-dialog-prompt-entry'))
-                return Math.min(22.0, uw * 0.5, uh * 0.5);
-            return Math.min(20.0, uw * 0.5, uh * 0.5);
+                return Math.min(prefR, 22.0, uw * 0.5, uh * 0.5);
+            return Math.min(prefR, uw * 0.5, uh * 0.5);
         };
 
         let loggedOnce = false;
@@ -297,6 +320,13 @@ export class DialogManager {
         for (const sourceId of this._pendingIdles)
             try { GLib.Source.remove(sourceId); } catch (_e) {}
         this._pendingIdles.clear();
+
+        if (this._settings) {
+            for (const id of this._settingsSignals) {
+                try { this._settings.disconnect(id); } catch (_e) {}
+            }
+        }
+        this._settingsSignals = [];
 
         for (const [source, id] of this._groupSignals) {
             if (source && id) {
