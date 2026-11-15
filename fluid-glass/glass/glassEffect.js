@@ -27,6 +27,7 @@ import { hexToColorArray, startSyncLoop, stopStageLoop } from './animation.js';
 import {
     ensureGlassAllocated,
     getAllocatedSize,
+    isActorValid,
     placeScreenGlass,
     GLASS_SHADOW_MAX_RADIUS,
 } from './actors.js';
@@ -202,11 +203,13 @@ export class GlassHandle {
 
         if (this.glass) {
             try {
-                this.glass.cleanup();
-                const parent = this.glass.get_parent();
-                if (parent)
-                    parent.remove_child(this.glass);
-                this.glass.destroy();
+                if (isActorValid(this.glass)) {
+                    this.glass.cleanup();
+                    const parent = this.glass.get_parent();
+                    if (parent)
+                        parent.remove_child(this.glass);
+                    this.glass.destroy();
+                }
             } catch (_e) {}
             this.glass = null;
         }
