@@ -377,7 +377,7 @@ export class DigitsSource {
 
     constructor(extensionPath, _logger) {
         this._logger = _logger;
-        this._worker = new WorkerProcess(`${extensionPath}/dist/workers/digitsWorker.js`, 'clock\'s worker', _logger);
+        this._worker = new WorkerProcess(`${extensionPath}/glass/workers/digitsWorker.js`, 'clock\'s worker', _logger);
     }
 
     /** Rejects when the digits cannot be made. */

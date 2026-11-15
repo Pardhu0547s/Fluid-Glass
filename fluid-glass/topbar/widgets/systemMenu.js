@@ -18,7 +18,9 @@
 //     PanelMenu.Button base tears down the actor + menu, and Panel.addToStatusArea
 //     removes us from statusArea automatically on that destroy.
 
+import Cairo from 'gi://cairo';
 import Clutter from 'gi://Clutter';
+import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -32,6 +34,7 @@ import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.j
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 import {_} from '../i18n.js';
 import {getIface, syncMenuTheme} from './statusMenu.js';
+import {resolveDistroLogoFile} from '../../distroColors.js';
 
 const FALLBACK_LOGO = 'start-here-symbolic';
 
@@ -107,7 +110,7 @@ function findLogoInHicolor(root, names) {
  *
  * @returns {?string} path to the logo, or null when none is installed
  */
-function distributorLogoPath() {
+function distributorLogoPath(extensionDir = null) {
     const info = key => {
         try {
             return GLib.get_os_info(key);
@@ -117,30 +120,188 @@ function distributorLogoPath() {
     };
 
     const names = [];
+    const pushUnique = name => {
+        if (name && !names.includes(name))
+            names.push(name);
+    };
+
+    const id = info('ID');
     const logo = info('LOGO');
+    const idLike = info('ID_LIKE');
+
     if (logo) {
-        names.push(logo);
-    } else {
-        // LOGO is optional. Best-effort guesses from the distribution id; a
-        // miss just falls through to the themed fallback.
-        const id = info('ID');
-        if (id)
-            names.push(`${id}-logo`, id);
+        pushUnique(logo);
+        pushUnique(logo.replace(/-icon$/, ''));
+    }
+    if (id) {
+        pushUnique(`${id}-logo`);
+        pushUnique(id);
+    }
+    if (idLike) {
+        for (const token of idLike.split(/\s+/)) {
+            if (token)
+                pushUnique(`${token}-logo`);
+        }
     }
     if (!names.length)
         return null;
 
+    // Prefer bundled clean symbolic distro SVGs first so opaque square/circle
+    // distro badges (e.g. Ubuntu's pixmap/hicolor badge) never silhouette into
+    // a solid block.
+    const distrosDir = extensionDir?.get_child('icons')?.get_child('distros');
+    if (distrosDir) {
+        for (const name of names) {
+            const base = name.replace(/(-symbolic)?\.svg$/, '').replace(/-symbolic$/, '');
+            for (const candidate of [`${base}-symbolic.svg`, `${base}-logo-symbolic.svg`]) {
+                const file = distrosDir.get_child(candidate);
+                if (file?.query_exists(null))
+                    return file.get_path();
+            }
+        }
+    }
+
+    // Prefer -symbolic assets in hicolor/flat dirs before full-colour artwork.
+    const searchNames = [];
+    for (const name of names) {
+        if (!name.endsWith('-symbolic'))
+            searchNames.push(`${name}-symbolic`);
+        searchNames.push(name);
+    }
+
     for (const root of LOGO_HICOLOR_ROOTS) {
-        const hit = findLogoInHicolor(root, names);
+        const hit = findLogoInHicolor(root, searchNames);
         if (hit)
             return hit;
     }
     for (const dir of LOGO_FLAT_DIRS) {
-        const hit = findLogoIn(dir, names);
+        const hit = findLogoIn(dir, searchNames);
         if (hit)
             return hit;
     }
+
+    if (distrosDir) {
+        for (const name of names) {
+            const file = distrosDir.get_child(`${name}.svg`);
+            if (file?.query_exists(null))
+                return file.get_path();
+        }
+    }
     return null;
+}
+
+/**
+ * If a logo file is a solid filled badge (square/circle with >= 65% opaque
+ * coverage and an inner contrasting emblem), extract only the inner emblem into
+ * an alpha mask surface so cr.maskSurface never paints a solid grey block.
+ */
+function extractBadgeEmblemMask(path, width, height) {
+    try {
+        const pb = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, width, height, true);
+        const pw = pb.get_width();
+        const ph = pb.get_height();
+        if (!pw || !ph)
+            return null;
+
+        const hasAlpha = pb.get_has_alpha();
+        const nc = pb.get_n_channels();
+        const stride = pb.get_rowstride();
+        const pixels = pb.get_pixels();
+
+        let opaqueCount = 0;
+        let sumR = 0;
+        let sumG = 0;
+        let sumB = 0;
+        const total = pw * ph;
+
+        for (let y = 0; y < ph; y++) {
+            const row = y * stride;
+            for (let x = 0; x < pw; x++) {
+                const i = row + x * nc;
+                const a = hasAlpha ? pixels[i + 3] : 255;
+                if (a >= 190) {
+                    opaqueCount++;
+                    sumR += pixels[i];
+                    sumG += pixels[i + 1];
+                    sumB += pixels[i + 2];
+                }
+            }
+        }
+
+        if (opaqueCount / total < 0.65)
+            return null;
+
+        // Find dominant badge fill color via quantized 32-level histogram so
+        // anti-aliased edge pixels do not skew the background color.
+        const bins = new Map();
+        let bestKey = 0;
+        let bestCount = 0;
+        for (let y = 0; y < ph; y++) {
+            const row = y * stride;
+            for (let x = 0; x < pw; x++) {
+                const i = row + x * nc;
+                const a = hasAlpha ? pixels[i + 3] : 255;
+                if (a < 190)
+                    continue;
+                const qr = pixels[i] >> 4;
+                const qg = pixels[i + 1] >> 4;
+                const qb = pixels[i + 2] >> 4;
+                const key = (qr << 8) | (qg << 4) | qb;
+                const next = (bins.get(key) ?? 0) + 1;
+                bins.set(key, next);
+                if (next > bestCount) {
+                    bestCount = next;
+                    bestKey = key;
+                }
+            }
+        }
+        const bgR = bestCount > 0 ? ((bestKey >> 8) & 0xf) * 16 + 8 : sumR / opaqueCount;
+        const bgG = bestCount > 0 ? ((bestKey >> 4) & 0xf) * 16 + 8 : sumG / opaqueCount;
+        const bgB = bestCount > 0 ? (bestKey & 0xf) * 16 + 8 : sumB / opaqueCount;
+
+        let emblemPixels = 0;
+        for (let y = 0; y < ph; y++) {
+            const row = y * stride;
+            for (let x = 0; x < pw; x++) {
+                const i = row + x * nc;
+                const a = hasAlpha ? pixels[i + 3] : 255;
+                if (a < 64)
+                    continue;
+                const diff = Math.abs(pixels[i] - bgR) +
+                    Math.abs(pixels[i + 1] - bgG) +
+                    Math.abs(pixels[i + 2] - bgB);
+                if (diff > 55)
+                    emblemPixels++;
+            }
+        }
+        if (emblemPixels < Math.max(4, total * 0.03))
+            return 'solid-unusable';
+
+        const mask = new Cairo.ImageSurface(Cairo.Format.ARGB32, pw, ph);
+        const mcr = new Cairo.Context(mask);
+        for (let y = 0; y < ph; y++) {
+            const row = y * stride;
+            for (let x = 0; x < pw; x++) {
+                const i = row + x * nc;
+                const pxAlpha = hasAlpha ? pixels[i + 3] : 255;
+                if (pxAlpha < 32)
+                    continue;
+                const diff = Math.abs(pixels[i] - bgR) +
+                    Math.abs(pixels[i + 1] - bgG) +
+                    Math.abs(pixels[i + 2] - bgB);
+                if (diff > 36) {
+                    const alpha = Math.min(1, (diff - 30) / 90) * (pxAlpha / 255);
+                    mcr.setSourceRGBA(1, 1, 1, alpha);
+                    mcr.rectangle(x, y, 1, 1);
+                    mcr.fill();
+                }
+            }
+        }
+        mcr.$dispose();
+        return mask;
+    } catch (_e) {
+        return null;
+    }
 }
 
 /**
@@ -155,13 +316,15 @@ function distributorLogoPath() {
  * text beside it, and it follows light/dark and the adaptive contrast pass.
  *
  * @param {string} path logo file to silhouette
- * @returns {St.DrawingArea} the actor to mount
+ * @returns {St.DrawingArea|null} the actor to mount, or null if unusable
  */
 function newLogoSilhouette(path) {
     const area = new St.DrawingArea({
         style_class: 'system-status-icon fluid-glass-system-logo-silhouette',
         reactive: false,
     });
+    let cachedKey = '';
+    let cachedMask = null;
 
     area.connect('repaint', a => {
         const cr = a.get_context();
@@ -169,6 +332,29 @@ function newLogoSilhouette(path) {
             const [width, height] = a.get_surface_size();
             if (!width || !height)
                 return;
+
+            const key = `${path}:${width}x${height}`;
+            if (cachedKey !== key) {
+                cachedKey = key;
+                cachedMask = extractBadgeEmblemMask(path, width, height);
+            }
+            if (cachedMask === 'solid-unusable')
+                return;
+
+            const fg = a.get_theme_node().get_foreground_color();
+            if (cachedMask) {
+                const mw = cachedMask.getWidth();
+                const mh = cachedMask.getHeight();
+                const fit = Math.min(width / mw, height / mh);
+                cr.save();
+                cr.translate((width - mw * fit) / 2, (height - mh * fit) / 2);
+                cr.scale(fit, fit);
+                cr.setSourceColor(fg);
+                cr.maskSurface(cachedMask, 0, 0);
+                cr.restore();
+                return;
+            }
+
             // St.DrawingArea hands us DEVICE pixels, so rasterise the source at
             // the same scale to keep the silhouette's edge crisp.
             const scale =
@@ -187,7 +373,7 @@ function newLogoSilhouette(path) {
             cr.save();
             cr.translate((width - sw * fit) / 2, (height - sh * fit) / 2);
             cr.scale(fit, fit);
-            cr.setSourceColor(a.get_theme_node().get_foreground_color());
+            cr.setSourceColor(fg);
             cr.maskSurface(surface, 0, 0);
             cr.restore();
         } catch (e) {
@@ -242,7 +428,7 @@ export const FluidGlassSystemMenu = GObject.registerClass({
         // in a monochrome bar. A logo the user picked by hand is shown as they
         // chose it.
         if (!value) {
-            const distro = distributorLogoPath();
+            const distro = distributorLogoPath(this._extension?.dir);
             if (distro)
                 return newLogoSilhouette(distro);
         }
@@ -260,22 +446,8 @@ export const FluidGlassSystemMenu = GObject.registerClass({
             const file = Gio.File.new_for_path(path);
             icon.gicon = Gio.FileIcon.new(file);
         } else if (value) {
-            const cleanName = value.endsWith('.svg') ? value.slice(0, -4) : value;
-            const iconsDir = this._extension?.dir?.get_child('icons');
-            const distrosDir = iconsDir?.get_child('distros');
-            let distroFile = iconsDir?.get_child(`${cleanName}.svg`);
-            if (!distroFile?.query_exists(null))
-                distroFile = distrosDir?.get_child(`${cleanName}.svg`);
-            if (!distroFile?.query_exists(null))
-                distroFile = iconsDir?.get_child(`${cleanName}-logo-symbolic.svg`);
-            if (!distroFile?.query_exists(null))
-                distroFile = distrosDir?.get_child(`${cleanName}-logo-symbolic.svg`);
-            if (!distroFile?.query_exists(null))
-                distroFile = iconsDir?.get_child(`${cleanName}-logo.svg`);
-            if (!distroFile?.query_exists(null))
-                distroFile = distrosDir?.get_child(`${cleanName}-logo.svg`);
-
-            if (distroFile?.query_exists(null)) {
+            const distroFile = resolveDistroLogoFile(this._extension?.dir, value);
+            if (distroFile) {
                 icon.gicon = Gio.FileIcon.new(distroFile);
             } else {
                 icon.icon_name = value;

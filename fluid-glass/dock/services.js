@@ -526,70 +526,8 @@ export const Services = class {
   }
   */
 
-  async checkRecentFilesFromRecentManager() {
-    console.log('checking recent manager');
-    let maxs = [5, 8, 10, 12, 15, 20, 25];
-    let max_recent_items = maxs[this.extension.max_recent_items || 0];
-
-    let recentFiles = [];
-    let recentFilesLength = 0;
-
-    try {
-      await trySpawnCommandLine(
-        `/usr/bin/env -S gjs -m "${this.extension.path}/apps/recents.js"`
-      );
-    } catch (err) {
-      console.log(err);
-    }
-
-    // const recentsPath = tempPath('recents.txt');
-    const recentsPath = '/tmp/recents.txt';
-
-    let fn = Gio.File.new_for_path(recentsPath);
-    if (fn.query_exists(null)) {
-      try {
-        const [success, contents] = await fn.load_contents_async(null);
-        const decoder = new TextDecoder();
-        let contentsString = decoder.decode(contents);
-        let idx = 0;
-        let lines = contentsString.split('\n');
-        lines.forEach((l) => {
-          let res = l.split('|');
-          if (res.length != 2) return;
-          const file = Gio.File.new_for_path(res[0]);
-          if (!file.query_exists(null)) {
-            console.log('not exists');
-            return;
-          }
-          if (recentFiles.length < max_recent_items) {
-            const fileStat = {
-              index: idx++,
-              name: file.get_basename(),
-              icon: res[1],
-              // icon: this.extension.lookup_icon_from_names([res[1]]) ?? 'file',
-              path: file.get_path(),
-              type: 'file',
-            };
-            recentFiles.push(fileStat);
-          }
-          recentFilesLength++;
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    return Promise.resolve([recentFiles, recentFilesLength]);
-  }
-
   async checkRecents() {
-    // NOT YET READY
-    // try {
-    //   [this._recentFiles, this._recentFilesLength] =
-    //     await this.checkRecentFilesFromRecentManager();
-    // } catch (err) {
-    //   console.log(err);
-    // }
+    // Recents folder is disabled in dock.js; kept as no-op for caller compatibility.
   }
 
   _debounceCheckRecents() {

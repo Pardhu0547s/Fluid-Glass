@@ -660,7 +660,7 @@
 
 .fluid-glass-cc-tile-icon:checked,
 .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon {
-    color: #007aff !important;
+    color: #007aff;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -827,7 +827,7 @@
 
 .fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked .fluid-glass-cc-tile-icon,
 .fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon:checked {
-    color: #1c1c1e !important;
+    color: #007aff;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -958,7 +958,7 @@
 
 .fluid-glass-cc-light .fluid-glass-cc-tile-icon:checked,
 .fluid-glass-cc-light .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon {
-    color: #007aff !important;
+    color: #007aff;
 }
 
 .fluid-glass-cc-light .fluid-glass-cc-media-artist {
@@ -3278,7 +3278,7 @@
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button.default,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button.default,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button.default {
-    background-color: rgba(0, 122, 255, 0.72) !important;
+    background-color: rgba(0, 122, 255, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.28) !important;
     box-shadow: none !important;
 }
@@ -3293,7 +3293,7 @@
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button.default:hover,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button.default:focus,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button.default:focus {
-    background-color: rgba(0, 122, 255, 0.86) !important;
+    background-color: rgba(0, 122, 255, 0.86);
     border: 1px solid rgba(255, 255, 255, 0.38) !important;
     box-shadow: none !important;
 }
@@ -3758,7 +3758,7 @@
 .fluid-glass-ui-popup-content .quick-toggle:checked,
 .fluid-glass-ui-popup-content .quick-toggle-has-menu .quick-toggle:checked,
 .fluid-glass-ui-popup-content .quick-toggle-menu-button:checked {
-    background-color: rgba(0, 122, 255, 0.78) !important;
+    background-color: rgba(0, 122, 255, 0.78);
     border: none !important;
     box-shadow: none !important;
     color: #ffffff !important;
@@ -3770,7 +3770,7 @@
 .fluid-glass-ui-popup-content .quick-toggle-has-menu .quick-toggle:checked:focus,
 .fluid-glass-ui-popup-content .quick-toggle-menu-button:checked:hover,
 .fluid-glass-ui-popup-content .quick-toggle-menu-button:checked:focus {
-    background-color: rgba(0, 122, 255, 0.90) !important;
+    background-color: rgba(0, 122, 255, 0.90);
     border: none !important;
     box-shadow: none !important;
 }

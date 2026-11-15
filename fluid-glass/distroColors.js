@@ -31,9 +31,37 @@ export const DISTRO_ACCENT_COLORS = {
     'endeavouros': '#7f3fbf', // EndeavourOS Purple
     'nixos': '#5277c3',       // NixOS Light Blue
     'solus': '#4a90e2',       // Solus Blue
+    'cachyos': '#00aa88',     // CachyOS Teal
+    'garuda': '#007aff',      // Garuda Blue
+    'nobara': '#007aff',      // Nobara Blue
+    'ublue': '#007aff',       // Universal Blue
+    'asahilinux': '#d70a53',  // Asahi Linux Crimson
+    'steam-deck': '#1a9fff',  // Steam Blue
+    'mx': '#333333',          // MX Graphite
+    'pureos': '#34c759',      // PureOS Green
+    'raspbian': '#c51a4a',    // Raspberry Pi Berry
+    'vanilla': '#e5a50a',     // Vanilla OS Gold
+    'clear-linux': '#007aff', // Clear Linux Blue
     'freebsd': '#ff3b30',     // FreeBSD Red
+    'openbsd': '#e5a50a',     // OpenBSD Yellow
+    'netbsd': '#ff9500',      // NetBSD Orange
     'tux': '#007aff',         // Tux Blue
     'gnome': '#007aff',       // GNOME Blue
+};
+
+const YARU_ACCENT_COLORS = {
+    'blue': '#007aff',
+    'prussiangreen': '#21a499',
+    'viridian': '#03875b',
+    'sage': '#657b69',
+    'olive': '#4b8501',
+    'bark': '#787859',
+    'purple': '#af52de',
+    'magenta': '#d56199',
+    'red': '#ff3b30',
+    'wartybrown': '#b39169',
+    'yellow': '#e5a50a',
+    'orange': '#ff9500',
 };
 
 export const GNOME_ACCENT_COLORS = {
@@ -47,6 +75,37 @@ export const GNOME_ACCENT_COLORS = {
     'purple': '#af52de',
     'slate': '#545458',
 };
+
+/**
+ * Resolves a bundled extension icon/distro SVG file from a setting value.
+ *
+ * @param {Gio.File|null} extensionDir
+ * @param {string} value
+ * @returns {Gio.File|null}
+ */
+export function resolveDistroLogoFile(extensionDir, value) {
+    if (!extensionDir || !value)
+        return null;
+    const cleanName = value.endsWith('.svg') ? value.slice(0, -4) : value;
+    const iconsDir = extensionDir.get_child('icons');
+    const distrosDir = iconsDir?.get_child('distros');
+    const systemMenuDir = iconsDir?.get_child('systemMenu');
+    const dirs = [distrosDir, systemMenuDir, iconsDir].filter(Boolean);
+    const candidates = [
+        `${cleanName}.svg`,
+        `${cleanName}-symbolic.svg`,
+        `${cleanName}-logo-symbolic.svg`,
+        `${cleanName}-logo.svg`,
+    ];
+    for (const filename of candidates) {
+        for (const dir of dirs) {
+            const file = dir.get_child(filename);
+            if (file?.query_exists(null))
+                return file;
+        }
+    }
+    return null;
+}
 
 /**
  * Resolves the default accent color for a given distro ID or logo name.
@@ -71,23 +130,39 @@ export function getDistroAccentColor(distroNameOrLogo) {
  * @returns {string} Hex color code
  */
 export function getHostSystemAccentColor() {
-    // 1. Try GNOME 47+ desktop interface accent-color
+    // 1. Try GNOME 47+ desktop interface accent-color, or Yaru variant on older Ubuntu releases.
     try {
         const iface = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
-        const gnomeAccent = iface.get_string('accent-color');
-        if (gnomeAccent && GNOME_ACCENT_COLORS[gnomeAccent]) {
-            if (gnomeAccent !== 'blue')
+        const schema = iface.settings_schema;
+        if (schema?.has_key('accent-color')) {
+            const gnomeAccent = iface.get_string('accent-color');
+            if (gnomeAccent && GNOME_ACCENT_COLORS[gnomeAccent] && gnomeAccent !== 'blue')
                 return GNOME_ACCENT_COLORS[gnomeAccent];
+        }
+        if (schema?.has_key('gtk-theme')) {
+            const gtkTheme = (iface.get_string('gtk-theme') || '').toLowerCase();
+            if (gtkTheme.startsWith('yaru-')) {
+                for (const [variant, color] of Object.entries(YARU_ACCENT_COLORS)) {
+                    if (gtkTheme.includes(`-${variant}`))
+                        return color;
+                }
+            }
         }
     } catch (_e) {}
 
-    // 2. Try os-release ID or LOGO
+    // 2. Try os-release ID, LOGO, then ID_LIKE tokens.
     try {
         const id = (GLib.get_os_info('ID') || '').toLowerCase();
         const logo = (GLib.get_os_info('LOGO') || '').toLowerCase();
-        const color = getDistroAccentColor(id) || getDistroAccentColor(logo);
-        if (color)
-            return color;
+        const idLike = (GLib.get_os_info('ID_LIKE') || '').toLowerCase();
+        const direct = getDistroAccentColor(id) || getDistroAccentColor(logo);
+        if (direct)
+            return direct;
+        for (const token of idLike.split(/\s+/)) {
+            const liked = getDistroAccentColor(token);
+            if (liked)
+                return liked;
+        }
     } catch (_e) {}
 
     // Fallback default

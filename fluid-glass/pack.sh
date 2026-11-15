@@ -23,7 +23,9 @@ gnome-extensions pack \
   --extra-source=topbar \
   --extra-source=dock \
   --extra-source=presets \
+  --extra-source=distroColors.js \
   --extra-source=glassEngine.js \
+  --extra-source=guard.js \
   --extra-source=THIRD_PARTY_NOTICES.md \
   .
 

@@ -95,6 +95,10 @@ export class ThemeManager {
             'changed::accent-color', () => {
                 this._rebuild();
             });
+        this._desktopGtkThemeId = this._desktop.connect(
+            'changed::gtk-theme', () => {
+                this._rebuild();
+            });
 
         this._background = new Gio.Settings({
             schema_id: 'org.gnome.desktop.background',
@@ -398,13 +402,57 @@ export class ThemeManager {
         }
 
         const accent = resolveAccentColor(this._masterSettings, this._settings);
+        const match = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})/i.exec(accent);
+        const [r, g, b] = match
+            ? [parseInt(match[1], 16), parseInt(match[2], 16), parseInt(match[3], 16)]
+            : [0, 122, 255];
+
         lines.push(`
 /* Dynamic Accent Color */
 .fluid-glass-cc-tile-icon:checked,
 .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon:checked,
 .fluid-glass-cc-light .fluid-glass-cc-tile-icon:checked,
-.fluid-glass-cc-light .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon {
+.fluid-glass-cc-light .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-light .fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-light .fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon:checked {
     color: ${accent} !important;
+}
+
+.fluid-glass-ui-popup-content .quick-toggle:checked,
+.fluid-glass-ui-popup-content .quick-toggle-has-menu .quick-toggle:checked,
+.fluid-glass-ui-popup-content .quick-toggle-menu-button:checked {
+    background-color: rgba(${r}, ${g}, ${b}, 0.78) !important;
+}
+
+.fluid-glass-ui-popup-content .quick-toggle:checked:hover,
+.fluid-glass-ui-popup-content .quick-toggle:checked:focus,
+.fluid-glass-ui-popup-content .quick-toggle-has-menu .quick-toggle:checked:hover,
+.fluid-glass-ui-popup-content .quick-toggle-has-menu .quick-toggle:checked:focus,
+.fluid-glass-ui-popup-content .quick-toggle-menu-button:checked:hover,
+.fluid-glass-ui-popup-content .quick-toggle-menu-button:checked:focus {
+    background-color: rgba(${r}, ${g}, ${b}, 0.90) !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button.default,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button.default,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button.default,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button.default {
+    background-color: rgba(${r}, ${g}, ${b}, 0.72) !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button.default:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button.default:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button.default:focus,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button.default:focus,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button.default:focus:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button.default:focus:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button.default:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button.default:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button.default:focus,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button.default:focus {
+    background-color: rgba(${r}, ${g}, ${b}, 0.86) !important;
 }
 
 .fluid-glass-fg-track,
@@ -414,6 +462,34 @@ export class ThemeManager {
 
 .toggle-switch:checked {
     background-color: ${accent} !important;
+}
+
+.fluid-glass-cc-slot-shield:checked,
+.fluid-glass-cc-slot-shield:focus {
+    border-color: ${accent} !important;
+}
+
+.fluid-glass-nc-widget-size-control,
+.fluid-glass-nc-ring-cpu,
+.fluid-glass-nc-light .fluid-glass-nc-ring-cpu {
+    -fluid-glass-ring-fill: ${accent} !important;
+}
+
+.fluid-glass-nc-widget-size-control {
+    background-color: ${accent} !important;
+}
+
+.fluid-glass-nc-bar-chart,
+.fluid-glass-nc-dark .fluid-glass-nc-bar-chart,
+.fluid-glass-nc-light .fluid-glass-nc-bar-chart {
+    -fluid-glass-bar-fill: rgba(${r}, ${g}, ${b}, 0.55) !important;
+    -fluid-glass-bar-highlight: ${accent} !important;
+}
+
+.fluid-glass-nc-sparkline,
+.fluid-glass-nc-dark .fluid-glass-nc-sparkline,
+.fluid-glass-nc-light .fluid-glass-nc-sparkline {
+    -fluid-glass-spark-primary: ${accent} !important;
 }
 
 .fluid-glass-status-menu-content .popup-menu-item:checked,
@@ -429,6 +505,12 @@ export class ThemeManager {
     color: ${accent} !important;
 }
 
+.popup-menu-content.fluid-glass-menu-root .calendar-today,
+.popup-menu-content.fluid-glass-menu-root .calendar-today:hover,
+.popup-menu-content.fluid-glass-menu-root .calendar-today:active,
+.popup-menu-content.fluid-glass-menu-root .calendar-today:checked,
+.popup-menu-content.fluid-glass-menu-root .calendar-today:selected,
+.popup-menu-content.fluid-glass-menu-root .calendar-today:focus,
 .fluid-glass-menu-root .calendar-today,
 .fluid-glass-menu-root .calendar-today:hover,
 .fluid-glass-menu-root .calendar-today:active,
@@ -497,6 +579,10 @@ export class ThemeManager {
         if (this._desktopAccentId && this._desktop) {
             this._desktop.disconnect(this._desktopAccentId);
             this._desktopAccentId = 0;
+        }
+        if (this._desktopGtkThemeId && this._desktop) {
+            this._desktop.disconnect(this._desktopGtkThemeId);
+            this._desktopGtkThemeId = 0;
         }
         if (this._backgroundId && this._background) {
             this._background.disconnect(this._backgroundId);

@@ -33,6 +33,7 @@ const ACCENT_COLORS = [
 ];
 
 const DISTRO_ICONS_SYMBOLIC = [
+    { id: 'apple-logo-symbolic', name: 'Apple' },
     { id: 'fedora-logo-symbolic', name: 'Fedora' },
     { id: 'arch-logo-symbolic', name: 'Arch Linux' },
     { id: 'debian-logo-symbolic', name: 'Debian' },

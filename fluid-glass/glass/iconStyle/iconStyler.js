@@ -585,7 +585,7 @@ export class IconMaps {
     constructor(extensionPath, _logger) {
         this._logger = _logger;
         const count = Math.max(1, Math.min(MAX_WORKERS, GLib.get_num_processors() - 1));
-        this._workers = Array.from({ length: count }, () => new WorkerProcess(`${extensionPath}/dist/workers/iconWorker.js`, 'icon worker', _logger));
+        this._workers = Array.from({ length: count }, () => new WorkerProcess(`${extensionPath}/glass/workers/iconWorker.js`, 'icon worker', _logger));
     }
 
     /** The map of the icon in `path`. Rejects when it cannot be made. */

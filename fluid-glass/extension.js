@@ -62,18 +62,7 @@ export default class FluidGlassExtension extends Extension {
         // 1. Topbar & Tahoe Control Center Subsystem (Lintel)
         if (this._masterSettings.get_boolean('enable-topbar')) {
             try {
-                const topbarAdapter = {
-                    dir: this.dir,
-                    path: extensionPath,
-                    uuid: this.uuid,
-                    metadata: this.metadata,
-                    getSettings: (schemaId = 'org.gnome.shell.extensions.fluid-glass.topbar') => this._safeGetSettings(schemaId, 'org.gnome.shell.extensions.lintel'),
-                    getGlassSettings: () => this._safeGetSettings('org.gnome.shell.extensions.fluid-glass.glass', 'org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com'),
-                    getLogger: () => this._glass?._logger ?? console,
-                    openPreferences: () => this.openPreferences(),
-                };
-
-                this._topbar = new PanelController(topbarAdapter);
+                this._topbar = new PanelController(this._createTopbarAdapter(extensionPath));
                 this._topbar.enable();
                 console.log('[FluidGlass] Topbar & Tahoe Control Center enabled');
             } catch (err) {
@@ -140,19 +129,25 @@ export default class FluidGlassExtension extends Extension {
         }
     }
 
+    _createTopbarAdapter(extensionPath) {
+        return {
+            dir: this.dir,
+            path: extensionPath,
+            uuid: this.uuid,
+            metadata: this.metadata,
+            getSettings: (schemaId = 'org.gnome.shell.extensions.fluid-glass.topbar') => this._safeGetSettings(schemaId, 'org.gnome.shell.extensions.lintel'),
+            getMasterSettings: () => this._masterSettings,
+            getGlassSettings: () => this._glassSettings ?? this._safeGetSettings('org.gnome.shell.extensions.fluid-glass.glass', 'org.gnome.shell.extensions.liquid-glass@thinkingcoding1231.gmail.com'),
+            getLogger: () => this._glass?._logger ?? console,
+            openPreferences: () => this.openPreferences(),
+        };
+    }
+
     _syncTopbarState() {
         const want = this._masterSettings.get_boolean('enable-topbar');
         const extensionPath = this.dir.get_path();
         if (want && !this._topbar) {
-            const topbarAdapter = {
-                dir: this.dir,
-                path: extensionPath,
-                uuid: this.uuid,
-                metadata: this.metadata,
-                getSettings: (schemaId = 'org.gnome.shell.extensions.fluid-glass.topbar') => this._safeGetSettings(schemaId, 'org.gnome.shell.extensions.lintel'),
-                openPreferences: () => this.openPreferences(),
-            };
-            this._topbar = new PanelController(topbarAdapter);
+            this._topbar = new PanelController(this._createTopbarAdapter(extensionPath));
             this._topbar.enable();
         } else if (!want && this._topbar) {
             this._topbar.destroy();
