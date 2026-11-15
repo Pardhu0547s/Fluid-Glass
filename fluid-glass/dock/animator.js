@@ -595,6 +595,7 @@ export let Animator = class {
         icon._renderer.set_style_class_name('');
 
         if (!icon._appwell?._bounce) {
+          icon._renderer.translationX = 0;
           icon._renderer.translationY = 0;
         }
 
@@ -880,9 +881,9 @@ export let Animator = class {
 
       let any = next ?? prev;
       if (!vertical && any) {
-        actor.translationY = any.height / 2 - actor.height / 2;
+        actor.translationY = (any.y + any.height / 2) - (actor.y + actor.height / 2);
       } else if (vertical && any) {
-        // actor.translationX = any.width / 2 - actor.width / 2;
+        actor.translationX += (any.x + any.width / 2) - (actor.x + actor.width / 2);
       }
     });
 
@@ -1165,6 +1166,7 @@ export let Animator = class {
           if (!appwell) return;
           try {
             appwell._bounce = true;
+            appwell.translation_x = 0;
             appwell.translation_y = 0;
           } catch (err) {
             console.log(err);

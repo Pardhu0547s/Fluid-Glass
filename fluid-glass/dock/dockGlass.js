@@ -488,6 +488,25 @@ export class DashManager {
         this._lastBgY = undefined;
     }
 
+    resetCachedBounds() {
+        this._lastScreenW = undefined;
+        this._lastScreenH = undefined;
+        this._lastBgW = undefined;
+        this._lastBgH = undefined;
+        this._lastBgX = undefined;
+        this._lastBgY = undefined;
+        this._lastBaseW = undefined;
+        this._lastBaseH = undefined;
+        this._lastAbsX = undefined;
+        this._lastAbsY = undefined;
+        this._lastTW = undefined;
+        this._lastTH = undefined;
+        this._stableDeltaW = undefined;
+        this._stableDeltaH = undefined;
+        this._liveRef = null;
+        this._liveSource = null;
+    }
+
     _stopFrameSync() {
         stopStageLoop(this._frameSignalSlot, this._frameSlot);
     }

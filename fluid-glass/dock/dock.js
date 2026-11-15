@@ -38,6 +38,19 @@ export const DockPosition = {
   TOP: 'top',
 };
 
+export function popupSideForPosition(position) {
+  switch (position) {
+    case DockPosition.LEFT:
+      return St.Side.LEFT;
+    case DockPosition.RIGHT:
+      return St.Side.RIGHT;
+    case DockPosition.TOP:
+      return St.Side.TOP;
+    default:
+      return St.Side.BOTTOM;
+  }
+}
+
 export const DockAlignment = {
   CENTER: 'center',
   START: 'start',
@@ -168,6 +181,7 @@ export let Dock = GObject.registerClass(
       this._hidden = false;
       this.opacity = 0;
       this.renderArea.opacity = 0;
+      this._dockGlass?.resetCachedBounds?.();
       this.add_child(this.createDash());
       this._icons = null;
       this._trashIcon = null;
@@ -410,6 +424,7 @@ export let Dock = GObject.registerClass(
 
       this._separator = new St.Widget({
         style_class: 'dash-separator',
+        x_align: Clutter.ActorAlign.CENTER,
         y_align: Clutter.ActorAlign.CENTER,
         height: 48,
       });
@@ -578,7 +593,9 @@ export let Dock = GObject.registerClass(
         this._separators.push(c);
         this._dashItems.push(c);
         c.visible = true;
-        c.style = 'margin-left: 8px; margin-right: 8px;';
+        c.style = this.isVertical()
+          ? 'margin-top: 8px; margin-bottom: 8px;'
+          : 'margin-left: 8px; margin-right: 8px;';
         return false;
       }
 
@@ -824,6 +841,13 @@ export let Dock = GObject.registerClass(
         if (c._grid) {
           // c._grid.style = noAnimation ? '' : 'background: none !important;';
           c._grid.style = 'background: none !important;';
+        }
+        if (c._appwell) {
+          const popupSide = popupSideForPosition(this._position);
+          c._appwell._popupMenuSide = popupSide;
+          if (c._appwell._menu?._boxPointer) {
+            c._appwell._menu._boxPointer._arrowSide = popupSide;
+          }
         }
         if (c._appwell && !c._appwell._activate) {
           c._appwell._activate = c._appwell.activate;
@@ -1098,8 +1122,17 @@ export let Dock = GObject.registerClass(
       projectedWidth += iconMargins;
 
       let scaleDown = 1.0;
+      let maxSpan = vertical ? m.height : m.width;
+      if (
+        vertical &&
+        m === Main.layoutManager.primaryMonitor &&
+        Main.panel?.visible
+      ) {
+        const panelClear = Math.max(0, Main.panel.height + 8);
+        maxSpan = Math.max(200, m.height - panelClear * 2);
+      }
       let limit = vertical ? 0.96 : 0.98; // use dock_size_limit
-      let maxWidth = (vertical ? m.height : m.width) * limit;
+      let maxWidth = maxSpan * limit;
       if (projectedWidth * scaleFactor > maxWidth * 0.98) {
         scaleDown = (maxWidth - iconSize / 2) / (projectedWidth * scaleFactor);
       }
@@ -1138,10 +1171,13 @@ export let Dock = GObject.registerClass(
       this.height = m.height;
 
       // reorient and reposition the dash
-      this.dash.last_child.layout_manager.orientation = vertical;
-      this.dash._box.layout_manager.orientation = vertical;
+      const orientation = vertical
+        ? Clutter.Orientation.VERTICAL
+        : Clutter.Orientation.HORIZONTAL;
+      this.dash.last_child.layout_manager.orientation = orientation;
+      this.dash._box.layout_manager.orientation = orientation;
       if (this._extraIcons) {
-        this._extraIcons.layout_manager.orientation = vertical;
+        this._extraIcons.layout_manager.orientation = orientation;
       }
 
       // hug the edge

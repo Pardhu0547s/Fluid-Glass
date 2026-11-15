@@ -147,6 +147,12 @@ export const FluidGlassMenu = GObject.registerClass({
             this._masterSettings = null;
         }
 
+        try {
+            this._dockSettings = extension?.getSettings?.('org.gnome.shell.extensions.fluid-glass.dock') ?? null;
+        } catch (_e) {
+            this._dockSettings = null;
+        }
+
         // Panel Icon
         const iconFile = Gio.File.new_for_path(GLib.build_filenamev([
             extension.path, 'icons', 'fluid-glass-symbolic.svg',
@@ -245,6 +251,30 @@ export const FluidGlassMenu = GObject.registerClass({
             this.menu.addMenuItem(item);
         }
 
+        this._dockPositionItems = new Map();
+        if (this._dockSettings?.settings_schema?.has_key('dock-location')) {
+            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            const dockPosSub = new PopupMenu.PopupSubMenuMenuItem(_('Dock Position'));
+            const positions = [
+                [0, _('Bottom')],
+                [1, _('Left')],
+                [2, _('Right')],
+            ];
+            const activeLoc = this._dockSettings.get_int('dock-location');
+            for (const [loc, label] of positions) {
+                const posItem = new PopupMenu.PopupMenuItem(label);
+                posItem.setOrnament(loc === activeLoc
+                    ? PopupMenu.Ornament.CHECK
+                    : PopupMenu.Ornament.NONE);
+                posItem.connect('activate', () => {
+                    this._dockSettings?.set_int('dock-location', loc);
+                });
+                this._dockPositionItems.set(loc, posItem);
+                dockPosSub.menu.addMenuItem(posItem);
+            }
+            this.menu.addMenuItem(dockPosSub);
+        }
+
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         // 4. Preferences Link
@@ -306,6 +336,14 @@ export const FluidGlassMenu = GObject.registerClass({
         }
     }
 
+    _syncDockPositions(activeLoc) {
+        for (const [loc, item] of this._dockPositionItems) {
+            item.setOrnament(loc === activeLoc
+                ? PopupMenu.Ornament.CHECK
+                : PopupMenu.Ornament.NONE);
+        }
+    }
+
     _bindSettings() {
         if (this._masterSettings) {
             this._settingsIds.push([
@@ -344,6 +382,15 @@ export const FluidGlassMenu = GObject.registerClass({
                 })
             ]);
         }
+
+        if (this._dockSettings?.settings_schema?.has_key('dock-location')) {
+            this._settingsIds.push([
+                this._dockSettings,
+                this._dockSettings.connect('changed::dock-location', () => {
+                    this._syncDockPositions(this._dockSettings.get_int('dock-location'));
+                })
+            ]);
+        }
     }
 
     destroy() {
@@ -353,8 +400,10 @@ export const FluidGlassMenu = GObject.registerClass({
         }
         this._settingsIds = [];
         this._presetItems.clear();
+        this._dockPositionItems?.clear();
         this._glassSettings = null;
         this._masterSettings = null;
+        this._dockSettings = null;
         this._extension = null;
         super.destroy();
     }

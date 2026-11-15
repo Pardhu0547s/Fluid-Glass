@@ -512,6 +512,34 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         const groupDock = new Adw.PreferencesGroup({title: _('Behavior')});
         page.add(groupDock);
 
+        if (this._hasKey(this.sDock, 'dock-location')) {
+            const posRow = new Adw.ComboRow({
+                title: _('Position on Screen'),
+                subtitle: _('Place the dock at the bottom, left, or right edge'),
+                model: Gtk.StringList.new([_('Bottom'), _('Left'), _('Right')]),
+            });
+            const syncPosRow = () => {
+                const loc = this.sDock.get_int('dock-location');
+                const target = loc >= 0 && loc <= 2 ? loc : 0;
+                if (posRow.get_selected() !== target)
+                    posRow.set_selected(target);
+            };
+            syncPosRow();
+            posRow.connect('notify::selected', () => {
+                const sel = posRow.get_selected();
+                if (sel >= 0 && sel <= 2 && this.sDock.get_int('dock-location') !== sel)
+                    this.sDock.set_int('dock-location', sel);
+            });
+            const locChangedId = this.sDock.connect('changed::dock-location', syncPosRow);
+            window.connect('close-request', () => {
+                try {
+                    this.sDock?.disconnect(locChangedId);
+                } catch (_e) {}
+                return false;
+            });
+            groupDock.add(posRow);
+        }
+
         this._scaleRow(groupDock, {
             title: _('Magnification'),
             subtitle: _('Zoom applied to icons under the pointer'),

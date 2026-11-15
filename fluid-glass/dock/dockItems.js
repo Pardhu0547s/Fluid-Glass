@@ -20,7 +20,7 @@ import {
   DashItemContainer,
 } from 'resource:///org/gnome/shell/ui/dash.js';
 
-import { DockPosition } from './dock.js';
+import { DockPosition, popupSideForPosition } from './dock.js';
 
 class DockItemMenu extends PopupMenu.PopupMenu {
   constructor(sourceActor, side = St.Side.TOP, params = {}) {
@@ -59,6 +59,14 @@ class DockItemMenu extends PopupMenu.PopupMenu {
   _onActivate() {}
 
   popup() {
+    if (this._boxPointer && this.item?.dock) {
+      let side = popupSideForPosition(this.item.dock._position);
+      if (Clutter.get_default_text_direction() === Clutter.TextDirection.RTL) {
+        if (side === St.Side.LEFT) side = St.Side.RIGHT;
+        else if (side === St.Side.RIGHT) side = St.Side.LEFT;
+      }
+      this._boxPointer._arrowSide = side;
+    }
     this.open(BoxPointer.PopupAnimation.FULL);
     this._menuManager.ignoreRelease();
   }
