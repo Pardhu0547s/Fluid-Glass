@@ -3184,6 +3184,11 @@
 }
 
 /* Real GLSL glass backing for system ModalDialogs and login/lock pills */
+.lightbox.fluid-glass-transparent {
+    background-color: transparent !important;
+    background: transparent !important;
+}
+
 .modal-dialog.fluid-glass-modal-dialog,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-content-box {
     background-color: transparent !important;
@@ -3195,89 +3200,203 @@
 
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-headline,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-description,
+.modal-dialog.fluid-glass-modal-dialog .message-dialog-title,
+.modal-dialog.fluid-glass-modal-dialog .message-dialog-subtitle,
+.modal-dialog.fluid-glass-modal-dialog .message-dialog-body,
+.modal-dialog.fluid-glass-modal-dialog .end-session-dialog-subtitle,
 .modal-dialog.fluid-glass-modal-dialog .prompt-dialog-headline,
 .modal-dialog.fluid-glass-modal-dialog .prompt-dialog-description,
-.modal-dialog.fluid-glass-modal-dialog .prompt-dialog-info-label {
+.modal-dialog.fluid-glass-modal-dialog .prompt-dialog-info-label,
+.modal-dialog.fluid-glass-modal-dialog .run-dialog-description,
+.modal-dialog.fluid-glass-modal-dialog .dialog-list-item-title,
+.modal-dialog.fluid-glass-modal-dialog .dialog-list-item-description,
+.modal-dialog.fluid-glass-modal-dialog .caps-lock-warning-label,
+.modal-dialog.fluid-glass-modal-dialog .polkit-dialog-user-combo {
     color: #ffffff !important;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.50);
 }
 
+.modal-dialog.fluid-glass-modal-dialog .prompt-dialog-info-label {
+    background-color: rgba(255, 255, 255, 0.14) !important;
+    border-radius: 12px !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog .prompt-dialog-error-label,
+.modal-dialog.fluid-glass-modal-dialog .end-session-dialog-battery-warning,
+.modal-dialog.fluid-glass-modal-dialog .dialog-list-title {
+    color: #ffd670 !important;
+    background-color: rgba(255, 190, 50, 0.16) !important;
+    border-radius: 12px !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button {
-    background-color: rgba(255, 255, 255, 0.14) !important;
+    background-color: rgba(255, 255, 255, 0.16) !important;
     background-image: none !important;
-    border: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.22) !important;
     border-radius: 99px !important;
     box-shadow: none !important;
     color: #ffffff !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.40);
     transition-duration: 120ms;
 }
 
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button:focus,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button:focus,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button:focus:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button:focus:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button:hover:focus,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button:hover:focus,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button:hover,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button:hover,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button:focus,
-.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button:focus,
-.modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button:focus:hover,
-.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button:focus:hover {
-    background-color: rgba(255, 255, 255, 0.24) !important;
-    border: none !important;
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button:focus {
+    background-color: rgba(255, 255, 255, 0.26) !important;
+    border: 1px solid rgba(255, 255, 255, 0.34) !important;
     box-shadow: none !important;
 }
 
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button:active,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button:active,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button:active:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button:active:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button:active:focus,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button:active:focus,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button:active,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button:active {
-    background-color: rgba(255, 255, 255, 0.34) !important;
-    border: none !important;
+    background-color: rgba(255, 255, 255, 0.36) !important;
+    border: 1px solid rgba(255, 255, 255, 0.42) !important;
     box-shadow: none !important;
 }
 
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button.default,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button.default,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button.default,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button.default {
     background-color: rgba(0, 122, 255, 0.72) !important;
-    border: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
     box-shadow: none !important;
 }
 
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button.default:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button.default:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button.default:focus,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button.default:focus,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button.default:focus:hover,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button.default:focus:hover,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button.default:hover,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button.default:hover,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button.default:focus,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button.default:focus {
     background-color: rgba(0, 122, 255, 0.86) !important;
-    border: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.38) !important;
     box-shadow: none !important;
 }
 
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-linked-button:insensitive,
+.modal-dialog.fluid-glass-modal-dialog .modal-dialog-button-box .modal-dialog-button:insensitive,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-linked-button:insensitive,
 .modal-dialog.fluid-glass-modal-dialog .modal-dialog-button:insensitive {
-    background-color: rgba(255, 255, 255, 0.08) !important;
-    color: rgba(255, 255, 255, 0.45) !important;
-    border: none !important;
+    background-color: rgba(255, 255, 255, 0.10) !important;
+    color: rgba(255, 255, 255, 0.48) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
     box-shadow: none !important;
 }
 
+.modal-dialog.fluid-glass-modal-dialog .prompt-dialog-password-grid .prompt-dialog-password-entry,
 .modal-dialog.fluid-glass-modal-dialog .prompt-dialog-password-entry,
+.modal-dialog.fluid-glass-modal-dialog .run-dialog-entry,
 .modal-dialog.fluid-glass-modal-dialog StEntry {
     background-color: rgba(255, 255, 255, 0.14) !important;
     background-image: none !important;
-    border: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.24) !important;
     border-radius: 14px !important;
     box-shadow: none !important;
     color: #ffffff !important;
     caret-color: #ffffff !important;
 }
 
+.modal-dialog.fluid-glass-modal-dialog .prompt-dialog-password-grid .prompt-dialog-password-entry:hover,
+.modal-dialog.fluid-glass-modal-dialog .prompt-dialog-password-grid .prompt-dialog-password-entry:focus,
+.modal-dialog.fluid-glass-modal-dialog .prompt-dialog-password-grid .prompt-dialog-password-entry:hover:focus,
 .modal-dialog.fluid-glass-modal-dialog .prompt-dialog-password-entry:hover,
+.modal-dialog.fluid-glass-modal-dialog .run-dialog-entry:hover,
 .modal-dialog.fluid-glass-modal-dialog StEntry:hover,
 .modal-dialog.fluid-glass-modal-dialog .prompt-dialog-password-entry:focus,
-.modal-dialog.fluid-glass-modal-dialog StEntry:focus {
+.modal-dialog.fluid-glass-modal-dialog .run-dialog-entry:focus,
+.modal-dialog.fluid-glass-modal-dialog StEntry:focus,
+.modal-dialog.fluid-glass-modal-dialog .prompt-dialog-password-entry:hover:focus,
+.modal-dialog.fluid-glass-modal-dialog .run-dialog-entry:hover:focus,
+.modal-dialog.fluid-glass-modal-dialog StEntry:hover:focus {
     background-color: rgba(255, 255, 255, 0.20) !important;
-    border: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.42) !important;
     box-shadow: none !important;
 }
 
 .modal-dialog.fluid-glass-modal-dialog StEntry StLabel.hint-text {
     color: rgba(255, 255, 255, 0.72) !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog .audio-selection-device {
+    background-color: transparent !important;
+    border-radius: 16px !important;
+    color: #ffffff !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog .audio-selection-device:hover,
+.modal-dialog.fluid-glass-modal-dialog .audio-selection-device:focus,
+.modal-dialog.fluid-glass-modal-dialog .audio-selection-device:checked {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    box-shadow: none !important;
+}
+
+/* Switcher, workspace indicator, resize popup, and tooltips glass styling */
+.switcher-list.fluid-glass-ui-surface,
+.workspace-switcher.fluid-glass-ui-surface,
+.resize-popup.fluid-glass-ui-surface {
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+.switcher-list.fluid-glass-ui-surface .item-box {
+    background-color: transparent !important;
+    border-radius: 16px !important;
+    color: #ffffff !important;
+}
+
+.switcher-list.fluid-glass-ui-surface .item-box:hover,
+.switcher-list.fluid-glass-ui-surface .item-box:focus,
+.switcher-list.fluid-glass-ui-surface .item-box:selected,
+.switcher-list.fluid-glass-ui-surface .item-box:highlighted,
+.switcher-list.fluid-glass-ui-surface .item-box:checked {
+    background-color: rgba(255, 255, 255, 0.20) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.30) !important;
+}
+
+.dash-label,
+.window-caption,
+.screenshot-ui-tooltip {
+    background-color: rgba(255, 255, 255, 0.20) !important;
+    border: 1px solid rgba(255, 255, 255, 0.28) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22) !important;
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
+.screenshot-ui-panel,
+.screenshot-ui-close-button {
+    background-color: rgba(36, 40, 48, 0.45) !important;
+    border: 1px solid rgba(255, 255, 255, 0.26) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.24) !important;
 }
 
 .login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item.fluid-glass-login-glass,

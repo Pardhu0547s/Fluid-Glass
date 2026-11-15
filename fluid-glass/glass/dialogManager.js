@@ -29,9 +29,11 @@ export class DialogManager {
         this._logger = logger;
         this._handles = new Map();
         this._uiPopups = new Map();
+        this._uiSurfaces = new Map();
         this._shieldDialogs = new Map();
         this._watchedContainers = new Map();
         this._taggedActors = new Set();
+        this._scheduledModals = new WeakSet();
         this._pendingIdles = new Set();
         this._groupSignals = [];
         this._settingsSignals = [];
@@ -42,10 +44,10 @@ export class DialogManager {
         if (modalGroup) {
             this._groupSignals.push([
                 modalGroup,
-                modalGroup.connect('child-added', (_g, child) => this._attachModalDialog(child)),
+                modalGroup.connect('child-added', (_g, child) => this._scheduleModalDialog(child)),
             ]);
             for (const child of modalGroup.get_children())
-                this._attachModalDialog(child);
+                this._scheduleModalDialog(child);
         }
 
         const shieldGroup = Main.layoutManager.screenShieldGroup;
@@ -87,6 +89,19 @@ export class DialogManager {
         }
     }
 
+    _updateClampedEntries(entries, getActor, updatePayload) {
+        for (const [key, entry] of entries) {
+            let clampedCorner = updatePayload.cornerRadius;
+            const actor = getActor(key, entry);
+            if (actor && isActorValid(actor) && actor.mapped) {
+                const [w, h] = actor.get_transformed_size();
+                if (w >= 1 && h >= 1)
+                    clampedCorner = Math.min(updatePayload.cornerRadius, w * 0.5, h * 0.5);
+            }
+            entry.handle?.update?.({...updatePayload, cornerRadius: clampedCorner});
+        }
+    }
+
     _syncThemeSettings() {
         const corner = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
         const themeOpts = this._glassOptions(corner);
@@ -99,18 +114,9 @@ export class DialogManager {
             saturation: themeOpts.saturation,
             cornerRadius: themeOpts.cornerRadius,
         };
-        for (const entry of this._handles.values())
-            entry.handle?.update?.(updatePayload);
-        for (const [menu, entry] of this._uiPopups) {
-            let clampedCorner = updatePayload.cornerRadius;
-            const box = menu?.box;
-            if (box && isActorValid(box) && box.mapped) {
-                const [w, h] = box.get_transformed_size();
-                if (w >= 1 && h >= 1)
-                    clampedCorner = Math.min(updatePayload.cornerRadius, w * 0.5, h * 0.5);
-            }
-            entry.handle?.update?.({...updatePayload, cornerRadius: clampedCorner});
-        }
+        this._updateClampedEntries(this._handles, actor => actor, updatePayload);
+        this._updateClampedEntries(this._uiPopups, menu => menu?.box, updatePayload);
+        this._updateClampedEntries(this._uiSurfaces, actor => actor, updatePayload);
         for (const entry of this._shieldDialogs.values())
             entry.handle?.update?.(updatePayload);
     }
@@ -133,24 +139,113 @@ export class DialogManager {
         };
     }
 
+    _makeRestackOptions(sizeActor, stackRoot, owner = 'dialogManager') {
+        const corner = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
+        const opts = this._glassOptions(corner);
+        opts.owner = owner;
+        opts.onSync = syncHandle => {
+            if (!syncHandle?.glass || !isActorValid(sizeActor) || !isActorValid(stackRoot))
+                return;
+
+            const prefR = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
+            const [w, h] = sizeActor.get_transformed_size();
+            if (w >= 1 && h >= 1)
+                syncHandle.glass.setCornerRadius?.(Math.min(prefR, w * 0.5, h * 0.5));
+
+            const parent = syncHandle.glass.get_parent?.();
+            if (parent && stackRoot.get_parent?.() === parent) {
+                const children = parent.get_children();
+                const gIdx = children.indexOf(syncHandle.glass);
+                const rIdx = children.indexOf(stackRoot);
+                if (gIdx !== -1 && rIdx !== -1 && gIdx !== rIdx - 1)
+                    parent.set_child_below_sibling(syncHandle.glass, stackRoot);
+            }
+        };
+        return opts;
+    }
+
+    _scheduleIdle(fn) {
+        const idleId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            this._pendingIdles.delete(idleId);
+            fn();
+            return GLib.SOURCE_REMOVE;
+        });
+        this._pendingIdles.add(idleId);
+    }
+
+    _scheduleModalDialog(modalActor) {
+        if (!modalActor || !isActorValid(modalActor) || this._scheduledModals.has(modalActor))
+            return;
+        if (this._attachModalDialog(modalActor))
+            return;
+
+        // ModalDialog._init adds itself to modalDialogGroup before building dialogLayout/_lightbox.
+        this._scheduledModals.add(modalActor);
+        this._scheduleIdle(() => {
+            this._scheduledModals.delete(modalActor);
+            if (!isActorValid(modalActor))
+                return;
+            if (modalActor.get_parent?.() !== Main.layoutManager.modalDialogGroup)
+                return;
+            this._attachModalDialog(modalActor);
+        });
+    }
+
     _attachModalDialog(modalActor) {
         if (!modalActor || !isActorValid(modalActor))
-            return;
-        const dialog = modalActor._dialog ?? findByStyleClass(modalActor, 'modal-dialog')[0];
-        if (!dialog || this._handles.has(dialog))
-            return;
+            return false;
+        const dialog = modalActor.dialogLayout?._dialog ??
+            modalActor._dialog ??
+            (modalActor.has_style_class_name?.('modal-dialog')
+                ? modalActor
+                : findByStyleClass(modalActor, 'modal-dialog')[0]);
+        if (!dialog || !isActorValid(dialog))
+            return false;
+        if (this._handles.has(dialog))
+            return true;
 
         dialog.add_style_class_name?.('fluid-glass-modal-dialog');
-        const opts = this._glassOptions(
-            this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0);
-        opts.onSync = handle => {
-            if (handle.glass && isActorValid(modalActor))
-                handle.glass.opacity = modalActor.opacity;
-        };
 
+        // Disable GNOME Shell's heavy black radial lightbox shade so the liquid glass modal
+        // stays clear and bright over desktop windows while keeping reactive event blocking.
+        const lightbox = modalActor._lightbox;
+        let radial = null;
+        let prevRadialEnabled = null;
+        let lightboxAddedClass = null;
+        if (lightbox && isActorValid(lightbox)) {
+            radial = lightbox.get_effect?.('radial') ?? null;
+            if (radial) {
+                prevRadialEnabled = radial.enabled;
+                radial.enabled = false;
+            }
+            if (!lightbox.has_style_class_name?.('fluid-glass-transparent')) {
+                lightbox.add_style_class_name?.('fluid-glass-transparent');
+                lightboxAddedClass = 'fluid-glass-transparent';
+            }
+        }
+
+        const opts = this._makeRestackOptions(dialog, modalActor, 'dialogManager');
         const handle = attachGlass(dialog, opts);
-        const destroyId = dialog.connect('destroy', () => this._detachActor(dialog));
-        this._handles.set(dialog, {handle, destroyId, styleClass: 'fluid-glass-modal-dialog'});
+        const destroyIds = [
+            [dialog, dialog.connect('destroy', () => this._detachActor(dialog))],
+        ];
+        if (modalActor !== dialog) {
+            destroyIds.push([
+                modalActor,
+                modalActor.connect('destroy', () => this._detachActor(dialog)),
+            ]);
+        }
+        this._handles.set(dialog, {
+            handle,
+            destroyIds,
+            styleClass: 'fluid-glass-modal-dialog',
+            lightbox,
+            radial,
+            prevRadialEnabled,
+            lightboxAddedClass,
+        });
+        console.log(`[FluidGlass] DialogManager: attached modal dialog (${dialog.style_class ?? ''})`);
+        return true;
     }
 
     _isOwnedPopupMenu(menu) {
@@ -191,24 +286,69 @@ export class DialogManager {
         );
     }
 
+    _addTempClasses(styledActors, actor, classes) {
+        if (!actor || !isActorValid(actor))
+            return;
+        const existing = styledActors.find(item => item[0] === actor);
+        const list = existing ? existing[1] : [];
+        for (const cls of classes) {
+            if (!actor.has_style_class_name?.(cls)) {
+                actor.add_style_class_name?.(cls);
+                if (!list.includes(cls))
+                    list.push(cls);
+            }
+        }
+        if (!existing && list.length > 0)
+            styledActors.push([actor, list]);
+    }
+
     _watchUiGroupChild(child) {
         if (!child || !isActorValid(child))
             return;
         const menu = child._delegate;
-        if (!(menu instanceof PopupMenu.PopupMenu) || this._uiPopups.has(menu))
+        if (menu instanceof PopupMenu.PopupMenu) {
+            if (this._uiPopups.has(menu))
+                return;
+            const idleId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                this._pendingIdles.delete(idleId);
+                if (!isActorValid(child) || !isActorValid(menu.actor) || !isActorValid(menu.box))
+                    return GLib.SOURCE_REMOVE;
+                if (child.get_parent() !== Main.layoutManager.uiGroup)
+                    return GLib.SOURCE_REMOVE;
+                if (!this._uiPopups.has(menu) && !this._isOwnedPopupMenu(menu))
+                    this._attachUiPopup(menu);
+                return GLib.SOURCE_REMOVE;
+            });
+            this._pendingIdles.add(idleId);
             return;
+        }
 
-        const idleId = GLib.idle_add(GLib.PRIORITY_LOW, () => {
-            this._pendingIdles.delete(idleId);
-            if (!isActorValid(child) || !isActorValid(menu.actor) || !isActorValid(menu.box))
-                return GLib.SOURCE_REMOVE;
-            if (child.get_parent() !== Main.layoutManager.uiGroup)
-                return GLib.SOURCE_REMOVE;
-            if (!this._uiPopups.has(menu) && !this._isOwnedPopupMenu(menu))
-                this._attachUiPopup(menu);
-            return GLib.SOURCE_REMOVE;
+        const uiGroup = Main.layoutManager.uiGroup;
+        if (child.has_style_class_name?.('switcher-popup') && !this._watchedContainers.has(child)) {
+            const scanLists = () => {
+                if (!isActorValid(child) || child.get_parent?.() !== uiGroup)
+                    return;
+                for (const list of findByStyleClass(child, 'switcher-list'))
+                    this._attachUiSurface(list, child);
+            };
+            const ids = [
+                child.connect('child-added', scanLists),
+                child.connect('destroy', () => this._watchedContainers.delete(child)),
+            ];
+            this._watchedContainers.set(child, ids);
+            this._scheduleIdle(scanLists);
+            return;
+        }
+
+        // WorkspaceSwitcherPopup and ResizePopup construct child boxes after Main.uiGroup.add_child(this).
+        this._scheduleIdle(() => {
+            if (!isActorValid(child) || child.get_parent?.() !== uiGroup)
+                return;
+            for (const cls of ['workspace-switcher', 'resize-popup']) {
+                for (const target of findByStyleClass(child, cls))
+                    this._attachUiSurface(target, child);
+            }
         });
-        this._pendingIdles.add(idleId);
     }
 
     _attachUiPopup(menu) {
@@ -218,65 +358,50 @@ export class DialogManager {
             return;
 
         const styledActors = [];
-        const addClasses = (actor, classes) => {
-            if (!actor || !isActorValid(actor))
-                return;
-            const existing = styledActors.find(item => item[0] === actor);
-            const list = existing ? existing[1] : [];
-            for (const cls of classes) {
-                if (!actor.has_style_class_name?.(cls)) {
-                    actor.add_style_class_name?.(cls);
-                    if (!list.includes(cls))
-                        list.push(cls);
-                }
-            }
-            if (!existing && list.length > 0)
-                styledActors.push([actor, list]);
-        };
-
-        addClasses(menu.actor, ['fluid-glass-transparent', 'fluid-glass-ui-popup']);
+        this._addTempClasses(styledActors, menu.actor, ['fluid-glass-transparent', 'fluid-glass-ui-popup']);
         if (menu._boxPointer)
-            addClasses(menu._boxPointer, ['fluid-glass-transparent', 'fluid-glass-ui-popup']);
-        addClasses(menu.box, ['fluid-glass-transparent', 'fluid-glass-ui-popup-content']);
-
-        const corner = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
-        const opts = this._glassOptions(corner);
-        opts.owner = 'uiPopupGlass';
-        opts.onSync = syncHandle => {
-            const box = menu.box;
-            const root = menu.actor;
-            if (!syncHandle?.glass || !isActorValid(box) || !isActorValid(root))
-                return;
-
-            const prefR = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
-            const [w, h] = box.get_transformed_size();
-            if (w >= 1 && h >= 1)
-                syncHandle.glass.setCornerRadius?.(Math.min(prefR, w * 0.5, h * 0.5));
-
-            const parent = syncHandle.glass.get_parent?.();
-            if (parent && root.get_parent?.() === parent) {
-                const children = parent.get_children();
-                const gIdx = children.indexOf(syncHandle.glass);
-                const rIdx = children.indexOf(root);
-                if (gIdx !== -1 && rIdx !== -1 && gIdx !== rIdx - 1)
-                    parent.set_child_below_sibling(syncHandle.glass, root);
-            }
-        };
+            this._addTempClasses(styledActors, menu._boxPointer, ['fluid-glass-transparent', 'fluid-glass-ui-popup']);
+        this._addTempClasses(styledActors, menu.box, ['fluid-glass-transparent', 'fluid-glass-ui-popup-content']);
 
         // Do not pass opts.menu so QuickSettingsMenu opacity fade completes cleanly.
+        const opts = this._makeRestackOptions(menu.box, menu.actor, 'uiPopupGlass');
         const handle = attachGlass(menu.box, opts);
         const destroyIds = [
-            [menu.actor, menu.actor.connect('destroy', () => this._detachUiPopup(menu))],
-            [menu.box, menu.box.connect('destroy', () => this._detachUiPopup(menu))],
+            [menu.actor, menu.actor.connect('destroy', () => this._detachStyledEntry(this._uiPopups, menu))],
+            [menu.box, menu.box.connect('destroy', () => this._detachStyledEntry(this._uiPopups, menu))],
         ];
         this._uiPopups.set(menu, {handle, destroyIds, styledActors});
     }
 
-    _detachUiPopup(menu) {
-        const entry = this._uiPopups.get(menu);
+    _attachUiSurface(surfaceActor, rootActor) {
+        if (!surfaceActor || !rootActor || this._uiSurfaces.has(surfaceActor))
+            return;
+        if (!isActorValid(surfaceActor) || !isActorValid(rootActor))
+            return;
+        if (surfaceActor.has_style_class_name?.('fluid-glass-transparent'))
+            return;
+
+        const styledActors = [];
+        this._addTempClasses(styledActors, surfaceActor, ['fluid-glass-transparent', 'fluid-glass-ui-surface']);
+        const opts = this._makeRestackOptions(surfaceActor, rootActor, 'uiSurfaceGlass');
+        const handle = attachGlass(surfaceActor, opts);
+        const destroyIds = [
+            [surfaceActor, surfaceActor.connect('destroy', () => this._detachStyledEntry(this._uiSurfaces, surfaceActor))],
+        ];
+        if (rootActor !== surfaceActor) {
+            destroyIds.push([
+                rootActor,
+                rootActor.connect('destroy', () => this._detachStyledEntry(this._uiSurfaces, surfaceActor)),
+            ]);
+        }
+        this._uiSurfaces.set(surfaceActor, {handle, destroyIds, styledActors});
+    }
+
+    _detachStyledEntry(map, key) {
+        const entry = map.get(key);
         if (!entry)
             return;
-        this._uiPopups.delete(menu);
+        map.delete(key);
         for (const [actor, id] of entry.destroyIds) {
             if (actor && isActorValid(actor))
                 try { actor.disconnect(id); } catch (_e) {}
@@ -496,8 +621,18 @@ export class DialogManager {
         if (!entry)
             return;
         this._handles.delete(actor);
-        if (entry.destroyId && isActorValid(actor)) {
-            try { actor.disconnect(entry.destroyId); } catch (_e) {}
+        if (entry.destroyIds) {
+            for (const [target, id] of entry.destroyIds) {
+                if (target && isActorValid(target)) {
+                    try { target.disconnect(id); } catch (_e) {}
+                }
+            }
+        }
+        if (entry.radial && entry.prevRadialEnabled !== null) {
+            try { entry.radial.enabled = entry.prevRadialEnabled; } catch (_e) {}
+        }
+        if (entry.lightboxAddedClass && entry.lightbox && isActorValid(entry.lightbox)) {
+            try { entry.lightbox.remove_style_class_name?.(entry.lightboxAddedClass); } catch (_e) {}
         }
         if (entry.styleClass && isActorValid(actor)) {
             try { actor.remove_style_class_name?.(entry.styleClass); } catch (_e) {}
@@ -540,7 +675,10 @@ export class DialogManager {
         this._taggedActors.clear();
 
         for (const menu of [...this._uiPopups.keys()])
-            this._detachUiPopup(menu);
+            this._detachStyledEntry(this._uiPopups, menu);
+
+        for (const surface of [...this._uiSurfaces.keys()])
+            this._detachStyledEntry(this._uiSurfaces, surface);
 
         for (const dialog of [...this._shieldDialogs.keys()])
             this._detachShieldDialog(dialog);
