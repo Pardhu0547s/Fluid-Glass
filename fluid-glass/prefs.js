@@ -179,7 +179,19 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 background: linear-gradient(135deg, #007aff 0%, #ff9500 50%, #34c759 100%);
             }
             ${ACCENT_COLORS.slice(1).map((c, i) => `.fg-swatch-${i + 1} { background: ${c[1]}; }`).join('\n')}
-            .fg-scale { min-width: 200px; }
+            .fg-scale,
+            scale.fg-scale {
+                min-width: 230px;
+            }
+            scale.fg-scale > trough {
+                min-width: 150px;
+                min-height: 6px;
+            }
+            scale.fg-scale > value {
+                min-width: 38px;
+                font-variant-numeric: tabular-nums;
+                margin-right: 12px;
+            }
             .fg-hero-title { font-size: 22pt; font-weight: 800; }
         `;
         try {
@@ -222,6 +234,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         scale.set_digits(digits);
         scale.set_valign(Gtk.Align.CENTER);
         scale.set_hexpand(false);
+        scale.set_size_request(230, -1);
         scale.add_css_class('fg-scale');
         scale.set_value(value);
         scale.connect('value-changed', s => onChange(s.get_value()));

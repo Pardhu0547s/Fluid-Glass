@@ -3509,21 +3509,43 @@ scale {
     }
   }
 
+  &.horizontal:not(.color) > trough {
+    min-width: 120px;
+    min-height: 6px;
+
+    > highlight,
+    > fill {
+      min-height: 6px;
+    }
+  }
+
+  &.vertical:not(.color) > trough {
+    min-height: 100px;
+    min-width: 6px;
+
+    > highlight,
+    > fill {
+      min-width: 6px;
+    }
+  }
+
   // Trough
   > trough {
-    $_scale_trough_bg: rgba(black, 0.2);
+    $_scale_trough_bg: if($variant == 'light', rgba(black, 0.16), rgba(white, 0.20));
+    $_scale_trough_hover_bg: if($variant == 'light', rgba(black, 0.22), rgba(white, 0.28));
 
     outline-offset: 2px;
     border-radius: $circular_radius;
     background-color: $_scale_trough_bg;
 
-    &:disabled { background-color: gtkalpha($_scale_trough_bg, 0.65); }
+    &:hover { background-color: $_scale_trough_hover_bg; }
+    &:disabled { background-color: gtkalpha($_scale_trough_bg, 0.55); }
 
     //OSD troughs
     .osd & {
-      background-color: $_scale_trough_bg;
+      background-color: rgba(white, 0.22);
 
-      highlight {
+      > highlight {
         background-color: $selected_bg_color;
       }
     }
@@ -3534,7 +3556,7 @@ scale {
     infobar & {
       background-color: transparentize(black, 0.8);
 
-      > trough > highlight {
+      > highlight {
         background-color: $selected_fg_color;
 
         &:disabled { background-color: gtkalpha($selected_fg_color, 0.5); }
@@ -3573,7 +3595,25 @@ scale {
     }
   }
 
-  > value { color: gtkalpha(currentColor, 0.4); }
+  > value {
+    color: currentColor;
+    opacity: 0.75;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &.horizontal {
+    > value.left { margin-right: 12px; }
+    > value.right { margin-left: 12px; }
+    > value.top { margin-bottom: 6px; }
+    > value.bottom { margin-top: 6px; }
+  }
+
+  &.vertical {
+    > value.top { margin-bottom: 8px; }
+    > value.bottom { margin-top: 8px; }
+    > value.left { margin-right: 6px; }
+    > value.right { margin-left: 6px; }
+  }
 
   > marks {
     color: gtkalpha(currentColor, 0.4);
