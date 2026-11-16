@@ -446,7 +446,7 @@
       <description>Minimum time between open/close animation updates. The animation is driven by the frame clock, so anything up to one frame (16) means every frame; 33 and 50 cap it at 30 and 20 fps.</description>
     </key>
     <key name="quick-settings-enable-adaptive-text-color" type="b">
-      <default>false</default>
+      <default>true</default>
       <summary>Enable adaptive text color</summary>
     </key>
     <key name="quick-settings-adaptive-text-preference" type="s">

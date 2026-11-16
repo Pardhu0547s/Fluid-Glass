@@ -33,6 +33,7 @@ import {
     WeatherWidget,
 } from './ncWidgets.js';
 import {attachMultiRegionGlass} from '../../glass/glassEffect.js';
+import {AdaptiveClassContrast} from '../../glass/contrastSampler.js';
 
 const CLEAR_THEME_STYLE = 'background: transparent !important; background-color: transparent !important; background-gradient-direction: none !important; border: none !important; box-shadow: none !important;';
 
@@ -105,6 +106,8 @@ export class FluidGlassNotificationCenter {
         this._open = false;
         this._closing = false;
         this._enabled = false;
+        this._adaptive = null;
+        this._glassSettingsIds = [];
     }
 
     get isOpen() {
@@ -295,6 +298,49 @@ export class FluidGlassNotificationCenter {
             );
         } catch (e) {
             logError(e, 'fluid-glass: attachMultiRegionGlass notificationCenter');
+        }
+
+        this._adaptive = new AdaptiveClassContrast({
+            label: 'notificationCenter',
+            logger: console,
+            perElement: false,
+            intervalMs: 320,
+            lightClass: 'fluid-glass-nc-light',
+            darkClass: 'fluid-glass-nc-dark',
+            getTargets: () => (this._column ? [this._column] : []),
+            getGlasses: () => (this._glassHandle?.glass ? [this._glassHandle.glass] : []),
+            fallbackIsDark: () => this._isSystemDark(),
+            getEnabled: () => this._isAdaptiveTextEnabled(),
+            getPreference: () => this._getAdaptiveTextPreference(),
+            shouldDefer: () => !this._open || Math.abs(this._column?.translation_x ?? 0) > 1,
+            getInitialRect: () => {
+                if (!this._columnScroll || !this._columnScroll.visible)
+                    return null;
+                const [x, y] = this._columnScroll.get_transformed_position();
+                const [w, h] = this._columnScroll.get_size();
+                if (!Number.isFinite(x) || !Number.isFinite(y) || w < 2 || h < 2)
+                    return null;
+                return {x: Math.round(x), y: Math.round(y), width: Math.round(w), height: Math.round(h)};
+            },
+        });
+
+        const glassSettings = this._extension?.getGlassSettings?.();
+        if (glassSettings) {
+            const onAdaptiveSetting = () => {
+                if (this._adaptive?.isEnabled()) {
+                    if (this._open)
+                        this._adaptive.start(false);
+                    else
+                        this._syncAppearance();
+                } else {
+                    this._adaptive?.stop(true);
+                    this._syncAppearance();
+                }
+            };
+            for (const k of ['notification-enable-adaptive-text-color', 'notification-adaptive-text-preference']) {
+                if (glassSettings.settings_schema.has_key(k))
+                    this._glassSettingsIds.push(glassSettings.connect(`changed::${k}`, onAdaptiveSetting));
+            }
         }
     }
 
@@ -584,15 +630,44 @@ export class FluidGlassNotificationCenter {
             this._notificationScroll.style = `max-height: ${messageHeight}px;`;
     }
 
-    _syncAppearance() {
-        if (!this._column)
-            return;
+    _isSystemDark() {
         let dark = true;
         try {
             dark = this._desktop?.get_string('color-scheme') === 'prefer-dark';
         } catch (_e) {
             dark = true;
         }
+        return dark;
+    }
+
+    _isAdaptiveTextEnabled() {
+        const gs = this._extension?.getGlassSettings?.();
+        if (!gs)
+            return true;
+        try {
+            if (gs.settings_schema.has_key('notification-enable-adaptive-text-color'))
+                return gs.get_boolean('notification-enable-adaptive-text-color');
+        } catch (_e) {}
+        return true;
+    }
+
+    _getAdaptiveTextPreference() {
+        const gs = this._extension?.getGlassSettings?.();
+        if (!gs)
+            return 'auto';
+        try {
+            if (gs.settings_schema.has_key('notification-adaptive-text-preference'))
+                return gs.get_string('notification-adaptive-text-preference');
+        } catch (_e) {}
+        return 'auto';
+    }
+
+    _syncAppearance() {
+        if (!this._column)
+            return;
+        if (this._adaptive?.isEnabled() && this._open)
+            return;
+        const dark = this._isSystemDark();
         this._column.remove_style_class_name(
             dark ? 'fluid-glass-nc-light' : 'fluid-glass-nc-dark');
         this._column.add_style_class_name(
@@ -997,11 +1072,14 @@ export class FluidGlassNotificationCenter {
             duration: OPEN_DURATION_MS,
             mode: Clutter.AnimationMode.EASE_OUT_QUAD,
             onComplete: () => {
-                if (this._open)
+                if (this._open) {
+                    this._adaptive?.update();
                     this._column.navigate_focus(
                         null, St.DirectionType.TAB_FORWARD, false);
+                }
             },
         });
+        this._adaptive?.start(true);
     }
 
     close(animate = true) {
@@ -1010,6 +1088,7 @@ export class FluidGlassNotificationCenter {
 
         this._open = false;
         this._closing = animate;
+        this._adaptive?.stop(false);
         this._hookedDateMenu?.remove_style_pseudo_class('active');
 
         if (this._grab) {
@@ -1064,6 +1143,14 @@ export class FluidGlassNotificationCenter {
             return;
         this._enabled = false;
         this.close(false);
+        if (this._adaptive) {
+            this._adaptive.destroy();
+            this._adaptive = null;
+        }
+        const gs = this._extension?.getGlassSettings?.();
+        for (const id of this._glassSettingsIds)
+            gs?.disconnect(id);
+        this._glassSettingsIds = [];
         this._glassHandle?.destroy();
         this._glassHandle = null;
         this._removeClockHook();

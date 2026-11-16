@@ -818,7 +818,7 @@
 .fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon {
     icon-size: 20px;
     padding: 0;
-    color: #ffffff !important;
+    color: #ffffff;
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
@@ -928,13 +928,18 @@
     transition-duration: 160ms;
 }
 
-/* ── Control Center Light Theme Variant ── */
+/* ── Control Center Light Theme Variant (supports container OR per-module class) ── */
 
 .fluid-glass-cc-light .fluid-glass-cc-tile,
 .fluid-glass-cc-light .fluid-glass-cc-tile:hover,
+.fluid-glass-cc-tile.fluid-glass-cc-light,
+.fluid-glass-cc-tile.fluid-glass-cc-light:hover,
 .fluid-glass-cc-light .fluid-glass-cc-media,
+.fluid-glass-cc-media.fluid-glass-cc-light,
 .fluid-glass-cc-light .fluid-glass-cc-slider,
-.fluid-glass-cc-light .fluid-glass-cc-edit-controls {
+.fluid-glass-cc-slider.fluid-glass-cc-light,
+.fluid-glass-cc-light .fluid-glass-cc-edit-controls,
+.fluid-glass-cc-edit-controls.fluid-glass-cc-light {
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -943,7 +948,7 @@
 .fluid-glass-cc-light .fluid-glass-cc-tile-title,
 .fluid-glass-cc-light .fluid-glass-cc-media-title,
 .fluid-glass-cc-light .fluid-glass-cc-slider-title {
-    color: #000000;
+    color: #1a1a1a;
     text-shadow: none;
 }
 
@@ -952,13 +957,35 @@
     text-shadow: none;
 }
 
-.fluid-glass-cc-light .fluid-glass-cc-tile-icon {
-    color: #000000;
+.fluid-glass-cc-light .fluid-glass-cc-tile-icon-badge {
+    background-color: rgba(0, 0, 0, 0.08);
+}
+
+.fluid-glass-cc-light .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-light .fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-tile-compact.fluid-glass-cc-light .fluid-glass-cc-tile-icon {
+    color: #1a1a1a;
 }
 
 .fluid-glass-cc-light .fluid-glass-cc-tile-icon:checked,
-.fluid-glass-cc-light .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon {
+.fluid-glass-cc-light .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-light .fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked .fluid-glass-cc-tile-icon,
+.fluid-glass-cc-tile.fluid-glass-cc-tile-compact.fluid-glass-cc-light:checked .fluid-glass-cc-tile-icon {
     color: #007aff;
+}
+
+.fluid-glass-cc-light .fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked,
+.fluid-glass-cc-tile.fluid-glass-cc-tile-compact.fluid-glass-cc-light:checked {
+    background-color: rgba(255, 255, 255, 0.96) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14), inset 0 0 0 1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.fluid-glass-cc-light .fluid-glass-cc-media-artwork-bin {
+    background-color: rgba(0, 0, 0, 0.07);
+}
+
+.fluid-glass-cc-light .fluid-glass-cc-media-artwork {
+    color: rgba(0, 0, 0, 0.72);
 }
 
 .fluid-glass-cc-light .fluid-glass-cc-media-artist {
@@ -977,17 +1004,30 @@
     color: rgba(0, 0, 0, 0.85);
 }
 
+.fluid-glass-cc-light .fluid-glass-cc-slider-accessory-button,
+.fluid-glass-cc-light .fluid-glass-cc-slider-accessory-button:focus {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.fluid-glass-cc-light .fluid-glass-cc-slider-accessory-button:hover {
+    background-color: rgba(0, 0, 0, 0.15) !important;
+}
+
 .fluid-glass-cc-light .fluid-glass-cc-track {
-    color: #000000;
-    -barlevel-background-color: rgba(0, 0, 0, 0.15);
-    -barlevel-active-background-color: #000000;
+    color: #1a1a1a;
+    -barlevel-background-color: rgba(0, 0, 0, 0.16);
+    -barlevel-active-background-color: #1a1a1a;
 }
 
 .fluid-glass-cc-light .fluid-glass-cc-edit-controls,
 .fluid-glass-cc-light .fluid-glass-cc-edit-controls:hover,
 .fluid-glass-cc-light .fluid-glass-cc-edit-controls:focus,
-.fluid-glass-cc-light .fluid-glass-cc-edit-controls.fluid-glass-cc-edit-done {
-    color: #000000;
+.fluid-glass-cc-light .fluid-glass-cc-edit-controls.fluid-glass-cc-edit-done,
+.fluid-glass-cc-edit-controls.fluid-glass-cc-light,
+.fluid-glass-cc-edit-controls.fluid-glass-cc-light:hover,
+.fluid-glass-cc-edit-controls.fluid-glass-cc-light:focus,
+.fluid-glass-cc-edit-controls.fluid-glass-cc-light.fluid-glass-cc-edit-done {
+    color: #1a1a1a;
     text-shadow: none;
 }
 
@@ -3773,6 +3813,74 @@
     background-color: rgba(0, 122, 255, 0.90);
     border: none !important;
     box-shadow: none !important;
+}
+
+/* Light-background adaptive contrast for UI PopupMenus */
+.popup-menu-content.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light,
+.popup-menu-content.quick-settings.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light {
+    color: #1a1a1a !important;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light StLabel {
+    text-shadow: none;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-menu-item {
+    color: #1a1a1a !important;
+    text-shadow: none;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-menu-item:hover,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-menu-item:selected,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-menu-item:focus,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-menu-item:focus:hover,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-menu-item.selected {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    color: #1a1a1a !important;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-menu-item:active {
+    background-color: rgba(0, 0, 0, 0.14) !important;
+    color: #1a1a1a !important;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-menu-item:insensitive {
+    color: rgba(0, 0, 0, 0.42) !important;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-separator-menu-item-separator {
+    background-color: rgba(0, 0, 0, 0.14) !important;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .popup-sub-menu {
+    background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle-has-menu .quick-toggle,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle-menu-button,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .icon-button {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    color: #1a1a1a !important;
+    text-shadow: none;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle:hover,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle:focus,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle:focus:hover,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle-has-menu .quick-toggle:hover,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle-has-menu .quick-toggle:focus,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle-menu-button:hover,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle-menu-button:focus,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .icon-button:hover,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .icon-button:focus {
+    background-color: rgba(0, 0, 0, 0.14) !important;
+}
+
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle:checked,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle-has-menu .quick-toggle:checked,
+.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle-menu-button:checked {
+    color: #ffffff !important;
 }
 
 

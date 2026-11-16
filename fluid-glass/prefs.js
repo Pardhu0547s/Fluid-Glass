@@ -460,6 +460,23 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 onChange: v => setAll('corner-radius', k => this.sGlass.set_double(k, Math.round(v))),
             });
 
+            if (this._hasKey(this.sGlass, 'panel-menu-enable-adaptive-text-color')) {
+                const adaptiveRow = new Adw.SwitchRow({
+                    title: _('Adaptive Text Color'),
+                    subtitle: _('Automatically switch text and icons between dark and light based on the background behind glass'),
+                    active: this.sGlass.get_boolean('panel-menu-enable-adaptive-text-color'),
+                });
+                adaptiveRow.connect('notify::active', r => {
+                    const enabled = r.get_active();
+                    setAll('enable-adaptive-text-color', k => this.sGlass.set_boolean(k, enabled));
+                    for (const extra of ['desktop-widget-enable-adaptive-text-color', 'launcher-enable-adaptive-text-color']) {
+                        if (this._hasKey(this.sGlass, extra))
+                            this.sGlass.set_boolean(extra, enabled);
+                    }
+                });
+                groupShaders.add(adaptiveRow);
+            }
+
             const groupTargets = new Adw.PreferencesGroup({
                 title: _('Surfaces'),
                 description: _('Where the liquid glass effect is drawn'),

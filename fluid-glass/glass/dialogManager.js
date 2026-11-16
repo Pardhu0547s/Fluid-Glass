@@ -9,6 +9,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as DateMenu from 'resource:///org/gnome/shell/ui/dateMenu.js';
 import {attachGlass, attachMultiRegionGlass} from './glassEffect.js';
+import {AdaptiveClassContrast} from './contrastSampler.js';
 import {isActorValid} from './actors.js';
 
 function findByStyleClass(root, className, out = []) {
@@ -366,11 +367,46 @@ export class DialogManager {
         // Do not pass opts.menu so QuickSettingsMenu opacity fade completes cleanly.
         const opts = this._makeRestackOptions(menu.box, menu.actor, 'uiPopupGlass');
         const handle = attachGlass(menu.box, opts);
+        const adaptive = new AdaptiveClassContrast({
+            label: 'uiPopup',
+            logger: this._logger,
+            perElement: false,
+            intervalMs: 280,
+            lightClass: 'fluid-glass-ui-popup-light',
+            darkClass: 'fluid-glass-ui-popup-dark',
+            getTargets: () => (menu.box && isActorValid(menu.box) ? [menu.box] : []),
+            getGlasses: () => (handle.glass && isActorValid(handle.glass) ? [handle.glass] : []),
+            getEnabled: () => {
+                try {
+                    return this._settings?.get_boolean('menu-enable-adaptive-text-color') ?? true;
+                } catch (_e) {
+                    return true;
+                }
+            },
+            getPreference: () => {
+                try {
+                    return this._settings?.get_string('menu-adaptive-text-preference') ?? 'auto';
+                } catch (_e) {
+                    return 'auto';
+                }
+            },
+            fallbackIsDark: () => true,
+        });
+        const openId = menu.connect?.('open-state-changed', (_m, isOpen) => {
+            if (isOpen)
+                adaptive.start(true);
+            else
+                adaptive.stop(false);
+        });
+        if (menu.isOpen || (menu.actor.visible && menu.actor.mapped))
+            adaptive.start(true);
         const destroyIds = [
             [menu.actor, menu.actor.connect('destroy', () => this._detachStyledEntry(this._uiPopups, menu))],
             [menu.box, menu.box.connect('destroy', () => this._detachStyledEntry(this._uiPopups, menu))],
         ];
-        this._uiPopups.set(menu, {handle, destroyIds, styledActors});
+        if (openId)
+            destroyIds.push([menu, openId]);
+        this._uiPopups.set(menu, {handle, adaptive, destroyIds, styledActors});
     }
 
     _attachUiSurface(surfaceActor, rootActor) {
@@ -410,8 +446,11 @@ export class DialogManager {
             if (actor && isActorValid(actor)) {
                 for (const cls of classes)
                     try { actor.remove_style_class_name?.(cls); } catch (_e) {}
+                try { actor.remove_style_class_name?.('fluid-glass-ui-popup-light'); } catch (_e) {}
+                try { actor.remove_style_class_name?.('fluid-glass-ui-popup-dark'); } catch (_e) {}
             }
         }
+        entry.adaptive?.destroy();
         entry.handle?.destroy();
     }
 

@@ -55,6 +55,7 @@ import {
 } from './ccTile.js';
 import {CCGrid} from './ccGrid.js';
 import {attachGlass, attachMultiRegionGlass} from '../../glass/glassEffect.js';
+import {AdaptiveClassContrast} from '../../glass/contrastSampler.js';
 import {Spring, stepMenuSpring, addFrameTicker, removeFrameTicker} from '../../glass/animation.js';
 
 const BACK_GLASS_KEY = 'control-center-back-glass';
@@ -133,6 +134,7 @@ class ControlCenter extends PanelMenu.Button {
         this._syncing = false;
         this._disposed = false;
         this._glassHandle = null;
+        this._adaptive = null;
 
         // When the Shell tears the stage down, Clutter destroys these actors
         // from C without calling destroy() below, and a service can still emit
@@ -447,8 +449,59 @@ class ControlCenter extends PanelMenu.Button {
 
         this._rebuildGlass();
 
+        this._adaptive = new AdaptiveClassContrast({
+            label: 'controlCenter',
+            logger: console,
+            perElement: true,
+            intervalMs: 280,
+            lightClass: 'fluid-glass-cc-light',
+            darkClass: 'fluid-glass-cc-dark',
+            getTargets: () => this._getVisibleModules(),
+            getGlasses: () => (this._glassHandle?.glass ? [this._glassHandle.glass] : []),
+            fallbackIsDark: () => this._isSystemDark(),
+            getEnabled: () => this._isAdaptiveTextEnabled(),
+            getPreference: () => this._getAdaptiveTextPreference(),
+            shouldDefer: () => {
+                if (!this.menu?.isOpen)
+                    return true;
+                const [sx, sy] = this.menu.box.get_scale?.() ?? [1, 1];
+                return sx < 0.99 || sy < 0.99;
+            },
+            getInitialRect: () => {
+                const box = this.menu?.box;
+                if (!box || !box.visible)
+                    return null;
+                const [px, py] = box.get_transformed_position();
+                const [aw, ah] = box.get_size();
+                if (!Number.isFinite(px) || !Number.isFinite(py) || aw < 2 || ah < 2)
+                    return null;
+                const [sx] = box.get_scale?.() ?? [1, 1];
+                const scaleX = Number.isFinite(sx) && sx > 0 ? sx : 1;
+                const x = Math.round(px - aw * (1 - scaleX) * 0.5);
+                return {x, y: Math.round(py), width: Math.round(aw), height: Math.round(ah)};
+            },
+        });
+
         const glassSettings = this._extension?.getGlassSettings?.();
         if (glassSettings) {
+            const updateAdaptive = () => {
+                this._syncAppearance();
+                if (this._adaptive.isEnabled()) {
+                    if (this.menu?.isOpen)
+                        this._adaptive.start(false);
+                } else {
+                    this._adaptive.stop(true);
+                }
+            };
+            for (const k of [
+                'panel-menu-enable-adaptive-text-color',
+                'panel-menu-adaptive-text-preference',
+                'quick-settings-enable-adaptive-text-color',
+                'quick-settings-adaptive-text-preference',
+            ]) {
+                if (glassSettings.settings_schema.has_key(k))
+                    this._glassSettingsIds.push(glassSettings.connect(`changed::${k}`, updateAdaptive));
+            }
             const updateGlass = () => {
                 const blur = glassSettings.get_int('panel-menu-blur-radius') || glassSettings.get_int('dock-blur-radius') || 10;
                 const tintCol = glassSettings.get_string('panel-menu-tint-color') || glassSettings.get_string('dock-tint-color') || '#ffffff';
@@ -519,6 +572,7 @@ class ControlCenter extends PanelMenu.Button {
                 } else if (frame.stopped && !frame.closing) {
                     this.menu.box.set_scale(1.0, 1.0);
                     this.menu.box.opacity = 255;
+                    this._adaptive?.update();
                 }
                 return frame.stopped ? GLib.SOURCE_REMOVE : GLib.SOURCE_CONTINUE;
             }, 16);
@@ -527,8 +581,11 @@ class ControlCenter extends PanelMenu.Button {
         this.menu.connect('open-state-changed', (_m, isOpen) => {
             if (isOpen) {
                 this.menu.box.set_pivot_point(0.5, 0);
+                this._syncAppearance();
                 startSpring(1);
+                this._adaptive?.start(true);
             } else {
+                this._adaptive?.stop(false);
                 startSpring(0);
             }
         });
@@ -1047,6 +1104,10 @@ class ControlCenter extends PanelMenu.Button {
                 grid.push({actor: tile, shape: 'wide'});
         }
         this._grid.setModules(grid);
+        if (this._adaptive?.isEnabled()) {
+            this._adaptive.applyPending(this._getVisibleModules());
+            this._adaptive.invalidate();
+        }
     }
 
     _airDropApp() {
@@ -1094,27 +1155,65 @@ class ControlCenter extends PanelMenu.Button {
         }
     }
 
+    _isSystemDark() {
+        if (Main.sessionMode?.isGreeter || Main.sessionMode?.isLocked)
+            return true;
+        try {
+            return this._iface?.get_string('color-scheme') === 'prefer-dark';
+        } catch (_e) {
+            return true;
+        }
+    }
+
+    _isAdaptiveTextEnabled() {
+        const gs = this._extension?.getGlassSettings?.();
+        if (!gs)
+            return true;
+        try {
+            if (gs.settings_schema.has_key('panel-menu-enable-adaptive-text-color'))
+                return gs.get_boolean('panel-menu-enable-adaptive-text-color');
+            if (gs.settings_schema.has_key('quick-settings-enable-adaptive-text-color'))
+                return gs.get_boolean('quick-settings-enable-adaptive-text-color');
+        } catch (_e) {}
+        return true;
+    }
+
+    _getAdaptiveTextPreference() {
+        const gs = this._extension?.getGlassSettings?.();
+        if (!gs)
+            return 'auto';
+        try {
+            if (gs.settings_schema.has_key('panel-menu-adaptive-text-preference'))
+                return gs.get_string('panel-menu-adaptive-text-preference');
+            if (gs.settings_schema.has_key('quick-settings-adaptive-text-preference'))
+                return gs.get_string('quick-settings-adaptive-text-preference');
+        } catch (_e) {}
+        return 'auto';
+    }
+
     _syncAppearance() {
         if (!this.menu?.box)
             return;
-        let dark = true;
-        if (!(Main.sessionMode?.isGreeter || Main.sessionMode?.isLocked)) {
-            try {
-                dark = this._iface?.get_string('color-scheme') === 'prefer-dark';
-            } catch (_e) {
-                dark = true;
-            }
-        }
         this.menu.box.remove_style_class_name('popup-menu-content');
-        this.menu.box.remove_style_class_name(
-            dark ? 'fluid-glass-cc-light' : 'fluid-glass-cc-dark');
-        this.menu.box.add_style_class_name(
-            dark ? 'fluid-glass-cc-dark' : 'fluid-glass-cc-light');
-        if (this.menu.actor) {
-            this.menu.actor.remove_style_class_name(
+        if (this._adaptive?.isEnabled()) {
+            this.menu.box.remove_style_class_name('fluid-glass-cc-light');
+            this.menu.box.remove_style_class_name('fluid-glass-cc-dark');
+            this.menu.actor?.remove_style_class_name('fluid-glass-cc-light');
+            this.menu.actor?.remove_style_class_name('fluid-glass-cc-dark');
+            this._adaptive.applyPending(this._getVisibleModules());
+        } else {
+            this._adaptive?.clearClasses();
+            const dark = this._isSystemDark();
+            this.menu.box.remove_style_class_name(
                 dark ? 'fluid-glass-cc-light' : 'fluid-glass-cc-dark');
-            this.menu.actor.add_style_class_name(
+            this.menu.box.add_style_class_name(
                 dark ? 'fluid-glass-cc-dark' : 'fluid-glass-cc-light');
+            if (this.menu.actor) {
+                this.menu.actor.remove_style_class_name(
+                    dark ? 'fluid-glass-cc-light' : 'fluid-glass-cc-dark');
+                this.menu.actor.add_style_class_name(
+                    dark ? 'fluid-glass-cc-dark' : 'fluid-glass-cc-light');
+            }
         }
         const useBackGlass = this._settings?.get_boolean(BACK_GLASS_KEY) ?? false;
         if (useBackGlass)
@@ -1357,6 +1456,10 @@ class ControlCenter extends PanelMenu.Button {
         this._adapters = null;
         this._iface = this._notif = null;
         this._extension = null;
+        if (this._adaptive) {
+            this._adaptive.destroy();
+            this._adaptive = null;
+        }
         if (this._glassHandle) {
             this._glassHandle.destroy();
             this._glassHandle = null;

@@ -901,3 +901,240 @@ function collectText(actor, out) {
     for (const child of actor.get_children())
         collectText(child, out);
 }
+
+/**
+ * Adaptive dark/light CSS-class switcher powered by StageContrastSampler.
+ * Keeps multi-part glass components (Control Center capsules/sliders,
+ * Notification Center cards/widgets, UI popups) readable over bright or dark
+ * backgrounds while preserving accent badges and slider tracks in CSS.
+ */
+export class AdaptiveClassContrast {
+    _opts;
+    _sampler = new StageContrastSampler();
+    _states = new WeakMap();
+    _timerId = 0;
+    _idleId = 0;
+    _inFlight = false;
+    _active = false;
+    _epoch = 0;
+    _lastIsLight = null;
+
+    constructor(opts) {
+        this._opts = opts;
+    }
+
+    isEnabled() {
+        try {
+            return Boolean(this._opts.getEnabled ? this._opts.getEnabled() : true);
+        } catch (_e) {
+            return true;
+        }
+    }
+
+    _fallbackIsLight() {
+        try {
+            return this._opts.fallbackIsDark ? !this._opts.fallbackIsDark() : false;
+        } catch (_e) {
+            return false;
+        }
+    }
+
+    _preference() {
+        try {
+            return sanitizeColorPreference(this._opts.getPreference?.());
+        } catch (_e) {
+            return 'auto';
+        }
+    }
+
+    _config(samplePerElement) {
+        return {
+            ...AdaptiveContrastConfig,
+            enabled: true,
+            samplePerElement,
+            preference: this._preference(),
+        };
+    }
+
+    _applyActorClass(actor, isLight) {
+        if (!(actor instanceof St.Widget) || !isActorValid(actor))
+            return;
+        const {lightClass, darkClass} = this._opts;
+        const target = isLight ? lightClass : darkClass;
+        const other = isLight ? darkClass : lightClass;
+        if (other && actor.has_style_class_name?.(other))
+            actor.remove_style_class_name(other);
+        if (target && !actor.has_style_class_name?.(target))
+            actor.add_style_class_name(target);
+        this._states.set(actor, isLight);
+    }
+
+    _applyAll(targets, isLight) {
+        this._lastIsLight = isLight;
+        for (const actor of targets)
+            this._applyActorClass(actor, isLight);
+    }
+
+    applyPending(targets) {
+        if (!targets || targets.length === 0)
+            return;
+        const fallback = this._lastIsLight ?? this._fallbackIsLight();
+        for (const actor of targets) {
+            const known = this._states.get(actor);
+            this._applyActorClass(actor, known !== undefined ? known : fallback);
+        }
+    }
+
+    start(skipInitial = true) {
+        this.stop(false);
+        this._active = true;
+        const epoch = ++this._epoch;
+        this._sampler.reset();
+
+        if (!this.isEnabled()) {
+            this.stop(true);
+            return;
+        }
+
+        const targets = this._opts.getTargets?.() ?? [];
+        this.applyPending(targets);
+
+        if (skipInitial) {
+            this._idleId = GLib.idle_add(GLib.PRIORITY_HIGH, () => {
+                this._idleId = 0;
+                if (!this._active || epoch !== this._epoch)
+                    return GLib.SOURCE_REMOVE;
+                this._sampleInitialOrUpdate(epoch);
+                return GLib.SOURCE_REMOVE;
+            });
+        } else {
+            this.update();
+        }
+
+        const interval = Math.max(150, this._opts.intervalMs ?? 300);
+        this._timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, interval, () => {
+            if (!this._active || epoch !== this._epoch) {
+                this._timerId = 0;
+                return GLib.SOURCE_REMOVE;
+            }
+            this.update();
+            return GLib.SOURCE_CONTINUE;
+        });
+    }
+
+    stop(clearApplied = false) {
+        this._active = false;
+        this._epoch++;
+        if (this._idleId) {
+            GLib.Source.remove(this._idleId);
+            this._idleId = 0;
+        }
+        if (this._timerId) {
+            GLib.Source.remove(this._timerId);
+            this._timerId = 0;
+        }
+        if (clearApplied)
+            this.clearClasses();
+    }
+
+    invalidate() {
+        this._sampler.invalidate();
+    }
+
+    clearClasses() {
+        const {lightClass, darkClass} = this._opts;
+        const targets = this._opts.getTargets?.() ?? [];
+        for (const actor of targets) {
+            if (!isActorValid(actor))
+                continue;
+            if (lightClass)
+                actor.remove_style_class_name?.(lightClass);
+            if (darkClass)
+                actor.remove_style_class_name?.(darkClass);
+        }
+        this._states = new WeakMap();
+        this._lastIsLight = null;
+    }
+
+    async _sampleInitialOrUpdate(epoch) {
+        if (!this._active || epoch !== this._epoch || !this.isEnabled())
+            return;
+        const initialRect = this._opts.getInitialRect?.();
+        if (initialRect && initialRect.width > 0 && initialRect.height > 0) {
+            if (this._inFlight)
+                return;
+            this._inFlight = true;
+            try {
+                const glasses = (this._opts.getGlasses?.() ?? []).filter(g => g && isActorValid(g));
+                const color = await this._sampler.chooseColorFor(
+                    initialRect,
+                    this._config(false),
+                    glasses
+                );
+                if (!this._active || epoch !== this._epoch || !color)
+                    return;
+                const isLight = color === AdaptiveContrastConfig.darkTextColor;
+                const targets = this._opts.getTargets?.() ?? [];
+                this._applyAll(targets, isLight);
+            } catch (e) {
+                this._opts.logger?.error?.(`[Liquid Glass] ${this._opts.label ?? 'surface'} adaptive contrast init failed: ${e}`);
+            } finally {
+                this._inFlight = false;
+            }
+            return;
+        }
+        this.update();
+    }
+
+    update() {
+        if (!this._active || this._inFlight || !this.isEnabled())
+            return;
+        if (this._opts.shouldDefer?.())
+            return;
+        const targets = (this._opts.getTargets?.() ?? []).filter(a => a && isActorValid(a) && a.visible && a.mapped);
+        if (targets.length === 0)
+            return;
+        const epoch = this._epoch;
+        const perElement = Boolean(this._opts.perElement && targets.length > 1);
+        const glassesFn = () => (this._opts.getGlasses?.() ?? []).filter(g => g && isActorValid(g) && g.mapped);
+        const paintSig = () => {
+            const gs = glassesFn();
+            return gs.length > 0 ? gs.reduce((sum, g) => sum + (g.paintCount ?? NaN), 0) : NaN;
+        };
+        this._inFlight = true;
+        this._sampler
+            .chooseColorsForActors(
+                targets,
+                this._config(perElement),
+                this._opts.getRoot?.() ?? null,
+                paintSig,
+                glassesFn
+            )
+            .then(colorMap => {
+                if (!this._active || epoch !== this._epoch || !this.isEnabled())
+                    return;
+                if (!colorMap || colorMap.size === 0)
+                    return;
+                let anyLight = null;
+                for (const [actor, color] of colorMap.entries()) {
+                    const isLight = color === AdaptiveContrastConfig.darkTextColor;
+                    if (anyLight === null)
+                        anyLight = isLight;
+                    this._applyActorClass(actor, isLight);
+                }
+                if (anyLight !== null && !perElement)
+                    this._lastIsLight = anyLight;
+            })
+            .catch(e => {
+                this._opts.logger?.error?.(`[Liquid Glass] ${this._opts.label ?? 'surface'} adaptive contrast update failed: ${e}`);
+            })
+            .finally(() => {
+                this._inFlight = false;
+            });
+    }
+
+    destroy() {
+        this.stop(false);
+        this._states = new WeakMap();
+    }
+}
