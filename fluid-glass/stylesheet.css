@@ -443,6 +443,24 @@
     color: rgba(0, 0, 0, 0.60);
 }
 
+.fluid-glass-system-menu-content.fluid-glass-status-menu-content.fluid-glass-wired-menu-content,
+.fluid-glass-system-menu-content.fluid-glass-wired-menu-content {
+    width: 280px;
+}
+
+.fluid-glass-wired-status-detail,
+.fluid-glass-system-menu-content.fluid-glass-dark .fluid-glass-wired-status-detail {
+    font-size: 8pt;
+    color: rgba(255, 255, 255, 0.62);
+    padding-left: 8px;
+}
+
+.fluid-glass-system-menu-content.fluid-glass-light .fluid-glass-wired-status-detail {
+    font-size: 8pt;
+    color: rgba(0, 0, 0, 0.55);
+    padding-left: 8px;
+}
+
 .fluid-glass-battery-indicator {
     spacing: 3px;
 }

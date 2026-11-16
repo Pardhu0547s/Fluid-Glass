@@ -61,7 +61,7 @@ export const ConnectivityService = GObject.registerClass({
                 this._clientIds.push(
                     client.connect(signal, () => this._devicesChanged()));
             }
-            for (const property of ['nm-running', 'wireless-enabled']) {
+            for (const property of ['nm-running', 'wireless-enabled', 'connectivity']) {
                 this._clientIds.push(client.connect(`notify::${property}`,
                     () => this.emit('changed')));
             }
@@ -104,6 +104,18 @@ export const ConnectivityService = GObject.registerClass({
         for (const device of this._devices(NM.DeviceType.ETHERNET)) {
             this._deviceIds.push([device, device.connect('state-changed',
                 () => this.emit('changed'))]);
+            this._deviceIds.push([device, device.connect('notify::active-connection',
+                () => this.emit('changed'))]);
+            this._deviceIds.push([device, device.connect('notify::ip4-config',
+                () => this.emit('changed'))]);
+        }
+        for (const device of this._devices(NM.DeviceType.MODEM)) {
+            this._deviceIds.push([device, device.connect('state-changed',
+                () => this.emit('changed'))]);
+            this._deviceIds.push([device, device.connect('notify::active-connection',
+                () => this.emit('changed'))]);
+            this._deviceIds.push([device, device.connect('notify::ip4-config',
+                () => this.emit('changed'))]);
         }
         for (const device of this._devices(NM.DeviceType.WIFI)) {
             this._deviceIds.push([device, device.connect('state-changed',
@@ -145,10 +157,120 @@ export const ConnectivityService = GObject.registerClass({
             'WirelessEnabled', GLibBool(on));
     }
 
-    // ---- Wired --------------------------------------------------------------
+    // ---- Wired / LAN / USB Tethering ---------------------------------------
+
+    _isPhysicalNetworkDevice(device) {
+        if (!device || device.state === NM.DeviceState.UNMANAGED)
+            return false;
+        const type = device.device_type;
+        if (type !== NM.DeviceType.ETHERNET && type !== NM.DeviceType.MODEM)
+            return false;
+        const udi = device.get_udi?.() ?? '';
+        if (udi.startsWith('/sys/devices/virtual/'))
+            return false;
+        return true;
+    }
+
+    _classifyWiredDevice(device) {
+        if (device.device_type === NM.DeviceType.MODEM)
+            return 'modem';
+        const driver = (device.get_driver?.() ?? '').toLowerCase();
+        const iface = (device.get_iface?.() ?? '').toLowerCase();
+        const udi = (device.get_udi?.() ?? '').toLowerCase();
+        const product = (device.get_product?.() ?? '').toLowerCase();
+        if (driver === 'rndis_host' || driver === 'ipheth' ||
+            driver === 'cdc_eem' || driver === 'zaurus' ||
+            driver === 'qmi_wwan' || driver === 'cdc_mbim' ||
+            driver === 'huawei_cdc_ncm' || /^usb\d+/.test(iface))
+            return 'usb';
+        if (udi.includes('/usb') && (driver === 'cdc_ncm' || driver === 'cdc_ether') &&
+            !/ethernet|gigabit|lan|dock|r815|ax88|realtek|asix/.test(product))
+            return 'usb';
+        return 'wired';
+    }
 
     get wiredAvailable() {
         return this._managedDevices(NM.DeviceType.ETHERNET).length > 0;
+    }
+
+    get connectivityState() {
+        return this._client?.get_connectivity?.() ?? NM.ConnectivityState.UNKNOWN;
+    }
+
+    get wiredConnections() {
+        if (!this._client?.nm_running)
+            return [];
+        const list = [];
+        for (const device of this._client.get_devices()) {
+            if (!this._isPhysicalNetworkDevice(device))
+                continue;
+            const state = device.state;
+            const connected = state === NM.DeviceState.ACTIVATED;
+            const connecting = state > NM.DeviceState.DISCONNECTED &&
+                state < NM.DeviceState.ACTIVATED;
+            const pluggedIn = device.device_type === NM.DeviceType.ETHERNET &&
+                Boolean(device.carrier);
+            if (!connected && !connecting && !pluggedIn)
+                continue;
+            const kind = this._classifyWiredDevice(device);
+            const iface = device.get_iface?.() ?? '';
+            const product = (device.get_product?.() ?? '').trim();
+            const ac = device.get_active_connection?.() ?? null;
+            const connectionName = ac?.get_id?.() ?? '';
+            let ip4 = '';
+            try {
+                const cfg = device.get_ip4_config?.();
+                const addrs = cfg?.get_addresses?.() ?? [];
+                ip4 = addrs[0]?.get_address?.() ?? '';
+            } catch (_e) {}
+            list.push({
+                device,
+                iface,
+                kind,
+                state,
+                connected,
+                connecting,
+                pluggedIn,
+                product,
+                connectionName,
+                ip4,
+                activeConnection: ac,
+            });
+        }
+        return list;
+    }
+
+    deactivateDeviceConnection(device) {
+        const ac = device?.get_active_connection?.();
+        if (!this._client || !ac)
+            return false;
+        this._client.deactivate_connection_async(ac, this._cancellable, (client, res) => {
+            try {
+                client.deactivate_connection_finish(res);
+            } catch (e) {
+                if (!e.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
+                    logError(e, 'fluid-glass: deactivate wired connection');
+            }
+        });
+        return true;
+    }
+
+    activateDeviceConnection(device) {
+        if (!this._client || !device)
+            return false;
+        const available = device.get_available_connections?.() ?? [];
+        const conn = available[0] ?? null;
+        if (!conn)
+            return false;
+        this._client.activate_connection_async(conn, device, null, this._cancellable, (client, res) => {
+            try {
+                client.activate_connection_finish(res);
+            } catch (e) {
+                if (!e.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
+                    logError(e, 'fluid-glass: activate wired connection');
+            }
+        });
+        return true;
     }
 
     /**

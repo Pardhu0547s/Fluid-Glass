@@ -25,6 +25,7 @@ import {FluidGlassSystemMenu} from './widgets/systemMenu.js';
 import {ActiveApp} from './widgets/activeApp.js';
 import {ControlCenter} from './widgets/controlCenter.js';
 import {FluidGlassMenu} from './widgets/fluidGlassMenu.js';
+import {FluidGlassWiredMenu} from './widgets/wiredMenu.js';
 import {FluidGlassWifiMenu} from './widgets/wifiMenu.js';
 import {FluidGlassBluetoothMenu} from './widgets/bluetoothMenu.js';
 import {FluidGlassBatteryMenu} from './widgets/batteryMenu.js';
@@ -40,6 +41,7 @@ const PANEL_STYLE_CLASS = 'fluid-glass';
 const SYSTEM_MENU_ROLE = 'fluid-glass-system-menu';
 const ACTIVE_APP_ROLE = 'fluid-glass-active-app';
 const WIFI_ROLE = 'fluid-glass-wifi';
+const WIRED_ROLE = 'fluid-glass-wired';
 const BLUETOOTH_ROLE = 'fluid-glass-bluetooth';
 const BATTERY_ROLE = 'fluid-glass-battery';
 const FLUID_GLASS_ROLE = 'fluid-glass-fluid-glass';
@@ -77,6 +79,7 @@ export class PanelController {
         this._systemMenu = null;
         this._activeApp = null;
         this._fluidGlassMenu = null;
+        this._wiredMenu = null;
         this._wifiMenu = null;
         this._bluetoothMenu = null;
         this._batteryMenu = null;
@@ -388,6 +391,11 @@ export class PanelController {
             this._fluidGlassMenu.destroy();
             this._fluidGlassMenu = null;
         }
+        if (!this._wiredMenu) {
+            const menu = new FluidGlassWiredMenu();
+            PanelAdapter.addToStatusArea(WIRED_ROLE, menu, pos++, 'right');
+            this._wiredMenu = menu;
+        }
         if (!this._wifiMenu) {
             const menu = new FluidGlassWifiMenu();
             PanelAdapter.addToStatusArea(WIFI_ROLE, menu, pos++, 'right');
@@ -417,6 +425,7 @@ export class PanelController {
         const clock = PanelAdapter.containerOf(PanelAdapter.dateMenu);
         const controls = [
             this._fluidGlassMenu,
+            this._wiredMenu,
             this._wifiMenu,
             this._bluetoothMenu,
             this._batteryMenu,
@@ -439,9 +448,11 @@ export class PanelController {
     _removeStatusMenus() {
         this._fluidGlassMenu?.destroy();
         this._fluidGlassMenu = null;
+        this._wiredMenu?.destroy();
         this._wifiMenu?.destroy();
         this._bluetoothMenu?.destroy();
         this._batteryMenu?.destroy();
+        this._wiredMenu = null;
         this._wifiMenu = null;
         this._bluetoothMenu = null;
         this._batteryMenu = null;
