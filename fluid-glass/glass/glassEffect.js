@@ -32,7 +32,7 @@ import {
     GLASS_SHADOW_MAX_RADIUS,
 } from './actors.js';
 
-const SHADER_PADDING = 20;
+export const SHADER_PADDING = 20;
 
 let _defaultExtensionPath = null;
 let _defaultSettings = null;
