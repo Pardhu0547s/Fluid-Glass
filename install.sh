@@ -12,6 +12,7 @@
 #       --no-apply                        Install only; do not change GNOME settings
 #   -e, --with-extension                  Enable the optional Liquid Glass extension
 #                                         (must already be installed; see README)
+#   -i, --with-icons                      Build and install Papirus-MacOS icon themes
 #   -r, --remove, --uninstall             Remove the theme and restore your gtk-4.0 files
 #   -h, --help
 #
@@ -31,8 +32,11 @@ REBUILD="false"
 LIBADWAITA="true"
 APPLY="true"
 WITH_EXT="false"
+WITH_ICONS="false"
 WITH_PRESETS="false"
 REMOVE="false"
+
+ICONS_DEST="${HOME}/.local/share/icons"
 
 GTK4_CONF="${HOME}/.config/gtk-4.0"
 BACKUP_DIR="${GTK4_CONF}/.fluid-glass-backup"
@@ -65,6 +69,7 @@ while [[ $# -gt 0 ]]; do
     --no-libadwaita)   LIBADWAITA="false"; shift ;;
     --no-apply)        APPLY="false"; shift ;;
     -e|--with-extension) WITH_EXT="true"; shift ;;
+    -i|--with-icons)     WITH_ICONS="true"; shift ;;
     -p|--with-presets)   WITH_PRESETS="true"; shift ;;
     -r|--remove|--uninstall) REMOVE="true"; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -127,6 +132,7 @@ if [[ "${REMOVE}" == "true" ]]; then
   for n in "${NAME}" Liquid-Tahoe; do
     rm -rf "${DEST:?}/${n}-Dark" "${DEST:?}/${n}-Light"
   done
+  rm -rf "${ICONS_DEST:?}/Papirus-MacOS-Dark" "${ICONS_DEST:?}/Papirus-MacOS-Light"
   restore_gtk4
 
   if [[ "${APPLY}" == "true" ]]; then
@@ -136,6 +142,9 @@ if [[ "${REMOVE}" == "true" ]]; then
     shell_now="$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null || true)"
     [[ "${shell_now}" == *"${NAME}"* || "${shell_now}" == *Liquid-Tahoe* ]] \
       && gsettings reset org.gnome.shell.extensions.user-theme name
+    icon_now="$(gsettings get org.gnome.desktop.interface icon-theme 2>/dev/null || true)"
+    [[ "${icon_now}" == *Papirus-MacOS* ]] \
+      && gsettings reset org.gnome.desktop.interface icon-theme
   fi
   info "Done. The optional Liquid Glass extension was left untouched; remove it with the Extensions app."
   exit 0
@@ -223,6 +232,28 @@ if [[ -d "${REPO_DIR}/fluid-glass" ]]; then
     [[ -f "${REPO_DIR}/fluid-glass/presets/lintel.dconf" ]] && dconf load /org/gnome/shell/extensions/fluid-glass/topbar/ < "${REPO_DIR}/fluid-glass/presets/lintel.dconf" || true
     [[ -f "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" ]] && dconf load /org/gnome/shell/extensions/fluid-glass/glass/ < "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" || true
     [[ -f "${REPO_DIR}/fluid-glass/presets/dock.dconf" ]] && dconf load /org/gnome/shell/extensions/fluid-glass/dock/ < "${REPO_DIR}/fluid-glass/presets/dock.dconf" || true
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Optional Papirus x macOS Squircle Icon Themes
+# ---------------------------------------------------------------------------
+if [[ "${WITH_ICONS}" == "true" && -f "${REPO_DIR}/scripts/build-icons.py" ]]; then
+  if [[ -d "/usr/share/icons/Papirus/64x64/apps" && -d "/usr/share/icons/MacTahoe-dark" && -d "/usr/share/icons/MacTahoe-light" ]]; then
+    info "Building Papirus-MacOS-Dark & Papirus-MacOS-Light icons in ${ICONS_DEST}"
+    mkdir -p "${ICONS_DEST}"
+    python3 "${REPO_DIR}/scripts/build-icons.py" --out "${ICONS_DEST}"
+    if command -v gtk-update-icon-cache >/dev/null; then
+      gtk-update-icon-cache -f -t "${ICONS_DEST}/Papirus-MacOS-Dark" || true
+      gtk-update-icon-cache -f -t "${ICONS_DEST}/Papirus-MacOS-Light" || true
+    fi
+    if [[ "${APPLY}" == "true" ]]; then
+      ICON_THEME="Papirus-MacOS-${THEME_NAME##*-}"
+      gsettings set org.gnome.desktop.interface icon-theme "${ICON_THEME}" 2>/dev/null || true
+      info "Applied icon theme: ${ICON_THEME}"
+    fi
+  else
+    warn "Papirus or MacTahoe icon themes not found in /usr/share/icons; skipping icon build."
   fi
 fi
 
