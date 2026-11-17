@@ -227,9 +227,25 @@ export class DialogManager {
 
         const opts = this._makeRestackOptions(dialog, modalActor, 'dialogManager');
         const handle = attachGlass(dialog, opts);
+        const adaptiveClasses = ['fluid-glass-modal-light', 'fluid-glass-modal-dark'];
+        const adaptive = this._createAdaptiveContrast(
+            'modalDialog',
+            dialog,
+            handle,
+            adaptiveClasses[0],
+            adaptiveClasses[1]
+        );
         const destroyIds = [
             [dialog, dialog.connect('destroy', () => this._detachActor(dialog))],
+            [dialog, dialog.connect('notify::mapped', () => {
+                if (dialog.mapped)
+                    adaptive.start(true);
+                else
+                    adaptive.stop(false);
+            })],
         ];
+        if (dialog.mapped)
+            adaptive.start(true);
         if (modalActor !== dialog) {
             destroyIds.push([
                 modalActor,
@@ -238,6 +254,8 @@ export class DialogManager {
         }
         this._handles.set(dialog, {
             handle,
+            adaptive,
+            adaptiveClasses,
             destroyIds,
             styleClass: 'fluid-glass-modal-dialog',
             lightbox,
@@ -352,29 +370,15 @@ export class DialogManager {
         });
     }
 
-    _attachUiPopup(menu) {
-        if (!menu || this._uiPopups.has(menu) || !menu.actor || !menu.box)
-            return;
-        if (!isActorValid(menu.actor) || !isActorValid(menu.box))
-            return;
-
-        const styledActors = [];
-        this._addTempClasses(styledActors, menu.actor, ['fluid-glass-transparent', 'fluid-glass-ui-popup']);
-        if (menu._boxPointer)
-            this._addTempClasses(styledActors, menu._boxPointer, ['fluid-glass-transparent', 'fluid-glass-ui-popup']);
-        this._addTempClasses(styledActors, menu.box, ['fluid-glass-transparent', 'fluid-glass-ui-popup-content']);
-
-        // Do not pass opts.menu so QuickSettingsMenu opacity fade completes cleanly.
-        const opts = this._makeRestackOptions(menu.box, menu.actor, 'uiPopupGlass');
-        const handle = attachGlass(menu.box, opts);
-        const adaptive = new AdaptiveClassContrast({
-            label: 'uiPopup',
+    _createAdaptiveContrast(label, targetActor, handle, lightClass, darkClass, fallbackIsDark = () => true) {
+        return new AdaptiveClassContrast({
+            label,
             logger: this._logger,
             perElement: false,
             intervalMs: 280,
-            lightClass: 'fluid-glass-ui-popup-light',
-            darkClass: 'fluid-glass-ui-popup-dark',
-            getTargets: () => (menu.box && isActorValid(menu.box) ? [menu.box] : []),
+            lightClass,
+            darkClass,
+            getTargets: () => (targetActor && isActorValid(targetActor) ? [targetActor] : []),
             getGlasses: () => (handle.glass && isActorValid(handle.glass) ? [handle.glass] : []),
             getEnabled: () => {
                 try {
@@ -390,8 +394,33 @@ export class DialogManager {
                     return 'auto';
                 }
             },
-            fallbackIsDark: () => true,
+            fallbackIsDark,
         });
+    }
+
+    _attachUiPopup(menu) {
+        if (!menu || this._uiPopups.has(menu) || !menu.actor || !menu.box)
+            return;
+        if (!isActorValid(menu.actor) || !isActorValid(menu.box))
+            return;
+
+        const styledActors = [];
+        this._addTempClasses(styledActors, menu.actor, ['fluid-glass-transparent', 'fluid-glass-ui-popup']);
+        if (menu._boxPointer)
+            this._addTempClasses(styledActors, menu._boxPointer, ['fluid-glass-transparent', 'fluid-glass-ui-popup']);
+        this._addTempClasses(styledActors, menu.box, ['fluid-glass-transparent', 'fluid-glass-ui-popup-content']);
+
+        // Do not pass opts.menu so QuickSettingsMenu opacity fade completes cleanly.
+        const opts = this._makeRestackOptions(menu.box, menu.actor, 'uiPopupGlass');
+        const handle = attachGlass(menu.box, opts);
+        const adaptiveClasses = ['fluid-glass-ui-popup-light', 'fluid-glass-ui-popup-dark'];
+        const adaptive = this._createAdaptiveContrast(
+            'uiPopup',
+            menu.box,
+            handle,
+            adaptiveClasses[0],
+            adaptiveClasses[1]
+        );
         const openId = menu.connect?.('open-state-changed', (_m, isOpen) => {
             if (isOpen)
                 adaptive.start(true);
@@ -406,7 +435,7 @@ export class DialogManager {
         ];
         if (openId)
             destroyIds.push([menu, openId]);
-        this._uiPopups.set(menu, {handle, adaptive, destroyIds, styledActors});
+        this._uiPopups.set(menu, {handle, adaptive, adaptiveClasses, destroyIds, styledActors});
     }
 
     _attachUiSurface(surfaceActor, rootActor) {
@@ -421,16 +450,32 @@ export class DialogManager {
         this._addTempClasses(styledActors, surfaceActor, ['fluid-glass-transparent', 'fluid-glass-ui-surface']);
         const opts = this._makeRestackOptions(surfaceActor, rootActor, 'uiSurfaceGlass');
         const handle = attachGlass(surfaceActor, opts);
+        const adaptiveClasses = ['fluid-glass-ui-surface-light', 'fluid-glass-ui-surface-dark'];
+        const adaptive = this._createAdaptiveContrast(
+            'uiSurface',
+            surfaceActor,
+            handle,
+            adaptiveClasses[0],
+            adaptiveClasses[1]
+        );
         const destroyIds = [
             [surfaceActor, surfaceActor.connect('destroy', () => this._detachStyledEntry(this._uiSurfaces, surfaceActor))],
+            [surfaceActor, surfaceActor.connect('notify::mapped', () => {
+                if (surfaceActor.mapped)
+                    adaptive.start(true);
+                else
+                    adaptive.stop(false);
+            })],
         ];
+        if (surfaceActor.mapped)
+            adaptive.start(true);
         if (rootActor !== surfaceActor) {
             destroyIds.push([
                 rootActor,
                 rootActor.connect('destroy', () => this._detachStyledEntry(this._uiSurfaces, surfaceActor)),
             ]);
         }
-        this._uiSurfaces.set(surfaceActor, {handle, destroyIds, styledActors});
+        this._uiSurfaces.set(surfaceActor, {handle, adaptive, adaptiveClasses, destroyIds, styledActors});
     }
 
     _detachStyledEntry(map, key) {
@@ -446,8 +491,8 @@ export class DialogManager {
             if (actor && isActorValid(actor)) {
                 for (const cls of classes)
                     try { actor.remove_style_class_name?.(cls); } catch (_e) {}
-                try { actor.remove_style_class_name?.('fluid-glass-ui-popup-light'); } catch (_e) {}
-                try { actor.remove_style_class_name?.('fluid-glass-ui-popup-dark'); } catch (_e) {}
+                for (const cls of (entry.adaptiveClasses ?? []))
+                    try { actor.remove_style_class_name?.(cls); } catch (_e) {}
             }
         }
         entry.adaptive?.destroy();
@@ -676,6 +721,11 @@ export class DialogManager {
         if (entry.styleClass && isActorValid(actor)) {
             try { actor.remove_style_class_name?.(entry.styleClass); } catch (_e) {}
         }
+        for (const cls of (entry.adaptiveClasses ?? [])) {
+            if (isActorValid(actor))
+                try { actor.remove_style_class_name?.(cls); } catch (_e) {}
+        }
+        entry.adaptive?.destroy();
         entry.handle?.destroy();
     }
 

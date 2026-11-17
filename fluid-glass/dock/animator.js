@@ -705,73 +705,12 @@ export let Animator = class {
           icon._py = p[1] - renderOffset[1];
         }
 
-        let hideLabel = true;
-
-        // label
-        if (
-          icon === hoveredIcon &&
-          icon._label &&
-          icon._label.text &&
-          icon._label.text.length
-        ) {
-          let tSize = renderer.get_transformed_size();
-          // let tPos = icon._icon.get_transformed_position();
-          let tPos = renderer.get_transformed_position();
-          if (isNaN(tPos[0]) || isNaN(tPos[1])) {
-            tPos[0] = 0;
-            tPos[1] = 0;
-          }
-          let sw = !isNaN(tSize[0]) ? tSize[0] : 0;
-          let sh = !isNaN(tSize[1]) ? tSize[1] : 0;
-
-          if (this._dwellIcon === icon) {
-            this._dwellTick += dt;
-            if (this._dwellTick > 450 && icon._targetScale > 1) {
-              try {
-                hideLabel = false;
-                if (icon._label.opacity < 255 - 25) {
-                  icon._label.opacity += 25;
-                } else {
-                  icon._label.opacity = 255;
-                }
-              } catch (err) {
-                // label not ready?
-              }
-            }
-          } else {
-            this._dwellTick = 0;
-          }
-          this._dwellIcon = icon;
-
-          // icon._label.style = 'font-size: 32pt';
-          // icon._label.set_scale(0.5, 0.5);
-          let lsz = icon._label.get_transformed_size();
-          if (!isNaN(lsz[0]) && !isNaN(lsz[1])) {
-            icon._label.x = tPos[0] + sw / 2 - lsz[0] / 2;
-            icon._label.y = tPos[1] + sh / 2 - lsz[1] / 2;
-            if (vertical) {
-              if (dock._position == DockPosition.LEFT) {
-                icon._label.x += sh / 1.5 + icon._label.width / 2;
-              } else {
-                icon._label.x -= sh / 1.5 + icon._label.width / 2;
-              }
-              icon._label.y += 2 * (m.geometry_scale || 1);
-            } else {
-              if (magnify == 0 || dock._iconSize <= 4) {
-                sh *= 1.5;
-              }
-              if (dock._position == DockPosition.BOTTOM) {
-                icon._label.y -= sh / 1.25;
-              } else {
-                icon._label.y += sh / 1.25;
-              }
-              icon._label.x += 2 * (m.geometry_scale || 1);
-            }
-          }
-        }
-
-        if (hideLabel && icon._label) {
+        // Keep GNOME's unglassed dash label suppressed; DockTooltip renders the glass bubble.
+        if (icon._label) {
           icon._label.opacity = 0;
+          if (icon._label.visible) {
+            icon._label.hide();
+          }
         }
 
         //! todo... add placeholder opacity when dragging
@@ -1034,12 +973,97 @@ export let Animator = class {
       didScale = true;
     }
 
+    const tooltipIcon = isWithin
+      ? (nearestIcon ?? animateIcons.find((i) => i._icon?.hover) ?? null)
+      : null;
+    if (this._updateTooltip(dock, tooltipIcon, m, dt)) {
+      didScale = true;
+    }
+
     if (didFadeIn || didScale || dock._dragging || didBounce) {
       dock.autohider._debounceCheckHide();
       dock._debounceEndAnimation();
     }
 
     dock.extension.integrations.bms_update_size(this);
+  }
+
+  _updateTooltip(dock, tooltipIcon, monitor, dt) {
+    const hideLabels = Boolean(dock.extension.hide_labels);
+    const menuOpen = Boolean(tooltipIcon?._appwell?._menu?.isOpen || dock._list?.visible);
+    if (
+      !tooltipIcon ||
+      !tooltipIcon._renderer ||
+      hideLabels ||
+      menuOpen ||
+      dock._dragging ||
+      dock._hidden ||
+      dock.opacity < 40 ||
+      !dock._tooltip
+    ) {
+      this._dwellTick = 0;
+      this._dwellIcon = null;
+      dock._tooltip?.hideTooltip();
+      return false;
+    }
+
+    const text =
+      tooltipIcon._label?.text ||
+      tooltipIcon._appwell?.app?.get_name?.() ||
+      tooltipIcon.toggleButton?.accessible_name ||
+      '';
+    if (!text.length) {
+      this._dwellTick = 0;
+      this._dwellIcon = null;
+      dock._tooltip.hideTooltip();
+      return false;
+    }
+
+    if (this._dwellIcon !== tooltipIcon) {
+      this._dwellIcon = tooltipIcon;
+      if (!dock._tooltip.isActive) {
+        this._dwellTick = 0;
+      }
+    } else {
+      this._dwellTick = (this._dwellTick || 0) + dt;
+    }
+
+    if (this._dwellTick < 220 && !dock._tooltip.isActive) {
+      return true;
+    }
+
+    const renderer = tooltipIcon._renderer;
+    const tPos = renderer.get_transformed_position();
+    const tSize = renderer.get_transformed_size();
+    if (
+      ![tPos[0], tPos[1], tSize[0], tSize[1]].every(Number.isFinite) ||
+      tSize[0] <= 0 ||
+      tSize[1] <= 0
+    ) {
+      return false;
+    }
+
+    let dockRect = null;
+    if (dock._background?.mapped) {
+      const bPos = dock._background.get_transformed_position();
+      const bSize = dock._background.get_transformed_size();
+      if (
+        [bPos[0], bPos[1], bSize[0], bSize[1]].every(Number.isFinite) &&
+        bSize[0] > 0 &&
+        bSize[1] > 0
+      ) {
+        dockRect = [bPos[0], bPos[1], bSize[0], bSize[1]];
+      }
+    }
+
+    dock._tooltip.showTooltip(
+      text,
+      [tPos[0], tPos[1], tSize[0], tSize[1]],
+      dock._position,
+      monitor,
+      dockRect
+    );
+    return false;
   }
 
   bounceIcon(appwell) {

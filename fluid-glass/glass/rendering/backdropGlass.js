@@ -333,6 +333,10 @@ export const GlassActor = safeRegisterClass(class GlassActor extends Clutter.Act
     setContrast(contrast) { this._renderer.setContrast(contrast); }
 
     setSaturation(saturation) { this._renderer.setSaturation(saturation); }
+
+    setOutline(width, r = 1.0, g = 1.0, b = 1.0) { this._renderer.setOutline(width, r, g, b); }
+
+    setTooltipPointer(side, size, offset = 0.0) { this._renderer.setTooltipPointer(side, size, offset); }
 });
 
 /**

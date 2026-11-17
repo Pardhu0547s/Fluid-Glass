@@ -202,6 +202,21 @@ export class GlassRenderer {
         this._repaintIfDirty();
     }
 
+    setOutline(width, r = 1.0, g = 1.0, b = 1.0) {
+        this.uniforms.set('outline_width', width);
+        this.uniforms.set('outline_r', r);
+        this.uniforms.set('outline_g', g);
+        this.uniforms.set('outline_b', b);
+        this._repaintIfDirty();
+    }
+
+    setTooltipPointer(side, size, offset = 0.0) {
+        this.uniforms.set('tooltip_pointer_side', side);
+        this.uniforms.set('tooltip_pointer_size', size);
+        this.uniforms.set('tooltip_pointer_offset', offset);
+        this._repaintIfDirty();
+    }
+
     setAnimationScale(scale) {
         if (this.material.setAnimationScale(scale))
             this._repaintIfDirty();
@@ -642,6 +657,10 @@ export class MaterialSettings {
         // One glass per region, for Quick Settings' toggle-button mode.
         this._uniforms.set('multi_region_mode', 0.0);
         this._uniforms.set('region_count', 0.0);
+        // Speech-bubble pointer off unless requested by tooltip glass.
+        this._uniforms.set('tooltip_pointer_side', 0.0);
+        this._uniforms.set('tooltip_pointer_size', 0.0);
+        this._uniforms.set('tooltip_pointer_offset', 0.0);
         // An unset uniform reads 0.0, which would disable these.
         this._uniforms.set('early_exit_enabled', 1.0);
         this._uniforms.set('debug_view', 0.0);

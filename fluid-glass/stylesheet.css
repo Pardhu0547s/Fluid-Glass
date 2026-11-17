@@ -3413,6 +3413,174 @@
     box-shadow: none !important;
 }
 
+/* Light-background adaptive contrast for glass modal dialogs */
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-content-box {
+    color: #1a1a1a !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-headline,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-description,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .message-dialog-title,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .message-dialog-subtitle,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .message-dialog-body,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .end-session-dialog-subtitle,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-headline,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-description,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-info-label,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .run-dialog-description,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .dialog-list-item-title,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .dialog-list-item-description,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .caps-lock-warning-label,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .polkit-dialog-user-combo,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-user-layout StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .user-widget-label {
+    color: #1a1a1a !important;
+    text-shadow: none;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-info-label {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-error-label,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .end-session-dialog-battery-warning,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .dialog-list-title {
+    color: #9e5a00 !important;
+    background-color: rgba(255, 165, 0, 0.16) !important;
+    text-shadow: none;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0, 0, 0, 0.16) !important;
+    color: #1a1a1a !important;
+    text-shadow: none;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button StLabel {
+    color: #1a1a1a !important;
+    text-shadow: none;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button:focus:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button:focus:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button:hover:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button:hover:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button:focus {
+    background-color: rgba(0, 0, 0, 0.14) !important;
+    border: 1px solid rgba(0, 0, 0, 0.24) !important;
+    color: #1a1a1a !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button:active,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button:active,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button:active:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button:active:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button:active:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button:active:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button:active,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button:active {
+    background-color: rgba(0, 0, 0, 0.22) !important;
+    border: 1px solid rgba(0, 0, 0, 0.30) !important;
+    color: #1a1a1a !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button.default,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button.default,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button.default,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button.default,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button.default StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button.default StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button.default StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button.default StLabel {
+    color: #ffffff !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.30);
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button:insensitive,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button:insensitive,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button:insensitive,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button:insensitive,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button.default:insensitive,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button.default:insensitive,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button.default:insensitive,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button.default:insensitive,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button:insensitive StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button:insensitive StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button:insensitive StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button:insensitive StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-linked-button.default:insensitive StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button-box .modal-dialog-button.default:insensitive StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-linked-button.default:insensitive StLabel,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-button.default:insensitive StLabel {
+    background-color: rgba(0, 0, 0, 0.05) !important;
+    color: rgba(0, 0, 0, 0.42) !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    text-shadow: none;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-password-grid .prompt-dialog-password-entry,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-password-entry,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .run-dialog-entry,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light StEntry {
+    background-color: rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid rgba(0, 0, 0, 0.20) !important;
+    color: #1a1a1a !important;
+    caret-color: #1a1a1a !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-password-grid .prompt-dialog-password-entry:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-password-grid .prompt-dialog-password-entry:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-password-grid .prompt-dialog-password-entry:hover:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-password-entry:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .run-dialog-entry:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light StEntry:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-password-entry:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .run-dialog-entry:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light StEntry:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-password-entry:hover:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .run-dialog-entry:hover:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light StEntry:hover:focus {
+    background-color: rgba(0, 0, 0, 0.10) !important;
+    border: 1px solid rgba(0, 0, 0, 0.42) !important;
+    color: #1a1a1a !important;
+    caret-color: #1a1a1a !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light StEntry StLabel.hint-text {
+    color: rgba(0, 0, 0, 0.55) !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light StEntry StIcon,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .prompt-dialog-password-entry StIcon {
+    color: rgba(0, 0, 0, 0.72) !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .audio-selection-device {
+    color: #1a1a1a !important;
+}
+
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .audio-selection-device:hover,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .audio-selection-device:focus,
+.modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .audio-selection-device:checked {
+    background-color: rgba(0, 0, 0, 0.10) !important;
+}
+
 /* Switcher, workspace indicator, resize popup, and tooltips glass styling */
 .switcher-list.fluid-glass-ui-surface,
 .workspace-switcher.fluid-glass-ui-surface,
@@ -3440,6 +3608,28 @@
     box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.30) !important;
 }
 
+.switcher-list.fluid-glass-ui-surface.fluid-glass-ui-surface-light,
+.workspace-switcher.fluid-glass-ui-surface.fluid-glass-ui-surface-light,
+.resize-popup.fluid-glass-ui-surface.fluid-glass-ui-surface-light,
+.fluid-glass-ui-surface.fluid-glass-ui-surface-light StLabel {
+    color: #1a1a1a !important;
+    text-shadow: none;
+}
+
+.switcher-list.fluid-glass-ui-surface.fluid-glass-ui-surface-light .item-box {
+    color: #1a1a1a !important;
+}
+
+.switcher-list.fluid-glass-ui-surface.fluid-glass-ui-surface-light .item-box:hover,
+.switcher-list.fluid-glass-ui-surface.fluid-glass-ui-surface-light .item-box:focus,
+.switcher-list.fluid-glass-ui-surface.fluid-glass-ui-surface-light .item-box:selected,
+.switcher-list.fluid-glass-ui-surface.fluid-glass-ui-surface-light .item-box:highlighted,
+.switcher-list.fluid-glass-ui-surface.fluid-glass-ui-surface-light .item-box:checked {
+    background-color: rgba(0, 0, 0, 0.10) !important;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22) !important;
+    color: #1a1a1a !important;
+}
+
 .dash-label,
 .window-caption,
 .screenshot-ui-tooltip {
@@ -3448,6 +3638,46 @@
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22) !important;
     color: #ffffff !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
+/* Liquid Glass speech-bubble dock tooltip */
+.fluid-glass-dock-tooltip {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.fluid-glass-dock-tooltip-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #ffffff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+
+.fluid-glass-dock-tooltip-bottom {
+    padding: 6px 15px 15px 15px;
+}
+
+.fluid-glass-dock-tooltip-top {
+    padding: 15px 15px 6px 15px;
+}
+
+.fluid-glass-dock-tooltip-left {
+    padding: 6px 15px 6px 24px;
+}
+
+.fluid-glass-dock-tooltip-right {
+    padding: 6px 24px 6px 15px;
+}
+
+.fluid-glass-dock-tooltip.fluid-glass-dock-tooltip-light .fluid-glass-dock-tooltip-label {
+    color: #1a1a1a !important;
+    text-shadow: none;
+}
+
+.fluid-glass-dock-tooltip.fluid-glass-dock-tooltip-dark .fluid-glass-dock-tooltip-label {
+    color: #ffffff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 .screenshot-ui-panel,

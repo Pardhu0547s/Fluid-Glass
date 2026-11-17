@@ -120,6 +120,14 @@ uniform float region_tint_b[MAX_GLASS_REGIONS];
 uniform float region_base_strength[MAX_GLASS_REGIONS];
 uniform float region_r[MAX_GLASS_REGIONS]; // per-region corner radius (0 = auto)
 
+// Speech-bubble pointer tail for floating glass tooltips:
+//   side   0 = none, 1 = bottom (+Y), 2 = top (-Y), 3 = left (-X), 4 = right (+X)
+//   size   tail protrusion depth in px
+//   offset shift (px) of the pointer along the pill edge from its center
+uniform float tooltip_pointer_side;
+uniform float tooltip_pointer_size;
+uniform float tooltip_pointer_offset;
+
 #ifdef LG_SHAPE_TEXTURE
 // The outline as distance fields over the dock_* rect, for glass text: the
 // outline itself in the texture's top half, and a softened copy the lens is
@@ -254,10 +262,72 @@ float profileHeight(float t, float zScale) {
     return h * zScale;
 }
 
+// Polynomial smooth minimum for joining the pointer tail seamlessly to the pill.
+float sminPoly(float a, float b, float k) {
+    float h = max(k - abs(a - b), 0.0) / max(k, 1.0e-5);
+    return min(a, b) - h * h * k * 0.25;
+}
+
+// Isosceles triangle with apex at origin pointing +y to base at y = q.y, half-width q.x.
+float sdTriangleIsosceles(vec2 p, vec2 q) {
+    p.x = abs(p.x);
+    vec2 a = p - q * clamp(dot(p, q) / max(dot(q, q), 1.0e-5), 0.0, 1.0);
+    vec2 b = p - q * vec2(clamp(p.x / max(q.x, 1.0e-5), 0.0, 1.0), 1.0);
+    float s = -sign(q.y);
+    vec2 d = min(vec2(dot(a, a), s * (p.x * q.y - p.y * q.x)),
+                 vec2(dot(b, b), s * (p.y - q.y)));
+    return -sqrt(d.x) * sign(d.y);
+}
+
+// Speech-bubble capsule with a curved rounded pointer extending along tooltip_pointer_side.
+float sdTooltipBubble(vec2 p, vec2 b) {
+    vec2 pc;
+    vec2 bc;
+    if (tooltip_pointer_side < 1.5) {
+        pc = p;
+        bc = b;
+    } else if (tooltip_pointer_side < 2.5) {
+        pc = vec2(p.x, -p.y);
+        bc = b;
+    } else if (tooltip_pointer_side < 3.5) {
+        pc = vec2(p.y, -p.x);
+        bc = vec2(b.y, b.x);
+    } else {
+        pc = vec2(p.y, p.x);
+        bc = vec2(b.y, b.x);
+    }
+
+    float pt = clamp(tooltip_pointer_size, 0.0, max(bc.y - 2.0, 0.0));
+    vec2 cBox = vec2(bc.x, max(bc.y - 0.5 * pt, 1.0));
+    vec2 cCorner = cornerShape(cBox, corner_radius);
+    float dCap = sdRoundRect(vec2(pc.x, pc.y + 0.5 * pt), cBox, cCorner);
+    if (pt <= 0.1)
+        return dCap;
+
+    float rTip = clamp(pt * 0.24, 1.0, 2.5);
+    float overlap = max(3.5, min(cBox.x * 0.25, 5.5));
+    float halfW = min(max(pt * 1.15, 7.0), max(cBox.x * 0.48, 4.0));
+    float hTri = pt + overlap - rTip;
+    float apexY = bc.y - rTip;
+    float maxOff = max(cBox.x - halfW - rTip - 2.0, 0.0);
+    float safeOff = clamp(tooltip_pointer_offset, -maxOff, maxOff);
+    vec2 tp = vec2(pc.x - safeOff, apexY - pc.y);
+    float dTri = sdTriangleIsosceles(tp, vec2(halfW, hTri)) - rTip;
+
+    float fillet = clamp(pt * 0.62, 2.5, pt * 0.78);
+    return sminPoly(dCap, dTri, fillet);
+}
+
+float sdSurface(vec2 p, vec2 b, vec2 corner) {
+    if (tooltip_pointer_side > 0.5 && multi_region_mode < 0.5)
+        return sdTooltipBubble(p, b);
+    return sdRoundRect(p, b, corner);
+}
+
 // Surface height at p. `corner` is the outline's corner (cornerShape()) and
 // `band` the width the height builds up over (see lensBandFor()).
 float getHeight(vec2 p, vec2 b, vec2 corner, float band, float zScale) {
-    float d = sdRoundRect(p, b, corner);
+    float d = sdSurface(p, b, corner);
 
     // Fades out over +-edge_smoothing px instead of stepping to 0 at the edge.
     // A step makes heightGradient()'s finite difference spike across it, which
@@ -304,6 +374,19 @@ vec2 sdRoundRectDir(vec2 p, vec2 b, vec2 corner) {
     return sign(p) * normalize(pow(u, vec2(corner.y - 1.0)) + vec2(1e-6));
 }
 
+vec2 sdSurfaceDir(vec2 p, vec2 b, vec2 corner) {
+    if (tooltip_pointer_side > 0.5 && multi_region_mode < 0.5) {
+        const float e = 0.5;
+        vec2 g = vec2(
+            sdTooltipBubble(p + vec2(e, 0.0), b) - sdTooltipBubble(p - vec2(e, 0.0), b),
+            sdTooltipBubble(p + vec2(0.0, e), b) - sdTooltipBubble(p - vec2(0.0, e), b)
+        );
+        float len = length(g);
+        return len > 1.0e-5 ? g / len : vec2(0.0, 1.0);
+    }
+    return sdRoundRectDir(p, b, corner);
+}
+
 // Height gradient of the glass surface at p. The height depends on the signed
 // distance alone, so grad(H) = H'(d) * grad(d): grad(d) is closed-form, and H'(d)
 // takes one central difference along it. Differencing along x and y instead
@@ -312,7 +395,7 @@ vec2 sdRoundRectDir(vec2 p, vec2 b, vec2 corner) {
 // H'(d) is not taken in closed form: the superellipse is vertical at the
 // edge, and the finite difference keeps that slope bounded.
 vec2 heightGradient(vec2 p, vec2 b, vec2 corner, float band, float zScale, vec2 resolution) {
-    vec2 dir = sdRoundRectDir(p, b, corner);
+    vec2 dir = sdSurfaceDir(p, b, corner);
     float e = gradientStep(resolution);
 
     float hOut = getHeight(p + dir * e, b, corner, band, zScale);
@@ -642,9 +725,16 @@ void main() {
         ? activeCornerRadius
         : corner_radius;
     vec2 corner = cornerShape(box_size, effCornerRadius);
-    float d = sdRoundRect(local_pos, box_size, corner);
+    float d = sdSurface(local_pos, box_size, corner);
 
-    float lensBand = lensBandFor(min(box_size.x, box_size.y));
+    float halfMin = min(box_size.x, box_size.y);
+    if (tooltip_pointer_side > 0.5 && multi_region_mode < 0.5) {
+        float pt = clamp(tooltip_pointer_size, 0.0, 24.0);
+        halfMin = (tooltip_pointer_side < 2.5)
+            ? min(box_size.x, max(box_size.y - 0.5 * pt, 1.0))
+            : min(max(box_size.x - 0.5 * pt, 1.0), box_size.y);
+    }
+    float lensBand = lensBandFor(halfMin);
 
 #ifdef LG_SHAPE_TEXTURE
     d = shapeTextureSD(local_pos);

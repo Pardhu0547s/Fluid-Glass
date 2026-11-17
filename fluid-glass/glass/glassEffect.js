@@ -237,6 +237,18 @@ function applyGlassParameters(glass, options) {
     glass.setBrightness(brightness);
     glass.setContrast(contrast);
     glass.setSaturation(saturation);
+
+    if (options.outlineWidth > 0) {
+        const [or, og, ob] = hexToColorArray(options.outlineColor ?? '#ffffff');
+        glass.setOutline?.(options.outlineWidth, or, og, ob);
+    }
+    if (options.tooltipPointerSide !== undefined) {
+        glass.setTooltipPointer?.(
+            options.tooltipPointerSide,
+            options.tooltipPointerSize ?? 8.0,
+            options.tooltipPointerOffset ?? 0.0
+        );
+    }
 }
 
 function getEffectiveOpacity(actor, stopParent = null) {

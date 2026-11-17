@@ -21,6 +21,7 @@ import { DockItemList } from './dockItemMenu.js';
 import { AutoHide } from './autohide.js';
 import { Animator } from './animator.js';
 import { DockGlass } from './dockGlass.js';
+import { DockTooltip } from './dockTooltip.js';
 import {
   get_distance_sqr,
   get_distance,
@@ -84,6 +85,7 @@ export let Dock = GObject.registerClass(
 
       this.extension = params.extension;
       this._dockGlass = null;
+      this._tooltip = null;
 
       this._alignment = DockAlignment.CENTER;
       this._monitorIndex = Main.layoutManager.primaryIndex;
@@ -224,9 +226,20 @@ export let Dock = GObject.registerClass(
           console.error('[FluidGlass] Dock glass initialization error:', e);
         }
       }
+      if (!this._tooltip) {
+        try {
+          const glassSettings = this.extension?.getGlassSettings?.() ?? null;
+          const logger = this.extension?.getLogger?.() ?? console;
+          this._tooltip = new DockTooltip(this, glassSettings, logger);
+        } catch (e) {
+          console.error('[FluidGlass] Dock tooltip initialization error:', e);
+        }
+      }
     }
 
     undock() {
+      this._tooltip?.destroy();
+      this._tooltip = null;
       this._dockGlass?.cleanup();
       this._dockGlass = null;
       this._destroyList();
@@ -255,6 +268,9 @@ export let Dock = GObject.registerClass(
       return Clutter.EVENT_PROPAGATE;
     }
     _onLeaveEvent(evt) {
+      if (!this._isWithinDash(global.get_pointer())) {
+        this._tooltip?.hideTooltip();
+      }
       this.autohider._debounceCheckHide();
       this._debounceEndAnimation();
       return Clutter.EVENT_PROPAGATE;
@@ -377,6 +393,7 @@ export let Dock = GObject.registerClass(
       if (this._list && this._list.visible) {
         return;
       }
+      this._tooltip?.hideTooltip();
       if (!this._hidden) {
         this._hidden = true;
         this._beginAnimation();
@@ -827,6 +844,9 @@ export let Dock = GObject.registerClass(
             }
             if (c._label) {
               c._showLabel();
+              c._label.remove_all_transitions?.();
+              c._label.opacity = 0;
+              c._label.hide();
             }
           };
         }
@@ -1364,6 +1384,9 @@ export let Dock = GObject.registerClass(
       this._icons = null;
       this._dragged = null;
       this._lastHoveredIcon = null;
+      if (!this._isWithinDash(global.get_pointer()) || !this._nearestIcon) {
+        this._tooltip?.hideTooltip();
+      }
     }
 
     _destroyList() {
