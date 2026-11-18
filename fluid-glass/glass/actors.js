@@ -17,7 +17,7 @@ const _gobjectToString = GObject.Object.prototype.toString;
  * default), so this is the only reliable test.
  */
 export function isActorValid(actor) {
-    if (!actor)
+    if (!actor || !(actor instanceof GObject.Object))
         return false;
     const desc = _gobjectToString.call(actor);
     if (desc.includes('(DISPOSED)') || desc.includes('(FINALIZED)'))

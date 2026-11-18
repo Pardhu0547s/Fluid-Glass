@@ -169,6 +169,58 @@ export function getHostSystemAccentColor() {
     return '#007aff';
 }
 
+const GREETER_PREFS_PATHS = [
+    '/usr/share/gnome-shell/extensions/fluid-glass@pardhu0547s.github.io/greeter-prefs.json',
+    '/var/tmp/fluid-glass-greeter-prefs.json',
+];
+
+export function isGreeterProcess() {
+    try {
+        const user = (GLib.get_user_name() || '').toLowerCase();
+        return user === 'gdm' || user.startsWith('gdm-');
+    } catch (_e) {
+        return false;
+    }
+}
+
+export function readGreeterPrefs() {
+    for (const path of GREETER_PREFS_PATHS) {
+        try {
+            if (!GLib.file_test(path, GLib.FileTest.EXISTS))
+                continue;
+            const [ok, bytes] = GLib.file_get_contents(path);
+            if (!ok || !bytes)
+                continue;
+            const parsed = JSON.parse(new TextDecoder().decode(bytes));
+            if (parsed && typeof parsed === 'object')
+                return parsed;
+        } catch (_e) {}
+    }
+    return null;
+}
+
+export function syncGreeterPrefs(updates) {
+    if (!updates || typeof updates !== 'object' || isGreeterProcess())
+        return;
+    const current = readGreeterPrefs() ?? {};
+    let changed = false;
+    for (const [k, v] of Object.entries(updates)) {
+        if (v !== undefined && current[k] !== v) {
+            current[k] = v;
+            changed = true;
+        }
+    }
+    const payload = JSON.stringify(current, null, 2);
+    for (const path of GREETER_PREFS_PATHS) {
+        try {
+            if (!changed && GLib.file_test(path, GLib.FileTest.EXISTS))
+                continue;
+            GLib.file_set_contents(path, payload);
+            GLib.chmod(path, 0o644);
+        } catch (_e) {}
+    }
+}
+
 /**
  * Resolves the active accent color based on user settings and system context.
  *
@@ -177,26 +229,42 @@ export function getHostSystemAccentColor() {
  * @returns {string} Hex color string (e.g. '#007aff')
  */
 export function resolveAccentColor(masterSettings, topbarSettings = null) {
+    const inGreeter = isGreeterProcess();
+    const greeterPrefs = inGreeter ? readGreeterPrefs() : null;
+
     let raw = 'auto';
-    try {
-        raw = masterSettings?.get_string?.('accent-color')?.trim()?.toLowerCase() ?? 'auto';
-    } catch (_e) {
-        raw = 'auto';
+    if (inGreeter && typeof greeterPrefs?.['accent-color'] === 'string') {
+        raw = greeterPrefs['accent-color'].trim().toLowerCase() || 'auto';
+    } else {
+        try {
+            raw = masterSettings?.get_string?.('accent-color')?.trim()?.toLowerCase() ?? 'auto';
+        } catch (_e) {
+            raw = 'auto';
+        }
     }
+
+    let logo = '';
+    if (inGreeter && typeof greeterPrefs?.['system-menu-icon'] === 'string') {
+        logo = greeterPrefs['system-menu-icon'];
+    } else if (topbarSettings) {
+        try {
+            logo = topbarSettings.get_string('system-menu-icon') ?? '';
+        } catch (_e) {
+            logo = '';
+        }
+    }
+
+    if (!inGreeter)
+        syncGreeterPrefs({'accent-color': raw, 'system-menu-icon': logo});
 
     if (raw && raw !== 'auto' && raw !== 'system' && raw !== 'default' && raw.startsWith('#'))
         return raw;
 
     // When 'auto', check if a specific distro logo is currently selected in topbar logo-menu
-    if (topbarSettings) {
-        try {
-            const logo = topbarSettings.get_string('system-menu-icon');
-            if (logo) {
-                const color = getDistroAccentColor(logo);
-                if (color)
-                    return color;
-            }
-        } catch (_e) {}
+    if (logo) {
+        const color = getDistroAccentColor(logo);
+        if (color)
+            return color;
     }
 
     // Otherwise use the host system / distro default

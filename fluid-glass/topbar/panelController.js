@@ -296,13 +296,8 @@ export class PanelController {
         }
         this._systemMenu.syncSessionMode();
         const container = PanelAdapter.containerOf(this._systemMenu);
-        const isLockScreen = !!(Main.sessionMode.isLocked && !Main.sessionMode.isGreeter);
-        if (container) {
-            if (isLockScreen)
-                container.hide();
-            else
-                container.show();
-        }
+        if (container)
+            container.show();
     }
 
     _addActiveApp() {

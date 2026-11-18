@@ -5,6 +5,7 @@
 // user-list & password-entry pills.
 
 import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as DateMenu from 'resource:///org/gnome/shell/ui/dateMenu.js';
@@ -484,7 +485,9 @@ export class DialogManager {
             return;
         map.delete(key);
         for (const [actor, id] of entry.destroyIds) {
-            if (actor && isActorValid(actor))
+            if (!actor)
+                continue;
+            if (actor instanceof GObject.Object ? isActorValid(actor) : typeof actor.disconnect === 'function')
                 try { actor.disconnect(id); } catch (_e) {}
         }
         for (const [actor, classes] of entry.styledActors) {
@@ -520,6 +523,7 @@ export class DialogManager {
             actor.has_style_class_name?.('switch-user-button') ||
             actor.has_style_class_name?.('a11y-button') ||
             actor.has_style_class_name?.('login-dialog-auth-menu-button') ||
+            actor.has_style_class_name?.('login-dialog-session-list-button') ||
             actor.has_style_class_name?.('cancel-button') ||
             this._isUnlockNotificationCard(actor);
     }
@@ -694,7 +698,9 @@ export class DialogManager {
             return;
         this._shieldDialogs.delete(dialog);
         for (const [actor, id] of entry.destroyIds) {
-            if (actor && isActorValid(actor))
+            if (!actor)
+                continue;
+            if (actor instanceof GObject.Object ? isActorValid(actor) : typeof actor.disconnect === 'function')
                 try { actor.disconnect(id); } catch (_e) {}
         }
         entry.handle?.destroy();

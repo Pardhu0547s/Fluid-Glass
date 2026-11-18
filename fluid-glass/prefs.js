@@ -9,7 +9,7 @@ import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import {resolveAccentColor} from './distroColors.js';
+import {resolveAccentColor, syncGreeterPrefs} from './distroColors.js';
 
 const EXTENSION_UUID = 'fluid-glass@pardhu0547s.github.io';
 
@@ -868,6 +868,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
 
         this.sLintel.connect('changed::system-menu-icon', () => {
             const val = this.sLintel.get_string('system-menu-icon');
+            syncGreeterPrefs({'system-menu-icon': val});
             previewRow.set_subtitle(this._formatLogoSubtitle(val));
             this._updateLogoPreview(previewImg, val);
             updateActiveDistro(val);

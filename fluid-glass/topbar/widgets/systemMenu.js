@@ -24,6 +24,7 @@ import GdkPixbuf from 'gi://GdkPixbuf';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Rsvg from 'gi://Rsvg';
 import Shell from 'gi://Shell';
 import St from 'gi://St';
 
@@ -34,7 +35,12 @@ import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.j
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 import {_} from '../i18n.js';
 import {getIface, syncMenuTheme} from './statusMenu.js';
-import {resolveDistroLogoFile} from '../../distroColors.js';
+import {
+    resolveDistroLogoFile,
+    isGreeterProcess,
+    readGreeterPrefs,
+    syncGreeterPrefs,
+} from '../../distroColors.js';
 
 const FALLBACK_LOGO = 'start-here-symbolic';
 
@@ -305,6 +311,66 @@ function extractBadgeEmblemMask(path, width, height) {
 }
 
 /**
+ * Render an SVG file directly in-process via librsvg onto an ARGB32 Cairo
+ * surface. Avoids GdkPixbuf/glycin's bubblewrap sandbox, which cannot spawn
+ * inside the unprivileged gdm-greeter user session on GNOME 50+.
+ */
+function renderSvgToCairoSurface(path, width, height) {
+    try {
+        const handle = Rsvg.Handle.new_from_file(path);
+        if (!handle)
+            return null;
+        const surface = new Cairo.ImageSurface(Cairo.Format.ARGB32, width, height);
+        const cr = new Cairo.Context(surface);
+        const ok = handle.render_document(
+            cr,
+            new Rsvg.Rectangle({x: 0, y: 0, width, height})
+        );
+        cr.$dispose();
+        return ok ? surface : null;
+    } catch (_e) {
+        return null;
+    }
+}
+
+/**
+ * Paint a coloured SVG logo file in-process via librsvg at full device-pixel
+ * resolution without relying on GdkPixbuf/glycin-svg.
+ */
+function newColouredSvgLogo(path) {
+    const area = new St.DrawingArea({
+        style_class: 'system-status-icon fluid-glass-system-logo-silhouette',
+        reactive: false,
+    });
+    let cachedKey = '';
+    let cachedSurface = null;
+
+    area.connect('repaint', a => {
+        const cr = a.get_context();
+        try {
+            const [width, height] = a.get_surface_size();
+            if (!width || !height)
+                return;
+            const key = `${path}:${width}x${height}`;
+            if (cachedKey !== key) {
+                cachedKey = key;
+                cachedSurface = renderSvgToCairoSurface(path, width, height);
+            }
+            if (!cachedSurface)
+                return;
+            cr.setSourceSurface(cachedSurface, 0, 0);
+            cr.paint();
+        } catch (e) {
+            logError(e, 'fluid-glass: painting coloured SVG logo');
+        } finally {
+            cr.$dispose();
+        }
+    });
+
+    return area;
+}
+
+/**
  * Paint a logo file as a flat silhouette in the panel's foreground colour.
  *
  * Distributor logos are full-colour artwork — CachyOS ships 74 shapes and
@@ -325,6 +391,7 @@ function newLogoSilhouette(path) {
     });
     let cachedKey = '';
     let cachedMask = null;
+    let cachedSvgSurface = null;
 
     area.connect('repaint', a => {
         const cr = a.get_context();
@@ -333,7 +400,22 @@ function newLogoSilhouette(path) {
             if (!width || !height)
                 return;
 
+            const fg = a.get_theme_node().get_foreground_color();
             const key = `${path}:${width}x${height}`;
+            if (path.toLowerCase().endsWith('.svg')) {
+                if (cachedKey !== key) {
+                    cachedKey = key;
+                    cachedSvgSurface = renderSvgToCairoSurface(path, width, height);
+                }
+                if (cachedSvgSurface) {
+                    cr.save();
+                    cr.setSourceColor(fg);
+                    cr.maskSurface(cachedSvgSurface, 0, 0);
+                    cr.restore();
+                    return;
+                }
+            }
+
             if (cachedKey !== key) {
                 cachedKey = key;
                 cachedMask = extractBadgeEmblemMask(path, width, height);
@@ -341,7 +423,6 @@ function newLogoSilhouette(path) {
             if (cachedMask === 'solid-unusable')
                 return;
 
-            const fg = a.get_theme_node().get_foreground_color();
             if (cachedMask) {
                 const mw = cachedMask.getWidth();
                 const mh = cachedMask.getHeight();
@@ -435,27 +516,46 @@ export const FluidGlassSystemMenu = GObject.registerClass({
 
         // The logo reads slightly larger than a status glyph in the reference
         // bar, so it carries its own size class (see stylesheet.css).
-        const icon = new St.Icon({
-            style_class: 'system-status-icon fluid-glass-system-logo-icon',
-        });
         if (value && (value.startsWith('/') || value.startsWith('~') ||
                       value.startsWith('file:'))) {
             const path = value.startsWith('~')
                 ? GLib.build_filenamev([GLib.get_home_dir(), value.slice(1)])
                 : (value.startsWith('file://') ? value.slice(7) : value);
-            const file = Gio.File.new_for_path(path);
-            icon.gicon = Gio.FileIcon.new(file);
-        } else if (value) {
-            const distroFile = resolveDistroLogoFile(this._extension?.dir, value);
-            if (distroFile) {
-                icon.gicon = Gio.FileIcon.new(distroFile);
-            } else {
-                icon.icon_name = value;
+            if (path.toLowerCase().endsWith('.svg') && GLib.file_test(path, GLib.FileTest.EXISTS)) {
+                return path.toLowerCase().endsWith('-symbolic.svg')
+                    ? newLogoSilhouette(path)
+                    : newColouredSvgLogo(path);
             }
-        } else {
-            icon.icon_name = FALLBACK_LOGO;
+            const icon = new St.Icon({
+                style_class: 'system-status-icon fluid-glass-system-logo-icon',
+                gicon: Gio.FileIcon.new(Gio.File.new_for_path(path)),
+            });
+            return icon;
         }
-        return icon;
+
+        if (value) {
+            const distroFile = resolveDistroLogoFile(this._extension?.dir, value);
+            const distroPath = distroFile?.get_path?.() ?? null;
+            if (distroPath && distroPath.toLowerCase().endsWith('.svg')) {
+                const isSymbolic =
+                    value.endsWith('-symbolic') ||
+                    distroPath.toLowerCase().endsWith('-symbolic.svg');
+                return isSymbolic
+                    ? newLogoSilhouette(distroPath)
+                    : newColouredSvgLogo(distroPath);
+            }
+            if (distroFile) {
+                return new St.Icon({
+                    style_class: 'system-status-icon fluid-glass-system-logo-icon',
+                    gicon: Gio.FileIcon.new(distroFile),
+                });
+            }
+        }
+
+        return new St.Icon({
+            style_class: 'system-status-icon fluid-glass-system-logo-icon',
+            icon_name: value || FALLBACK_LOGO,
+        });
     }
 
     // An icon-theme name or a file path (vs. an emoji/symbol glyph). Kept in
@@ -469,10 +569,18 @@ export const FluidGlassSystemMenu = GObject.registerClass({
     }
 
     _logoSetting() {
+        const inGreeter = Boolean(Main.sessionMode?.isGreeter) || isGreeterProcess();
+        if (inGreeter) {
+            const greeterPrefs = readGreeterPrefs();
+            if (greeterPrefs && typeof greeterPrefs['system-menu-icon'] === 'string')
+                return greeterPrefs['system-menu-icon'];
+        }
         // Defensive: settings only work if the schema is compiled/installed.
         try {
             const settings = this._extension?.getSettings?.();
             const v = settings?.get_string('system-menu-icon') ?? '';
+            if (!inGreeter)
+                syncGreeterPrefs({'system-menu-icon': v});
             return v.length ? v : '';
         } catch (_e) {
             return '';

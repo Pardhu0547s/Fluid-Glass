@@ -3785,6 +3785,29 @@
     caret-color: #ffffff !important;
 }
 
+.login-dialog .login-dialog-prompt-entry:ltr,
+.unlock-dialog .login-dialog-prompt-entry:ltr,
+.login-dialog .login-dialog-prompt-entry :ltr,
+.unlock-dialog .login-dialog-prompt-entry :ltr {
+    padding-right: 2.6em !important;
+}
+
+.login-dialog .login-dialog-prompt-entry:rtl,
+.unlock-dialog .login-dialog-prompt-entry:rtl,
+.login-dialog .login-dialog-prompt-entry :rtl,
+.unlock-dialog .login-dialog-prompt-entry :rtl {
+    padding-left: 2.6em !important;
+}
+
+.login-dialog .login-dialog-default-button-well,
+.unlock-dialog .login-dialog-default-button-well {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin-right: 8px !important;
+}
+
 /* User avatar and typography */
 .login-dialog .user-widget .user-icon,
 .unlock-dialog .user-widget .user-icon {
@@ -3872,6 +3895,41 @@
     background-color: rgba(255, 255, 255, 0.18) !important;
     border: none !important;
     box-shadow: none !important;
+}
+
+/* Inline submit arrow inside the password entry well must stay transparent */
+.login-dialog .login-dialog-button.next-button,
+.unlock-dialog .login-dialog-button.next-button,
+.login-dialog-button.next-button,
+.login-dialog .login-dialog-button.next-button:default,
+.unlock-dialog .login-dialog-button.next-button:default,
+.login-dialog-button.next-button:default,
+.login-dialog .login-dialog-button.next-button:focus,
+.unlock-dialog .login-dialog-button.next-button:focus,
+.login-dialog-button.next-button:focus {
+    background: transparent !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 4px !important;
+    margin: 0 !important;
+    color: rgba(255, 255, 255, 0.90) !important;
+}
+
+.login-dialog .login-dialog-button.next-button:hover,
+.unlock-dialog .login-dialog-button.next-button:hover,
+.login-dialog-button.next-button:hover,
+.login-dialog .login-dialog-button.next-button:active,
+.unlock-dialog .login-dialog-button.next-button:active,
+.login-dialog-button.next-button:active {
+    background: transparent !important;
+    background-color: rgba(255, 255, 255, 0.14) !important;
+    background-image: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 99px !important;
+    color: #ffffff !important;
 }
 
 /* Lock screen notifications & media card */
