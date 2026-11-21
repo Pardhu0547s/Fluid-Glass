@@ -1,18 +1,3 @@
-// ThemeManager — Stage 8 (Tahoe appearance).
-//
-// Discrete appearance modes plus continuous tunables (height, padding, spacing,
-// font, hover/active opacity, text colour) can't live in a static stylesheet, so
-// we GENERATE CSS from settings and load it over the shell theme via
-// St.Theme.load_stylesheet — the standard dynamic-theming pattern. Everything is
-// scoped under `.fluid-glass` / `#panel.fluid-glass` (the class PanelController adds),
-// so it only affects our panel and vanishes when the sheet is unloaded on
-// disable.
-//
-// Overview safety: forcing a background on #panel would make the panel opaque in
-// the Overview (where GNOME wants it transparent). We instead toggle a
-// `fluid-glass-overview-transparent` class on the panel across Overview show/hide
-// (per the `overview-mode` setting) which zeroes the background there.
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Shell from 'gi://Shell';
@@ -56,6 +41,7 @@ export class ThemeManager {
         this._file = null;
         this._loaded = false;
         this._applying = false;
+        this._lastCss = null;
     }
 
     enable() {
@@ -108,14 +94,10 @@ export class ThemeManager {
 
         this._fullscreenId = global.display.connect(
             'in-fullscreen-changed', () => this.requestContrastUpdate(250));
-        // No focus-window hook: windows never sit under the panel strut, so a
-        // focus change does not change the sampled pixels. Fullscreen content is
-        // covered by in-fullscreen-changed and by FullscreenReveal's callback.
         this._monitorsId = Main.layoutManager.connect(
             'monitors-changed', () => this.requestContrastUpdate(250));
 
         this._themeContext = St.ThemeContext.get_for_stage(global.stage);
-        // Re-apply our sheet if the shell theme is reloaded/replaced.
         this._themeChangedId = this._themeContext.connect('changed', () => {
             if (!this._applying)
                 this._reload();
@@ -139,10 +121,10 @@ export class ThemeManager {
         this.requestContrastUpdate(250);
     }
 
-    // ---- Generation ---------------------------------------------------------
-
     _rebuild() {
         const css = this._generate();
+        if (css === this._lastCss && this._loaded)
+            return;
         try {
             const bytes = new TextEncoder().encode(css);
             this._file.replace_contents(
@@ -152,6 +134,7 @@ export class ThemeManager {
             logError(e, 'fluid-glass: writing dynamic stylesheet');
             return;
         }
+        this._lastCss = css;
         this._reload();
     }
 
@@ -172,14 +155,9 @@ export class ThemeManager {
         }
     }
 
-    // ---- Tahoe adaptive contrast ------------------------------------------
-
-    /** Re-sample the pixels actually visible behind a transparent panel. */
     requestContrastUpdate(delay = 180) {
         if (!this._enabled)
             return;
-        // Invalidate an in-flight read immediately; the replacement sample may
-        // intentionally be delayed until a wallpaper/fullscreen transition ends.
         this._contrastSerial++;
         if (this._contrastId) {
             GLib.Source.remove(this._contrastId);
@@ -225,10 +203,6 @@ export class ThemeManager {
             return;
 
         const serial = ++this._contrastSerial;
-        // The first couple of rows are free of centred panel glyphs/text, so
-        // they expose the real wallpaper (or fullscreen content) even while the
-        // transparent panel is visible. Multiple horizontal samples make the
-        // choice stable on split-tone and photographic backgrounds.
         const y = Math.round(monitor.y + 1);
         const samples = [];
         for (const fraction of CONTRAST_SAMPLE_FRACTIONS) {
@@ -241,7 +215,6 @@ export class ThemeManager {
                 if (color)
                     samples.push(this._relativeLuminance(color));
             } catch (_e) {
-                // A monitor transition can invalidate a coordinate mid-sample.
             }
         }
 
@@ -312,22 +285,13 @@ export class ThemeManager {
             panel.push(`box-shadow: 0 4px 16px ${isDark ? 'rgba(0, 0, 0, 0.28)' : 'rgba(20, 45, 80, 0.10)'};`);
         } else if (appearance === 'solid')
             panel.push(`background-color: ${isDark ? '#000000' : '#FAFAFB'};`);
-        // follow-gnome: emit no background line.
 
         panel.push(`color: rgb(${fg}) !important;`);
 
-        // Tahoe's bar is a fixed 24px. Shell themes routinely set the panel
-        // height with !important (MacTahoe uses 40px), so an explicit height
-        // has to be marked important or the theme silently wins.
         const h = gi('panel-height', 24);
         if (h > 0)
             panel.push(`height: ${h}px !important;`);
 
-        // St's CSS parser accepts a single Pango family here, not a browser-style
-        // comma-separated fallback list. Pango falls back to the system sans
-        // font if a user-requested family is unavailable. Both font values are
-        // free text from dconf, so anything that could break out of the
-        // declaration is dropped (see cssValues.js).
         const fam = sanitizeFontFamily(gs('font-family', ''));
         panel.push(`font-family: "${fam || 'Cantarell'}";`);
         const fs = gd('font-size-pt', 10.5);
@@ -339,9 +303,6 @@ export class ThemeManager {
 
         lines.push(`#panel.fluid-glass { ${panel.join(' ')} }`);
 
-        // Both GNOME and third-party themes set the weight on the button as
-        // well as on #panel, so the panel-level declaration alone leaves every
-        // menu title bold. In Tahoe only the app title is emphasised.
         const buttonText = [`color: rgb(${fg}) !important;`];
         if (fs > 0)
             buttonText.push(`font-size: ${fs}pt;`);
@@ -355,22 +316,14 @@ export class ThemeManager {
         lines.push(`#panel.fluid-glass .fluid-glass-battery-percentage { color: rgb(${fg}) !important; }`);
         lines.push(`.fluid-glass-control-center-icon { color: rgb(${fg}) !important; }`);
 
-        // Readability over the wallpaper in fully-transparent mode.
         const shadow = fg === '255, 255, 255'
             ? '0 1px 2px rgba(0, 0, 0, 0.40)'
             : 'none';
         lines.push(`#panel.fluid-glass { text-shadow: ${shadow}; }`);
         lines.push(`#panel.fluid-glass StIcon { icon-shadow: ${shadow}; }`);
 
-        // Overview: zero the background when our class is present.
         lines.push(`#panel.fluid-glass.${OVERVIEW_CLASS} { background-color: transparent; }`);
 
-        // Buttons: Tahoe hover/press treatment (Stage 9).
-        //
-        // Normal state is EXPLICITLY transparent with a set transition so the
-        // wash fades in/out (St only animates a property that has a from-value).
-        // The pill radius is applied on every state, not just hover, so the shape
-        // is stable while the colour animates.
         const pad = gi('h-padding', 10);
         const spacing = gi('item-spacing', 0);
         const radius = Math.max(0, gi('corner-radius', 99));
@@ -395,7 +348,6 @@ export class ThemeManager {
         lines.push(`#panel.fluid-glass .panel-button:hover { background-color: rgba(${fg}, ${hov}); }`);
         if (gb('show-menu-background', true)) {
             lines.push(`#panel.fluid-glass .panel-button:active, #panel.fluid-glass .panel-button:checked, #panel.fluid-glass .panel-button:focus { background-color: rgba(${fg}, ${act}); }`);
-            // Hovering an already-open button reads a touch stronger.
             lines.push(`#panel.fluid-glass .panel-button:checked:hover, #panel.fluid-glass .panel-button:active:hover { background-color: rgba(${fg}, ${clamp01(act + 0.04)}); }`);
         } else {
             lines.push('#panel.fluid-glass .panel-button:active, #panel.fluid-glass .panel-button:checked { background-color: transparent; }');
@@ -408,7 +360,6 @@ export class ThemeManager {
             : [0, 122, 255];
 
         lines.push(`
-/* Dynamic Accent Color */
 .fluid-glass-cc-tile-icon:checked,
 .fluid-glass-cc-tile:checked .fluid-glass-cc-tile-icon,
 .fluid-glass-cc-tile.fluid-glass-cc-tile-compact:checked .fluid-glass-cc-tile-icon,
@@ -534,8 +485,6 @@ export class ThemeManager {
         }
     }
 
-    // ---- Overview -----------------------------------------------------------
-
     _setOverview(showing) {
         const panel = Main.panel;
         if (!panel)
@@ -552,8 +501,6 @@ export class ThemeManager {
         else
             panel.remove_style_class_name(OVERVIEW_CLASS);
     }
-
-    // ---- Teardown -----------------------------------------------------------
 
     destroy() {
         this._enabled = false;
@@ -617,17 +564,16 @@ export class ThemeManager {
             try {
                 theme.unload_stylesheet(this._file);
             } catch (_e) {
-                // ignore
             } finally {
                 this._applying = false;
             }
         }
         this._loaded = false;
+        this._lastCss = null;
 
         try {
             this._file?.delete(null);
         } catch (_e) {
-            // best-effort cleanup
         }
 
         this._themeContext = null;

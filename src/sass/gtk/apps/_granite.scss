@@ -1,8 +1,3 @@
-// Granite Widgets
-
-//
-// Overlay Bar
-//
 .overlay-bar {
   background-color: $selected_bg_color;
   border-color: $selected_bg_color;
@@ -13,9 +8,6 @@
   label { color: $selected_fg_color; }
 }
 
-//
-// Thin Pane Separator
-//
 GraniteWidgetsThinPaned {
   background-color: transparent;
   background-image: none;
@@ -25,24 +17,16 @@ GraniteWidgetsThinPaned {
 
 }
 
-// avoid borders when a viewport is
-// packed into a Static Notebook, or Popover
 GraniteWidgetsPopOver .frame,
 GraniteWidgetsStaticNotebook .frame {
   border: none;
 }
 
-//
-// Help Button
-//
 .help_button {
     border-radius: 100px;
     padding: 3px 9px;
 }
 
-//
-// Secondary Toolbars
-//
 toolbar.secondary-toolbar {
   padding: 3px;
   border-bottom: 1px solid $borders_color;
@@ -50,9 +34,6 @@ toolbar.secondary-toolbar {
   button { padding: 0 3px 0 3px; }
 }
 
-//
-// Bottom Toolbars
-//
 toolbar.bottom-toolbar {
   padding: 5px;
   border-width: 1px 0 0 0;
@@ -63,9 +44,6 @@ toolbar.bottom-toolbar {
   button { padding: 2px 3px 2px 3px; }
 }
 
-//
-// Sidebar & Source List
-//
 .source-list {
   -GtkTreeView-horizontal-separator: 1px;
   -GtkTreeView-vertical-separator: 6px;
@@ -123,9 +101,6 @@ toolbar.bottom-toolbar {
   color: $selected_bg_color;
 }
 
-//
-// Expander
-//
 .source-list.category-expander {
     color: $fg_color;
     -gtk-icon-source: -gtk-icontheme("pan-end-symbolic");
@@ -142,9 +117,6 @@ toolbar.bottom-toolbar {
     -gtk-icon-source: -gtk-icontheme("pan-down-symbolic");
 }
 
-//
-// Welcome
-//
 GraniteWidgetsWelcome {
   background-color: $base_color;
 }
@@ -160,16 +132,10 @@ GraniteWidgetsWelcome .h3 {
   color: transparentize($fg_color, 0.2);
 }
 
-//
-// Help Button
-//
 .help_button {
   border-radius: 0;
 }
 
-//
-// Popover
-//
 GraniteWidgetsPopOver {
   -GraniteWidgetsPopOver-arrow-width: 21;
   -GraniteWidgetsPopOver-arrow-height: 10;
@@ -191,14 +157,8 @@ GraniteWidgetsPopOver * {
   background-color: transparent;
 }
 
-//
-// Xs Entry
-//
 GraniteWidgetsXsEntry entry { padding: 4px; }
 
-//
-// Text Styles
-//
 .h1 { font-size: 24px; }
 .h2 { font-size: 18px; }
 .h3 { font-size: 11px; }

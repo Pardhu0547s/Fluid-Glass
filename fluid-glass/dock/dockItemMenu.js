@@ -4,7 +4,6 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as BoxPointer from 'resource:///org/gnome/shell/ui/boxpointer.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import { trySpawnCommandLine } from './utils.js';
-// import { trySpawnCommandLine } from 'resource:///org/gnome/shell/misc/util.js';
 
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
@@ -26,7 +25,6 @@ export const DockItemList = GObject.registerClass(
       super._init({
         name: 'DockItemList',
         reactive: true,
-        // style_class: 'hi',
         ...params,
       });
 
@@ -81,7 +79,6 @@ export const DockItemList = GObject.registerClass(
         } else if (dock._list.visible) {
           dock._list.slideOut();
         } else {
-          // remove and re-add so that it is repositioned to topmost
           Main.uiGroup.remove_child(dock._list);
           Main.uiGroup.add_child(dock._list);
           dock._list.visible = true;
@@ -126,13 +123,8 @@ export const DockItemList = GObject.registerClass(
       dock._updateIconEffect();
 
       let iconSize = dock._iconSizeScaledDown * dock._monitor.geometry_scale;
-      // dock.dash._box.first_child._icon.width;
 
-      // scaling hack - temporary
       let iconAdjust = 1;
-      // if (dock._scaleFactor != 1 && dock._scaleFactor != 2) {
-      //   iconAdjust += 0.5;
-      // }
 
       let file_explorer = dock.extension.file_explorer();
 
@@ -167,11 +159,7 @@ export const DockItemList = GObject.registerClass(
         };
         label.opacity = 0;
 
-        // label.style = 'font-size: 32pt';
-        // label.set_scale(0.5, 0.5);
-
         icon.connect('button-press-event', () => {
-          // let path = Gio.File.new_for_path(`Downloads/${l.name}`).get_path();
           let path = l.path;
           let cmd = `xdg-open "${path}"`;
 
@@ -195,7 +183,7 @@ export const DockItemList = GObject.registerClass(
       let angleInc = 0 + 2.5 * dock.extension.items_pullout_angle;
       let startAngle = 270 + 1 * angleInc;
       let angle = startAngle;
-      let rad = iconSize; // * dock._scaleFactor;
+      let rad = iconSize;
 
       if (
         dock._position == DockPosition.TOP ||
@@ -320,9 +308,7 @@ export const DockItemList = GObject.registerClass(
     }
 
     animate(dt) {
-      // let faster
       for (let i = 0; i < 3; i++) {
-        // more precise animation
         this._animate(dt / 2);
         this._animate(dt / 2);
       }
@@ -332,8 +318,6 @@ export const DockItemList = GObject.registerClass(
       let dock = this.dock;
       let list = dock._list;
       if (!list) return;
-
-      // list.opacity = 255;
 
       let target = list._target;
       let list_coef = 2;
@@ -413,16 +397,12 @@ export const DockItemList = GObject.registerClass(
         let lsz = c._label.get_transformed_size();
 
         if (dock.isVertical()) {
-          // c._label.translationY = -lsz[1]; // c._label.height;
-          c._label.translationX = -lsz[0]; // c._label.width;
+          c._label.translationX = -lsz[0];
         } else {
-          c._label.translationX = -lsz[0]; // c._label.width;
+          c._label.translationX = -lsz[0];
         }
 
         if (list._hidden) {
-          // let opacity = c._label.opacity - dt;
-          // if (opacity < 50) opacity = 0;
-          // c._label.opacity = opacity;
           c._label.opacity = 0;
         } else {
           c._label.opacity = 255;
@@ -451,7 +431,6 @@ export const DockItemList = GObject.registerClass(
       }
 
       if (!didAnimate && list._hidden) {
-        // console.log('destroy');
         dock._destroyList();
       }
 

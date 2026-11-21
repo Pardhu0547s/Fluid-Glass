@@ -1,16 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// Notification Center widgets, composed per Tahoe widget size.
-//
-// Geometry is measured off docs/audits/tahoe-reference/26-Tahoe-Notification-
-// Center.png (see docs/MACOS_REFERENCE.md): a 345px column; small widgets are
-// 165px squares that pair two to a row across a 15px gutter; medium widgets are
-// 345 x 165 and large ones 345 x 345. The sizes themselves live in
-// stylesheet.css — this module only decides what each size shows.
-//
-// Every widget cleans up from its actor's `destroy` signal, because Clutter can
-// destroy descendants from C without invoking a JavaScript destroy() override.
-
 import Cairo from 'cairo';
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
@@ -40,11 +27,8 @@ import {CCMediaCard} from './ccTile.js';
 const LOW_BATTERY_PERCENT = 20;
 const MINUTE_MS = 60 * 1000;
 
-// How many event rows each Up Next size can hold. On large a day heading costs
-// half a row, so the budget is counted in half rows.
 const UP_NEXT_ROWS = Object.freeze({small: 2, medium: 3, large: 12});
 
-// What the weather widget says while it has no forecast, by service status.
 const WEATHER_PLACEHOLDERS = Object.freeze({
     'loading': ['content-loading-symbolic', _('Updating…')],
     'locating': ['find-location-symbolic', _('Finding your location…')],
@@ -103,7 +87,6 @@ function _spacer() {
     return new St.Widget({x_expand: true, y_expand: true});
 }
 
-// Cairo paints in colours the stylesheet owns, so light/dark stay in CSS.
 function _themeColor(node, name) {
     const [found, color] = node.lookup_color(name, true);
     return found ? color : node.get_foreground_color();
@@ -130,7 +113,6 @@ function _wrap(label) {
     return label;
 }
 
-// Re-run `callback` every minute, but only while `actor` is on screen.
 function _tickWhileMapped(actor, callback) {
     let timerId = 0;
     const sync = () => {
@@ -442,7 +424,6 @@ export const CalendarWidget = GObject.registerClass({
                 label.add_style_class_name('fluid-glass-nc-calendar-weekend');
             }
 
-            // Touch and click on individual days
             disc.connect('button-press-event', () => Clutter.EVENT_STOP);
             disc.connect('button-release-event', () => Clutter.EVENT_STOP);
             disc.connect('touch-event', (_actor, event) => {
@@ -492,8 +473,6 @@ export const WeatherWidget = GObject.registerClass({
         this._service?.refresh();
     }
 
-    // With a forecast, open a weather app as Tahoe does; without one, the fix
-    // is a city or a service choice, which lives in preferences.
     _launch() {
         if (this._service?.valid && _activateApp('org.gnome.Weather.desktop'))
             return;
@@ -583,7 +562,6 @@ export const WeatherWidget = GObject.registerClass({
         box.add_child(_label(service.locationName || _('Weather'),
             'fluid-glass-nc-widget-title'));
         const subtitle = _label(text, 'fluid-glass-nc-widget-subtitle');
-        // A small widget is 165px wide; the hint must wrap, not ellipsize.
         subtitle.clutter_text.line_wrap = true;
         subtitle.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
         box.add_child(subtitle);
@@ -620,8 +598,6 @@ export const WeatherWidget = GObject.registerClass({
     }
 });
 
-// Tahoe's ring gauge, shared by Batteries and System. Its size and colours
-// (-fluid-glass-ring-fill, -low, -track) come from the stylesheet.
 const RingGauge = GObject.registerClass({
     GTypeName: 'FluidGlass_RingGauge',
 }, class RingGauge extends St.Widget {
@@ -644,10 +620,6 @@ const RingGauge = GObject.registerClass({
         }
     }
 
-    /**
-     * @param {number} fraction filled part, 0..1
-     * @param {boolean} alert draw the fill in the -fluid-glass-ring-low colour
-     */
     setLevel(fraction, alert = false) {
         const level = Number.isFinite(fraction) ? Math.max(0, Math.min(1, fraction)) : 0;
         if (level === this._level && alert === this._alert)
@@ -869,7 +841,6 @@ export const ClockWidget = GObject.registerClass({
             this.setContent(box);
         }
 
-        // Tick every second, but only while the column is on screen.
         this.connect('notify::mapped', () => this._syncTimer());
         this.refresh();
     }
@@ -967,7 +938,6 @@ export const ClockWidget = GObject.registerClass({
     }
 });
 
-// Big red weekday over the day number, shared with the Calendar widget's look.
 function _dayHeader(now) {
     const header = _vbox('fluid-glass-nc-upnext-header');
     header.add_child(_label((now.format('%A') ?? '').toLocaleUpperCase(),
@@ -993,7 +963,6 @@ export const UpNextWidget = GObject.registerClass({
         super._init('upnext', size, onActivated);
         this._service = new UpNextService();
         this._serviceId = this._service.connect('changed', () => this._sync());
-        // Past events drop off, and the header rolls over at midnight.
         _tickWhileMapped(this, () => this.refresh());
         this._sync();
     }
@@ -1050,7 +1019,6 @@ export const UpNextWidget = GObject.registerClass({
         let budget = UP_NEXT_ROWS[this._size] ?? UP_NEXT_ROWS.medium;
         for (const day of agenda) {
             if (grouped) {
-                // A heading with no room for a single event under it is noise.
                 if (budget < 3)
                     break;
                 list.add_child(_label(_dayName(day, '%A, %-d %B'),
@@ -1092,8 +1060,6 @@ export const UpNextWidget = GObject.registerClass({
             return shellContextText('event list time', 'All Day');
         if (event.start.getTime() === event.end.getTime())
             return formatEventTime(event.start);
-        // An event that crosses midnight shows only the edge that falls inside
-        // the day, as "… – 11:00" or "22:00 – …".
         const start = event.startsBefore ? '…' : formatEventTime(event.start);
         const end = event.endsAfter ? '…' : formatEventTime(event.end);
         return `${start} – ${end}`;
@@ -1123,13 +1089,6 @@ const BarChart = GObject.registerClass({
         this.connect('repaint', () => this._repaint());
     }
 
-    /**
-     * @param {number[]} values
-     * @param {object} options
-     * @param {number} options.highlight index drawn in the highlight colour
-     * @param {number|null} options.reference value marked by a dashed line
-     * @param {number} options.scaleMax lower bound for the top of the scale
-     */
     setData(values, {highlight = -1, reference = null, scaleMax = 0} = {}) {
         this._values = values;
         this._highlight = highlight;
@@ -1150,8 +1109,6 @@ const BarChart = GObject.registerClass({
             const scale = St.ThemeContext.get_for_stage(global.stage).scale_factor || 1;
             const max = Math.max(this._scaleMax, this._reference ?? 0,
                 ...this._values, 1);
-            // Bars are centred in equal cells, so a homogeneous label row
-            // underneath lines up with them exactly.
             const cell = width / count;
             const barWidth = Math.max(scale, cell * 0.62);
             const radius = Math.min(barWidth / 2, 3 * scale);
@@ -1251,7 +1208,6 @@ export const ScreenTimeWidget = GObject.registerClass({
         super._init('screentime', size, onActivated);
         this._service = new ScreenTimeService();
         this._serviceId = this._service.connect('changed', () => this._sync());
-        // The current session keeps adding time while the column is open.
         _tickWhileMapped(this, () => this.refresh());
         this._sync();
     }
@@ -1366,7 +1322,6 @@ export const ScreenTimeWidget = GObject.registerClass({
         const box = _vbox('fluid-glass-nc-chart', {x_expand: true});
         const chart = new BarChart('fluid-glass-nc-hour-chart');
         chart.setData(summary.hours.map(hour => hour.seconds), {
-            // Scale to a full hour, so a busy hour reads as a full bar.
             scaleMax: 60 * 60,
         });
         box.add_child(chart);
@@ -1389,7 +1344,6 @@ export const ScreenTimeWidget = GObject.registerClass({
 const ALERT_FRACTION = 0.9;
 const HOT_CELSIUS = 90;
 const TEMPERATURE_SCALE_CELSIUS = 100;
-// The top of an idle network chart, so a few KB/s of chatter stays near the floor.
 const NETWORK_SCALE_FLOOR = 64 * 1024;
 const SYSTEM_MONITORS = Object.freeze([
     'io.missioncenter.MissionCenter.desktop',
@@ -1432,11 +1386,6 @@ const Sparkline = GObject.registerClass({
         this.connect('repaint', () => this._repaint());
     }
 
-    /**
-     * @param {Array<number[]>} series samples, oldest first; the first series
-     *   is drawn filled, any others as plain lines
-     * @param {number} max the value at the top edge
-     */
     setData(series, max) {
         this._series = series;
         this._max = Math.max(max, Number.EPSILON);
@@ -1457,7 +1406,6 @@ const Sparkline = GObject.registerClass({
             cr.rectangle(0, height - scale, width, scale);
             cr.fill();
 
-            // History scrolls in from the right; slots not sampled yet stay empty.
             const step = width / (HISTORY_LENGTH - 1);
             const y = value => height - lineWidth / 2 -
                 Math.min(1, Math.max(0, value / this._max)) * (height - lineWidth);
@@ -1515,7 +1463,6 @@ export const SystemWidget = GObject.registerClass({
 
         this._service = new SystemStatsService();
         this._serviceId = this._service.connect('changed', () => this._sync());
-        // Sample only while a System widget is actually on screen.
         this.connect('notify::mapped', () => this._service?.setActive(this.mapped));
         this._service.setActive(this.mapped);
         this._sync();
@@ -1589,7 +1536,6 @@ export const SystemWidget = GObject.registerClass({
         return row;
     }
 
-    // A 2 x 2 grid of gauges; the small square has no room for a title.
     _smallLayout() {
         const layout = new Clutter.GridLayout({
             column_homogeneous: true,
@@ -1670,7 +1616,6 @@ export const SystemWidget = GObject.registerClass({
         this._showUsage(this._storage, _usage(storage),
             storage ? GLib.format_size(storage.used) : '');
 
-        // No known sensor: leave the gauge out rather than show a blank one.
         this._temperature.box.visible = temperature !== null;
         if (temperature !== null) {
             this._temperature.ring.setLevel(temperature / TEMPERATURE_SCALE_CELSIUS,

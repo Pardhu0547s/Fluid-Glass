@@ -1,26 +1,3 @@
-/*
- * Lintel — static fallback stylesheet.
- *
- * Panel styling is scoped under .fluid-glass. Control Center lives in Shell's
- * popup layer (outside the panel actor), so every popup selector has its own
- * fluid-glass-cc prefix and cannot leak into stock Quick Settings.
- */
-
-/* ── Tahoe menu-bar metrics ───────────────────────────────────────────────
- *
- * Measured off a macOS Tahoe capture normalised to logical pixels (1 macOS
- * point == 1 GNOME logical px); see docs/MACOS_REFERENCE.md for the table.
- * The bar is 24px tall, menu titles and status glyphs sit ~8px apart on each
- * side of their button, status glyphs are 16px, and the bar's own leading and
- * trailing insets are 8px.
- *
- * Every selector is anchored on `#panel.fluid-glass` rather than `.fluid-glass`.
- * Shell themes style the bar through `#panel .panel-button`, which outranks a
- * class-only selector, so the class-only form silently lost its padding and
- * icon metrics under any third-party theme. `!important` is used only for the
- * three properties themes themselves mark important (panel height, button
- * border, clock-label inset); everything else wins on specificity alone. */
-
 #panel.fluid-glass .panel-button {
     background-color: transparent;
     border: 2px solid transparent !important;
@@ -38,28 +15,16 @@
     background-color: rgba(127, 127, 127, 0.20);
 }
 
-/* GNOME pads every status glyph by a further 6px + 4px margin (MacTahoe-style
- * themes use 4px), on top of the button inset. Tahoe puts the whole gutter on
- * the item, so zero the icon's own boxes and let -natural-hpadding own it. */
 #panel.fluid-glass .panel-button .system-status-icon {
     icon-size: 16px;
     padding: 0;
     margin: 0;
 }
 
-/* GNOME packs every Quick Settings glyph into ONE panel button, spaced 4px
- * apart, so in native mode they collide while every other item in the bar sits
- * ~20px from its neighbour (2 x the 10px button inset). No macOS reference
- * exists for this — it has no combined indicator — so this is a judgement call:
- * wide enough to read as separate glyphs, tighter than the gap between real
- * items so the group still reads as one button. */
 #panel.fluid-glass .panel-button .panel-status-indicators-box {
     spacing: 12px;
 }
 
-/* Tahoe's leading/trailing screen inset: the Apple glyph's ink starts ~18px in
- * (8px bar inset + 8px button inset + icon slack) and the clock ends ~17px
- * from the right edge. */
 #panel.fluid-glass #panelLeft {
     padding-left: 8px;
 }
@@ -68,17 +33,11 @@
     padding-right: 8px;
 }
 
-/* Fixed-size, code-rendered Tahoe sliders glyph. Its paint color is inherited
- * from the panel, so it remains visible on light, dark and wallpaper panels. */
 .fluid-glass-control-center-icon {
     width: 16px;
     height: 16px;
 }
 
-/* The clock is a plain label in Tahoe, but themes give `.clock` a pill of its
- * own with a large !important inset (MacTahoe: 16px padding + 6px border),
- * which pushes the time far away from the Control Center glyph. Reset it and
- * let the button inset position the clock like every other status item. */
 #panel.fluid-glass .panel-button .clock-display-box {
     spacing: 6px;
     padding: 0 !important;
@@ -91,53 +50,33 @@
     border: 0 solid transparent !important;
 }
 
-/* Tabular figures. Adwaita Sans and Cantarell both ship proportional digits, so
- * the stock clock changes width as the time ticks — measured at 13px, "11:11"
- * is 24px wide against 36px for "00:00", shoving the whole trailing cluster
- * sideways every minute. macOS never moves. */
 #panel.fluid-glass .fluid-glass-clock {
     font-feature-settings: "tnum";
 }
 
-/* Tahoe's unread dot is a small solid circle, not a 16px glyph. */
 #panel.fluid-glass .panel-button .clock-display-box .messages-indicator {
     icon-size: 8px;
 }
 
-/* Only the application title is emphasised in the menu bar; every other item
- * (menu titles, status text, clock) stays at the regular panel weight. The
- * horizontal gutter belongs to the button, so the label adds none. */
 .fluid-glass-active-app {
     font-weight: 600;
     padding: 0;
 }
 
-/* The logo reads a little larger than a status icon: ~13 x 15px of ink, against
- * ~14px for a 16px symbolic status glyph. */
 .fluid-glass-system-logo-icon {
     icon-size: 17px;
 }
 
-/* The distributor logo is painted by hand (St.DrawingArea has no icon-size, so
- * it needs explicit box dimensions) — see newLogoSilhouette() in systemMenu.js. */
 .fluid-glass-system-logo-silhouette {
     width: 17px;
     height: 17px;
 }
 
-/* Emoji / symbol logo in the system menu (when the icon is a glyph, not an
- * icon-theme name or file). Sized to sit like the default logo icon. */
 .fluid-glass-system-logo-glyph {
     font-size: 15px;
     padding: 0 2px;
 }
 
-/* ── macOS Tahoe System Menu ──────────────────────────────────────────── */
-
-/* PopupMenu's BoxPointer and content actor live outside #panel, so both
- * selectors carry their own lintel prefix.  The stock GNOME popup uses a
- * 20px radius, 16px-ish icons and 9px vertical item padding; the Tahoe menu is
- * a much denser 315px-wide material with ~14px icons and ~25px rows. */
 .fluid-glass-system-menu {
     min-width: 0;
     color: #181a1e;
@@ -159,7 +98,6 @@
     transition-duration: 120ms;
 }
 
-/* Fluid Glass Pure Liquid Glass material */
 .fluid-glass-system-menu-content,
 .fluid-glass-system-menu-content.fluid-glass-dark {
     color: #ffffff;
@@ -288,8 +226,6 @@
     background-color: rgba(0, 0, 0, 0.12);
 }
 
-/* GNOME expands submenus in-place. Keep the Recent Items disclosure visually
- * continuous with the outer glass instead of exposing GNOME's opaque inset. */
 .fluid-glass-system-menu-content .popup-sub-menu,
 .fluid-glass-system-menu-content.fluid-glass-dark .popup-sub-menu,
 .fluid-glass-system-menu-content.fluid-glass-light .popup-sub-menu {
@@ -298,8 +234,6 @@
     border: 0 solid transparent;
     border-radius: 6px;
 }
-
-/* ── macOS Tahoe status menus ─────────────────────────────────────────── */
 
 .fluid-glass-status-menu {
     -arrow-background-color: transparent;
@@ -546,13 +480,6 @@
     border-radius: 0;
 }
 
-/* ── macOS Tahoe Control Center ───────────────────────────────────────── */
-
-/* Remove the GNOME callout triangle. There is no backdrop blur: BoxPointer
- * renders every popup into an offscreen framebuffer, so a BACKGROUND-mode blur
- * has nothing behind it to sample, and the alternatives all mean compositing a
- * copy of the screen (see docs/DESIGN_QA.md, Pass 8-12). The modules rely on their
- * tint alone for contrast. */
 .fluid-glass-cc-menu,
 .popup-menu-boxpointer.fluid-glass-cc-menu,
 .popup-menu.fluid-glass-cc-menu,
@@ -586,15 +513,6 @@
     padding: 6px !important;
 }
 
-/* Widths measured off docs/audits/tahoe-reference/26-Tahoe-Finder-Control-Center.png
- * at 1pt = 2px, corroborated by four independent full-width modules (Display
- * 293.0pt, Sound 292.5, Wi-Fi row 291.0, actions row 289.0): the module column
- * is 292px wide, split into two 140px columns with a 12px gutter.
- *
- * `width` here is the CONTENT width — St adds `padding` outside it rather than
- * inside, so this is the width the modules actually get, not a border box to
- * subtract padding from. Measured on a render: width 308 produced 308.4px of
- * module. 140 + 12 gutter + 140 = 292, so the grid columns fill it exactly. */
 .fluid-glass-cc-content {
     background: transparent !important;
     background-color: transparent !important;
@@ -605,8 +523,6 @@
     width: 280px;
 }
 
-/* Module grid (src/widgets/ccGrid.js): four cells per row in two halves.
- * 58 + 18 pair gap + 58 = 134 per half, 134 + 12 gutter + 134 = 280. */
 .fluid-glass-cc-grid {
     -fluid-glass-grid-gutter: 12px;
     -fluid-glass-grid-pair-gap: 18px;
@@ -617,7 +533,6 @@
     spacing: 10px;
 }
 
-/* Connectivity and Focus 2×1 stadium capsules (macOS GoldenGate / Tahoe). */
 .fluid-glass-cc-tile {
     min-height: 0;
     height: 58px;
@@ -647,8 +562,6 @@
     spacing: 1px;
 }
 
-/* Circular icon badge inside 2×1 capsules: translucent white when off,
- * solid white with macOS blue icon when active/checked. */
 .fluid-glass-cc-tile-icon-badge {
     width: 34px;
     height: 34px;
@@ -706,10 +619,6 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
-/* 2×2 Now Playing module: vertical stack — artwork top-left, track title &
- * artist in the middle, transport controls across the bottom.
- * Sized by CCGrid (134px × 126px outer box); min-width/min-height 0 prevents
- * St from adding padding outside the allocated grid bounds. */
 .fluid-glass-cc-media {
     min-width: 0;
     min-height: 0;
@@ -788,9 +697,6 @@
     transition-duration: 140ms;
 }
 
-/* 1×1 Compact Circle Button (58px × 58px perfect circle).
- * When active/checked (e.g. Dark Mode in macOS GoldenGate), the entire circle
- * fills with solid white and the icon turns dark charcoal. */
 .fluid-glass-cc-tile.fluid-glass-cc-tile-compact,
 .fluid-glass-cc-tile.fluid-glass-cc-tile-compact:hover {
     width: 58px;
@@ -852,7 +758,6 @@
     box-shadow: none !important;
 }
 
-/* Labelled Display and Sound rounded-pill modules (280px × 52px outer box). */
 .fluid-glass-cc-slider,
 .fluid-glass-cc-slider:hover {
     min-width: 280px;
@@ -945,8 +850,6 @@
     box-shadow: none !important;
     transition-duration: 160ms;
 }
-
-/* ── Control Center Light Theme Variant (supports container OR per-module class) ── */
 
 .fluid-glass-cc-light .fluid-glass-cc-tile,
 .fluid-glass-cc-light .fluid-glass-cc-tile:hover,
@@ -1049,10 +952,6 @@
     text-shadow: none;
 }
 
-/* Edit mode. Tahoe edits in place: a remove badge on every control's top-left
- * corner, the popup otherwise unchanged. Selecting a control (the shield over
- * it takes the click so the control itself is not operated) opens a toolbar to
- * move or resize it; removed controls wait in the gallery below. */
 .fluid-glass-cc-slot-shield {
     border: 2px solid transparent;
     border-radius: 22px;
@@ -1182,29 +1081,6 @@
     border-radius: 999px;
 }
 
-/* ── macOS Tahoe Notification Center ───────────────────────────────────
- *
- * Measured off docs/audits/tahoe-reference/26-Tahoe-Notification-Center.png at
- * 1pt = 2px, and 1pt == 1 logical px here. Type sizes are written in pt because
- * St converts at 96 dpi: 13px of macOS type is 9.75pt.
- *
- *   column 345, right inset 15, gap between cards 15 (between stacked
- *   notifications 8), notification radius 18, widget radius 24, app icon 32,
- *   title/body 13px, heading 18px bold, clear button a 20px circle,
- *   small widget 165 square (two per row), medium 345 x 165, large 345 x 345.
- *
- * The column has no plate of its own; every card owns its material, with the
- * wallpaper visible in the gaps. Message rules are anchored on
- * #lintelNotificationCenter: GNOME's theme styles messages through selectors
- * like `.message .message-box .message-icon` and `.message-view .message
- * { margin-bottom: 12px !important }`, which outrank any two-class selector.
- * The previous `.fluid-glass-notification-center .message-icon` rules lost to them
- * silently — 48px icons, 12px gaps and identical cards in a collapsed stack.
- *
- * Material tint, like the Control Center's: there is no backdrop blur, so the
- * plate alone carries contrast. Dark plates are rgba(30,32,36,0.76): white text
- * over a WHITE wallpaper still reaches 7.5:1, and 70% secondary text 4.6:1. */
-
 .fluid-glass-notification-center {
     spacing: 8px;
     padding: 0;
@@ -1217,7 +1093,6 @@
     -st-vfade-offset: 22px;
 }
 
-/* Heading and clear button sit directly on the wallpaper in both appearances. */
 .fluid-glass-nc-header {
     min-height: 24px;
     padding: 0 0 0 2px;
@@ -1299,8 +1174,6 @@
     -st-vfade-offset: 24px;
 }
 
-/* MessageView normally lives inside the opaque date menu and reserves space
- * for that menu's scrollbar and border. */
 #lintelNotificationCenter .message-list,
 #lintelNotificationCenter .message-view {
     width: 345px;
@@ -1313,8 +1186,6 @@
 #lintelNotificationCenter .message-notification-group {
     spacing: 8px;
 }
-
-/* ── Notification cards ── */
 
 #lintelNotificationCenter .message {
     margin: 0 0 8px 0 !important;
@@ -1352,7 +1223,6 @@
     border: none;
 }
 
-/* A collapsed group hides stacked cards underneath so only the pure glass front card shows. */
 #lintelNotificationCenter.fluid-glass-nc-dark .message:second-in-stack,
 #lintelNotificationCenter.fluid-glass-nc-dark .message:lower-in-stack,
 #lintelNotificationCenter.fluid-glass-nc-light .message:second-in-stack,
@@ -1546,7 +1416,6 @@
     border: none;
 }
 
-/* An expanded group's title and collapse button sit on the wallpaper. */
 #lintelNotificationCenter .message-notification-group .message-group-header {
     padding: 0 2px 2px 2px;
 }
@@ -1572,11 +1441,6 @@
     color: rgba(255, 255, 255, 0.90);
     background-color: transparent;
 }
-
-/* ── Widgets ──
- *
- * St's `height` is the CONTENT height; padding and the 1px border are added
- * outside it (see docs/DESIGN_QA.md, Pass 5). 165 = 135 + 2 x 14 + 2 x 1. */
 
 .fluid-glass-nc-widgets {
     spacing: 15px;
@@ -1665,9 +1529,6 @@
 .fluid-glass-nc-light .fluid-glass-nc-forecast-time {
     color: rgba(0, 0, 0, 0.65);
 }
-
-/* Calendar — the small layout follows Tahoe's desktop calendar widget: red
- * month caps, single-letter weekdays, dimmed weekends, a red disc for today. */
 
 .fluid-glass-nc-widget-small.fluid-glass-nc-calendar-widget {
     padding: 12px 13px;
@@ -1867,8 +1728,6 @@
     font-size: 10.5pt;
 }
 
-/* Weather — pure glass card without opaque sky gradient. */
-
 .fluid-glass-nc-weather-location {
     font-size: 11.25pt;
     font-weight: 700;
@@ -1970,9 +1829,6 @@
     color: rgba(0, 0, 0, 0.65);
 }
 
-/* Batteries — Tahoe's ring gauge. The ring is painted in RingGauge's Cairo
- * code, which reads these colours back through lookup_color(). */
-
 .fluid-glass-nc-battery-ring,
 .fluid-glass-nc-dark .fluid-glass-nc-battery-ring {
     width: 64px;
@@ -2031,8 +1887,6 @@
     font-feature-settings: "tnum";
 }
 
-/* Clock — an analogue face, like Tahoe's Clock widget. */
-
 .fluid-glass-nc-clock-face,
 .fluid-glass-nc-dark .fluid-glass-nc-clock-face {
     width: 128px;
@@ -2081,8 +1935,6 @@
     font-feature-settings: "tnum";
 }
 
-/* Now Playing reuses CCMediaCard as content, so its own Control Center plate
- * must not become a second card inside this one. */
 .fluid-glass-nc-media-content {
     spacing: 10px;
 }
@@ -2107,8 +1959,6 @@
 .fluid-glass-nc-light .fluid-glass-nc-media-widget .fluid-glass-cc-media-control {
     color: rgba(0, 0, 0, 0.85);
 }
-
-/* ── Editing ── controls float over the widget instead of shifting the column. */
 
 .fluid-glass-nc-widget-edit-bar {
     padding: 8px;
@@ -2223,7 +2073,6 @@
     border-radius: 999px;
 }
 
-/* "Edit Widgets" is a small glass pill on the wallpaper. */
 .fluid-glass-nc-edit-button,
 .fluid-glass-nc-dark .fluid-glass-nc-edit-button {
     margin-top: 8px;
@@ -2273,9 +2122,6 @@
     border: none;
     box-shadow: none;
 }
-
-/* Up Next — Tahoe's calendar widget: red weekday and day number, then the
- * coming events, each marked by a calendar-coloured bar. */
 
 .fluid-glass-nc-upnext-stack {
     spacing: 8px;
@@ -2352,10 +2198,6 @@
 .fluid-glass-nc-light .fluid-glass-nc-chart-axis-label {
     color: rgba(0, 0, 0, 0.65);
 }
-
-/* Screen Time — today's total, a week of daily bars with a dashed line at the
- * daily average and, on large, today hour by hour. Bars and meter are painted
- * in Cairo from the -fluid-glass-* colours below. */
 
 .fluid-glass-nc-screentime-stack {
     spacing: 4px;
@@ -2448,10 +2290,6 @@
     -fluid-glass-meter-over: #ff9f0a;
     -fluid-glass-meter-track: rgba(0, 0, 0, 0.15);
 }
-
-/* System — processor, memory, storage and temperature as ring gauges (the
- * RingGauge Batteries uses), network rates and, on large, two minutes of
- * processor and network history. A gauge turns red at 90% or 90 °C. */
 
 .fluid-glass-nc-ring,
 .fluid-glass-nc-dark .fluid-glass-nc-ring {
@@ -2599,9 +2437,6 @@
     -fluid-glass-spark-primary: #30d158;
 }
 
-/* --- Liquid Glass Transparent Overrides --- */
-
-/* Clears the shell's own background from a surface that gets glass. */
 .fluid-glass-transparent,
 .fluid-glass-transparent-keep-border,
 .fluid-glass-transparent.popup-menu,
@@ -2617,7 +2452,6 @@
     box-shadow: none !important;
     background-image: none !important;
 
-    /* The open and close animations are driven from JavaScript. */
     transition: none !important;
     transition-duration: 0ms !important;
 }
@@ -2630,7 +2464,6 @@
     border-color: transparent !important;
 }
 
-/* Dash to Dock and Dash2Dock Animated/Lite own background, only while it has glass. */
 #dashtodockDashContainer.fluid-glass-transparent,
 .fluid-glass-transparent #dashtodockContainer,
 #dashtodockContainer.fluid-glass-transparent,
@@ -2645,7 +2478,6 @@
     box-shadow: none !important;
 }
 
-/* Plain calendar days; today and interactive states keep their theme style. */
 .fluid-glass-transparent .calendar-day:not(.calendar-today):not(:hover):not(:active):not(:focus):not(:checked) {
     background-color: transparent !important;
     background-image: none !important;
@@ -2653,7 +2485,6 @@
     box-shadow: none !important;
 }
 
-/* Calendar menu: the calendar sits on a translucent rounded card. */
 .fluid-glass-menu-root .calendar {
     background-color: rgba(255, 255, 255, 0.3) !important;
     border-radius: 24px !important;
@@ -2678,7 +2509,6 @@
     background-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-/* Today is drawn as a circle in every state. */
 .fluid-glass-menu-root .calendar-today,
 .fluid-glass-menu-root .calendar-today:hover,
 .fluid-glass-menu-root .calendar-today:active,
@@ -2687,8 +2517,6 @@
     border-radius: 99px !important;
 }
 
-/* Notification, events and world clock cards. These come after the rules
-   above so they win over the transparent buttons. */
 .fluid-glass-menu-root .events-button,
 .fluid-glass-menu-root .world-clocks-button {
     background-color: rgba(51, 51, 51, 0.8) !important;
@@ -2711,8 +2539,6 @@
     background-color: rgba(65, 65, 65, 0.8) !important;
 }
 
-/* The cards' text is set here, as the adaptive colours do not reach it: they follow what is behind the glass,
-   and a card has its own background. */
 .fluid-glass-menu-root .events-button,
 .fluid-glass-menu-root .world-clocks-button,
 .fluid-glass-menu-root .message,
@@ -2732,8 +2558,6 @@
     color: rgba(255, 255, 255, 0.7) !important;
 }
 
-/* The same cards when the colour scheme is not dark: pale, under dark text. The text colours are set here
-   because the shell theme stays dark for the default scheme. */
 .fluid-glass-menu-root.fluid-glass-light StButton:hover {
     background-color: rgba(0, 0, 0, 0.08) !important;
 }
@@ -2776,8 +2600,6 @@
     color: rgba(0, 0, 0, 0.87) !important;
 }
 
-/* ── Notification Center / DateMenu Popover ────────────────────────── */
-
 .datemenu-popover .message-list {
     width: 320px;
     min-width: 320px;
@@ -2797,8 +2619,6 @@
 .datemenu-popover .message-list-placeholder {
     max-width: 320px;
 }
-
-/* ── Notification Popups (Incoming Banners) ─────────────────────────── */
 
 .notification-banner {
     width: 320px;
@@ -2868,9 +2688,6 @@
     font-weight: 500;
 }
 
-
-/* Desktop widgets. The card's glass is drawn behind it; the colours here are
-   the starting point that automatic text contrast adjusts. */
 .fluid-glass-desktop-card {
     padding: 16px 18px;
     spacing: 8px;
@@ -2937,7 +2754,6 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
-/* The frame a desktop item is moved and resized with. */
 .fluid-glass-edit-frame {
     border: 2px solid #3584e4;
     border-radius: 12px;
@@ -2966,7 +2782,6 @@
     background-color: #4a90e8;
 }
 
-/* The launcher: a search field and its results on one sheet of glass. */
 .fluid-glass-launcher {
     padding: 10px;
     color: #ffffff;
@@ -3098,10 +2913,6 @@
     padding: 24px;
 }
 
-/* --- Dock Stylesheet --- */
-
-/* reminder: minimize styling overrides! */
-
 .hi {
      border: 2px solid magenta !important;
 }
@@ -3129,10 +2940,7 @@
 }
 
 #dash .dash-item-container {
-  /*border: 2px solid magenta;*/
 }
-
-/* ── macOS Tahoe / Fluid Glass Lock & Login Screen ──────────────────────── */
 
 #lockDialogGroup {
     background-color: transparent !important;
@@ -3142,7 +2950,6 @@
     color: #ffffff;
 }
 
-/* Clock & Date typography */
 .unlock-dialog-clock {
     color: #ffffff;
     spacing: 1.5em;
@@ -3177,7 +2984,6 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
-/* Authentication prompt & container — float cleanly over blurred wallpaper */
 .login-dialog .login-dialog-prompt-layout,
 .unlock-dialog .login-dialog-prompt-layout {
     background: transparent !important;
@@ -3188,7 +2994,6 @@
     padding: 16px 24px !important;
 }
 
-/* Password / PIN input field */
 .login-dialog .login-dialog-prompt-entry,
 .unlock-dialog .login-dialog-prompt-entry,
 .login-dialog StEntry.login-dialog-prompt-entry,
@@ -3213,7 +3018,6 @@
     box-shadow: none !important;
 }
 
-/* User list item pill on GDM login screen */
 .login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item {
     background-color: rgba(255, 255, 255, 0.16) !important;
     border: 1px solid rgba(255, 255, 255, 0.28) !important;
@@ -3241,7 +3045,6 @@
     color: #ffffff !important;
 }
 
-/* Real GLSL glass backing for system ModalDialogs and login/lock pills */
 .lightbox.fluid-glass-transparent {
     background-color: transparent !important;
     background: transparent !important;
@@ -3413,7 +3216,6 @@
     box-shadow: none !important;
 }
 
-/* Light-background adaptive contrast for glass modal dialogs */
 .modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light,
 .modal-dialog.fluid-glass-modal-dialog.fluid-glass-modal-light .modal-dialog-content-box {
     color: #1a1a1a !important;
@@ -3581,7 +3383,6 @@
     background-color: rgba(0, 0, 0, 0.10) !important;
 }
 
-/* Switcher, workspace indicator, resize popup, and tooltips glass styling */
 .switcher-list.fluid-glass-ui-surface,
 .workspace-switcher.fluid-glass-ui-surface,
 .resize-popup.fluid-glass-ui-surface {
@@ -3640,7 +3441,6 @@
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 }
 
-/* Liquid Glass speech-bubble dock tooltip */
 .fluid-glass-dock-tooltip {
     background-color: transparent !important;
     border: none !important;
@@ -3808,7 +3608,6 @@
     margin-right: 8px !important;
 }
 
-/* User avatar and typography */
 .login-dialog .user-widget .user-icon,
 .unlock-dialog .user-widget .user-icon {
     border-radius: 99px !important;
@@ -3825,7 +3624,6 @@
     text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Action and navigation buttons */
 .login-dialog .login-button,
 .unlock-dialog .login-button,
 .login-dialog-button,
@@ -3897,7 +3695,6 @@
     box-shadow: none !important;
 }
 
-/* Inline submit arrow inside the password entry well must stay transparent */
 .login-dialog .login-dialog-button.next-button,
 .unlock-dialog .login-dialog-button.next-button,
 .login-dialog-button.next-button,
@@ -3932,7 +3729,6 @@
     color: #ffffff !important;
 }
 
-/* Lock screen notifications & media card */
 #unlockDialogNotifications,
 #unlockDialogNotifications StScrollView,
 .unlock-dialog-notifications-container,
@@ -3993,9 +3789,6 @@
     box-shadow: none !important;
 }
 
-/* Real GLSL glass for non-panel uiGroup PopupMenus and QuickSettingsMenus
- * (GDM Accessibility & Session Type, Lock Screen Login Options, Desktop,
- *  Window, Dock item, and StEntry context menus) */
 .popup-menu.fluid-glass-ui-popup,
 .popup-menu-boxpointer.fluid-glass-ui-popup {
     -arrow-background-color: transparent !important;
@@ -4121,7 +3914,6 @@
     box-shadow: none !important;
 }
 
-/* Light-background adaptive contrast for UI PopupMenus */
 .popup-menu-content.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light,
 .popup-menu-content.quick-settings.fluid-glass-ui-popup-content.fluid-glass-ui-popup-light {
     color: #1a1a1a !important;
@@ -4188,5 +3980,4 @@
 .fluid-glass-ui-popup-content.fluid-glass-ui-popup-light .quick-toggle-menu-button:checked {
     color: #ffffff !important;
 }
-
 

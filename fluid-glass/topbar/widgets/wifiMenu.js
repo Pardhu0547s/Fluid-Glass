@@ -1,8 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// Independent menu-bar Wi-Fi status item, matching Tahoe's status-menu model:
-// its own panel hit target, checked/open state, popup anchor and network list.
-
 import Clutter from 'gi://Clutter';
 import GioUnix from 'gi://GioUnix';
 import GObject from 'gi://GObject';

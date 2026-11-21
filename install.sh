@@ -1,25 +1,4 @@
 #!/usr/bin/env bash
-#
-# Fluid Glass for Linux installer
-#
-# Usage: ./install.sh [OPTIONS]
-#   -c, --color   dark|light              Variant applied to GTK4/libadwaita apps
-#   -s, --style   clear|normal|frosted    Glass strength (default: normal)
-#   -d, --dest    DIR                     Install themes here (default: ~/.themes)
-#       --laptop                          Compact laptop sizing
-#       --rebuild                         Rebuild from source even if ./dist exists
-#       --no-libadwaita                   Do not touch ~/.config/gtk-4.0
-#       --no-apply                        Install only; do not change GNOME settings
-#   -e, --with-extension                  Enable the optional Liquid Glass extension
-#                                         (must already be installed; see README)
-#   -i, --with-icons                      Build and install Papirus-MacOS icon themes
-#   -r, --remove, --uninstall             Remove the theme and restore your gtk-4.0 files
-#   -h, --help
-#
-# Nothing in this script writes into the repository, and it never downloads
-# anything. Prebuilt themes are used when ./dist exists (release tarballs);
-# otherwise, or for non-default options, the themes are compiled with sassc.
-#
 set -euo pipefail
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -32,11 +11,8 @@ REBUILD="false"
 LIBADWAITA="true"
 APPLY="true"
 WITH_EXT="false"
-WITH_ICONS="false"
 WITH_PRESETS="false"
 REMOVE="false"
-
-ICONS_DEST="${HOME}/.local/share/icons"
 
 GTK4_CONF="${HOME}/.config/gtk-4.0"
 BACKUP_DIR="${GTK4_CONF}/.fluid-glass-backup"
@@ -44,7 +20,24 @@ EXT_UUID="liquid-glass@thinkingcoding1231.gmail.com"
 EXT_URL="https://github.com/ryohsuke1231/liquid-glass"
 GTK4_ITEMS=(gtk.css gtk-dark.css gtk-light.css assets windows-assets)
 
-usage() { sed -n '3,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() {
+  cat <<'EOF'
+Fluid Glass for Linux installer
+
+Usage: ./install.sh [OPTIONS]
+  -c, --color   dark|light              Variant applied to GTK4/libadwaita apps
+  -s, --style   clear|normal|frosted    Glass strength (default: normal)
+  -d, --dest    DIR                     Install themes here (default: ~/.themes)
+      --laptop                          Compact laptop sizing
+      --rebuild                         Rebuild from source even if ./dist exists
+      --no-libadwaita                   Do not touch ~/.config/gtk-4.0
+      --no-apply                        Install only; do not change GNOME settings
+  -e, --with-extension                  Enable the optional Liquid Glass extension
+                                        (must already be installed; see README)
+  -r, --remove, --uninstall             Remove the theme and restore your gtk-4.0 files
+  -h, --help
+EOF
+}
 info() { printf '==> %s\n' "$*"; }
 warn() { printf 'Warning: %s\n' "$*" >&2; }
 die()  { printf 'Error: %s\n' "$*" >&2; exit 1; }
@@ -69,7 +62,6 @@ while [[ $# -gt 0 ]]; do
     --no-libadwaita)   LIBADWAITA="false"; shift ;;
     --no-apply)        APPLY="false"; shift ;;
     -e|--with-extension) WITH_EXT="true"; shift ;;
-    -i|--with-icons)     WITH_ICONS="true"; shift ;;
     -p|--with-presets)   WITH_PRESETS="true"; shift ;;
     -r|--remove|--uninstall) REMOVE="true"; shift ;;
     -h|--help) usage; exit 0 ;;
@@ -79,11 +71,8 @@ done
 
 have_schema_key() { gsettings get "$1" "$2" >/dev/null 2>&1; }
 
-# ---------------------------------------------------------------------------
-# GTK4 / libadwaita backup + restore (one backup, taken once, never overwritten)
-# ---------------------------------------------------------------------------
 backup_gtk4() {
-  [[ -d "${BACKUP_DIR}" ]] && return 0          # keep the user's ORIGINAL files
+  [[ -d "${BACKUP_DIR}" ]] && return 0
   mkdir -p "${BACKUP_DIR}"
   local item
   for item in "${GTK4_ITEMS[@]}"; do
@@ -106,8 +95,6 @@ restore_gtk4() {
     info "Restored your original ~/.config/gtk-4.0 files"
     return 0
   fi
-  # Installed by an older version of this script: it left timestamped backups.
-  # The OLDEST one is the user's original, so prefer it.
   local legacy
   legacy="$(ls -tr "${GTK4_CONF}"/gtk.css.backup.* 2>/dev/null | head -n1 || true)"
   if [[ -n "${legacy}" ]]; then
@@ -116,23 +103,16 @@ restore_gtk4() {
     cp -a "${legacy}" "${GTK4_CONF}/gtk.css"
     info "Restored ${legacy##*/}"
   else
-    # No record of what was there before, so we cannot tell our files from the
-    # user's own. Leave them alone rather than risk deleting someone's config.
     warn "No backup found; ~/.config/gtk-4.0 was left untouched."
     warn "If Fluid Glass styled your GTK4 apps, delete gtk.css, gtk-dark.css, gtk-light.css, assets and windows-assets there by hand."
   fi
 }
 
-# ---------------------------------------------------------------------------
-# Uninstall
-# ---------------------------------------------------------------------------
 if [[ "${REMOVE}" == "true" ]]; then
   info "Removing Fluid Glass from ${DEST}"
-  # Names used by earlier releases are removed too.
   for n in "${NAME}" Liquid-Tahoe; do
     rm -rf "${DEST:?}/${n}-Dark" "${DEST:?}/${n}-Light"
   done
-  rm -rf "${ICONS_DEST:?}/Papirus-MacOS-Dark" "${ICONS_DEST:?}/Papirus-MacOS-Light"
   restore_gtk4
 
   if [[ "${APPLY}" == "true" ]]; then
@@ -142,17 +122,11 @@ if [[ "${REMOVE}" == "true" ]]; then
     shell_now="$(gsettings get org.gnome.shell.extensions.user-theme name 2>/dev/null || true)"
     [[ "${shell_now}" == *"${NAME}"* || "${shell_now}" == *Liquid-Tahoe* ]] \
       && gsettings reset org.gnome.shell.extensions.user-theme name
-    icon_now="$(gsettings get org.gnome.desktop.interface icon-theme 2>/dev/null || true)"
-    [[ "${icon_now}" == *Papirus-MacOS* ]] \
-      && gsettings reset org.gnome.desktop.interface icon-theme
   fi
   info "Done. The optional Liquid Glass extension was left untouched; remove it with the Extensions app."
   exit 0
 fi
 
-# ---------------------------------------------------------------------------
-# Locate or build the themes
-# ---------------------------------------------------------------------------
 SRC_DIST="${REPO_DIR}/dist"
 need_build="false"
 [[ "${REBUILD}" == "true" || "${STYLE}" != "normal" || "${HD}" != "true" ]] && need_build="true"
@@ -168,9 +142,6 @@ if [[ "${need_build}" == "true" ]]; then
   "${REPO_DIR}/build.sh" "${build_args[@]}" >/dev/null
 fi
 
-# ---------------------------------------------------------------------------
-# Install
-# ---------------------------------------------------------------------------
 info "Installing to ${DEST}"
 mkdir -p "${DEST}"
 for c in Dark Light; do
@@ -180,7 +151,6 @@ done
 
 THEME_NAME="${NAME}-${COLOR:+${COLOR^}}"
 if [[ -z "${COLOR}" ]]; then
-  # No explicit color: follow the current system color scheme, default to Dark.
   scheme="$(gsettings get org.gnome.desktop.interface color-scheme 2>/dev/null || true)"
   [[ "${scheme}" == *prefer-light* || "${scheme}" == *default* ]] && THEME_NAME="${NAME}-Light" || THEME_NAME="${NAME}-Dark"
 fi
@@ -189,7 +159,7 @@ if [[ "${LIBADWAITA}" == "true" ]]; then
   info "Applying to GTK4/libadwaita apps (${THEME_NAME})"
   mkdir -p "${GTK4_CONF}"
   backup_gtk4
-  for item in "${GTK4_ITEMS[@]}"; do rm -rf "${GTK4_CONF:?}/${item}"; done   # removes symlinks, never their targets
+  for item in "${GTK4_ITEMS[@]}"; do rm -rf "${GTK4_CONF:?}/${item}"; done
   cp -r  "${DEST}/${THEME_NAME}/gtk-4.0/assets"          "${GTK4_CONF}/assets"
   cp -r  "${DEST}/${THEME_NAME}/gtk-4.0/windows-assets"  "${GTK4_CONF}/windows-assets"
   cp     "${DEST}/${THEME_NAME}/gtk-4.0/gtk.css"         "${GTK4_CONF}/gtk.css"
@@ -197,9 +167,6 @@ if [[ "${LIBADWAITA}" == "true" ]]; then
   cp     "${DEST}/${THEME_NAME}/gtk-4.0/gtk-light.css"   "${GTK4_CONF}/gtk-light.css"
 fi
 
-# ---------------------------------------------------------------------------
-# Optional Liquid Glass extension (never bundled, never downloaded)
-# ---------------------------------------------------------------------------
 if [[ "${WITH_EXT}" == "true" ]]; then
   if command -v gnome-extensions >/dev/null && gnome-extensions list 2>/dev/null | grep -qx "${EXT_UUID}"; then
     gnome-extensions enable "${EXT_UUID}" && info "Enabled the Liquid Glass extension"
@@ -209,9 +176,6 @@ if [[ "${WITH_EXT}" == "true" ]]; then
   fi
 fi
 
-# ---------------------------------------------------------------------------
-# Fluid Glass Unified Extension & Customizer App
-# ---------------------------------------------------------------------------
 if [[ -d "${REPO_DIR}/fluid-glass" ]]; then
   info "Installing Fluid Glass Extension (fluid-glass@pardhu0547s.github.io)"
   EXT_DEST="${HOME}/.local/share/gnome-shell/extensions/fluid-glass@pardhu0547s.github.io"
@@ -232,28 +196,6 @@ if [[ -d "${REPO_DIR}/fluid-glass" ]]; then
     [[ -f "${REPO_DIR}/fluid-glass/presets/lintel.dconf" ]] && dconf load /org/gnome/shell/extensions/fluid-glass/topbar/ < "${REPO_DIR}/fluid-glass/presets/lintel.dconf" || true
     [[ -f "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" ]] && dconf load /org/gnome/shell/extensions/fluid-glass/glass/ < "${REPO_DIR}/fluid-glass/presets/liquid-glass.dconf" || true
     [[ -f "${REPO_DIR}/fluid-glass/presets/dock.dconf" ]] && dconf load /org/gnome/shell/extensions/fluid-glass/dock/ < "${REPO_DIR}/fluid-glass/presets/dock.dconf" || true
-  fi
-fi
-
-# ---------------------------------------------------------------------------
-# Optional Papirus x macOS Squircle Icon Themes
-# ---------------------------------------------------------------------------
-if [[ "${WITH_ICONS}" == "true" && -f "${REPO_DIR}/scripts/build-icons.py" ]]; then
-  if [[ -d "/usr/share/icons/Papirus/64x64/apps" && -d "/usr/share/icons/MacTahoe-dark" && -d "/usr/share/icons/MacTahoe-light" ]]; then
-    info "Building Papirus-MacOS-Dark & Papirus-MacOS-Light icons in ${ICONS_DEST}"
-    mkdir -p "${ICONS_DEST}"
-    python3 "${REPO_DIR}/scripts/build-icons.py" --out "${ICONS_DEST}"
-    if command -v gtk-update-icon-cache >/dev/null; then
-      gtk-update-icon-cache -f -t "${ICONS_DEST}/Papirus-MacOS-Dark" || true
-      gtk-update-icon-cache -f -t "${ICONS_DEST}/Papirus-MacOS-Light" || true
-    fi
-    if [[ "${APPLY}" == "true" ]]; then
-      ICON_THEME="Papirus-MacOS-${THEME_NAME##*-}"
-      gsettings set org.gnome.desktop.interface icon-theme "${ICON_THEME}" 2>/dev/null || true
-      info "Applied icon theme: ${ICON_THEME}"
-    fi
-  else
-    warn "Papirus or MacTahoe icon themes not found in /usr/share/icons; skipping icon build."
   fi
 fi
 

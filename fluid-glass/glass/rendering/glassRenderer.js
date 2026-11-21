@@ -1,16 +1,9 @@
 import Cogl from 'gi://Cogl';
-import { BlurRenderer, ShaderPipelines, configureSamplerLayer, SHAPE_LAYER, RenderPasses } from './pipelines.js';
+import { BlurRenderer, ShaderPipelines, SHAPE_LAYER, RenderPasses, clearSharedPipelines } from './pipelines.js';
 import { setUniformArray } from '../shellVersion.js';
 import { hexToColorArray } from '../animation.js';
-// Must match glass.frag's `#define MAX_GLASS_REGIONS 64`.
 export const MAX_GLASS_REGIONS = 64;
 
-/**
- * What every glass draws with, whatever supplies its backdrop: the shader
- * pipelines, the blur, the uniforms and the settings bound to them. The owner
- * decides when to repaint (`repaint` is called when a uniform changed) and
- * where the backdrop texture comes from.
- */
 export class GlassRenderer {
     passes;
     pipelines;
@@ -21,6 +14,12 @@ export class GlassRenderer {
     _outline = null;
     _repaint;
     _shapeTexture = null;
+    _compositeColor = new Cogl.Color();
+    _lastPaintOpacity = -1;
+    _boundLayerTex = null;
+    _boundShapeTex = null;
+    _regionScratch = null;
+    _lastRegionCount = -1;
 
     constructor(params) {
         this._repaint = params.repaint;
@@ -37,22 +36,18 @@ export class GlassRenderer {
         }
     }
 
-    // Compiles the pipelines on the first paint, once a Cogl context exists,
-    // and a tap-count change from setBlurRadius() afterwards.
     prepare(ctx) {
         if (!this.pipelines.composite) {
             this.pipelines.initialize(ctx);
+            this._boundLayerTex = null;
+            this._boundShapeTex = null;
+            this._lastPaintOpacity = -1;
             this.uniforms.attach(this.pipelines.composite);
         }
         if (this.blur.needsCompile)
             this.blur.compilePending(ctx);
     }
 
-    /**
-     * Binds the backdrop for glass.frag: the blurred one, or `unblurredTex`
-     * when there is no blur. Both hold `blurRect`, the part of the glass the
-     * backdrop was copied for, in shader space.
-     */
     bindBackdrop(unblurredTex, blurRect) {
         const compPipeline = this.pipelines.composite;
         const haveBlur = this.blur.passCount > 0 && this.blur.result !== null;
@@ -60,43 +55,36 @@ export class GlassRenderer {
         this.uniforms.set('blur_rect_y', blurRect[1]);
         this.uniforms.set('blur_rect_w', blurRect[2]);
         this.uniforms.set('blur_rect_h', blurRect[3]);
-        // Both layers get the same texture, so one UV range fits both. glass.frag
-        // samples only layer 1; if it ever read layer 0 separately, the layers
-        // would need their own ranges.
         const layerTex = haveBlur ? this.blur.result : unblurredTex;
-        // The blur is magnified from half or quarter resolution; glass.frag needs
-        // its real size to reconstruct it smoothly.
         this.uniforms.set('blur_tex_w', layerTex.get_width());
         this.uniforms.set('blur_tex_h', layerTex.get_height());
-        compPipeline.set_layer_texture(0, layerTex);
-        configureSamplerLayer(compPipeline, 0);
-        compPipeline.set_layer_texture(1, layerTex);
-        configureSamplerLayer(compPipeline, 1);
-        if (this._shapeTexture) {
-            compPipeline.set_layer_texture(SHAPE_LAYER, this._shapeTexture);
-            configureSamplerLayer(compPipeline, SHAPE_LAYER);
+        if (layerTex !== this._boundLayerTex) {
+            compPipeline.set_layer_texture(0, layerTex);
+            compPipeline.set_layer_texture(1, layerTex);
+            this._boundLayerTex = layerTex;
         }
-        // Uniforms set before the pipeline existed are written now.
+        if (this._shapeTexture && this._shapeTexture !== this._boundShapeTex) {
+            compPipeline.set_layer_texture(SHAPE_LAYER, this._shapeTexture);
+            this._boundShapeTex = this._shapeTexture;
+        }
         this.uniforms.flush();
     }
 
-    /**
-     * Queues glass.frag over `drawRect` [x1, y1, x2, y2]. glass.frag multiplies
-     * its premultiplied output by the pipeline color, so fading means scaling
-     * all four channels by the paint opacity (which already includes the
-     * ancestors'); scaling alpha alone would wash the glass out.
-     */
     addComposite(node, drawRect, drawUV, paintOpacity) {
-        const color = new Cogl.Color();
-        const opacity = paintOpacity / 255;
-        color.init_from_4f(opacity, opacity, opacity, opacity);
-        this.pipelines.composite.set_color(color);
+        if (paintOpacity !== this._lastPaintOpacity) {
+            const opacity = paintOpacity / 255;
+            this._compositeColor.init_from_4f(opacity, opacity, opacity, opacity);
+            this.pipelines.composite.set_color(this._compositeColor);
+            this._lastPaintOpacity = paintOpacity;
+        }
         this.passes.composite(node, this.pipelines.composite, drawRect, drawUV);
     }
 
-    // Rebuilds the pipelines on the next paint, for shader development. The
-    // buffered uniforms are kept and re-applied to the new pipeline.
     reloadShaders() {
+        clearSharedPipelines();
+        this._boundLayerTex = null;
+        this._boundShapeTex = null;
+        this._lastPaintOpacity = -1;
         this.pipelines.clear();
         this.uniforms.attach(null);
         this.blur.reload();
@@ -105,10 +93,14 @@ export class GlassRenderer {
 
     cleanup() {
         this._shapeTexture = null;
+        this._boundLayerTex = null;
+        this._boundShapeTex = null;
+        this._lastPaintOpacity = -1;
+        this._regionScratch = null;
+        this._lastRegionCount = -1;
         this._outline?.clear();
         this._outline = null;
         this.material.clear();
-        // Dropping the references frees the textures and pipelines; GJS owns them.
         this.blur.clear();
         this.passes.clear();
         this.pipelines.clear();
@@ -129,7 +121,6 @@ export class GlassRenderer {
 
     setBlurRectEnabled(enabled) {
         this.geometry.blurEnabled = enabled;
-        // The pool is sized for the old rect.
         this.blur.invalidate();
         this._repaint();
     }
@@ -240,11 +231,6 @@ export class GlassRenderer {
         this._repaintIfDirty();
     }
 
-    /**
-     * The distance field a shape-texture glass takes its outline from: it covers
-     * the glass rect, holds `range` px each way, and the lens rises over `band`
-     * px from the edge.
-     */
     setShapeTexture(texture, range, band) {
         this._shapeTexture = texture;
         this.uniforms.set('shape_range', range);
@@ -260,41 +246,78 @@ export class GlassRenderer {
     }
 
     setGlassRegions(regions) {
+        const count = Math.min(regions.length, MAX_GLASS_REGIONS);
         if (regions.length > MAX_GLASS_REGIONS) {
             log(`[Fluid Glass] Warning: region count ${regions.length} exceeds MAX_GLASS_REGIONS (${MAX_GLASS_REGIONS})`);
         }
-        const clamped = regions.slice(0, MAX_GLASS_REGIONS);
-        const rx = new Array(MAX_GLASS_REGIONS).fill(0.0);
-        const ry = new Array(MAX_GLASS_REGIONS).fill(0.0);
-        const rw = new Array(MAX_GLASS_REGIONS).fill(0.0);
-        const rh = new Array(MAX_GLASS_REGIONS).fill(0.0);
-        const rTintR = new Array(MAX_GLASS_REGIONS).fill(1.0);
-        const rTintG = new Array(MAX_GLASS_REGIONS).fill(1.0);
-        const rTintB = new Array(MAX_GLASS_REGIONS).fill(1.0);
-        const rBaseStrength = new Array(MAX_GLASS_REGIONS).fill(0.0);
-        const rRadius = new Array(MAX_GLASS_REGIONS).fill(0.0);
-        clamped.forEach((region, i) => {
-            rx[i] = region.x;
-            ry[i] = region.y;
-            rw[i] = region.w;
-            rh[i] = region.h;
-            rTintR[i] = region.tintR ?? 1.0;
-            rTintG[i] = region.tintG ?? 1.0;
-            rTintB[i] = region.tintB ?? 1.0;
-            rBaseStrength[i] = region.baseStrength ?? 0.0;
-            rRadius[i] = region.cornerRadius ?? 0.0;
-        });
-        this.geometry.regions = clamped.map(r => [r.x, r.y, r.w, r.h]);
-        this.uniforms.set('region_count', clamped.length);
-        this.uniforms.setArray('region_x', rx);
-        this.uniforms.setArray('region_y', ry);
-        this.uniforms.setArray('region_w', rw);
-        this.uniforms.setArray('region_h', rh);
-        this.uniforms.setArray('region_tint_r', rTintR);
-        this.uniforms.setArray('region_tint_g', rTintG);
-        this.uniforms.setArray('region_tint_b', rTintB);
-        this.uniforms.setArray('region_base_strength', rBaseStrength);
-        this.uniforms.setArray('region_r', rRadius);
+        let s = this._regionScratch;
+        if (!s) {
+            s = {
+                rx: new Array(MAX_GLASS_REGIONS).fill(0.0),
+                ry: new Array(MAX_GLASS_REGIONS).fill(0.0),
+                rw: new Array(MAX_GLASS_REGIONS).fill(0.0),
+                rh: new Array(MAX_GLASS_REGIONS).fill(0.0),
+                rTintR: new Array(MAX_GLASS_REGIONS).fill(1.0),
+                rTintG: new Array(MAX_GLASS_REGIONS).fill(1.0),
+                rTintB: new Array(MAX_GLASS_REGIONS).fill(1.0),
+                rBaseStrength: new Array(MAX_GLASS_REGIONS).fill(0.0),
+                rRadius: new Array(MAX_GLASS_REGIONS).fill(0.0),
+            };
+            this._regionScratch = s;
+        }
+        let changed = count !== this._lastRegionCount;
+        for (let i = 0; i < count; i++) {
+            const region = regions[i];
+            const tintR = region.tintR ?? 1.0;
+            const tintG = region.tintG ?? 1.0;
+            const tintB = region.tintB ?? 1.0;
+            const baseStrength = region.baseStrength ?? 0.0;
+            const cornerRadius = region.cornerRadius ?? 0.0;
+            if (!changed &&
+                s.rx[i] === region.x && s.ry[i] === region.y &&
+                s.rw[i] === region.w && s.rh[i] === region.h &&
+                s.rTintR[i] === tintR && s.rTintG[i] === tintG && s.rTintB[i] === tintB &&
+                s.rBaseStrength[i] === baseStrength && s.rRadius[i] === cornerRadius)
+                continue;
+            changed = true;
+            s.rx[i] = region.x;
+            s.ry[i] = region.y;
+            s.rw[i] = region.w;
+            s.rh[i] = region.h;
+            s.rTintR[i] = tintR;
+            s.rTintG[i] = tintG;
+            s.rTintB[i] = tintB;
+            s.rBaseStrength[i] = baseStrength;
+            s.rRadius[i] = cornerRadius;
+        }
+        if (!changed)
+            return;
+        for (let i = count; i < this._lastRegionCount; i++) {
+            s.rx[i] = 0.0;
+            s.ry[i] = 0.0;
+            s.rw[i] = 0.0;
+            s.rh[i] = 0.0;
+            s.rTintR[i] = 1.0;
+            s.rTintG[i] = 1.0;
+            s.rTintB[i] = 1.0;
+            s.rBaseStrength[i] = 0.0;
+            s.rRadius[i] = 0.0;
+        }
+        this._lastRegionCount = count;
+        const geomRegions = new Array(count);
+        for (let i = 0; i < count; i++)
+            geomRegions[i] = [s.rx[i], s.ry[i], s.rw[i], s.rh[i]];
+        this.geometry.regions = geomRegions;
+        this.uniforms.set('region_count', count);
+        this.uniforms.setArray('region_x', s.rx);
+        this.uniforms.setArray('region_y', s.ry);
+        this.uniforms.setArray('region_w', s.rw);
+        this.uniforms.setArray('region_h', s.rh);
+        this.uniforms.setArray('region_tint_r', s.rTintR);
+        this.uniforms.setArray('region_tint_g', s.rTintG);
+        this.uniforms.setArray('region_tint_b', s.rTintB);
+        this.uniforms.setArray('region_base_strength', s.rBaseStrength);
+        this.uniforms.setArray('region_r', s.rRadius);
         this._repaintIfDirty();
     }
 
@@ -323,47 +346,23 @@ export class GlassGeometry {
         this.compositeEnabled = GlassGeometry.USE_COMPOSITE_RECT;
     }
 
-    // The glass rect [x, y, w, h] last given to the shader, in the space of
-    // setResolution()/setGlassGeometry().
     rect = [0, 0, 0, 0];
     regions = [];
     multiRegion = false;
-    // Per-instance switches (global._lgGlass.blurRect()/compositeRect()).
     blurEnabled;
     compositeEnabled;
-    // Copy and blur only the part of the backdrop the glass can sample.
     static USE_BLUR_RECT = true;
-    // Must match EDGE_LENS_REACH in glass.frag (the refraction's maximum
-    // displacement), or the rim samples past the blurred region and streaks.
     static EDGE_LENS_REACH = 96;
     static EDGE_FOOTPRINT_SPREAD = 0.9 * 32;
-    // Extra margin for the edge feather, the 4-tap RGSS spread and rounding.
     static BLUR_RECT_MIN_MARGIN = 12;
-    // A rect covering more than this share of the actor saves nothing. Kept
-    // close to 1 so application windows (around 0.8) still benefit.
     static BLUR_RECT_MIN_SAVING = 0.95;
-    // The texture pool is keyed on the rect's size, so the size is rounded up
-    // to this quantum; otherwise an opening menu would reallocate the pool
-    // every frame.
     static BLUR_RECT_QUANTUM = 64;
-    // Run glass.frag only where it can draw something: the glass body and the
-    // drop shadow's reach. Everywhere else the source is fully transparent,
-    // which the premultiplied "over" blend leaves unchanged, so skipping those
-    // pixels changes nothing. Refraction moves where a pixel samples, not where
-    // it is drawn, so no refraction margin is needed.
     static USE_COMPOSITE_RECT = true;
     static COMPOSITE_RECT_MIN_SAVING = 0.95;
 
-    /**
-     * The rect [x, y, w, h] (shader space) the composite has to cover, or null
-     * for the whole actor. glass.frag draws no shadow beyond
-     * min(shadow_radius, max(shadow_max_radius, 5)) from the body, and none in
-     * multi-region mode.
-     */
     compositeRect() {
         if (!this.compositeEnabled)
             return null;
-        // Debug views are easier to read unclipped.
         if ((this._uniforms.get('debug_view') ?? 0) > 0.5)
             return null;
         const resW = this._uniforms.get('resolution_x') ?? 0;
@@ -380,7 +379,6 @@ export class GlassGeometry {
         const reach = !(shadowIntensity > 0)
             ? 0
             : (this.multiRegion ? Math.min(shadowRadius, 8) : Math.min(shadowRadius, shadowMax));
-        // The feather widens the body; the rim and AO lie inside it.
         const feather = Math.max(this._uniforms.get('edge_smoothing') ?? 0, 0.75);
         const m = Math.ceil(reach + feather + 2);
         x0 -= m;
@@ -400,11 +398,6 @@ export class GlassGeometry {
         return [bx, by, bw, bh];
     }
 
-    /**
-     * The union [x0, y0, x1, y1] of the glass bodies, or null. The rect a
-     * manager passes is the background box; the shader insets the body by
-     * `padding` (the shadow margin for application windows).
-     */
     _glassBodyUnion() {
         const pad = Math.max(this._uniforms.get('padding') ?? 0, 0);
         let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
@@ -413,8 +406,6 @@ export class GlassGeometry {
             const [rx, ry, rw, rh] = r;
             if (!(rw > 0) || !(rh > 0))
                 continue;
-            // The shader clamps the half-size to 1px, so the inset never inverts
-            // the box.
             const ix = Math.min(pad, Math.max(rw / 2 - 1, 0));
             const iy = Math.min(pad, Math.max(rh / 2 - 1, 0));
             if (rx + ix < x0)
@@ -432,22 +423,11 @@ export class GlassGeometry {
     }
 
     _samplingReachPx(resW, resH) {
-        // The color separation moves blue further along the refraction, by up
-        // to this fraction of it.
         const chroma = Math.min(Math.max(this._uniforms.get('chroma_strength') ?? 0, 0), 1);
         const minRes = Math.max(Math.min(resW, resH), 1);
         return Math.min(0.30 * minRes, GlassGeometry.EDGE_LENS_REACH * (1 + chroma) + GlassGeometry.EDGE_FOOTPRINT_SPREAD);
     }
 
-    /**
-     * The part of the actor that has to be blurred, [x, y, w, h] in shader
-     * space, or null for all of it. The margin is how far a visible pixel's
-     * sample can travel from the glass (_samplingReachPx()): the refraction
-     * (EDGE_LENS_REACH), stretched by the chromatic aberration, and the edge
-     * footprint taps (EDGE_FOOTPRINT_SPREAD), capped at 0.30 of the shorter
-     * side, plus the RGSS spread, the feather and BLUR_RECT_MIN_MARGIN. The
-     * drop shadow does not sample the blur.
-     */
     blurRect() {
         if (!this.blurEnabled)
             return null;
@@ -472,8 +452,6 @@ export class GlassGeometry {
         let bh = Math.min(maxH, Math.ceil(y1 + my)) - by;
         if (!(bw >= 2) || !(bh >= 2))
             return null;
-        // Round the size up and pull the origin back so the rect still covers
-        // the region.
         const q = GlassGeometry.BLUR_RECT_QUANTUM;
         bw = Math.min(maxW, Math.ceil(bw / q) * q);
         bh = Math.min(maxH, Math.ceil(bh / q) * q);
@@ -494,7 +472,6 @@ export class UniformState {
         this._pipeline = pipeline;
         this._compUniforms.clear();
         this._compUniformArrays.clear();
-        // A new pipeline holds none of the buffered values yet.
         this._appliedUniforms.clear();
         this._appliedUniformArrays.clear();
         if (pipeline)
@@ -514,21 +491,14 @@ export class UniformState {
         this._uniformsDirty = false;
     }
 
-    // Uniform locations in the current pipeline.
     _compUniforms = new Map();
     _compUniformArrays = new Map();
-    // Every value set so far, kept so a new pipeline can be seeded with them.
     _pendingUniforms = new Map();
     _pendingUniformArrays = new Map();
-    // What the pipeline currently holds, so flush() (every paint) writes only
-    // changed values instead of about 60 scalars and 8 arrays.
     _appliedUniforms = new Map();
     _appliedUniformArrays = new Map();
-    // Set when a value actually changed; the glass repaints only then.
-    // Changes behind the glass arrive through the relays, not here.
     _uniformsDirty = false;
 
-    // Sets a float uniform, buffered until attach() provides a pipeline.
     set(name, value) {
         if (this._pendingUniforms.get(name) === value)
             return;
@@ -562,7 +532,6 @@ export class UniformState {
         }
     }
 
-    // Sets a float array uniform (e.g. region_x[16]), buffered like set().
     setArray(name, values) {
         const prev = this._pendingUniformArrays.get(name);
         if (prev && prev.length === values.length) {
@@ -576,7 +545,6 @@ export class UniformState {
             if (same)
                 return;
         }
-        // Callers reuse their arrays, so keep a copy to compare against.
         this._pendingUniformArrays.set(name, values.slice());
         this._uniformsDirty = true;
         if (this._pipeline) {
@@ -626,7 +594,6 @@ export class MaterialSettings {
     }
 
     initialize() {
-        // Buffered until the pipeline exists.
         this._uniforms.set('resolution_x', 0.0);
         this._uniforms.set('resolution_y', 0.0);
         this._uniforms.set('corner_radius', 60.0);
@@ -634,42 +601,29 @@ export class MaterialSettings {
         this._uniforms.set('contrast', 1.0);
         this._uniforms.set('saturation', 1.0);
         this._uniforms.set('padding', 20.0);
-        // How far the drop shadow can extend before the glass actor's clip,
-        // unlike the small optical 'padding'. The managers set the real value.
         this._uniforms.set('shadow_max_radius', 180.0);
         this._uniforms.set('isDock', 0.0);
-        // Rim, specular and sheen highlights. Application windows turn them off
-        // and keep only the drop shadow and the inner AO.
         this._uniforms.set('surface_light_enabled', 1.0);
-        // Application windows turn continuous corners off to match the window.
         this._uniforms.set('corner_smoothing_enabled', 1.0);
-        // No outline until a surface's settings ask for one.
         this._uniforms.set('outline_width', 0.0);
         this._uniforms.set('outline_r', 1.0);
         this._uniforms.set('outline_g', 1.0);
         this._uniforms.set('outline_b', 1.0);
-        // Where the glass sits inside the actor, which for the UI glass covers
-        // the monitor.
         this._uniforms.set('dock_x', 0.0);
         this._uniforms.set('dock_y', 0.0);
         this._uniforms.set('dock_w', 0.0);
         this._uniforms.set('dock_h', 0.0);
-        // One glass per region, for Quick Settings' toggle-button mode.
         this._uniforms.set('multi_region_mode', 0.0);
         this._uniforms.set('region_count', 0.0);
-        // Speech-bubble pointer off unless requested by tooltip glass.
         this._uniforms.set('tooltip_pointer_side', 0.0);
         this._uniforms.set('tooltip_pointer_size', 0.0);
         this._uniforms.set('tooltip_pointer_offset', 0.0);
-        // An unset uniform reads 0.0, which would disable these.
         this._uniforms.set('early_exit_enabled', 1.0);
         this._uniforms.set('debug_view', 0.0);
-        // Zero means the whole actor until the paint path computes the rect.
         this._uniforms.set('blur_rect_x', 0.0);
         this._uniforms.set('blur_rect_y', 0.0);
         this._uniforms.set('blur_rect_w', 0.0);
         this._uniforms.set('blur_rect_h', 0.0);
-        // Set on every paint, once layer 1's size is known.
         this._uniforms.set('blur_tex_w', 0.0);
         this._uniforms.set('blur_tex_h', 0.0);
         this._uniforms.set('edge_taps_enabled', 1.0);
@@ -683,7 +637,6 @@ export class MaterialSettings {
             this._bindSettings();
         }
         else {
-            // Without settings, the schema's defaults.
             this._uniforms.set('max_z', 88.0);
             this._uniforms.set('displacement_scale', 10.5);
             this._uniforms.set('edge_smoothing', 0.5);
@@ -746,8 +699,6 @@ export class MaterialSettings {
             return;
         mappings.forEach(map => {
             this._uniforms.set(map.uniform, settings.get_double(map.key));
-            // Without a repaint only the parts of the glass that something else
-            // damaged would pick up the new value.
             const id = settings.connect(`changed::${map.key}`, () => {
                 this._uniforms.set(map.uniform, settings.get_double(map.key));
                 this._repaintIfDirty();
@@ -763,8 +714,6 @@ export class MaterialSettings {
             this._repaintIfDirty();
         });
         this._settingsIds.push(highlightsId);
-        // 2 = half resolution, 4 = quarter. Read before blur-method, since the
-        // Gaussian kernel is expressed in texels of that level.
         const applyDownscale = () => {
             const factor = settings.get_int('glass-blur-downscale') >= 4 ? 4 : 2;
             this._blur.setDownscale(factor);
@@ -772,7 +721,6 @@ export class MaterialSettings {
         applyDownscale();
         const downscaleId = settings.connect('changed::glass-blur-downscale', applyDownscale);
         this._settingsIds.push(downscaleId);
-        // 0 = Gaussian, 1 = Dual Kawase.
         const applyBlurMethod = () => {
             const raw = settings.get_int('blur-method');
             this._blur.setBlurMethod(raw === 0 ? 0 : 1);
@@ -780,7 +728,6 @@ export class MaterialSettings {
         applyBlurMethod();
         const blurMethodId = settings.connect('changed::blur-method', applyBlurMethod);
         this._settingsIds.push(blurMethodId);
-        // Cached, so the paint path does not query GSettings.
         const applyDiagFlag = () => {
             this._setDiagnostics(settings.get_boolean('glass-debug-diagnostics'));
         };
@@ -795,15 +742,10 @@ export class MaterialSettings {
             return false;
         this._uniforms.set('displacement_scale', settings.get_double('glass-displacement-scale') * scale);
         this._uniforms.set('max_z', settings.get_double('glass-max-z') * scale);
-        // The color separation is a fraction of the displacement, so it already
-        // scales with it.
         return true;
     }
 }
 
-// Keeps the outline uniforms of one glass in step with its surface's
-// `<prefix>-outline-*` settings. A width of 0 is how the shader turns the
-// outline off.
 export class OutlineBinding {
     _settings;
     _prefix;

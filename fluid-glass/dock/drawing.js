@@ -56,10 +56,8 @@ function draw_rounded_rect(
   ctx.setLineWidth(line_width || 0);
   ctx.moveTo(border_radius, 0);
   ctx.lineTo(h_size - border_radius, 0);
-  // ctx.lineTo(h_size, border_radius);
   ctx.curveTo(h_size - border_radius, 0, h_size, 0, h_size, border_radius);
   ctx.lineTo(h_size, v_size - border_radius);
-  // ctx.lineTo(h_size - border_radius, h_size);
   ctx.curveTo(
     h_size,
     v_size - border_radius,
@@ -69,7 +67,6 @@ function draw_rounded_rect(
     v_size
   );
   ctx.lineTo(border_radius, v_size);
-  // ctx.lineTo(0, h_size - border_radius);
   ctx.curveTo(border_radius, v_size, 0, v_size, 0, v_size - border_radius);
   ctx.lineTo(0, border_radius);
   ctx.curveTo(0, border_radius, 0, 0, border_radius, 0);

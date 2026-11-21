@@ -1,23 +1,3 @@
-// FluidGlassSystemMenu — Stage 3, Tahoe visual pass.
-//
-// The macOS Apple-menu analogue on the far left: a logo button whose popup holds
-// About / Settings / App Center, Recent Items, Force Quit, and the power/session
-// actions (Sleep / Restart / Shut Down / Lock / Log Out).  The popup uses its
-// own tightly-scoped actor classes: GNOME's stock popup metrics are almost twice
-// as tall as the compact menu in the macOS reference and must not leak in here.
-//
-// Principles:
-//   • Power/session items reuse GNOME's own SystemActions (misc/systemActions.js)
-//     — it handles availability ("can-*") and the confirmation dialogs, exactly
-//     like Quick Settings. We never re-implement logind/session D-Bus by hand.
-//   • Native program launchers are shown only when installed; App Center uses
-//     the desktop's appstream:// handler so distro-specific stores still work.
-//   • The logo is user-configurable and defaults to the neutral distributor icon
-//     `start-here-symbolic` — never a bundled Apple asset.
-//   • Full teardown: destroy() disconnects every signal we made, then the
-//     PanelMenu.Button base tears down the actor + menu, and Panel.addToStatusArea
-//     removes us from statusArea automatically on that destroy.
-
 import Cairo from 'gi://cairo';
 import Clutter from 'gi://Clutter';
 import GdkPixbuf from 'gi://GdkPixbuf';
@@ -44,22 +24,10 @@ import {
 
 const FALLBACK_LOGO = 'start-here-symbolic';
 
-// os-release LOGO= is "the name of an icon as defined by freedesktop.org Icon
-// Theme Specification", and it is optional. So the logo has to be looked up the
-// way the spec says — hicolor at whatever size the distribution installed, plus
-// /usr/share/pixmaps — and not assumed to live at one fixed path.
-//
-// Looking it up by NAME through the active icon theme would be wrong here: a
-// themed name is whatever the theme decides, and Apple-styled themes map
-// `start-here-symbolic` to an Apple glyph, which is what users saw by default.
-// Reading the file out of hicolor keeps the distributor's own artwork whatever
-// theme is set.
 const LOGO_HICOLOR_ROOTS = [
     '/usr/share/icons/hicolor',
     '/usr/local/share/icons/hicolor',
 ];
-// Not spec-compliant, but real: CachyOS drops its logo straight into
-// /usr/share/icons, and several distributions use /usr/share/pixmaps.
 const LOGO_FLAT_DIRS = [
     '/usr/share/pixmaps',
     '/usr/share/icons',
@@ -77,14 +45,13 @@ function findLogoIn(dir, names) {
     return null;
 }
 
-/** Scalable first, then the largest raster size the theme directory offers. */
 function findLogoInHicolor(root, names) {
     let children;
     try {
         children = Gio.File.new_for_path(root).enumerate_children(
             'standard::name', Gio.FileQueryInfoFlags.NONE, null);
     } catch (_e) {
-        return null;   // root absent on this system
+        return null;
     }
 
     let best = null;
@@ -111,11 +78,6 @@ function findLogoInHicolor(root, names) {
     return best;
 }
 
-/**
- * The distributor's own logo as a file path.
- *
- * @returns {?string} path to the logo, or null when none is installed
- */
 function distributorLogoPath(extensionDir = null) {
     const info = key => {
         try {
@@ -152,9 +114,6 @@ function distributorLogoPath(extensionDir = null) {
     if (!names.length)
         return null;
 
-    // Prefer bundled clean symbolic distro SVGs first so opaque square/circle
-    // distro badges (e.g. Ubuntu's pixmap/hicolor badge) never silhouette into
-    // a solid block.
     const distrosDir = extensionDir?.get_child('icons')?.get_child('distros');
     if (distrosDir) {
         for (const name of names) {
@@ -167,7 +126,6 @@ function distributorLogoPath(extensionDir = null) {
         }
     }
 
-    // Prefer -symbolic assets in hicolor/flat dirs before full-colour artwork.
     const searchNames = [];
     for (const name of names) {
         if (!name.endsWith('-symbolic'))
@@ -196,11 +154,6 @@ function distributorLogoPath(extensionDir = null) {
     return null;
 }
 
-/**
- * If a logo file is a solid filled badge (square/circle with >= 65% opaque
- * coverage and an inner contrasting emblem), extract only the inner emblem into
- * an alpha mask surface so cr.maskSurface never paints a solid grey block.
- */
 function extractBadgeEmblemMask(path, width, height) {
     try {
         const pb = GdkPixbuf.Pixbuf.new_from_file_at_scale(path, width, height, true);
@@ -237,8 +190,6 @@ function extractBadgeEmblemMask(path, width, height) {
         if (opaqueCount / total < 0.65)
             return null;
 
-        // Find dominant badge fill color via quantized 32-level histogram so
-        // anti-aliased edge pixels do not skew the background color.
         const bins = new Map();
         let bestKey = 0;
         let bestCount = 0;
@@ -310,11 +261,6 @@ function extractBadgeEmblemMask(path, width, height) {
     }
 }
 
-/**
- * Render an SVG file directly in-process via librsvg onto an ARGB32 Cairo
- * surface. Avoids GdkPixbuf/glycin's bubblewrap sandbox, which cannot spawn
- * inside the unprivileged gdm-greeter user session on GNOME 50+.
- */
 function renderSvgToCairoSurface(path, width, height) {
     try {
         const handle = Rsvg.Handle.new_from_file(path);
@@ -333,10 +279,6 @@ function renderSvgToCairoSurface(path, width, height) {
     }
 }
 
-/**
- * Paint a coloured SVG logo file in-process via librsvg at full device-pixel
- * resolution without relying on GdkPixbuf/glycin-svg.
- */
 function newColouredSvgLogo(path) {
     const area = new St.DrawingArea({
         style_class: 'system-status-icon fluid-glass-system-logo-silhouette',
@@ -370,20 +312,6 @@ function newColouredSvgLogo(path) {
     return area;
 }
 
-/**
- * Paint a logo file as a flat silhouette in the panel's foreground colour.
- *
- * Distributor logos are full-colour artwork — CachyOS ships 74 shapes and
- * gradients — and next to a bar of monochrome glyphs a colour logo is the one
- * thing that does not belong. St only recolours icons a theme marks symbolic,
- * and no distribution ships a symbolic variant, so we collapse the artwork
- * ourselves: take its ALPHA as a Cairo mask and fill with the theme foreground.
- * Whatever the logo is made of, the result is one flat shape the colour of the
- * text beside it, and it follows light/dark and the adaptive contrast pass.
- *
- * @param {string} path logo file to silhouette
- * @returns {St.DrawingArea|null} the actor to mount, or null if unusable
- */
 function newLogoSilhouette(path) {
     const area = new St.DrawingArea({
         style_class: 'system-status-icon fluid-glass-system-logo-silhouette',
@@ -436,8 +364,6 @@ function newLogoSilhouette(path) {
                 return;
             }
 
-            // St.DrawingArea hands us DEVICE pixels, so rasterise the source at
-            // the same scale to keep the silhouette's edge crisp.
             const scale =
                 St.ThemeContext.get_for_stage(global.stage).scale_factor || 1;
             const surface = St.TextureCache.get_default()
@@ -491,12 +417,9 @@ export const FluidGlassSystemMenu = GObject.registerClass({
             });
     }
 
-    // ---- Logo ---------------------------------------------------------------
-
     _buildLogo() {
         const value = this._logoSetting();
 
-        // An emoji / symbol glyph renders as text, not an icon.
         if (value && !this._isIconLike(value)) {
             return new St.Label({
                 text: value,
@@ -505,17 +428,12 @@ export const FluidGlassSystemMenu = GObject.registerClass({
             });
         }
 
-        // No user choice: the distributor's own logo, silhouetted so it sits
-        // in a monochrome bar. A logo the user picked by hand is shown as they
-        // chose it.
         if (!value) {
             const distro = distributorLogoPath(this._extension?.dir);
             if (distro)
                 return newLogoSilhouette(distro);
         }
 
-        // The logo reads slightly larger than a status glyph in the reference
-        // bar, so it carries its own size class (see stylesheet.css).
         if (value && (value.startsWith('/') || value.startsWith('~') ||
                       value.startsWith('file:'))) {
             const path = value.startsWith('~')
@@ -558,8 +476,6 @@ export const FluidGlassSystemMenu = GObject.registerClass({
         });
     }
 
-    // An icon-theme name or a file path (vs. an emoji/symbol glyph). Kept in
-    // sync with prefs.js isIconLike().
     _isIconLike(v) {
         if (!v)
             return false;
@@ -575,7 +491,6 @@ export const FluidGlassSystemMenu = GObject.registerClass({
             if (greeterPrefs && typeof greeterPrefs['system-menu-icon'] === 'string')
                 return greeterPrefs['system-menu-icon'];
         }
-        // Defensive: settings only work if the schema is compiled/installed.
         try {
             const settings = this._extension?.getSettings?.();
             const v = settings?.get_string('system-menu-icon') ?? '';
@@ -586,8 +501,6 @@ export const FluidGlassSystemMenu = GObject.registerClass({
             return '';
         }
     }
-
-    // ---- Menu ---------------------------------------------------------------
 
     _styleMenu() {
         const clearStyle = 'background: transparent !important; background-color: transparent !important; background-image: none !important; border: none !important; box-shadow: none !important; -boxpointer-gap: 0px;';
@@ -615,17 +528,9 @@ export const FluidGlassSystemMenu = GObject.registerClass({
             }
         });
 
-        // Tahoe's menu is a single continuous translucent material; the CSS
-        // tint carries it alone. There is no backdrop blur: PopupMenu sits on a
-        // BoxPointer, which sets OffscreenRedirect.ALWAYS, so a BACKGROUND-mode
-        // Shell.BlurEffect has nothing behind it in that framebuffer to sample.
-        // One used to be attached here and never did anything — docs/DESIGN_QA.md,
-        // Pass 8.
     }
 
     _buildMenu() {
-        // The visible labels and group boundaries follow the Tahoe system menu.
-        // Actions still resolve to their GNOME equivalents.
         this._userOnlyItems = [];
         this._lockHiddenItems = [];
 
@@ -661,7 +566,6 @@ export const FluidGlassSystemMenu = GObject.registerClass({
         this.menu.addMenuItem(sep1);
         addUserOnly(sep1);
 
-        // Force Quit the focused window (sensitivity refreshed on open).
         this._forceQuitItem = addUserOnly(this._addItem(_('Force Quit…'),
             'process-stop-symbolic',
             () => this._forceQuitFocused()));
@@ -670,8 +574,6 @@ export const FluidGlassSystemMenu = GObject.registerClass({
         this.menu.addMenuItem(sep3);
         addUserOnly(sep3);
 
-        // Power / session — via GNOME's SystemActions.
-        // Hidden on the lock screen (isLocked && !isGreeter), kept on login screen (isGreeter) and unlocked desktop.
         addLockHidden(this._addActionItem(_('Sleep'), 'weather-clear-night-symbolic',
             'canSuspend', 'can-suspend',
             () => this._systemActions.activateSuspend()));
@@ -835,16 +737,12 @@ export const FluidGlassSystemMenu = GObject.registerClass({
                 item.visible = show;
         }
 
-        // On the lock screen (not login screen), all items have no use and are hidden,
-        // so hide the menu button container or disable opening empty menu.
         if (isLockScreen && this.menu?.isOpen)
             this.menu.close();
         this.reactive = !isLockScreen;
         this.can_focus = !isLockScreen;
         this.track_hover = !isLockScreen;
     }
-
-    // ---- Teardown -----------------------------------------------------------
 
     destroy() {
         if (this._openStateId) {

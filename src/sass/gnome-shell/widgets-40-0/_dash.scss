@@ -1,6 +1,6 @@
 $dash_background_color: rgba(white, 0.15);
 $dash_placeholder_size: 32px;
-$dash_padding: $base_padding + 4px; // 10px/8px
+$dash_padding: $base_padding + 4px;
 $dash_spacing: $base_padding / 4;
 $dash_bottom_margin: $base_margin * 4;
 $dash_border_radius: $dash_padding * 1.5 + 12px;
@@ -15,7 +15,6 @@ $dash_border_radius: $dash_padding * 1.5 + 12px;
     height: $dash_placeholder_size;
   }
 
-  // Running app indicator (shown in dash)
   .app-well-app-running-dot {
     margin-bottom: 0;
   }
@@ -27,7 +26,6 @@ $dash_border_radius: $dash_padding * 1.5 + 12px;
     border-radius: $dash_border_radius;
   }
 
-  // Dash Items
   .dash-item-container {
     margin: 0 $dash_spacing;
 

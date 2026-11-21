@@ -1,6 +1,3 @@
-/* Looking Glass */
-
-// Dialog
 #LookingGlassDialog {
   background-color: $solid_osd_bg_color;
   spacing: $base_padding;
@@ -110,7 +107,6 @@
   &:hover { border: none; }
 }
 
-// Extensions
 #lookingGlassExtensions {
   padding: $base_padding;
 }
@@ -139,7 +135,6 @@
   spacing: $base_padding;
 }
 
-// Inspector
 #LookingGlassPropertyInspector {
   background: lighten($solid_osd_bg_color, 5%);
   border: 1px solid black;

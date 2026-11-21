@@ -1,13 +1,9 @@
-/* Message List */
-// a.k.a. notifications in the menu
-
 .message-list {
   width: 29em;
   padding: 0 $base_margin;
   text-shadow: none;
   border: none;
 
-  // padding and margins to account for scrollbar
   &:ltr {
     margin-left: 0;
     margin-right: 0;
@@ -26,9 +22,8 @@
     @extend %title_2;
     color: $disabled_fg_color;
 
-    // icon size and color
     > StIcon {
-      icon-size: 96px; // 48px
+      icon-size: 96px;
       margin-bottom: $base_margin * 3;
       -st-icon-style: symbolic;
     }
@@ -38,7 +33,6 @@
 .message-list-sections {
   spacing: $base_padding * 2;
 
-  // to account for scrollbar
   &:ltr { margin-right: $base_margin * 3; }
   &:rtl { margin-left: $base_margin * 3; }
 }
@@ -48,18 +42,13 @@
   spacing: $base_padding * 2;
 }
 
-// do-not-disturb + clear button
 .message-list-controls {
-  // NOTE: remove the padding if notification_bubble could remove margin for drop shadow
   padding: $base_padding * 2;
   padding-bottom: $base_padding;
   spacing: $base_padding;
   @extend %heading;
 
   .dnd-button {
-    // We need this because the focus outline isn't inset like for the buttons
-    // so the dnd button would grow when it gets focus if we didn't change only
-    // its color when focusing.
     border-width: 2px;
     border-color: transparent;
     border-radius: 32px;
@@ -83,7 +72,6 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
   margin: $base_margin;
   background-color: $card_bg;
   box-shadow: 0 1px 2px 0 rgba(black, 0.02);
-  // bit of a hack here with border since we can't have double box-shadow
   color: $alt_fg_color;
 
   &:hover, &:focus {
@@ -105,7 +93,6 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
   }
 }
 
-// message bubbles
 .message {
   border: 1px solid transparent;
   border-left: none;
@@ -114,11 +101,9 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
     @extend %card;
   }
 
-  // subtract side padding to accommodate the close button's border
   &:ltr { padding-right:-2px; }
   &:rtl { padding-left:-2px; }
 
-  // message header
   .message-header {
     padding: 0 $scaled_padding;
     margin: $base_padding;
@@ -126,28 +111,23 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
     spacing: $base_padding;
     color: $disabled_fg_color;
 
-    // header source icon
     .message-source-icon {
-      icon-size: $scalable_icon_size; // 16px
+      icon-size: $scalable_icon_size;
       -st-icon-style: symbolic;
     }
 
-    // box that contains the source icon, source name and timestamp of the message
     .message-header-content {
       spacing: $base_padding;
       min-height: to_em(24px);
       padding-bottom: $base_padding;
 
-      // header source title
       .message-source-title {
         font-weight: bold;
       }
 
-      // Time label
       .event-time {
         @extend %caption;
         color: $disabled_fg_color;
-        // Add bottom padding to align the app name with the time horizontally
         padding-bottom: to_em(1px);
 
         &:ltr { text-align: right; }
@@ -155,7 +135,6 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
       }
     }
 
-    // buttons in the message header
     .message-expand-button,
     .message-close-button {
       @extend .icon-button;
@@ -176,24 +155,21 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
     }
   }
 
-  // container for message contents
   .message-box {
     padding: $base_padding;
     margin: $base_padding;
     margin-top: 0;
     spacing: $base_padding;
 
-    // icon of the message
     .message-icon {
       &:ltr { margin-right:$base_padding; }
       &:rtl { margin-left:$base_padding; }
 
-      // icon size and color
-      icon-size: $base_icon_size * 3; // 48px
+      icon-size: $base_icon_size * 3;
       -st-icon-style: symbolic;
 
       &.message-themed-icon {
-        border-radius: $circular_radius; // is circular
+        border-radius: $circular_radius;
         background-color: transparentize($fg_color, 0.8);
         icon-size: $base_icon_size;
         min-width: $base_icon_size * 3;
@@ -201,16 +177,13 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
       }
     }
 
-    // If the header isn't displayed we need more top margin
     &:first-child {
       margin-top: $base_padding * 2;
     }
 
-    // text of the message
     .message-content {
       spacing: $base_margin;
 
-      // message title
       .message-title {
         font-weight: bold;
       }
@@ -223,7 +196,6 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
     > .event-time {
       color: $hint_fg_color;
       font-size: 1em;
-      /* HACK: the label should be baseline-aligned with a 1em label, fake this with some bottom padding */
       padding-bottom: 0.13em;
 
       &:ltr { text-align: right; }
@@ -232,7 +204,6 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
   }
 }
 
-// URLs in messages
 .url-highlighter {
   link-color: $link_color;
 }
@@ -250,12 +221,11 @@ $card_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8
 }
 
 .media-message {
-  // album-art
   .message-icon {
     border-radius: $bt_radius !important;
 
     &.message-themed-icon {
-      icon-size: $large_icon_size !important; // 32px
+      icon-size: $large_icon_size !important;
     }
   }
 }

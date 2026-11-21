@@ -1,30 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// ControlCenter — Stage 6 + custom macOS Tahoe Control Center (phase 3).
-//
-// Only mounted when `control-center-mode` is 'custom'. In 'native' mode the
-// PanelController does not create this button at all and GNOME's own Quick
-// Settings indicator is left in the bar to do the job — two triggers for one
-// popup was a duplicate, not a feature.
-//
-// The popup is a Tahoe-style composition (capsule modules + slider cards); the
-// controller hides GNOME's own QS indicators and creates separate Wi-Fi/battery
-// status menus beside this button. Controls are wired to existing backends only
-// (no daemon reimplemented): Gvc volume, Power/brightnessctl brightness, NM
-// Wi-Fi, GNOME Rfkill BT, MPRIS media and gsettings dark/DND.
-//
-// Third-party extensions reach the popup two ways: an adapter drives the ones
-// we know through their own settings contract (src/services/extensionAdapters.js),
-// and everything else is mirrored generically from its Quick Settings tile
-// (src/services/quickSettingsBridge.js). Their actors are never adopted, and an
-// adapter supersedes the mirror of the same extension.
-//
-// Every backend is optional; a tile/card hides when its hardware or service is
-// absent (a desktop has no backlight, often no Wi-Fi or Bluetooth), and the
-// grid (ccGrid.js) closes the gap it would leave.
-// Actor construction and popup opening are exercised in a headless GNOME 50
-// session; `control-center-mode = native` remains the compatibility fallback.
-
 import Cairo from 'cairo';
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
@@ -62,14 +35,6 @@ const BACK_GLASS_KEY = 'control-center-back-glass';
 const ORDER_KEY = 'control-center-controls';
 const SIZES_KEY = 'control-center-control-sizes';
 
-// Reading order that reproduces
-// docs/audits/tahoe-reference/26-Tahoe-Finder-Control-Center.png on the grid:
-//   Wi-Fi       | Now Playing
-//   Bluetooth   | Now Playing
-//   AirDrop     | Stage Manager, Screen Mirroring
-//   Dark, Shot  | Focus
-// Only one of Wi-Fi and the wired network is ever available. Keep in step with
-// the schema defaults.
 const DEFAULT_ORDER = Object.freeze([
     'wifi', 'network', 'media', 'bluetooth', 'airdrop', 'stage-manager',
     'screen-mirroring', 'dark-mode', 'screenshot', 'focus', 'display', 'sound',
@@ -90,17 +55,12 @@ const DEFAULT_SIZES = Object.freeze({
     'night-light': 'small',
 });
 
-// Profiles power-profiles-daemon documents; each has an Adwaita glyph.
 const POWER_PROFILES = new Set(['power-saver', 'balanced', 'performance']);
 
 const COLOR_SCHEMA = 'org.gnome.settings-daemon.plugins.color';
 
-// The grid cells a size occupies, as the editor names them.
 const SIZE_LABELS = Object.freeze({small: '1×1', wide: '2×1', large: '2×2'});
 
-// GNOME has no AirDrop of its own, and its Sharing panel is about host name,
-// media and remote desktop, not sending files. The capsule therefore opens the
-// first nearby-sharing app that is installed, in this order of preference.
 const AIRDROP_APP_IDS = [
     'localsend.desktop',
     'org.localsend.localsend_app.desktop',
@@ -108,6 +68,8 @@ const AIRDROP_APP_IDS = [
     'org.kde.kdeconnect.app.desktop',
     'bluetooth-sendto.desktop',
 ];
+
+const _tahoeIconCache = new Map();
 
 export const ControlCenter = GObject.registerClass(
 class ControlCenter extends PanelMenu.Button {
@@ -117,28 +79,28 @@ class ControlCenter extends PanelMenu.Button {
 
         this._extension = extension;
         this._openId = 0;
+        this._springOpenId = 0;
+        this._springTickId = 0;
         this._serviceIds = [];
         this._gsettingsIds = [];
-        this._extensionTiles = new Map();   // entry key -> our capsule
-        this._extensionEntries = new Map(); // entry key -> current entry
-        this._extensionOrder = [];          // entry keys in display order
-        this._controls = new Map();         // control id -> descriptor
+        this._extensionTiles = new Map();
+        this._extensionEntries = new Map();
+        this._extensionOrder = [];
+        this._controls = new Map();
         this._settings = null;
         this._settingsIds = [];
         this._glassSettingsIds = [];
-        this._localOrder = null;            // used only without the schema key
+        this._localOrder = null;
         this._localSizes = null;
         this._editing = false;
         this._selected = null;
         this._galleryKey = null;
         this._syncing = false;
+        this._syncDirty = false;
         this._disposed = false;
         this._glassHandle = null;
         this._adaptive = null;
 
-        // When the Shell tears the stage down, Clutter destroys these actors
-        // from C without calling destroy() below, and a service can still emit
-        // `changed` afterwards. The signal runs before the children die.
         this.connect('destroy', () => {
             this._disposed = true;
         });
@@ -147,8 +109,6 @@ class ControlCenter extends PanelMenu.Button {
     }
 
     _buildCustom() {
-        // In Tahoe the Control Center glyph, Wi-Fi and battery are three
-        // independent menu-bar items. PanelController owns the latter two.
         this.add_child(_newControlCenterIcon());
 
         try {
@@ -198,8 +158,6 @@ class ControlCenter extends PanelMenu.Button {
 
         this._iface = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
         this._notif = new Gio.Settings({schema_id: 'org.gnome.desktop.notifications'});
-        // Night Light belongs to gnome-settings-daemon, which a non-GNOME
-        // session may lack; opening a missing schema would abort the Shell.
         const color = Gio.SettingsSchemaSource.get_default()
             ?.lookup(COLOR_SCHEMA, true);
         this._color = color?.has_key('night-light-enabled')
@@ -226,6 +184,10 @@ class ControlCenter extends PanelMenu.Button {
             this._serviceIds.push([this._volume, this._volume.connect('changed', () => {
                 if (this._disposed)
                     return;
+                if (!this.menu?.isOpen) {
+                    this._syncDirty = true;
+                    return;
+                }
                 const prevVolAvail = this._controls.get('sound')?.available;
                 const prevMicAvail = this._controls.get('microphone')?.available;
                 this._setCard('sound', this._volume.available,
@@ -240,6 +202,10 @@ class ControlCenter extends PanelMenu.Button {
             this._serviceIds.push([this._brightness, this._brightness.connect('changed', () => {
                 if (this._disposed)
                     return;
+                if (!this.menu?.isOpen) {
+                    this._syncDirty = true;
+                    return;
+                }
                 const prevAvail = this._controls.get('display')?.available;
                 this._setCard('display', this._brightness.available,
                     this._brightness.level,
@@ -252,6 +218,10 @@ class ControlCenter extends PanelMenu.Button {
             this._serviceIds.push([this._media, this._media.connect('changed', () => {
                 if (this._disposed)
                     return;
+                if (!this.menu?.isOpen) {
+                    this._syncDirty = true;
+                    return;
+                }
                 this._mediaCard.setTrack(this._media.title, this._media.artist,
                     this._media.artUrl, this._media.playing);
             })]);
@@ -259,17 +229,17 @@ class ControlCenter extends PanelMenu.Button {
         for (const svc of [this._net,
             this._powerProfiles, this._qsBridge, this._adapters]) {
             if (svc && typeof svc.connect === 'function')
-                this._serviceIds.push([svc, svc.connect('changed', () => this._sync())]);
+                this._serviceIds.push([svc, svc.connect('changed', () => this._requestSync())]);
         }
         for (const s of [this._iface, this._notif, this._color].filter(Boolean))
-            this._gsettingsIds.push([s, s.connect('changed', () => this._sync())]);
+            this._gsettingsIds.push([s, s.connect('changed', () => this._requestSync())]);
         const appSystem = Shell.AppSystem.get_default();
         this._serviceIds.push([appSystem,
-            appSystem.connect('installed-changed', () => this._sync())]);
+            appSystem.connect('installed-changed', () => this._requestSync())]);
         for (const key of [ORDER_KEY, SIZES_KEY]) {
             if (this._settings)
                 this._settingsIds.push(this._settings.connect(`changed::${key}`,
-                    () => this._sync()));
+                    () => this._requestSync()));
         }
 
         this._openId = this.menu.connect('open-state-changed', (_m, open) => {
@@ -277,14 +247,22 @@ class ControlCenter extends PanelMenu.Button {
                 this._setEditing(false);
             } else {
                 this._brightness.refresh?.();
-                // Idempotent: re-attaches if Quick Settings was rebuilt (or was
-                // not there yet) since the popup was last opened.
                 this._qsBridge.enable();
                 this._adapters.enable();
                 this._sync();
             }
         });
 
+        this._sync();
+    }
+
+    _requestSync() {
+        if (this._disposed)
+            return;
+        if (!this.menu?.isOpen) {
+            this._syncDirty = true;
+            return;
+        }
         this._sync();
     }
 
@@ -306,14 +284,10 @@ class ControlCenter extends PanelMenu.Button {
         this._wifiTile = this._tile(
             this._tahoeIcon('tahoe-wifi-symbolic.svg', 'network-wireless-signal-good-symbolic'),
             _('Wi-Fi'), () => this._net.setWifi(this._wifiTile.checked));
-        // A desktop on a cable has no Wi-Fi card to toggle. It gets the wired
-        // link instead, as a launcher into Settings → Network.
         this._wiredTile = this._tile('network-wired-symbolic',
             settingsText('Network'), () => this._openSettings('network'), false);
         this._btTile = this._tile('bluetooth-active-symbolic', _('Bluetooth'),
             () => this._net.setBluetooth(this._btTile.checked));
-        // AirDrop is a launcher, not a toggle: the sharing app owns its own
-        // visibility state, so the control must not latch when clicked.
         this._airDropTile = this._tile(
             this._tahoeIcon('tahoe-airdrop-symbolic.svg', 'network-transmit-receive-symbolic'),
             'AirDrop', () => this._openAirDrop(), false);
@@ -346,11 +320,6 @@ class ControlCenter extends PanelMenu.Button {
         this._airplaneTile = this._tile('airplane-mode-symbolic',
             shellText('Airplane Mode'),
             () => this._net.setAirplane(this._airplaneTile.checked));
-        // Power Mode steps through the daemon's profiles on each click, the
-        // way a one-button control can; the status line names the current one.
-        // The capsule is titled "Power" (Settings' own panel name): "Режим
-        // питания" does not fit a half-width capsule, and the status line
-        // already names the mode. The editor still calls it Power Mode.
         this._powerTile = this._tile('power-profile-balanced-symbolic',
             settingsText('Power'), () => this._cyclePowerProfile(), false);
         this._nightLightTile = this._tile('night-light-symbolic',
@@ -402,8 +371,6 @@ class ControlCenter extends PanelMenu.Button {
             ['dark-mode', this._darkTile, _('Dark Mode'), wide],
             ['screenshot', screenshot, _('Screenshot'), wide],
             ['focus', this._focusTile, _('Focus'), wide],
-            // Not in the default layout (it stays the Tahoe reference);
-            // offered in the editor's gallery.
             ['airplane', this._airplaneTile, shellText('Airplane Mode'), wide],
             ['power-mode', this._powerTile, settingsText('Power Mode'), wide],
             ['night-light', this._nightLightTile, shellText('Night Light'), wide],
@@ -421,8 +388,6 @@ class ControlCenter extends PanelMenu.Button {
             this._controls.set(id, control);
         }
 
-        // Grid controls, then the full-width sliders, then the editor's
-        // toolbar and gallery, which only exist while editing.
         this._grid = new CCGrid();
         content.add_child(this._grid);
         this._sliderBox = new St.BoxLayout({
@@ -538,15 +503,13 @@ class ControlCenter extends PanelMenu.Button {
             }
         }
 
-        // Liquid Glass spring open/close animation
         const spring = new Spring(120, 22, 1.0);
-        let tickId = 0;
         let lastTime = 0;
 
         const startSpring = targetValue => {
-            if (tickId !== 0) {
-                removeFrameTicker(tickId);
-                tickId = 0;
+            if (this._springTickId !== 0) {
+                removeFrameTicker(this._springTickId);
+                this._springTickId = 0;
             }
             if (!St.Settings.get().enable_animations) {
                 this.menu.box.set_scale(1.0, 1.0);
@@ -555,13 +518,17 @@ class ControlCenter extends PanelMenu.Button {
             }
             spring.target = targetValue;
             lastTime = GLib.get_monotonic_time();
-            tickId = addFrameTicker(() => {
+            this._springTickId = addFrameTicker(() => {
+                if (this._disposed || !this.menu?.box) {
+                    this._springTickId = 0;
+                    return GLib.SOURCE_REMOVE;
+                }
                 const currentTime = GLib.get_monotonic_time();
                 const elapsedMs = (currentTime - lastTime) / 1000;
                 lastTime = currentTime;
                 const frame = stepMenuSpring(spring, elapsedMs);
                 if (frame.stopped)
-                    tickId = 0;
+                    this._springTickId = 0;
 
                 this.menu.box.set_scale(frame.scale, frame.scale);
                 this.menu.box.opacity = frame.opacity;
@@ -578,7 +545,7 @@ class ControlCenter extends PanelMenu.Button {
             }, 16);
         };
 
-        this.menu.connect('open-state-changed', (_m, isOpen) => {
+        this._springOpenId = this.menu.connect('open-state-changed', (_m, isOpen) => {
             if (isOpen) {
                 this.menu.box.set_pivot_point(0.5, 0);
                 this._syncAppearance();
@@ -685,27 +652,35 @@ class ControlCenter extends PanelMenu.Button {
     }
 
     _tahoeIcon(filename, fallbackName = '') {
+        const key = `${filename}|${fallbackName}`;
+        if (_tahoeIconCache.has(key))
+            return _tahoeIconCache.get(key);
+        let result = fallbackName;
+        let found = false;
         try {
             const uri = new URL(`../icons/${filename}`, import.meta.url).href;
             const file = Gio.File.new_for_uri(uri);
-            if (file.query_exists(null))
-                return new Gio.FileIcon({file});
-        } catch (_e) {
-            // Fallback to extension path
-        }
-        try {
-            if (this._extension?.path) {
-                const path = GLib.build_filenamev([
-                    this._extension.path, 'topbar', 'icons', filename,
-                ]);
-                const file = Gio.File.new_for_path(path);
-                if (file.query_exists(null))
-                    return new Gio.FileIcon({file});
+            if (file.query_exists(null)) {
+                result = new Gio.FileIcon({file});
+                found = true;
             }
         } catch (_e) {
-            // Ignore
         }
-        return fallbackName;
+        if (!found) {
+            try {
+                if (this._extension?.path) {
+                    const path = GLib.build_filenamev([
+                        this._extension.path, 'topbar', 'icons', filename,
+                    ]);
+                    const file = Gio.File.new_for_path(path);
+                    if (file.query_exists(null))
+                        result = new Gio.FileIcon({file});
+                }
+            } catch (_e) {
+            }
+        }
+        _tahoeIconCache.set(key, result);
+        return result;
     }
 
     _tile(iconName, title, onClick, toggleMode = true) {
@@ -718,21 +693,12 @@ class ControlCenter extends PanelMenu.Button {
         return tile;
     }
 
-    // ---- Editor -------------------------------------------------------------
-
-    /**
-     * Wrap a control in a slot that carries its edit affordances: a shield that
-     * takes clicks while editing, so selecting a control never operates it, and
-     * Tahoe's remove badge on the top-left corner.
-     */
     _newSlot(control) {
         const slot = new St.Widget({
             layout_manager: new Clutter.BinLayout(),
             x_expand: true,
             x_align: Clutter.ActorAlign.FILL,
         });
-        // BinLayout fills a child only along axes it expands on; y_align FILL
-        // alone left a circle at its 24px natural height inside a 62px cell.
         control.actor.x_expand = true;
         control.actor.y_expand = true;
         control.actor.x_align = Clutter.ActorAlign.FILL;
@@ -833,14 +799,11 @@ class ControlCenter extends PanelMenu.Button {
         for (const control of this._controls.values()) {
             control.shield.visible = editing;
             control.remove.visible = editing;
-            // Keyboard focus belongs to the shield while editing.
             if (control.actor instanceof CCTile) {
                 control.actor.reactive = !editing;
                 control.actor.can_focus = !editing;
             }
         }
-        // Third-party toggles are not part of the saved layout; they stay
-        // where they are and simply cannot be operated while editing.
         for (const tile of this._extensionTiles.values())
             tile.reactive = !editing;
 
@@ -929,7 +892,6 @@ class ControlCenter extends PanelMenu.Button {
         }
     }
 
-    /** Controls a move can swap with: same section, present on this machine. */
     _peers(order, control) {
         return order.filter(id => {
             const other = this._controls.get(id);
@@ -947,7 +909,7 @@ class ControlCenter extends PanelMenu.Button {
             return false;
         if (control.slider)
             return (dir < 0 && index > 0) || (dir > 0 && index < peers.length - 1);
-        const step = 2; // Two capsules / half-columns per grid row
+        const step = 2;
         const targetIndex = index + dir * step;
         return targetIndex >= 0 && targetIndex < peers.length;
     }
@@ -1009,13 +971,6 @@ class ControlCenter extends PanelMenu.Button {
         this._setControlSizes(sizes);
     }
 
-    // ---- Saved layout -------------------------------------------------------
-
-    /**
-     * Writing a key the compiled schema lacks aborts the whole Shell, and a
-     * stale schema is exactly what an update leaves behind until the next
-     * login. Without the key the layout lives in memory for the session.
-     */
     _hasKey(key) {
         return Boolean(this._settings?.settings_schema?.has_key(key));
     }
@@ -1058,7 +1013,6 @@ class ControlCenter extends PanelMenu.Button {
         }
     }
 
-    /** Apply the saved order and sizes to the grid and the slider column. */
     _layoutControls() {
         const order = this._controlOrder();
         const sizes = this._controlSizes();
@@ -1097,7 +1051,6 @@ class ControlCenter extends PanelMenu.Button {
             grid.push({actor: control.slot, shape: control.shape});
         }
 
-        // Mirrored third-party toggles follow the user's controls as capsules.
         for (const key of this._extensionOrder) {
             const tile = this._extensionTiles.get(key);
             if (tile && tile.visible)
@@ -1229,11 +1182,10 @@ class ControlCenter extends PanelMenu.Button {
             this.menu._boxPointer.bin.set_style('background: transparent !important; background-color: transparent !important; box-shadow: none !important; border: none !important; padding: 0 !important;');
     }
 
-    // ---- Sync UI from backends ----------------------------------------------
-
     _sync() {
         if (this._disposed)
             return;
+        this._syncDirty = false;
         this._syncAppearance();
         this._syncing = true;
         try {
@@ -1253,22 +1205,17 @@ class ControlCenter extends PanelMenu.Button {
             this._setTile('bluetooth', this._net.bluetoothAvailable,
                 this._net.bluetoothEnabled,
                 this._net.bluetoothEnabled ? _('On') : _('Off'));
-            // Name the app the control will open, or fallback to Tahoe's
-            // "Contacts Only" with active circular badge.
             this._setTile('airdrop', true, true,
                 this._airDropApp()?.get_name() || _('Contacts Only'));
 
             const dark = this._iface.get_string('color-scheme') === 'prefer-dark';
             this._setTile('dark-mode', true, dark, '');
-            // The reference shows Focus as a bare label when it is off, and
-            // only names a mode once one is active.
             const dnd = !this._notif.get_boolean('show-banners');
             this._setTile('focus', true, dnd, dnd ? _('On') : '');
 
             this._setTile('airplane', this._net.airplaneAvailable,
                 this._net.airplaneEnabled,
                 this._net.airplaneEnabled ? _('On') : _('Off'));
-            // Tinted like GNOME's own toggle: anything but Balanced is "on".
             const profile = this._powerProfiles.activeProfile;
             this._setTile('power-mode', this._powerProfiles.available,
                 profile !== 'balanced', powerProfileShortLabel(profile));
@@ -1302,11 +1249,6 @@ class ControlCenter extends PanelMenu.Button {
         }
     }
 
-    /**
-     * Everything a third party contributes, adapters first. An adapter entry
-     * supersedes the generic mirror of the same extension's tile, so the two
-     * sources can never produce two capsules for one extension.
-     */
     _extensionEntryList() {
         const entries = [];
 
@@ -1319,8 +1261,6 @@ class ControlCenter extends PanelMenu.Button {
             entries.push({
                 key: item,
                 title: item.title ?? '',
-                // A QuickMenuToggle's sub-page stays in native Quick Settings;
-                // the subtitle is what it already uses to spell out its state.
                 subtitle: item.subtitle ?? '',
                 gicon: item.gicon,
                 active: item.checked,
@@ -1338,12 +1278,6 @@ class ControlCenter extends PanelMenu.Button {
             this._qsBridge.activate(key);
     }
 
-    /**
-     * Reconcile our capsules against the entries that exist right now: drop the
-     * gone, create the new, re-order and refresh the rest. We reconcile instead
-     * of rebuilding because `changed` also fires for a plain state flip, and
-     * rebuilding would drop hover/focus on every toggle.
-     */
     _syncExtensions() {
         const entries = this._extensionEntryList();
         const live = new Set(entries.map(entry => entry.key));
@@ -1356,7 +1290,6 @@ class ControlCenter extends PanelMenu.Button {
             tile.destroy();
         }
 
-        // Placement belongs to the grid; this only fixes the order.
         this._extensionOrder = [];
         for (const entry of entries) {
             const key = entry.key;
@@ -1366,8 +1299,6 @@ class ControlCenter extends PanelMenu.Button {
             if (!tile) {
                 tile = new CCTile(entry.iconName ?? 'applications-system-symbolic',
                     entry.title);
-                // Look the entry up on click rather than capturing it: entries
-                // are rebuilt on every sync, a tile is not.
                 tile.connect('clicked', () => {
                     if (!this._syncing)
                         this._activateExtensionEntry(key);
@@ -1394,7 +1325,6 @@ class ControlCenter extends PanelMenu.Button {
         this._extensionEntries.clear();
     }
 
-    /** Availability hides the control's slot in _layoutControls(). */
     _setTile(id, available, active, status) {
         const control = this._controls.get(id);
         control.available = available;
@@ -1405,8 +1335,6 @@ class ControlCenter extends PanelMenu.Button {
     _setCard(id, available, value, iconName) {
         const control = this._controls.get(id);
         const card = control.actor;
-        // Hidden rather than dimmed: a desktop monitor has no backlight to
-        // dim, and a disabled slider there is a control that can never work.
         control.available = available;
         card.setAvailable(available);
         if (available) {
@@ -1416,6 +1344,14 @@ class ControlCenter extends PanelMenu.Button {
     }
 
     destroy() {
+        if (this._springTickId) {
+            removeFrameTicker(this._springTickId);
+            this._springTickId = 0;
+        }
+        if (this._springOpenId) {
+            this.menu.disconnect(this._springOpenId);
+            this._springOpenId = 0;
+        }
         if (this._openId) {
             this.menu.disconnect(this._openId);
             this._openId = 0;
@@ -1469,19 +1405,6 @@ class ControlCenter extends PanelMenu.Button {
     }
 });
 
-/**
- * Draw the fixed Tahoe Control Center glyph ourselves. St.Icon delegates file
- * icons to the active icon theme, where an otherwise valid extension SVG can
- * resolve to a missing or transparent texture. DrawingArea keeps the glyph
- * independent from theme lookup while still inheriting the panel foreground.
- *
- * Geometry is measured off the reference bar and expressed in the icon's own
- * 16-unit grid: two stacked toggle switches filling about 12.5 x 12.5 units of
- * ink — an outlined switch whose knob rests at the leading edge above a filled
- * switch whose knob is knocked out at the trailing edge. The previous glyph
- * drew two hairline tracks instead, which read as half the height of the
- * reference and much lighter than the surrounding status icons.
- */
 const CC_TRACK_WIDTH = 12.4;
 const CC_TRACK_HEIGHT = 5.6;
 const CC_TRACK_GAP = 1.2;
@@ -1508,7 +1431,6 @@ function _newControlCenterIcon() {
         const px = v => offsetX + v * scale;
         const py = v => offsetY + v * scale;
 
-        // A capsule: a rectangle capped by two half circles.
         const capsule = (x, y, w, h) => {
             const r = h / 2;
             cr.newSubPath();
@@ -1528,7 +1450,6 @@ function _newControlCenterIcon() {
         cr.setSourceColor(color);
         cr.setLineWidth(CC_STROKE * scale);
 
-        // Upper switch: outline plus a solid knob at the leading edge.
         capsule(trackX + CC_STROKE / 2, upperY + CC_STROKE / 2,
             CC_TRACK_WIDTH - CC_STROKE, CC_TRACK_HEIGHT - CC_STROKE);
         cr.stroke();
@@ -1536,8 +1457,6 @@ function _newControlCenterIcon() {
             CC_KNOB_WIDTH, CC_KNOB_HEIGHT);
         cr.fill();
 
-        // Lower switch: solid, with the knob knocked out of the fill so the
-        // panel background shows through it the way the reference glyph does.
         cr.setFillRule(Cairo.FillRule.EVEN_ODD);
         capsule(trackX, lowerY, CC_TRACK_WIDTH, CC_TRACK_HEIGHT);
         capsule(trackX + CC_TRACK_WIDTH - knobInset - CC_KNOB_WIDTH,

@@ -1,9 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// BatteryService — UPower "DisplayDevice" (the aggregate battery GNOME shows).
-// Signatures verified live: Percentage (d), State (u), IsPresent (b),
-// IconName (s), TimeToEmpty/TimeToFull (x) and EnergyRate (d).
-
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 
@@ -55,9 +49,6 @@ export const BatteryService = GObject.registerClass({
         return Math.round(this._proxy?.Percentage ?? 0);
     }
 
-    // UPower's IconName only has coarse buckets (full/good/low/caution/empty),
-    // so 21% and 79% share a glyph.  Build the 10%-step name GNOME Shell's own
-    // indicator uses; `fallbackIconName` covers themes without those icons.
     get iconName() {
         const proxy = this._proxy;
         if (!proxy?.IsPresent)
@@ -65,13 +56,13 @@ export const BatteryService = GObject.registerClass({
         const level = Math.min(100,
             10 * Math.floor((proxy.Percentage ?? 0) / 10));
         switch (proxy.State) {
-        case 1: // charging
+        case 1:
             return level === 100
                 ? 'battery-level-100-charged-symbolic'
                 : `battery-level-${level}-charging-symbolic`;
-        case 4: // fully charged
+        case 4:
             return 'battery-level-100-charged-symbolic';
-        case 5: // pending charge: on AC but not charging
+        case 5:
             return `battery-level-${level}-plugged-in-symbolic`;
         default:
             return `battery-level-${level}-symbolic`;
@@ -84,7 +75,7 @@ export const BatteryService = GObject.registerClass({
 
     get charging() {
         const s = this._proxy?.State;
-        return s === 1 || s === 4; // charging | fully-charged
+        return s === 1 || s === 4;
     }
 
     get statusText() {

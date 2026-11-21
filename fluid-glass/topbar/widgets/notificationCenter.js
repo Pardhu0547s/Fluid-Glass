@@ -1,14 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// FluidGlassNotificationCenter — Tahoe-style clock surface.
-//
-// GNOME's DateMenuButton combines notifications, a calendar and displays in one
-// opaque BoxPointer.  Tahoe instead places independent cards directly over the
-// wallpaper.  This module keeps GNOME's notification model and action actors,
-// but presents them in a non-strut top-chrome overlay aligned to the right edge
-// of the primary monitor.  The native date menu remains alive and is restored
-// verbatim when the extension is disabled.
-
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
@@ -136,7 +125,6 @@ export class FluidGlassNotificationCenter {
                 this._settingsIds.push(this._settings.connect(
                     `changed::${key}`, () => this._rebuildWidgets()));
             } catch (_e) {
-                // New source with a stale compiled schema: use defaults.
             }
         }
 
@@ -189,8 +177,6 @@ export class FluidGlassNotificationCenter {
             style_class: 'fluid-glass-nc-column-scroll',
             overlay_scrollbars: true,
             hscrollbar_policy: St.PolicyType.NEVER,
-            // Keep wheel/touchpad scrolling, but Tahoe does not draw a
-            // persistent scrollbar beside the widget column.
             vscrollbar_policy: St.PolicyType.NEVER,
             width: COLUMN_WIDTH,
             child: this._column,
@@ -440,17 +426,11 @@ export class FluidGlassNotificationCenter {
         if (!record)
             return;
 
-        // Shell intentionally overlaps messages in a collapsed source group.
-        // Its stock cards are opaque; our translucent material would otherwise
-        // reveal the text and icons from every card underneath the first one.
         const stacked = message.has_style_pseudo_class('second-in-stack') ||
             message.has_style_pseudo_class('lower-in-stack');
         record.content.opacity = stacked ? 0 : record.opacity;
         message.opacity = stacked ? 0 : 255;
 
-        // Mask the translucent background layers underneath the front card.
-        // The class is absent while expanded, so individual cards keep their
-        // normal material once GNOME lays them out vertically.
         const collapsedFront = !record.group.expanded && !stacked;
         if (collapsedFront)
             message.add_style_class_name('fluid-glass-nc-collapsed-stack-front');
@@ -516,14 +496,12 @@ export class FluidGlassNotificationCenter {
         this._origMenuOpen = menu.open;
         this._origMenuToggle = menu.toggle;
 
-        // Force native menu closed and actor hidden
         menu.isOpen = false;
         try {
             menu.actor?.hide();
             menu.close({animate: false});
         } catch (_e) {}
 
-        // Remove from panel menu manager so adjacent menu hover won't open it
         try {
             Main.panel?.menuManager?.removeMenu(menu);
         } catch (_e) {}
@@ -695,7 +673,6 @@ export class FluidGlassNotificationCenter {
         try {
             order = this._settings?.get_strv('notification-center-widgets') ?? order;
         } catch (_e) {
-            // A stale compiled schema gets the new default.
         }
         const seen = new Set();
         return order.filter(id => {
@@ -797,16 +774,12 @@ export class FluidGlassNotificationCenter {
             return null;
 
         const title = WIDGETS.find(candidate => candidate.id === id)?.title ?? id;
-        // Tahoe edits widgets in place: the controls float over the widget
-        // rather than pushing a toolbar into the column and moving every card.
         const slot = new St.Widget({
             style_class: `fluid-glass-nc-widget-slot fluid-glass-nc-slot-${size}`,
             layout_manager: new Clutter.BinLayout(),
             x_expand: size !== 'small',
         });
 
-        // A widget with nothing to show (no battery, nothing playing) hides
-        // itself; while editing it still needs a surface to carry its controls.
         const placeholder = new St.Bin({
             style_class: `fluid-glass-nc-widget-card fluid-glass-nc-widget-${size} ` +
                 'fluid-glass-nc-widget-placeholder',
@@ -862,7 +835,6 @@ export class FluidGlassNotificationCenter {
         const widget = slot._lintelWidget;
         slot._lintelControls.visible = this._editing;
         slot._lintelPlaceholder.visible = this._editing && !widget.visible;
-        // Clicking a widget launches its app; while editing it must not.
         widget.reactive = !this._editing;
         slot.visible = this._editing || widget.visible;
 
@@ -880,8 +852,6 @@ export class FluidGlassNotificationCenter {
 
         const order = this._widgetOrder();
         const sizes = this._widgetSizes();
-        // Small widgets are squares that share a row two at a time, as in
-        // Tahoe; a lone small widget keeps its size and sits at the left.
         let pair = null;
         for (const id of order) {
             const size = sizes[id] ?? 'medium';
@@ -1032,9 +1002,6 @@ export class FluidGlassNotificationCenter {
 
         this._bannerBlockedCaptured = false;
         try {
-            // Retain the prior state so teardown restores the exact value. If
-            // it cannot be read, block anyway but leave it alone on close
-            // rather than unblocking something another component blocked.
             const prior = PanelAdapter.messageTrayBannerBlocked;
             if (prior !== null) {
                 this._bannerBlocked = prior;
@@ -1042,7 +1009,6 @@ export class FluidGlassNotificationCenter {
             }
             Main.messageTray.bannerBlocked = true;
         } catch (_e) {
-            // Cosmetic only; the center remains usable.
         }
 
         this._root.remove_all_transitions();
@@ -1095,7 +1061,6 @@ export class FluidGlassNotificationCenter {
             try {
                 Main.popModal(this._grab);
             } catch (_e) {
-                // A session transition may already have dismissed the grab.
             }
             this._grab = null;
         }
@@ -1104,7 +1069,6 @@ export class FluidGlassNotificationCenter {
             try {
                 Main.messageTray.bannerBlocked = this._bannerBlocked;
             } catch (_e) {
-                // Shell teardown; there is nothing left to restore.
             }
         }
         this._bannerBlockedCaptured = false;
@@ -1126,8 +1090,6 @@ export class FluidGlassNotificationCenter {
             return;
         }
 
-        // Once the modal grab is gone, keep the full-stage actor out of the
-        // compositor input region while its cards finish animating away.
         this._root.reactive = false;
         this._column.ease({
             opacity: 0,
@@ -1179,7 +1141,6 @@ export class FluidGlassNotificationCenter {
                 try {
                     group.disconnect(id);
                 } catch (_e) {
-                    // A notification source may already have been destroyed.
                 }
             }
         }
@@ -1189,7 +1150,6 @@ export class FluidGlassNotificationCenter {
                 try {
                     message.disconnect(id);
                 } catch (_e) {
-                    // A notification may already have been destroyed.
                 }
             }
         }
@@ -1203,7 +1163,6 @@ export class FluidGlassNotificationCenter {
                 try {
                     Main.layoutManager.removeChrome(this._root);
                 } catch (_e) {
-                    // LayoutManager may already be tearing its chrome down.
                 }
             }
             this._chromeAdded = false;

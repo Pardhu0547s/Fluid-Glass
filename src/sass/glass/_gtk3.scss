@@ -1,13 +1,5 @@
-// =============================================================================
-// Fluid Glass for Linux: GTK3 Glass Styling Overlay
-// Preserves exact macOS 27" measurements and adds Fluid Glass material styling
-// =============================================================================
-
 @import 'material';
 
-// -----------------------------------------------------------------------------
-// 1. Window & CSD (macOS 27" Window Proportions)
-// -----------------------------------------------------------------------------
 window.csd,
 window.background {
   border-radius: $wm_radius;
@@ -16,9 +8,6 @@ window.background {
   outline-offset: -1px;
 }
 
-// -----------------------------------------------------------------------------
-// 2. Headerbars & Titlebars (52px Unified Toolbar)
-// -----------------------------------------------------------------------------
 headerbar {
   min-height: $headerbar_size;
   background-color: if($variant == 'light',
@@ -54,9 +43,6 @@ headerbar {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 3. Sidebars & Views (240px Desktop Ratio)
-// -----------------------------------------------------------------------------
 .sidebar,
 .navigation-sidebar,
 stacksidebar.sidebar {
@@ -81,9 +67,6 @@ stacksidebar.sidebar {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 4. Popovers & Context Menus (18px Corner Radius)
-// -----------------------------------------------------------------------------
 popover > contents,
 menu {
   border-radius: 18px;
@@ -108,9 +91,6 @@ menuitem {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 5. Cards & Boxed Lists (12px Corner Radius)
-// -----------------------------------------------------------------------------
 .card,
 list.boxed-list {
   border-radius: 12px;
@@ -123,9 +103,6 @@ list.boxed-list {
               0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-// -----------------------------------------------------------------------------
-// 6. Buttons & Inputs (32px Desktop Height & 8px Corner Radius)
-// -----------------------------------------------------------------------------
 button {
   min-height: 32px;
   border-radius: 8px;
@@ -179,9 +156,6 @@ entry {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 7. Switches & Sliders
-// -----------------------------------------------------------------------------
 switch {
   background-color: if($variant == 'light', rgba(0, 0, 0, 0.14), rgba(255, 255, 255, 0.16));
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.20);

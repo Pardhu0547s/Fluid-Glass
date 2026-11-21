@@ -1,9 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// PowerProfilesService — the system power-profile daemon used by GNOME's own
-// Quick Settings.  It is optional; the battery popup simply omits its section
-// on hardware or systems that do not provide it.
-
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
 
@@ -95,10 +89,6 @@ export function powerProfileLabel(profile) {
     }
 }
 
-/**
- * The same profiles named for a status line under a half-width capsule, where
- * the full names ("Энергосбережение") do not fit.
- */
 export function powerProfileShortLabel(profile) {
     switch (profile) {
     case 'power-saver':

@@ -1,11 +1,9 @@
-// the panel widget at the top
 #panel_window {
   background-color: $panel_bg;
   color: $panel_fg;
   font-weight: bold;
   box-shadow: inset 0 -1px darken($panel_bg, 7%);
 
-  // the menubars/menus of the panel, i.e. indicators
   menubar {
     padding-left: 5px;
 
@@ -24,7 +22,6 @@
   menubar menu > menuitem { font-weight: normal; }
 }
 
-// the login window
 #login_window,
 #shutdown_dialog,
 #restart_dialog {
@@ -34,7 +31,6 @@
   color: $fg_color;
 }
 
-// the top half of the login-window, in GtkDialog terms, the content
 #content_frame {
   padding-bottom: 14px;
   background-color: $bg_color;
@@ -52,7 +48,6 @@
   &:disabled { @include button(insensitive); }
 }
 
-// the lower half of the login-window, in GtkDialog terms the buttonbox or action area
 #buttonbox_frame {
   padding-top: 20px;
   padding-bottom: 0px;
@@ -80,13 +75,11 @@
   menu { font-weight: normal; }
 }
 
-// the user's avatar box
 #user_image {
   padding: 3px;
   border-radius: 2px;
 }
 
-// the shutdown button
 #shutdown_button.button {
   @include button(suggested_destructive, $destructive_color);
 
@@ -94,7 +87,6 @@
   &:active, &:checked { @include button(suggested_destructive, darken($destructive_color, 10%)); }
 }
 
-// the restart button
 #restart_button.button {
   @include button(suggested_destructive, $suggested_color);
 
@@ -102,7 +94,6 @@
   &:active, &:checked { @include button(suggested_destructive, darken($suggested_color, 10%)); }
 }
 
-// the warning, in case a wrong password is entered or something else goes wrong according to PAM
 #greeter_infobar {
   border-bottom-width: 0;
   font-weight: bold;

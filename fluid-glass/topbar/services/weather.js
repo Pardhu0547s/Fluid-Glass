@@ -1,18 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// WeatherService — the Notification Center weather model.
-//
-// Forecasts come from a keyless web service (weatherProviders.js) for either the
-// city chosen in preferences or the user's position from GeoClue
-// (geolocation.js). Automatic mode falls back to the chosen city when Location
-// Services are off or fail.
-//
-// One WeatherStore serves every weather widget alive at a time and is destroyed
-// with the last one, so disable() leaves no HTTP session, timer or GeoClue
-// client behind. Editing the widget layout rebuilds every widget and so drops
-// the store; the last forecast is kept in a plain module-level cache, so a
-// rebuild repaints at once instead of refetching.
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -49,7 +34,6 @@ function _now() {
     return Math.floor(Date.now() / 1000);
 }
 
-/** 'celsius' or 'fahrenheit', as the session's region measures temperature. */
 export function localeTemperatureUnit() {
     try {
         const unit = GWeather.TemperatureUnit.to_real(GWeather.TemperatureUnit.DEFAULT);
@@ -59,7 +43,6 @@ export function localeTemperatureUnit() {
     }
 }
 
-// Tahoe prints a bare "83°"; the unit is a preference, not part of the reading.
 function _formatTemperature(value) {
     return Number.isFinite(value) ? `${Math.round(value)}°` : '—';
 }
@@ -97,7 +80,6 @@ const WeatherStore = GObject.registerClass({
                 this._settingsIds.push(settings.connect(
                     `changed::${key}`, () => this._reconfigure()));
             } catch (_e) {
-                // No settings, or a stale compiled schema: defaults apply.
             }
         }
         this._timerId = GLib.timeout_add_seconds(GLib.PRIORITY_LOW,
@@ -189,11 +171,9 @@ const WeatherStore = GObject.registerClass({
                 return {location: city};
             return {status: state === 'disabled' ? 'location-disabled' : 'location-error'};
         }
-        // Still locating: keep the previous position rather than blanking.
         return _lastAutoLocation ? {location: _lastAutoLocation} : {status: 'locating'};
     }
 
-    /** Fetch when the place, service or unit changed, or the data is stale. */
     update() {
         if (this._destroyed || !this._config)
             return;
@@ -255,7 +235,6 @@ const WeatherStore = GObject.registerClass({
             console.warn(`fluid-glass: weather from ${provider} failed: ${e.message}`);
             this._failedKey = key;
             this._failedAt = _now();
-            // A forecast for this place that is merely old still beats nothing.
             this._setStatus(this.data ? 'ok' : 'error');
         } finally {
             if (this._cancellable === cancellable) {
@@ -306,12 +285,6 @@ const WeatherStore = GObject.registerClass({
     }
 });
 
-/**
- * Drop the shared store regardless of its user count. Called on extension
- * disable so one widget whose destroy() never ran cannot keep the refresh timer
- * and GeoClue client alive while the extension is off (the module, and this
- * store, survive until relogin).
- */
 export function shutdownWeather() {
     _store?.destroy();
     _store = null;
@@ -331,10 +304,6 @@ export const WeatherService = GObject.registerClass({
         this._storeId = this._store.connect('changed', () => this.emit('changed'));
     }
 
-    /**
-     * 'ok', 'loading', 'locating', 'no-location', 'location-disabled',
-     * 'location-error' or 'error'.
-     */
     get status() {
         return this._store?.status ?? 'error';
     }
@@ -362,7 +331,6 @@ export const WeatherService = GObject.registerClass({
             : 'weather-severe-alert-symbolic';
     }
 
-    /** Coarse sky for the widget's backdrop: 'night', 'clear', 'cloudy' or ''. */
     get sky() {
         const current = this._store?.data?.current;
         if (!current)
@@ -372,7 +340,6 @@ export const WeatherService = GObject.registerClass({
         return CLEAR_KINDS.has(current.kind) ? 'clear' : 'cloudy';
     }
 
-    /** The next six forecast slots, labelled in the location's time zone. */
     get forecasts() {
         const data = this._store?.data;
         if (!data)
@@ -402,8 +369,6 @@ export const WeatherService = GObject.registerClass({
         this._storeId = 0;
         const own = this._store === _store;
         this._store = null;
-        // A store from before shutdownWeather() is already gone; do not count
-        // against, or destroy, the one a later enable created.
         if (!own)
             return;
         _storeUsers--;

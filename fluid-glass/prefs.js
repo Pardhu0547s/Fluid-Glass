@@ -1,8 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// prefs.js — Native GTK4 & Libadwaita Preferences for Fluid Glass Extension Suite
-//
-
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import Adw from 'gi://Adw';
 import Gtk from 'gi://Gtk';
@@ -159,7 +154,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         this._buildAboutPage(window);
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────
     _installCss(display) {
         const css = `
             .fg-swatch,
@@ -245,10 +239,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         return row;
     }
 
-    /**
-     * A row with a fixed-width slider and a live value readout, so long
-     * titles never get squeezed and the window never grows sideways.
-     */
     _scaleRow(group, {title, subtitle, min, max, step, digits, value, onChange}) {
         const row = new Adw.ActionRow({title, subtitle});
         const scale = Gtk.Scale.new_with_range(Gtk.Orientation.HORIZONTAL, min, max, step);
@@ -266,7 +256,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         return row;
     }
 
-    // ── 1. Presets & Overview ──────────────────────────────────────────────
     _buildPresetsPage(window) {
         const page = new Adw.PreferencesPage({
             name: 'general',
@@ -275,7 +264,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         });
         window.add(page);
 
-        // Core Subsystems Toggles
         if (this.sMaster) {
             const groupSub = new Adw.PreferencesGroup({
                 title: _('Components'),
@@ -293,7 +281,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 _('Control Center'), _('Tahoe-style floating glass modules'));
         }
 
-        // Theme Presets — a radio list that shows which preset is active.
         const groupPresets = new Adw.PreferencesGroup({
             title: _('Theme Preset'),
             description: _('Sets blur, tint and accent on every glass surface at once'),
@@ -324,7 +311,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             groupPresets.add(row);
         }
 
-        // Accent colour — compact round swatches instead of text buttons.
         const groupAccent = new Adw.PreferencesGroup({title: _('Accent')});
         page.add(groupAccent);
 
@@ -383,7 +369,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         if (this.sLintel)
             this.sLintel.connect('changed::system-menu-icon', updateAccentSubtitle);
 
-        // Maintenance Actions
         const groupActions = new Adw.PreferencesGroup({title: _('Maintenance')});
         page.add(groupActions);
 
@@ -407,7 +392,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         groupActions.add(reloadRow);
     }
 
-    // ── 2. Glass & Shaders ─────────────────────────────────────────────────
     _buildGlassPage(window) {
         const page = new Adw.PreferencesPage({
             name: 'glass',
@@ -509,7 +493,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         }
     }
 
-    // ── 3. Control Center ──────────────────────────────────────────────────
     _buildControlCenterPage(window) {
         const page = new Adw.PreferencesPage({
             name: 'cc',
@@ -557,7 +540,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         groupHint.add(hintRow);
     }
 
-    // ── 4. Fluid Dock ──────────────────────────────────────────────────────
     _buildDockPage(window) {
         const page = new Adw.PreferencesPage({
             name: 'dock',
@@ -612,7 +594,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         const dodgeRow = this._switchRow(groupDock, this.sDock, 'autohide-dodge',
             _('Hide Only When Overlapped'), _('Hide only when a window covers the dock'));
         if (hideRow && dodgeRow)
-            hideRow.bind_property('active', dodgeRow, 'sensitive', 2 /* SYNC_CREATE */);
+            hideRow.bind_property('active', dodgeRow, 'sensitive', 2 );
 
         const groupLook = new Adw.PreferencesGroup({title: _('Appearance')});
         page.add(groupLook);
@@ -631,7 +613,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         groupLook.add(transRow);
     }
 
-    // ── 5. Top Bar ─────────────────────────────────────────────────────────
     _buildTopBarPage(window) {
         const page = new Adw.PreferencesPage({
             name: 'menubar',
@@ -755,7 +736,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             }
         };
 
-        // 1. Symbolic Icons Expander
         const expanderSymbolic = new Adw.ExpanderRow({
             title: _('Symbolic Distribution Icons'),
             subtitle: _('Monochrome icons that adapt to top bar text styling'),
@@ -804,7 +784,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         symPrefRow.set_child(symFlow);
         expanderSymbolic.add_row(symPrefRow);
 
-        // 2. Coloured Icons Expander
         const expanderColoured = new Adw.ExpanderRow({
             title: _('Coloured Distribution Icons'),
             subtitle: _('Full-colour original distribution artwork'),
@@ -853,7 +832,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         colPrefRow.set_child(colFlow);
         expanderColoured.add_row(colPrefRow);
 
-        // 3. Custom icon or emoji entry
         const customEntry = new Adw.EntryRow({
             title: _('Custom Icon, Emoji, or File Path'),
             text: currentVal,
@@ -877,7 +855,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         });
     }
 
-    // ── 6. About ───────────────────────────────────────────────────────────
     _buildAboutPage(window) {
         const page = new Adw.PreferencesPage({
             name: 'about',
@@ -937,7 +914,6 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         }
     }
 
-    // ── Preset Handlers ────────────────────────────────────────────────────
     _applyPreset(presetId) {
         const setGlass = (suffix, val, isInt = false) => {
             if (!this.sGlass)

@@ -1,8 +1,3 @@
-
-/******************
- * Budgie Desktop *
- ******************/
-
 $raven_base_color: $base_color;
 $raven_bg_color: $menu_bg;
 $raven_fg_color: $text_color;
@@ -155,7 +150,7 @@ $raven_padding: 8px;
     }
   }
 
-  scrolledwindow.sidebar:not(.categories) { //AppMenu (Elementary)
+  scrolledwindow.sidebar:not(.categories) {
     background: none;
     border-right: none;
     color: $fg_color;
@@ -208,7 +203,7 @@ $raven_padding: 8px;
       font-size: 110%;
     }
 
-    scrolledwindow.sidebar.categories {  //AppMenu (budgie)
+    scrolledwindow.sidebar.categories {
       &:dir(ltr) {
         margin: 0 0 1px 1px;
         border-bottom-left-radius: $bt_radius;
@@ -315,7 +310,6 @@ $raven_padding: 8px;
     }
   }
 
-  // Clipboard popover
   > frame > box.vertical {
     > box.vertical {
       > box.vertical {
@@ -338,7 +332,6 @@ $raven_padding: 8px;
   }
 
   &.user-menu {
-    // .container { padding: $container_padding; }
 
     .content-box { background-color: transparent; }
 
@@ -369,13 +362,11 @@ $raven_padding: 8px;
   }
 
   &.night-light-indicator {
-    // .container { padding: $container_padding; }
 
     .view-header { padding: 0 $container_padding 0 ($container_padding - 2px); }
   }
 
   &.icon-popover {
-    // .container { padding: $container_padding; }
 
     .icon-popover-stack {
       separator {
@@ -385,7 +376,6 @@ $raven_padding: 8px;
   }
 
   &.places-menu {
-    // .container { padding: $container_padding; }
 
     row.activatable {
       padding: 0;
@@ -400,14 +390,12 @@ $raven_padding: 8px;
       border-top: 1px solid $borders_color;
     }
 
-    // I guess this really should be hard-coded as well as other dim-labels.
     .alternative-label {
       padding: $container_padding / 2;
       font-size: 15px;
     }
 
     .name-button.text-button {
-      // padding: 4px 8px;
       padding-left: $container_padding;
       padding-right: $container_padding;
 
@@ -436,7 +424,6 @@ $raven_padding: 8px;
     }
   }
 
-  // Menu Button
   button.budgie-menu-launcher {
     @extend %flat_button;
   }
@@ -451,25 +438,21 @@ $raven_padding: 8px;
     }
   }
 
-  // &.budgie-screenshot-applet {
-  // }
 }
 
-// budgie specific popover widgets
 window.budgie-popover:not(.csd) {
   > frame.container {
-    margin: 0 -1px -1px; // remove gap
+    margin: 0 -1px -1px;
 
-    .bottom & { padding: 2px 0 2px; } // revive bottom padding
+    .bottom & { padding: 2px 0 2px; }
 
     &,
     > border {
-      border-style: none; // hide container borders
+      border-style: none;
     }
   }
 }
 
-// FIXME: workspace has unnecessary/unknown margin
 .budgie-panel.background .workspace-switcher {
   .workspace-layout {
     border: 0 solid $borders_color;
@@ -519,7 +502,6 @@ window.budgie-popover:not(.csd) {
 
 $budgie_panel_radius: $wm_radius + $container_padding / 2;
 
-// Panel
 .budgie-panel.background {
   transition: background-color 0.2s cubic-bezier(0, 0, 0.2, 1);
   background-color: opacify($header_bg, 1);
@@ -647,7 +629,6 @@ $budgie_panel_radius: $wm_radius + $container_padding / 2;
 
   separator { background-color: rgba($panel_fg, 0.15); }
 
-  // Budgie styled Gtk Menus
   menubar,
   .menubar {
     box-shadow: none;
@@ -683,23 +664,20 @@ $budgie_panel_radius: $wm_radius + $container_padding / 2;
     }
   }
 
-  menubar.-vala-panel-appmenu-private { // appmenu plugin
+  menubar.-vala-panel-appmenu-private {
     > menuitem {
       font-weight: normal;
     }
   }
 
-  // used to indicate unread notifications
   .alert { color: $destructive_color; }
 
   &.vertical #tasklist-button { min-height: 32px; }
 
-  // Icon Tasklist
   button.flat.launcher {
     padding: 0;
     @extend %flat_button;
 
-    // for indicator colors
     &:not(:checked) {
       color: $fg_color;
 
@@ -711,36 +689,33 @@ $budgie_panel_radius: $wm_radius + $container_padding / 2;
     &:checked { background-color: rgba($fg_color, 0.15); }
   }
 
-  // Raven Trigger
   button.raven-trigger {
     padding: 0 $container_padding;
   }
 
-  // Add padding for panel indicators icons
   > box > widget > widget {
-    > image, // normal
-    > stack > image, // Screenshot
-    > box > image { // Places
+    > image,
+    > stack > image,
+    > box > image {
       margin-left: $base_padding;
       margin-right: $base_padding;
     }
 
-    > box > image + label { // Reset for mailneg
+    > box > image + label {
       margin-left: $base_padding + 2px;
     }
 
-    > box { // keyboard Layout
+    > box {
       > widget > image { margin-left: $base_padding; }
       > stack > widget > label { margin-right: $base_padding; }
     }
 
-    > box > widget > widget > image { // Status
+    > box > widget > widget > image {
       margin-left: $base_padding / 2;
       margin-right: $base_padding / 2;
     }
   }
 
-  // Time label
   .budgie-clock-applet,
   .budgie-calendar-applet {
     > widget > box {
@@ -773,7 +748,6 @@ $budgie_panel_radius: $wm_radius + $container_padding / 2;
   }
 }
 
-// Tasklist
 #tasklist-button {
   padding: 0 $container_padding;
   box-shadow: none;
@@ -836,7 +810,6 @@ $budgie_panel_radius: $wm_radius + $container_padding / 2;
   }
 }
 
-// draw underscores and dots
 @each $position, $_dot in (top, 6px 3px),
                           (bottom, 6px 3px),
                           (left, 3px 6px),
@@ -856,17 +829,15 @@ $budgie_panel_radius: $wm_radius + $container_padding / 2;
   }
 }
 
-box:not(.unpinned):not(.pinned) > revealer > button.flat.launcher { border-image: none; } // unset before drawing indicators
+box:not(.unpinned):not(.pinned) > revealer > button.flat.launcher { border-image: none; }
 
 $pos_list: ((top, bottom), (bottom, top), (left, right), (right, left));
 
 @each $pos, $b_pos in $pos_list {
-  // Shadows
    .#{$pos} .shadow-block {
      background-image: linear-gradient(to $b_pos, rgba(black, 0.05) 0%, rgba(black, 0.03) 15%, rgba(black, 0.02) 60%, transparent);
    }
 
-   // Raven borders
    .#{$pos} frame.raven-frame > border {
      border: none;
      border-#{$b_pos}: 1px solid $raven_border_color;
@@ -876,7 +847,6 @@ $pos_list: ((top, bottom), (bottom, top), (left, right), (right, left));
 $raven_opacity: if($variant =='light', 0.95, 0.95);
 $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px 0 rgba(black, 0.1);
 
-// Raven
 .raven {
   background-color: if($trans == 'true', gtkalpha($raven_bg_color, $raven_opacity), $raven_bg_color);
   color: $raven_fg_color;
@@ -908,7 +878,6 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
 
     &.top {
       padding: 2px 12px $raven_padding;
-      // background-color: rgba($raven_bg_color, 0.95);
       color: $raven_fg_color;
       border-bottom: 1px solid $raven_border_color;
 
@@ -942,31 +911,31 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
     &.bottom { border-top: 1px solid $raven_border_color; }
   }
 
-  scrolledwindow > .frame { // stacking raised-grid
+  scrolledwindow > .frame {
     padding: 0 $raven_padding;
     transition-duration: 0s;
     border: none;
 
     > box.vertical > box.vertical {
-      margin: $raven_padding 0; // do not set L/R margins
+      margin: $raven_padding 0;
       border-radius: $raven_radius;
       background-color: $raven_header_bg_color;
       transition-duration: 0s;
       border: 1px solid $raven_border_color;
 
       .raven-header {
-        margin-top: -$raven_padding * 2; // unset parent margin
+        margin-top: -$raven_padding * 2;
         border-radius: $raven_radius $raven_radius 0 0;
       }
 
       .raven-background {
-        margin-bottom: -$raven_padding * 2; // unset parent margin
+        margin-bottom: -$raven_padding * 2;
         border-radius: 0 0 $raven_radius $raven_radius;
         background-color: $raven_base_color;
       }
     }
 
-    > box.vertical > widget > box.vertical { // > = 10.7
+    > box.vertical > widget > box.vertical {
       border-radius: $raven_radius;
       background-color: $raven_header_bg_color;
       border: 1px solid $raven_border_color;
@@ -1027,17 +996,16 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
 
         .raven-background {
           background-color: rgba(white, 0.05);
-          margin-bottom: 0; // unset parent margin
+          margin-bottom: 0;
           border-top: none;
         }
       }
 
-      // MPRIS Applet
       > box.vertical > box.vertical:last-child .raven-mpris {
         background-color: rgba(black, 0.35);
         color: white;
 
-        image {  //reset image color
+        image {
           color: rgba(white, 0.85);
 
           &:disabled { color: rgba(white, 0.35); }
@@ -1052,8 +1020,8 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
     }
 
     .audio-widget {
-      stackswitcher.linked { // audio app/device switcher
-        padding: 0; // limit child horizontal spacing
+      stackswitcher.linked {
+        padding: 0;
 
         > button.text-button.radio {
           padding-top: $raven_padding;
@@ -1101,9 +1069,9 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
   }
 
   .raven-background {
-    &.middle { border-bottom-style: none; } // applet background between two headers
+    &.middle { border-bottom-style: none; }
 
-    checkbutton, radiobutton { // this is for a nice focus on check and radios text
+    checkbutton, radiobutton {
       &.text-button {
         &:hover { color: darken($raven_fg_color, 15%); }
         &:disabled { color: rgba($raven_fg_color, 0.45); }
@@ -1124,7 +1092,6 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
 
   .option-subtitle { font-size: smaller; }
 
-  // notification list
   .raven-notifications-view {
     > .raven-header {
       background-color: transparent;
@@ -1132,7 +1099,7 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
     }
 
     > .raven-background > viewport.frame {
-      padding: 0; // reset padding for full-width list node
+      padding: 0;
 
       list { background-color: transparent; }
 
@@ -1141,12 +1108,12 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
         margin-right: -6px;
         background-color: transparent;
 
-        > grid > *, // legacy
+        > grid > *,
         > box.vertical * { color: $raven_fg_color; }
 
         image { padding-left: 8px; }
 
-        button.image-button { // 'dismiss'
+        button.image-button {
           @extend %circular_button;
           margin: 8px;
           padding: 2px;
@@ -1156,11 +1123,8 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
           }
         }
 
-        // sub-list rows grouping
         list {
           border-radius: 0;
-          // border-top: 1px solid $borders_color;
-          // border-bottom: 1px solid $borders_color;
           padding: $container_padding;
           background: none;
 
@@ -1183,7 +1147,7 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
 
             label { padding: 0 16px; }
 
-            button.image-button { // 'close'
+            button.image-button {
               min-height: 24px;
               min-width: 24px;
 
@@ -1200,7 +1164,7 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
           > grid > *,
           > box.vertical * { color: $selected_fg_color; }
 
-          button.image-button { // 'dismiss'
+          button.image-button {
             border: none;
 
             &:hover { background-color: rgba(white, 0.25); }
@@ -1241,15 +1205,14 @@ $raven_shadow: 0 0 3px 0 rgba(black, 0.2), 0 0 8px 0 rgba(black, 0.15), 0 0 16px
   }
 }
 
-// some specific scale styling
 box.audio-widget,
 window.sound-popover.background {
-  scale.horizontal.marks-after { // overdrive-mode scale
-    padding-top: 0; // unset default padding
+  scale.horizontal.marks-after {
+    padding-top: 0;
     padding-bottom: 0;
 
-    trough { // overdrive-mode trough styling
-      background-color: transparent; // unset default trough color
+    trough {
+      background-color: transparent;
       @each $_dir, $_opp_end in (ltr, right),
                                 (rtl, left) {
         &:dir(#{$_dir}) {
@@ -1263,13 +1226,11 @@ window.sound-popover.background {
     }
 
     mark {
-      // hide label for vertically centered troughs
       label { font-size: 0; }
     }
   }
 }
 
-// Calendar
 calendar.raven-calendar {
   border-style: none;
   background-color: transparent;
@@ -1294,7 +1255,6 @@ calendar.raven-calendar {
   &.highlight { color: $raven_fg_color; }
 }
 
-// Notifications
 %budgie-notification-window {
   background: none;
 
@@ -1312,7 +1272,7 @@ calendar.raven-calendar {
 .budgie-notification-window {
   @extend %budgie-notification-window;
 
-  button.image-button { // 'close'
+  button.image-button {
     margin: 0;
     padding: 0;
     min-height: 28px;
@@ -1330,19 +1290,16 @@ calendar.raven-calendar {
   .notification-body { @extend %dim-label; }
 }
 
-// On Screen Display in Budgie
 .budgie-osd-window {
   @extend %budgie-notification-window;
 }
 
-// Internal part of the OSD
 .budgie-osd {
   background: none;
 
   .budgie-osd-text { font-size: 120%; }
 }
 
-// Alt+tab switcher in Budgie
 .budgie-switcher-window {
   @extend %budgie-notification-window;
 }
@@ -1352,14 +1309,13 @@ window.budgie-switcher-window {
   background-color: transparent;
   background-image: none;
 
-  flowboxchild { // icon-tiles
+  flowboxchild {
     margin: 0;
     border-radius: $bt_radius;
     background-image: none;
   }
 }
 
-// Internal part of the Switcher
 .budgie-switcher {
   @extend .budgie-notification;
 }
@@ -1375,7 +1331,6 @@ window.budgie-switcher-window {
 
   .dim-label { opacity: 0.55; }
 
-  // used to indicate unread notifications
   .alert { color: $fg_color; }
 
   button { @extend %budgie_button; }
@@ -1396,7 +1351,6 @@ window.budgie-switcher-window {
   }
 }
 
-// Session Dialog
 .budgie-session-dialog,
 .budgie-polkit-dialog {
   @extend %budgie_dialog;
@@ -1428,7 +1382,6 @@ window.budgie-switcher-window {
   }
 }
 
-// Power Dialog
 .budgie-power-dialog {
   .titlebar {
     &, &:backdrop {
@@ -1444,7 +1397,6 @@ window.budgie-switcher-window {
   }
 }
 
-// PolKit Dialog
 .budgie-polkit-dialog {
   .message { color: gtkalpha(currentColor, 0.6); }
   .failure { color: $destructive_color; }
@@ -1454,7 +1406,6 @@ window.budgie-switcher-window {
   }
 }
 
-// Run Dialog
 .budgie-run-dialog {
   @extend %budgie_dialog;
   background-color: $base_color;
@@ -1471,7 +1422,6 @@ window.budgie-switcher-window {
   scrolledwindow { border-top: 1px solid $borders_color; }
 }
 
-// pixel-saver(?) applet
 .budgie-panel box.titlebar {
   min-width: 20px;
   min-height: 20px;
@@ -1480,12 +1430,11 @@ window.budgie-switcher-window {
   box-shadow: none;
   border: none;
 
-  > widget > label { color: rgba($panel_fg, 0.75); } // titles
+  > widget > label { color: rgba($panel_fg, 0.75); }
 
   > button.image-button.titlebutton {
     padding: 0 3px;
 
-    // Load png assets for each button, Fix the Chrome window restore button bug
     @each $k in ('close', 'maximize', 'minimize') {
       @each $l, $m in (':backdrop',''), (':backdrop:hover','-hover'), (':backdrop:active','-active') {
         &.#{$k}#{$l} {
@@ -1496,7 +1445,7 @@ window.budgie-switcher-window {
     }
   }
 
-  &.horizontal { // spacing
+  &.horizontal {
     padding: 0 3px;
 
     > widget > label {

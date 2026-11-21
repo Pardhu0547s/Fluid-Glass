@@ -1,7 +1,3 @@
-
-//
-// Mate/Gnome Flashback Panel
-//
 .mate-panel-menu-bar,
 panel-toplevel.background {
   &, menubar {
@@ -62,9 +58,6 @@ panel-toplevel.background {
   }
 }
 
-//
-// Mate OSD Window
-//
 MsdOsdWindow.background.osd {
   border-radius: 2px;
   border: 1px solid darken($solid_osd_bg_color, 8%);
@@ -83,9 +76,6 @@ MsdOsdWindow.background.osd {
   }
 }
 
-//
-// Caja
-//
 .caja-desktop {
   @extend %nautilus-desktop-canvas-item;
 }
@@ -104,7 +94,6 @@ MsdOsdWindow.background.osd {
 
   > box button {
     &:not(:active):not(:checked) { color: $dark_sidebar_fg; }
-    // &:hover:not(:active) { @include button(hover); }
   }
 
   .frame { border-color: $borders_color; }
@@ -149,9 +138,6 @@ MsdOsdWindow.background.osd {
     background: none;
   }
 
-  // notebook .view > box.vertical {
-  //   border-bottom-left-radius: $wm_radius;
-  // }
 }
 
 .caja-notebook .frame {
@@ -160,7 +146,6 @@ MsdOsdWindow.background.osd {
 
 .caja-search-bar {
   entry {
-    // margin: 2px 0;
 
     &:focus {
       box-shadow: none;
@@ -168,9 +153,6 @@ MsdOsdWindow.background.osd {
   }
 }
 
-//
-// Pluma (Mate)
-//
 .pluma-window statusbar frame > border {
     border: none;
 }
@@ -188,9 +170,6 @@ MsdOsdWindow.background.osd {
     border-radius: 0;
 }
 
-//
-// MATE Terminal
-//
 .mate-terminal {
   notebook {
     > header.top {
@@ -201,9 +180,6 @@ MsdOsdWindow.background.osd {
   }
 }
 
-//
-// Atril (MATE pdf viewer)
-//
 .atril-window .primary-toolbar toolbar {
   background: none;
 }

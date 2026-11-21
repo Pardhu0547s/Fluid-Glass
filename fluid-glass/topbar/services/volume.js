@@ -1,9 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// VolumeService — output volume via Gvc (libgvc), the same mixer GNOME's own
-// volume control uses. Gvc's typelib is only on the search path inside the Shell
-// process, so this cannot be exercised standalone; it is guarded throughout.
-
 import GObject from 'gi://GObject';
 import Gvc from 'gi://Gvc';
 
@@ -33,8 +27,6 @@ export const VolumeService = GObject.registerClass({
             this._bindSource();
         }
     }
-
-    // ---- Input (microphone) -------------------------------------------------
 
     _bindSource() {
         this._unbindSource();
@@ -167,7 +159,6 @@ export const VolumeService = GObject.registerClass({
         try {
             this._control.close();
         } catch (_e) {
-            // ignore
         }
         this._control = null;
     }

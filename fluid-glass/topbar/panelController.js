@@ -1,19 +1,3 @@
-// PanelController — Stage 1 core (see docs/ARCHITECTURE.md).
-//
-// Responsibilities in this stage:
-//   • captureOriginalState()  — snapshot the pristine top bar once, up front.
-//   • applyFluidGlassLayout()        — idempotent macOS-style layout mutation. For the
-//                               skeleton this is limited to the two changes that
-//                               prove the framework: hide Activities, move the
-//                               clock (dateMenu) to the far right. Widgets come
-//                               in later stages.
-//   • restoreOriginalState()  — put GNOME back exactly as it was.
-//   • handleSessionMode()     — GNOME rebuilds the panel on sessionMode changes;
-//                               re-assert our layout afterwards, idempotently.
-//   • destroy()               — full teardown: no leaked signals/timeouts/actors.
-//
-// Everything that touches private Shell internals goes through PanelAdapter.
-
 import GLib from 'gi://GLib';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -48,9 +32,6 @@ const FLUID_GLASS_ROLE = 'fluid-glass-fluid-glass';
 const CONTROL_CENTER_ROLE = 'fluid-glass-control-center';
 const CLOCK_STYLE_CLASS = 'fluid-glass-clock-button';
 
-// Keys that change the *structure* of the panel (which widgets exist, where the
-// clock and Activities sit). Appearance/clock-format/tunable keys are watched
-// live by ThemeManager and FluidGlassClock, so they are intentionally NOT listed here.
 const STRUCTURAL_KEYS = new Set([
     'hide-activities',
     'clock-on-right',
@@ -86,10 +67,10 @@ export class PanelController {
         this._controlCenter = null;
         this._settings = null;
         this._settingsChangedId = 0;
-        this._clockHome = null; // pristine placement of the dateMenu container.
+        this._clockHome = null;
         this._sessionModeId = 0;
         this._monitorsId = 0;
-        this._reapplyId = 0; // GLib idle source id, coalesced.
+        this._reapplyId = 0;
         this._topBarGlass = null;
         this._extraTopBarGlass = null;
         this._enabled = false;
@@ -100,8 +81,6 @@ export class PanelController {
             return;
         this._enabled = true;
 
-        // 1. React to structural settings changes live (from prefs).
-        // Must be initialized FIRST so all layout and menu checks have settings.
         try {
             this._settings = this._extension?.getSettings?.() ?? null;
         } catch (_e) {
@@ -112,29 +91,20 @@ export class PanelController {
                 'changed', (_s, key) => this._onSettingsChanged(key));
         }
 
-        // 2. Snapshot the pristine layout BEFORE any mutation.
         this.captureOriginalState();
 
-        // 3. Apply our layout.
         this.applyFluidGlassLayout();
 
-        // 4. Re-assert after GNOME rebuilds the panel on session changes, and
-        // after monitor hotplug / resolution / fractional-scale changes (which
-        // reallocate the panel). Both funnel through the same coalesced idle.
         this._sessionModeId = Main.sessionMode.connect(
             'updated', () => this._queueReapply());
         this._monitorsId = Main.layoutManager.connect(
             'monitors-changed', () => this._queueReapply());
     }
 
-    // ---- Stage 1: capture / apply / restore ---------------------------------
-
     captureOriginalState() {
         this._snapshot = PanelSnapshot.capture();
         this._notifications.capture();
 
-        // Remember exactly where the clock lived so `clock-on-right = false` can
-        // put it back precisely, not just "somewhere in the center".
         const container = PanelAdapter.containerOf(PanelAdapter.dateMenu);
         const parent = container?.get_parent() ?? null;
         this._clockHome = container && parent
@@ -160,26 +130,19 @@ export class PanelController {
         this._applyClockPosition();
         this._positionRightControls();
 
-        // Re-format the clock text (idempotent — no-op once active).
         this._clock.enable();
 
-        // Replace the native combined date menu with Tahoe's free-floating
-        // notifications and widget column. The clock actor itself stays native.
         this._addNotificationCenter();
 
-        // Tahoe appearance / dynamic stylesheet (idempotent).
         this._theme.enable();
 
-        // Reveal the native panel on the top edge of a fullscreen app.
         this._fullscreenReveal.enable();
 
-        // Notifications follow the clock: right if clock-on-right, centered otherwise.
         if (this._settingBool('clock-on-right', false))
             this._notifications.apply();
         else
             this._notifications.restore();
 
-        // Top bar GLSL glass shader management directly owned by topbar subsystem
         if (!this._topBarGlass && this._extension?.getGlassSettings) {
             try {
                 const glassSettings = this._extension.getGlassSettings();
@@ -208,11 +171,6 @@ export class PanelController {
             panel.remove_style_class_name(PANEL_STYLE_CLASS);
         PanelAdapter.dateMenu?.remove_style_class_name(CLOCK_STYLE_CLASS);
 
-        // Destroy our own widgets BEFORE restoring the box order, so the
-        // snapshot only reconciles GNOME's original actors. Panel.addToStatusArea
-        // removes us from statusArea automatically on destroy.
-        // Unload our dynamic stylesheet and restore the native clock label first
-        // (both independent of the box order).
         this._removeNotificationCenter();
         this._fullscreenReveal.destroy();
         this._theme.destroy();
@@ -227,8 +185,6 @@ export class PanelController {
         this._notifications.restore();
         this._snapshot?.restore();
     }
-
-    // ---- Individual, idempotent layout mutations ----------------------------
 
     _applyActivitiesVisibility() {
         const container = PanelAdapter.containerOf(PanelAdapter.activities);
@@ -284,8 +240,6 @@ export class PanelController {
         home.parent.insert_child_at_index(container, idx);
     }
 
-    // ---- System menu (Stage 3) ----------------------------------------------
-
     _addSystemMenu() {
         if (!this._settingBool('show-system-menu', true))
             return;
@@ -318,11 +272,6 @@ export class PanelController {
         }
     }
 
-    /**
-     * Keep our left-hand widgets in macOS order — system menu, then active app —
-     * at the very start of _leftBox. Idempotent; re-run after sessionMode
-     * rebuilds may have shuffled GNOME's own actors back in.
-     */
     _ensureLeftOrder() {
         const left = PanelAdapter.leftBox;
         if (!left)
@@ -341,7 +290,6 @@ export class PanelController {
     _removeSystemMenu() {
         if (!this._systemMenu)
             return;
-        // destroy() removes the container AND self-cleans panel.statusArea.
         this._systemMenu.destroy();
         this._systemMenu = null;
     }
@@ -352,8 +300,6 @@ export class PanelController {
         this._activeApp.destroy();
         this._activeApp = null;
     }
-
-    // ---- Control Center (Stage 6) -------------------------------------------
 
     _addControlCenter() {
         if (this._controlCenter)
@@ -408,10 +354,6 @@ export class PanelController {
         }
     }
 
-    /**
-     * Keep the Tahoe controls as independent hit targets immediately
-     * left of the clock: Fluid Glass, Wi-Fi, Bluetooth, battery, then Control Center.
-     */
     _positionRightControls() {
         const right = PanelAdapter.rightBox;
         if (!right)
@@ -460,16 +402,6 @@ export class PanelController {
         this._controlCenter = null;
     }
 
-    /**
-     * In custom Control Center mode the native Quick Settings button is stripped
-     * rather than hidden: GNOME's own indicators go away (our Control Center,
-     * Wi-Fi and battery menus replace them), third-party indicators added via
-     * addExternalIndicator() stay, and the button survives only while it carries
-     * one of those. Hiding the container outright also unmapped it, and
-     * Panel._toggleMenu() bails on an unmapped indicator — which left
-     * extensions like Caffeine with neither a glyph nor a reachable toggle.
-     * See src/externalIndicators.js. Reversible in both directions.
-     */
     _applyQuickSettingsVisibility() {
         if (this._customControlCenterActive())
             this._externalIndicators.apply();
@@ -527,18 +459,12 @@ export class PanelController {
         }
     }
 
-    // ---- Live settings changes (from prefs) ---------------------------------
-
     _onSettingsChanged(key) {
         if (!this._enabled || !STRUCTURAL_KEYS.has(key))
-            return; // appearance/clock/tunables are handled live elsewhere.
+            return;
         this._reapplyStructure();
     }
 
-    /**
-     * Rebuild the structural widgets to match current settings, without touching
-     * the clock text or the dynamic stylesheet (those manage themselves live).
-     */
     _reapplyStructure() {
         this._removeNotificationCenter();
         this._removeStatusMenus();
@@ -558,11 +484,7 @@ export class PanelController {
         this._addNotificationCenter();
     }
 
-    // ---- Session mode handling ----------------------------------------------
-
     handleSessionMode() {
-        // Only re-assert while the normal user panel is present. When the panel
-        // is gone (or we're in a restricted mode) there is nothing to lay out.
         if (!this._enabled)
             return;
         if (!PanelAdapter.leftBox)
@@ -572,18 +494,14 @@ export class PanelController {
 
     _queueReapply() {
         if (this._reapplyId)
-            return; // coalesce; already queued.
+            return;
 
-        // Defer to idle so we run AFTER GNOME's own Panel._updatePanel handler
-        // has finished rebuilding the boxes for the new session mode.
         this._reapplyId = GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
             this._reapplyId = 0;
             this.handleSessionMode();
             return GLib.SOURCE_REMOVE;
         });
     }
-
-    // ---- Teardown -----------------------------------------------------------
 
     destroy() {
         this._enabled = false;
@@ -610,8 +528,6 @@ export class PanelController {
         this._settings = null;
 
         this.restoreOriginalState();
-        // Backstop after every widget is gone: shared service stores outlive
-        // the modules' users if any single destroy() was missed.
         shutdownWeather();
         shutdownSystemStats();
 

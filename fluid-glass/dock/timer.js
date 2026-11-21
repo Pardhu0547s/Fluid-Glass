@@ -27,7 +27,6 @@ export const Timer = class {
 
   start(resolution) {
     if (this.is_running()) {
-      // print('already running');
       return;
     }
     this._resolution = resolution || 1000;
@@ -43,7 +42,6 @@ export const Timer = class {
 
   stop() {
     if (!this.is_running()) {
-      // print('already stopped');
       return;
     }
     GLib.source_remove(this._timeoutId);
@@ -98,7 +96,6 @@ export const Timer = class {
   }
 
   onStart() {
-    // print(`started ${this._name} [${this.subscriberNames().join(',')}]`);
     this._subscribers.forEach((s) => {
       if (s.onStart) {
         s.onStart(s);
@@ -112,7 +109,6 @@ export const Timer = class {
         s.onStop(s);
       }
     });
-    // print(`stopped ${this._name}`);
   }
 
   onPause() {
@@ -155,7 +151,6 @@ export const Timer = class {
       }
     }
 
-    // print(`${this._time/1000} subs:${this._subscribers.length}`);
     return true;
   }
 
@@ -185,7 +180,6 @@ export const Timer = class {
       this.start(this._resolution);
     }
 
-    // log(`subscribers: ${this.subscriberNames().join(',')}`);
     return obj;
   }
 
@@ -225,8 +219,18 @@ export const Timer = class {
     });
   }
 
+  isSubscribed(obj) {
+    if (!obj || !obj._id) {
+      return false;
+    }
+    return this._subscribers.some((s) => s._id == obj._id);
+  }
+
   runLoop(func, delay, name) {
     if (typeof func === 'object') {
+      if (this.isSubscribed(func)) {
+        return func;
+      }
       func._time = 0;
       return this.subscribe(func);
     }

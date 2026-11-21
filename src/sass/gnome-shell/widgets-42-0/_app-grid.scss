@@ -1,5 +1,3 @@
-
-// app icons
 .icon-grid {
   row-spacing: 12px;
   column-spacing: 12px;
@@ -11,7 +9,6 @@
   page-padding-right: 18px;
 }
 
-/* App Icons */
 .show-apps,
 .app-well-app {
   .overview-icon.overview-icon-with-label {
@@ -48,7 +45,6 @@
   }
 }
 
-// App Folders
 .app-folder {
   background: none;
   border-radius: $wm_radius * 1.5;
@@ -115,7 +111,6 @@
     height: 24px;
     border-radius: $circular_radius;
     color: $light_alt_fg_color;
-    // background-color: $light_fill_color;
   }
 
   &:insensitive > StIcon {

@@ -1,11 +1,8 @@
-/* App Switcher */
-
 .switcher-popup {
   padding: 8px;
   spacing: $base_spacing * 4;
 }
 
-// switcher onscreen panel
 .switcher-list {
   @extend %osd_panel;
   border-radius: $bt_radius * 2 + $base_padding * 2;
@@ -19,7 +16,7 @@
 
     &:outlined {
       background-color: $divider_color;
-      color: $fg_color; // for Ubuntu session
+      color: $fg_color;
     }
 
     &:selected {
@@ -28,7 +25,6 @@
     }
   }
 
-  // window thumbnails
   .thumbnail-box {
     padding: 2px;
     spacing: $base_spacing;
@@ -57,14 +53,12 @@
   }
 }
 
-// Input Source Switcher
 .input-source-switcher-symbol {
   font-size: 34pt;
   width: 96px;
   height: 96px;
 }
 
-// Window cycler highlight
 .cycler-highlight {
   border: 5px solid $primary_color;
 }

@@ -1,8 +1,7 @@
-// Pointer location
 .ripple-pointer-location {
   width: 48px;
   height: 48px;
-  border-radius: 24px; // radius equals the size of the box to give us the curve
+  border-radius: 24px;
 
   @if $shell_version == 'old' {
     background-color: lighten(transparentize($primary_color, 0.7), 30%);
@@ -13,7 +12,6 @@
   }
 }
 
-// Pointer accessibility notifications
 .pie-timer {
   width: 60px;
   height: 60px;
@@ -27,7 +25,6 @@
   }
 }
 
-// Screen zoom/Magnifier
 .magnifier-zoom-region {
   border: 2px solid $primary_color;
   &.full-screen { border-width: 0; }

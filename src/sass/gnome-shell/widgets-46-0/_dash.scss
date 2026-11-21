@@ -1,4 +1,3 @@
-/* Dash */
 $dash_background_color: rgba(white, 0.12);
 
 $dash_placeholder_size: 32px;
@@ -7,28 +6,23 @@ $dash_edge_offset: $base_margin * 3;
 $dash_border_radius: 20px + $dash_padding;
 $dash_spacing: $base_margin * 0.5;
 
-// container for the dash
 #dash {
-  // a bit of spacing so that dash doesn't touch the screen edges
   padding-left: 0;
   padding-right: 0;
 
-  // background behind item container
   .dash-background {
     background-color: $dash_background_color;
     border-radius: $dash_border_radius;
     padding-top: $dash_padding;
     padding-bottom: $dash_padding;
-    padding-left: $dash_padding - $dash_spacing; // subtract the margins added to .overview-tile below
+    padding-left: $dash_padding - $dash_spacing;
     padding-right: $dash_padding - $dash_spacing;
     border: none;
     box-shadow: inset 0 0 0 1px rgba(white, 0.1);
   }
 
-  // items on the dash
   .dash-item-container {
     .placeholder {
-      // background-image: url("resource:///org/gnome/shell/theme/dash-placeholder.svg");
       background-image: none;
       background-size: contain;
       height: $dash_placeholder_size;
@@ -39,18 +33,15 @@ $dash_spacing: $base_margin * 0.5;
       height: $dash_placeholder_size;
     }
 
-    // IMPORTANT: items on the dash need to extend to the edge to be adequate click targets
-    // as such the %tile style is overriden and button styles are applied to the child class .overview-icon
     .show-apps,
     .overview-tile {
-      // remove styles
       background: none;
       box-shadow: none;
       border: none;
       border-radius: 0;
       padding: 0;
       margin: 0 $dash_spacing;
-      padding-bottom: $dash_edge_offset; // align with other items
+      padding-bottom: $dash_edge_offset;
 
       .overview-icon {
         border-radius: 20px;
@@ -70,15 +61,11 @@ $dash_spacing: $base_margin * 0.5;
       &:insensitive .overview-icon { background-color: transparent; }
     }
 
-    // running app dot
     .app-grid-running-dot {
-      // manually position the dot within the dash item
-      // margin-bottom: $dash_padding + $dash_edge_offset - 3px; // 3px = size of dot (5px) subtracted from its translationY from appDisplay.js
       offset-y: -9px;
     }
   }
 
-  // separator between pinned and running apps
   .dash-separator {
     width: 1px;
     margin-left: $base_margin;
@@ -86,14 +73,12 @@ $dash_spacing: $base_margin * 0.5;
     background-color: rgba(white, 0.15);
   }
 
-  // make sure all dash components have same margin from screen edge
   .dash-separator,
   .dash-background {
     margin-bottom: $dash_edge_offset;
   }
 }
 
-// OSD Tooltip
 .dash-label {
-  -y-offset: $base_margin * 2; // distance from the dash edge
+  -y-offset: $base_margin * 2;
 }

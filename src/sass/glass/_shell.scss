@@ -1,20 +1,5 @@
-// =============================================================================
-// Fluid Glass for Linux: GNOME Shell Glass Overlay (High-Performance St Compliant)
-// Strict St CSS compliance: Single-shadow only (no commas), zero parser errors,
-// instantaneous GPU rendering.
-// =============================================================================
-
 @import 'material';
 
-// -----------------------------------------------------------------------------
-// Design rule (copied from ryohsuke1231/liquid-glass): the extension's shader
-// draws the glass - refraction, rim light, sheen and drop shadow. The theme
-// must NOT paint borders, outer shadows or opaque fills on top of it, or the
-// glass turns into a flat plastic card. Elements only get a faint translucent
-// fill plus MacTahoe's soft inner glow so they read as lenses on the glass.
-// Light values follow ziuus/liquid-glass material presets (white tint 0.97,
-// tint strength 0.15-0.30).
-// -----------------------------------------------------------------------------
 $lg_light:        $variant == 'light';
 $lg_fg:           if($lg_light, rgba(0, 0, 0, 0.85), #ffffff);
 $lg_fg_dim:       if($lg_light, rgba(0, 0, 0, 0.55), rgba(255, 255, 255, 0.70));
@@ -26,7 +11,6 @@ $lg_fill_checked: if($lg_light, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0
 $lg_glow:         inset 0 0 4px if($lg_light, rgba(255, 255, 255, 0.70), rgba(255, 255, 255, 0.35));
 $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(255, 255, 255, 0.50));
 
-// 1. Top Panel - the extension turns it into a floating glass pill
 #panel {
   height: 32px !important;
   background-color: transparent !important;
@@ -80,9 +64,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-// -----------------------------------------------------------------------------
-// 2. Quick Settings - glass card from the shader, lenses from the theme
-// -----------------------------------------------------------------------------
 .quick-settings {
   min-width: 370px !important;
   width: 370px !important;
@@ -115,7 +96,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   transition-duration: 0ms !important;
 }
 
-// Toggle lenses (macOS Tahoe Control Center capsules with circular icon badges)
 .quick-toggle,
 .quick-toggle-has-menu {
   color: $lg_fg !important;
@@ -176,7 +156,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
     background-color: $lg_fill_active !important;
   }
 
-  // Checked: translucent glass capsule + solid white circle badge + electric blue icon + white title
   &:checked {
     background-color: if($lg_light, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.22)) !important;
     border-color: if($lg_light, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.36)) !important;
@@ -204,7 +183,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   padding: 0 12px 0 8px !important;
 }
 
-// Toggle with a menu arrow: one unified capsule lens, inner buttons see-through
 .quick-toggle-has-menu {
   padding: 0 !important;
   margin: 0 !important;
@@ -291,7 +269,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-// Slider lens
 .quick-slider,
 .liquid-glass-qs-root .quick-slider {
   background-color: $lg_fill !important;
@@ -341,7 +318,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-// Expanded toggle menu
 .quick-toggle-menu {
   background-color: if($lg_light, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.12)) !important;
   border: none !important;
@@ -382,7 +358,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-// System buttons: round glass discs
 .quick-settings-system-item {
   & > StBoxLayout {
     spacing: 10px !important;
@@ -439,10 +414,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-
-// -----------------------------------------------------------------------------
-// 3. Menus, Popovers, & Submenus (True Fluid Glass Lenses)
-// -----------------------------------------------------------------------------
 .popup-menu-content {
   background-color: if($lg_light, rgba(255, 255, 255, 0.72), rgba(28, 28, 34, 0.72)) !important;
   border: none !important;
@@ -477,9 +448,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-// -----------------------------------------------------------------------------
-// 4. Calendar & Notification Center
-// -----------------------------------------------------------------------------
 .calendar {
   background-color: $lg_fill !important;
   border: none !important;
@@ -513,7 +481,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   border-radius: 9999px !important;
 }
 
-// Message list cards
 .message {
   background-color: $lg_fill !important;
   border: none !important;
@@ -547,9 +514,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-// -----------------------------------------------------------------------------
-// 5. Notification Banners
-// -----------------------------------------------------------------------------
 .notification-banner {
   background-color: if($lg_light, rgba(255, 255, 255, 0.82), rgba(30, 30, 36, 0.82)) !important;
   border: none !important;
@@ -572,9 +536,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-// -----------------------------------------------------------------------------
-// 6. OSD Window & HUDs
-// -----------------------------------------------------------------------------
 .osd-window {
   background-color: if($lg_light, rgba(255, 255, 255, 0.80), rgba(30, 30, 36, 0.80)) !important;
   border: none !important;
@@ -590,9 +551,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-// -----------------------------------------------------------------------------
-// 7. Dash to Dock & Dash
-// -----------------------------------------------------------------------------
 #dash .dash-background,
 #dashtodockDashContainer .dash-background {
   border-radius: 24px !important;
@@ -603,9 +561,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   box-shadow: $lg_glow !important;
 }
 
-// -----------------------------------------------------------------------------
-// 8. Modal Dialogs & Switcher Popup
-// -----------------------------------------------------------------------------
 .modal-dialog,
 .switcher-popup {
   background-color: if($lg_light, rgba(255, 255, 255, 0.85), rgba(36, 36, 44, 0.85)) !important;
@@ -615,9 +570,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   color: $lg_fg !important;
 }
 
-// -----------------------------------------------------------------------------
-// 9. Overview Search Entry
-// -----------------------------------------------------------------------------
 .search-entry {
   background-color: $lg_fill !important;
   border: none !important;
@@ -632,11 +584,6 @@ $lg_glow_strong:  inset 0 0 6px if($lg_light, rgba(255, 255, 255, 0.90), rgba(25
   }
 }
 
-// -----------------------------------------------------------------------------
-// 10. Liquid Glass Extension Compatibility
-// When the liquid-glass extension is running, it assigns .liquid-glass-transparent
-// so the shader glass shows through without double painting.
-// -----------------------------------------------------------------------------
 .liquid-glass-transparent,
 .liquid-glass-transparent-keep-border {
   background-color: transparent !important;

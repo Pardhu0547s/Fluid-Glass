@@ -1,18 +1,10 @@
-//
-// Transmission
-//
 .tr-workarea undershoot,
 .tr-workarea overshoot {
-  border-color: transparent; // Remove black border on over- and undershoot
+  border-color: transparent;
 }
-
-//
-// Firefox and Thunderbird
-//
 
 window.background:not(.csd):not(.popup) {
   > widget {
-    // for the bookmark toolbar's separators
     > separator {
       padding-top: 1px;
       margin-top: 1px;
@@ -20,20 +12,15 @@ window.background:not(.csd):not(.popup) {
       background-color: $borders_color;
     }
 
-    // avoid black border
     > scrollbar {
       background: none;
       border: none;
-      // background-clip: border-box;
     }
 
-    // emphasize borders color
-    // > scrollbar,
     > frame > border { border-color: $borders_color; }
 
     > entry,
-    .entry { // Set for linked entrys
-      // min-height: 26px;
+    .entry {
       border-radius: $bt_radius;
       background-image: image($base_color);
       border: 1px solid $borders_color;
@@ -51,7 +38,6 @@ window.background:not(.csd):not(.popup) {
         }
       }
 
-      // Fixed thunderbird linked entry spinbutton border-radius.
       .entry { border-top-right-radius: 0;  border-bottom-right-radius: 0; }
     }
 
@@ -79,7 +65,6 @@ window.background:not(.csd):not(.popup) {
 
   > menu,
   > menu > menu {
-    // border-radius: 0;
     background-color: $menu_bg;
   }
 
@@ -97,23 +82,14 @@ window.background:not(.csd):not(.popup) {
 
   > window > menu {
     menuitem {
-      transition: none; // Fixed plank menu background issue
+      transition: none;
     }
   }
 }
 
-//
-// Firefox Quantum
-//
-
 #MozillaGtkWidget {
-  // blend with weird toolbar backgrounds
   background-color: $bg_color;
 
-  // FIXME: resetting child elements background is not fully functional yet
-  // because WidgetStyleCache keeps holding initial background-color.
-  // the stem of this incorrect colouring seems to be caused by their
-  // gdk_rgba to ns_rgba conversion. I don't think theme's fault.
   .background,
   frame,
   separator,
@@ -135,12 +111,11 @@ window.background:not(.csd):not(.popup) {
     }
   }
 
-  > window.background > menu { // context-menus
-    border: none; // hide ugly double borders
+  > window.background > menu {
+    border: none;
     background-color: $menu_bg;
     border-radius: 2px;
 
-    // revert to standard separators
     > separator {
       margin-top: 2px;
       margin-bottom: 2px;
@@ -149,23 +124,17 @@ window.background:not(.csd):not(.popup) {
   }
 
   > widget {
-    // Emphasize toolbar's border-bottom
     > frame > border { border-color: if($variant == 'light', darken($bg_color, 15%), lighten($bg_color, 20%)); }
 
-    // For popover, entry in toolbar, etc.
     text { background-color: $bg_color; }
 
-    // For selection, active tab indicator, etc.
     text:selected {
-      // Use traditional selection style as workaround
       background-color: $selected_bg_color;
       color: $selected_fg_color;
     }
 
     separator { background-color: $borders_color; }
 
-    // FIXME: this affected to popover widget as well,
-    // so we can not set $lighter_bg_color to search-bar...
     > scrolledwindow > textview {
       background-color: $menu_bg;
 
@@ -180,13 +149,8 @@ window.background:not(.csd):not(.popup) {
     }
   }
 
-  // remove ugly border around the menus
   menu { border: none; }
 }
-
-//
-// Chrome(ium)
-//
 
 $chrome_bg_color: $bg_color;
 $chrome_fg_color: $text_color;
@@ -194,7 +158,6 @@ $chrome_menu_bg_color: $menu_bg;
 $chrome_menu_fg_color: $fg_color;
 
 window.background.chromium {
-  // checked-tab & toolbar & button widgets
   background-color: $chrome_bg_color;
   color: $text_color;
 
@@ -203,7 +166,7 @@ window.background.chromium {
     background-color: $chrome_bg_color;
     color: $text_color;
 
-    button.toggle { // account-button (> 64.0.3282?)
+    button.toggle {
       border: none;
       background-color: transparent;
       background-image: none;
@@ -212,22 +175,18 @@ window.background.chromium {
       &:checked, &:active { @include button(flat-active); }
     }
 
-    // from nav_button_provider_gtk3.cc (> 62.0.3202?)
-    button.titlebutton { // title-buttons
-      // define global titlebutton class sizing
+    button.titlebutton {
       min-width: 16px;
       min-height: 16px;
-      margin: 0; // unset margins
+      margin: 0;
       padding: 0;
       background-size: 16px 16px;
-      color: transparent; // hide stock icons
+      color: transparent;
       border: none;
     }
   }
 
-  // FIXME: not for actual button widgets but for toolbar's separators
-  // crazy: src/+/master/chrome/browser/ui/libgtkui/gtk_ui.cc#891
-  button { // for active-tab borders
+  button {
     border-width: 1px;
     border-style: solid;
     border-color: $solid_borders_color;
@@ -236,7 +195,7 @@ window.background.chromium {
   }
 
   entry.chromium {
-    &, &:focus { // overrides standard borders
+    &, &:focus {
       border-image: none;
       color: $chrome_fg_color;
     }
@@ -244,7 +203,6 @@ window.background.chromium {
     background-color: rgba($chrome_fg_color, 0.06);
   }
 
-  // internal region of toolbar's entry widget
   > textview.view, textview {
     background-color: rgba($chrome_fg_color, 0.06);
     color: $chrome_fg_color;
@@ -268,18 +226,12 @@ window.background.chromium {
   }
 }
 
-//
-// Libre-Office
-//
-
 window.background:not(.solid-csd):not(.csd) {
-  // reserved area at the most-right side of GtkMenuBar
   > grid.horizontal > grid.horizontal {
     background-color: $header_bg;
     box-shadow: inset 0 -1px $borders_color;
 
     > button.flat.small-button {
-      // 'close' button
       color: $header_fg;
       border: none;
       border-radius: 50px;
@@ -302,9 +254,8 @@ window.background:not(.solid-csd):not(.csd) {
     }
   }
 
-  // for 'Notebookbar' toolbar
   > notebook {
-    border: none; // unset borders
+    border: none;
     background-color: transparent;
     box-shadow: none;
     padding: 0;
@@ -374,7 +325,6 @@ window.background:not(.solid-csd) {
   }
 }
 
-// Fix libreoffice toolbar button background color
 toolbar.toolbar {
   box:not(.linked) > button {
     &:active {
@@ -399,11 +349,6 @@ toolbar.toolbar {
   }
 }
 
-//
-// Tilix
-//
-
-// in-line titlebars
 widget > box.terminal-titlebar {
   padding: 0 6px;
 
@@ -426,20 +371,18 @@ widget > box.terminal-titlebar {
     }
   }
 
-  > button.image-button { // 'plus' and 'close'
+  > button.image-button {
     &, &.toggle {
       margin: 2px 0;
       padding: 0;
       min-height: 24px;
       min-width: 24px;
       border-radius: $bt_radius;
-      // -gtk-outline-radius: $bt_radius;
     }
   }
 }
 
 list.tilix-session-sidebar {
-  // use -image property instead
   background-image: image($dark_sidebar_bg);
   border-bottom-left-radius: $wm_radius;
 
@@ -449,7 +392,6 @@ list.tilix-session-sidebar {
     padding: 0;
     margin: 0;
     border-radius: 100px;
-    // -gtk-outline-radius: 100px;
     background-color: $destructive_color;
     &, &:hover, &:active, &:checked { color: white; }
 
@@ -502,7 +444,7 @@ notebook.tilix-background {
   > header {
     > tabs > tab {
       button.tilix-small-button {
-        padding: 0; // not use ?
+        padding: 0;
         min-height: 16px;
         min-width: 16px;
       }
@@ -510,9 +452,6 @@ notebook.tilix-background {
   }
 }
 
-//
-// Lollypop
-//
 window.background.csd {
   > grid.vertical > overlay > grid.vertical {
     > grid.horizontal {
@@ -552,10 +491,6 @@ window.background.csd {
     }
   }
 }
-
-//
-// Inkscape
-//
 
 toolbar#SubToolBox {
   min-height: 36px;
@@ -597,19 +532,17 @@ widget#ToolboxCommon {
     }
   }
 
-  > toolbar#ToolToolbar { // Left side toolbar
+  > toolbar#ToolToolbar {
     background-color: $bg_color;
     border-right: 1px solid $borders_color;
   }
 
-  // > toolbar > toolitem > button.flat, // Left side
-  > toolbar > toolbutton > button.flat { // Right side
+  > toolbar > toolbutton > button.flat {
     margin-top: 2px;
     margin-bottom: 2px;
   }
 }
 
-// Right side toolbar
 box#SnapToolbox {
   background-color: $bg_color;
   border-left: 1px solid $borders_color;
@@ -617,7 +550,7 @@ box#SnapToolbox {
   > toolbar {
     background-color: transparent;
 
-    > toolbutton > button.flat { // Right side
+    > toolbutton > button.flat {
       margin-top: 2px;
       margin-bottom: 2px;
     }
@@ -679,9 +612,6 @@ treeview#ObjectsTreeView.view {
   }
 }
 
-//
-// Synaptic
-//
 window > box.vertical > box.horizontal {
   > toolbar {
     background-color: transparent;
@@ -703,9 +633,6 @@ window > box.vertical > box.horizontal {
   > widget { background-color: transparent; }
 }
 
-//
-// Pamac
-//
 window.background > box.vertical > overlay > stack > scrolledwindow.frame {
   border: none;
 
@@ -714,12 +641,9 @@ window.background > box.vertical > overlay > stack > scrolledwindow.frame {
   }
 }
 
-//
-// vala-panel
-//
 window#ValaPanel.background {
   widget.-vala-panel-background {
-    > separator { // separator applet
+    > separator {
       background: none;
     }
   }
@@ -731,8 +655,7 @@ window#ValaPanel.background {
   }
 }
 
-// vala-panel-appmenu
-menubar.-vala-panel-appmenu-private, // xfce4 appmenu plugin
+menubar.-vala-panel-appmenu-private,
 menubar.-vala-panel-background {
   background: none;
   border: none;
@@ -751,14 +674,9 @@ menubar.-vala-panel-background {
       color: transparentize($panel_fg, 0.6);
     }
 
-    // > window.background.popup > decoration,
-    // > window.background.popup > menu { border-radius: 0 0 $wm_radius $wm_radius; }
   }
 }
 
-//
-// xapp stutas icon menu
-//
 .xapp-status-icon-menu-window {
   > decoration {
     box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15), 0 8px 15px rgba(0, 0, 0, 0.08), $wm_outline;
@@ -781,19 +699,11 @@ menubar.-vala-panel-background {
   }
 }
 
-//
-// Drawing
-//
-
 window.background.csd {
   > box.vertical > box.horizontal > notebook.frame {
     border: none;
   }
 }
-
-//
-// Cinnamon setting
-//
 
 frame.view list > row {
   button.gtkstyle-fallback {
@@ -803,10 +713,6 @@ frame.view list > row {
   }
 }
 
-//
-// FileZilla
-//
-
 window.background:not(.csd) {
   > box > widget > widget > widget > widget > widget > widget > widget > scrolledwindow {
     entry:focus {
@@ -814,10 +720,6 @@ window.background:not(.csd) {
     }
   }
 }
-
-//
-// Gsconnect
-//
 
 window.background.csd {
   > stack > grid.horizontal > list {

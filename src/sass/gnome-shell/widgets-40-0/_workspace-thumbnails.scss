@@ -1,8 +1,5 @@
-/* Workspace pager */
-
-// thumbnails in overview
 .workspace-thumbnails {
-  visible-width: 32px; //amount visible before hover
+  visible-width: 32px;
   spacing: $base_spacing;
   padding: $base_padding;
 
@@ -13,7 +10,6 @@
     border-radius: $bt_radius;
   }
 
-  // drag and drop indicator
   .placeholder {
     background-image: url("assets/dash-placeholder.svg");
     background-size: contain;
@@ -22,10 +18,8 @@
   }
 }
 
-// selected indicator
 .workspace-thumbnail-indicator {
   border: 3px solid $primary_color;
   border-radius: 9px;
   padding: 0px;
-  // background-color: transparentize($primary_color, 0.9);
 }

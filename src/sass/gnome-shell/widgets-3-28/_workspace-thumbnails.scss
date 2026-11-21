@@ -1,16 +1,12 @@
-// Workspace pager
-
-.workspace-thumbnails { //container ala dash
+.workspace-thumbnails {
   color: $light_alt_fg_color;
   background-color: $light_divider_color;
   border: none;
-  visible-width: 32px; //amount visible before hover
+  visible-width: 32px;
   spacing: 12px;
   padding: 16px;
   border-radius: $bt_radius;
   margin: 6px;
-  // border-width: 0; //fixme: can't have non unoform borders :(
-  // &:rtl { border-radius: $bt_radius; }
 
   .placeholder {
     background-image: url("assets/dash-placeholder.svg");

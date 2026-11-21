@@ -1,7 +1,5 @@
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
-// these are hacks to make Dash2Dock Animated compatible with other Extensions
-//
 export const Integrations = class {
   enable() {
     this.hookCompiz();
@@ -38,7 +36,6 @@ export const Integrations = class {
     this._compiz = null;
   }
 
-  // override compiz getIcon
   compiz_getIcon(actor) {
     let [success, icon] = actor.meta_window.get_icon_geometry();
     if (success) {
@@ -105,12 +102,10 @@ export const Integrations = class {
       return { x: monitor.x, y: monitor.y, width: 0, height: 0 };
     }
 
-    // console.log('compiz-alike-magic-lamp-effect: getIcon');
-    // console.log(`x:${dashIcon.x} y:${dashIcon.y} w:${dashIcon.width} h:${dashIcon.height}`);
     let x = dashIcon.x;
     let y = dashIcon.y;
-    let w = 0; //dashIcon.width;
-    let h = 0; //dashIcon.height;
+    let w = 0;
+    let h = 0;
 
     switch (dock._position) {
       case 'left':
@@ -174,8 +169,10 @@ export const Integrations = class {
 
   bms_update_size(animator) {
     let dock = animator.dock;
+    if (!dock.extension.blur_background && !animator._bms) {
+      return;
+    }
 
-    // blur my shell
     let bms = dock.get_children().find((child) => {
       let name = child.get_name();
       return name === 'bms-dash-backgroundgroup';
@@ -192,8 +189,6 @@ export const Integrations = class {
       return;
     }
 
-    // compatible blur-my-shell version 70
-    // bms version 70 supports 46,47..up
     if (
       dock.extension.integrations._bms &&
       dock.extension.integrations._bms.metadata.version >= 70
@@ -205,11 +200,9 @@ export const Integrations = class {
 
       let meta_background = bms.first_child.first_child;
       if (!meta_background) {
-        // this should exists
         return;
       }
 
-      // bottom layout
       switch (dock._position) {
         case 'left':
         case 'top':
@@ -266,7 +259,6 @@ export const Integrations = class {
       return;
     }
 
-    // bms version incompatible
     bms.visible = false;
   }
 };

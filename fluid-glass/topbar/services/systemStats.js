@@ -1,21 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// SystemStatsService — processor, memory, storage, temperature and network
-// figures for the System widget, read straight from the kernel.
-//
-// /proc and /sys are the whole back end: no libgtop dependency, nothing a
-// minimal install lacks. Those files are generated from kernel memory and never
-// wait on a disk, so they are read synchronously on the main loop; the one real
-// filesystem query (space in the home directory) is asynchronous.
-//
-// Sampling runs only while at least one System widget is on screen, that is,
-// while Notification Center is open, so a closed column costs nothing. One
-// store serves every System widget and is dropped with the last one, like the
-// weather store.
-//
-// Everything above SystemStatsStore is free of Shell imports and exported, so
-// it can be checked from plain gjs against the live /proc.
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -26,8 +8,6 @@ const FIRST_SAMPLE_DELAY_MS = 500;
 const STORAGE_REFRESH_US = 30 * GLib.USEC_PER_SEC;
 const KIB = 1024;
 
-// CPU temperature sensors in order of preference: hwmon driver name, and the
-// channel labels that carry the package or die temperature (null: channel 1).
 const CPU_SENSORS = [
     ['k10temp', ['Tdie', 'Tctl']],
     ['zenpower', ['Tdie', 'Tctl']],
@@ -47,13 +27,10 @@ function _exists(path) {
     return GLib.file_test(path, GLib.FileTest.EXISTS);
 }
 
-/** Aggregate CPU time from /proc/stat, as {busy, total} jiffies. */
 export function parseCpuTimes(text) {
     const line = text.split('\n').find(candidate => candidate.startsWith('cpu '));
     if (!line)
         throw new Error('No aggregate cpu line in /proc/stat');
-    // user nice system idle iowait irq softirq steal. Guest time is already
-    // part of user and nice, so the trailing guest columns are not added.
     const [user, nice, system, idle, iowait = 0, irq = 0, softirq = 0, steal = 0] =
         line.trim().split(/\s+/).slice(1).map(Number);
     const idleAll = idle + iowait;
@@ -61,7 +38,6 @@ export function parseCpuTimes(text) {
     return {busy: total - idleAll, total};
 }
 
-/** {total, available} in bytes from /proc/meminfo. */
 export function parseMeminfo(text) {
     const values = {};
     for (const line of text.split('\n')) {
@@ -74,7 +50,6 @@ export function parseMeminfo(text) {
     return {total: values.MemTotal, available: values.MemAvailable};
 }
 
-/** Received and sent byte counters, summed over the interfaces `include` accepts. */
 export function parseNetDev(text, include) {
     let rx = 0;
     let tx = 0;
@@ -85,7 +60,6 @@ export function parseNetDev(text, include) {
         if (!include(line.slice(0, colon).trim()))
             continue;
         const fields = line.slice(colon + 1).trim().split(/\s+/).map(Number);
-        // A short or garbled line would poison every later rate with NaN.
         if (!Number.isFinite(fields[0]) || !Number.isFinite(fields[8]))
             continue;
         rx += fields[0];
@@ -94,16 +68,10 @@ export function parseNetDev(text, include) {
     return {rx, tx};
 }
 
-/**
- * Only interfaces backed by hardware count. A VPN tunnel, a bridge or a
- * container's veth carries traffic that also crosses the physical link, so
- * adding them would count the same bytes twice.
- */
 export function isPhysicalInterface(name) {
     return _exists(`/sys/class/net/${name}/device`);
 }
 
-/** Path of the CPU temperature input in millidegrees Celsius, or null. */
 export function findCpuTemperatureInput() {
     const drivers = new Map();
     try {
@@ -117,7 +85,6 @@ export function findCpuTemperatureInput() {
                 if (!drivers.has(driver))
                     drivers.set(driver, path);
             } catch (_e) {
-                // A device without a name file is not a sensor we know.
             }
         }
         enumerator.close(null);
@@ -179,7 +146,6 @@ const SystemStatsStore = GObject.registerClass({
     }
 
     setActive(consumer, active) {
-        // A consumer that outlived shutdownSystemStats() must not restart sampling.
         if (this._destroyed)
             return;
         if (active)
@@ -194,13 +160,11 @@ const SystemStatsStore = GObject.registerClass({
     }
 
     _start() {
-        // A pause in sampling would draw as a flat stretch that never happened.
         const pause = GLib.get_monotonic_time() - this._lastSampleAt;
         if (pause > 3 * SAMPLE_INTERVAL_MS * 1000)
             this._clearHistory();
 
         this._sample();
-        // Rates need two samples: take the second one soon, then settle.
         this._timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
             FIRST_SAMPLE_DELAY_MS, () => {
                 this._sample();
@@ -260,7 +224,6 @@ const SystemStatsStore = GObject.registerClass({
             this._netCounters = {...counters, at: now};
             if (previous && now > previous.at) {
                 const seconds = (now - previous.at) / GLib.USEC_PER_SEC;
-                // Counters shrink when an interface disappears; never go negative.
                 this.network = {
                     rx: Math.max(0, counters.rx - previous.rx) / seconds,
                     tx: Math.max(0, counters.tx - previous.tx) / seconds,
@@ -326,11 +289,6 @@ const SystemStatsStore = GObject.registerClass({
 let _store = null;
 let _storeUsers = 0;
 
-/**
- * Drop the shared store regardless of its user count. Called on extension
- * disable so one widget whose destroy() never ran cannot keep sampling while
- * the extension is off (the module, and this store, survive until relogin).
- */
 export function shutdownSystemStats() {
     _store?.destroy();
     _store = null;
@@ -350,27 +308,22 @@ export const SystemStatsService = GObject.registerClass({
         this._storeId = this._store.connect('changed', () => this.emit('changed'));
     }
 
-    /** Busy fraction of all CPUs, 0..1, or null before two samples. */
     get cpu() {
         return this._store?.cpu ?? null;
     }
 
-    /** {used, total} bytes, or null. */
     get memory() {
         return this._store?.memory ?? null;
     }
 
-    /** {used, total} bytes of the filesystem holding the home directory, or null. */
     get storage() {
         return this._store?.storage ?? null;
     }
 
-    /** CPU temperature in degrees Celsius, or null without a known sensor. */
     get temperature() {
         return this._store?.temperature ?? null;
     }
 
-    /** {rx, tx} bytes per second over physical interfaces, or null. */
     get network() {
         return this._store?.network ?? null;
     }
@@ -387,7 +340,6 @@ export const SystemStatsService = GObject.registerClass({
         return this._store?.txHistory ?? [];
     }
 
-    /** Sample while `active`; the store samples while any consumer is active. */
     setActive(active) {
         this._store?.setActive(this, active);
     }
@@ -400,8 +352,6 @@ export const SystemStatsService = GObject.registerClass({
         this._storeId = 0;
         const own = this._store === _store;
         this._store = null;
-        // A store from before shutdownSystemStats() is already gone; do not
-        // count against, or destroy, the one a later enable created.
         if (!own)
             return;
         _storeUsers--;

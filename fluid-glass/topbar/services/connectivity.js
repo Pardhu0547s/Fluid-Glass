@@ -1,15 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// ConnectivityService — network and Bluetooth state for the Control Center.
-// NetworkManager is read through libnm because the first thing the popup needs
-// is which hardware exists: a laptop has a Wi-Fi card to toggle, a desktop on a
-// cable only an Ethernet port. Bluetooth/Airplane come from GNOME's Rfkill
-// service. We only read/flip well-defined properties on existing daemons
-// (no NM/BlueZ reimplementation). Signatures verified live:
-//   NM     /org/freedesktop/NetworkManager    WirelessEnabled(b rw)
-//   Rfkill /org/gnome/SettingsDaemon/Rfkill    AirplaneMode(b rw), HasAirplaneMode(b),
-//          BluetoothAirplaneMode(b rw), BluetoothHasAirplaneMode(b)
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -50,7 +38,7 @@ export const ConnectivityService = GObject.registerClass({
             } catch (e) {
                 if (!e.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
                     logError(e, 'fluid-glass: create NetworkManager client');
-                return; // NM absent — network tiles hidden.
+                return;
             }
             if (this._destroyed) {
                 client.run_dispose();
@@ -71,7 +59,7 @@ export const ConnectivityService = GObject.registerClass({
         new RfkillProxy(Gio.DBus.session, RFKILL_NAME, RFKILL_PATH,
             (proxy, error) => {
                 if (error || this._destroyed)
-                    return; // Rfkill absent — BT/airplane tiles hidden.
+                    return;
                 this._rfkill = proxy;
                 this._rfkillId = proxy.connect('g-properties-changed',
                     () => this.emit('changed'));
@@ -79,12 +67,6 @@ export const ConnectivityService = GObject.registerClass({
             });
     }
 
-    // ---- Devices ------------------------------------------------------------
-
-    /**
-     * Every device of `type`, managed or not: an Ethernet port that NM starts
-     * managing only announces it through its own `state-changed`.
-     */
     _devices(type) {
         if (!this._client?.nm_running)
             return [];
@@ -126,9 +108,6 @@ export const ConnectivityService = GObject.registerClass({
         this.emit('changed');
     }
 
-    // ---- Wi-Fi --------------------------------------------------------------
-
-    /** A Wi-Fi card exists; NetworkManager running is not enough. */
     get wifiAvailable() {
         return this._managedDevices(NM.DeviceType.WIFI).length > 0;
     }
@@ -156,8 +135,6 @@ export const ConnectivityService = GObject.registerClass({
         this._setProp(Gio.DBus.system, NM_NAME, NM_PATH, NM_NAME,
             'WirelessEnabled', GLibBool(on));
     }
-
-    // ---- Wired / LAN / USB Tethering ---------------------------------------
 
     _isPhysicalNetworkDevice(device) {
         if (!device || device.state === NM.DeviceState.UNMANAGED)
@@ -273,11 +250,6 @@ export const ConnectivityService = GObject.registerClass({
         return true;
     }
 
-    /**
-     * The best state across all Ethernet ports.
-     *
-     * @returns {'connected'|'connecting'|'unplugged'|'disconnected'}
-     */
     get wiredState() {
         const devices = this._managedDevices(NM.DeviceType.ETHERNET);
         const states = devices.map(device => device.state);
@@ -291,15 +263,11 @@ export const ConnectivityService = GObject.registerClass({
         return 'disconnected';
     }
 
-    // ---- Bluetooth ----------------------------------------------------------
-
-    /** False on a machine without a Bluetooth adapter. */
     get bluetoothAvailable() {
         return this._rfkill?.BluetoothHasAirplaneMode ?? false;
     }
 
     get bluetoothEnabled() {
-        // "airplane mode for bluetooth" is the inverse of "bluetooth on".
         return this._rfkill ? !this._rfkill.BluetoothAirplaneMode : false;
     }
 
@@ -307,8 +275,6 @@ export const ConnectivityService = GObject.registerClass({
         this._setProp(Gio.DBus.session, RFKILL_NAME, RFKILL_PATH, RFKILL_NAME,
             'BluetoothAirplaneMode', GLibBool(!on));
     }
-
-    // ---- Airplane -----------------------------------------------------------
 
     get airplaneAvailable() {
         return this._rfkill?.HasAirplaneMode ?? false;
@@ -322,8 +288,6 @@ export const ConnectivityService = GObject.registerClass({
         this._setProp(Gio.DBus.session, RFKILL_NAME, RFKILL_PATH, RFKILL_NAME,
             'AirplaneMode', GLibBool(on));
     }
-
-    // ---- helpers ------------------------------------------------------------
 
     _setProp(bus, name, path, iface, prop, variant) {
         bus.call(name, path, 'org.freedesktop.DBus.Properties', 'Set',

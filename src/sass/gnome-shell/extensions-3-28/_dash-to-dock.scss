@@ -1,6 +1,3 @@
-// Dash to Dock
-
-// Scrollview style
 .bottom #dashtodockDashScrollview,
 .top #dashtodockDashScrollview {
   -st-hfade-offset: 24px;
@@ -95,7 +92,7 @@
 
   &.dashtodock #dash { background-color: $dash_bg; }
 
-  #dash { // default-mode
+  #dash {
     background-color: $dash_bg;
 
     .app-well-app-running-dot {
@@ -107,15 +104,15 @@
     }
   }
 
-  &.opaque #dash { // solid-mode
+  &.opaque #dash {
     background-color: $dash_bg;
   }
 
-  &.transparent #dash { // translucent-mode
-    background-color: $dash_bg; // does not work
+  &.transparent #dash {
+    background-color: $dash_bg;
   }
 
-  &:overview #dash { // overview-mode #1
+  &:overview #dash {
     background-color: $light_divider_color;
 
     .app-well-app-running-dot {
@@ -128,14 +125,14 @@
   }
 
   &.opaque:overview,
-  &.transparent:overview { // overview-mode #2
+  &.transparent:overview {
     #dash {
       background-color: transparent !important;
       box-shadow: none !important;
     }
   }
 
-  &.extended:overview, // overview-mode #3
+  &.extended:overview,
   &.opaque.extended:overview,
   &.transparent.extended:overview {
     #dash {

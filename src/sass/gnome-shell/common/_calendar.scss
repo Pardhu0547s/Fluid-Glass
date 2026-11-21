@@ -1,5 +1,3 @@
-/* Date/Time Menu */
-
 $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($base_color, 8%), 0.95));
 
 %popover_bubble {
@@ -23,7 +21,6 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
   }
 }
 
-// overall menu
 #calendarArea {
   padding: $base_margin 0;
 }
@@ -32,7 +29,6 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
   border-radius: $bt_radius + $base_padding * 4 !important;
 }
 
-// Calendar menu side column
 .datemenu-calendar-column {
   spacing: $base_spacing;
   border: none;
@@ -56,7 +52,6 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
   }
 }
 
-/* today button (the date) */
 .datemenu-today-button {
   border: none;
   box-shadow: none;
@@ -77,18 +72,15 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
     background-color: if($variant == 'light', darken($popover_bubble_bg, 1%), lighten($popover_bubble_bg, 3%));
   }
 
-  // weekday label
   .day-label {
     font-weight: bold;
   }
 
-  // date label
   .date-label {
     @extend %title_2;
   }
 }
 
-/* Calendar */
 .calendar {
   border: none;
   box-shadow: none !important;
@@ -96,9 +88,7 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
   padding: $base_padding;
   margin: 0 $base_padding;
   text-shadow: none;
-  // border-radius: $base_border_radius;
 
-  // month
   .calendar-month-label {
     @extend %heading;
     margin: 0;
@@ -111,7 +101,6 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
     &:focus { background-color: $divider_color; }
   }
 
-  // prev/next month icons
   .calendar-change-month-back,
   .calendar-change-month-forward {
     padding: 2px !important;
@@ -155,18 +144,18 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
     &:active {
       color: $alt_fg_color;
       background-color: $track_color;
-      border-color: transparent; //avoid jumparound due to today
+      border-color: transparent;
     }
 
     &:selected {
       color: $fg_color;
       background-color: $track_color;
-      border-color: transparent; //avoid jumparound due to today
+      border-color: transparent;
       box-shadow: none !important;
     }
   }
 
-  .calendar-day { //border collapse hack - see calendar.js
+  .calendar-day {
     border-width: 0;
   }
 
@@ -178,13 +167,10 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
     border-left-width: 0;
   }
 
-  // .calendar-work-day {}
-
   .calendar-nonwork-day {
     color: $disabled_fg_color;
   }
 
-  // Today
   .calendar-today {
     font-weight: bold;
     color: $alt_fg_color !important;
@@ -258,14 +244,13 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
     font-feature-settings: "tnum";
   }
 
-  .calendar-day-heading {  //day of week heading
+  .calendar-day-heading {
     @extend %numeric;
     @extend %smaller;
     width: $menuitem_size !important;
     height: $menuitem_size - 6px !important;
     margin: $base_margin;
     padding: 0 !important;
-    // border-radius: $circular_radius;
     background-color: transparent !important;
     color: $hint_fg_color !important;
     font-weight: bold;
@@ -281,7 +266,6 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
   margin: $base_padding $base_padding + $base_margin !important;
 }
 
-// Events
 .events-button {
   .events-box {
     color: $hint_fg_color;
@@ -317,14 +301,11 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
   }
 }
 
-// World Clock
 .world-clocks-button {
-  // title
   .world-clocks-header {
     @extend %heading;
     color: $alt_fg_color;
 
-    // change style when no world clocks are configured
     &.no-world-clocks {
       color: $fg_color;
     }
@@ -357,7 +338,6 @@ $popover_bubble_bg: if($variant == 'light', rgba(white, 0.95), rgba(lighten($bas
   spacing-columns: 0.8em;
 }
 
-// Weather
 .weather-button {
   .weather-box {
     spacing: $base_spacing;

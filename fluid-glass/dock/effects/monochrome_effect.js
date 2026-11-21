@@ -1,6 +1,3 @@
-// Adapted from from Blur-My-Shell
-// Adapted from https://gist.github.com/yiwenl/1c2ce935e66b82c7df5f
-
 'use strict';
 
 import Shell from 'gi://Shell';
@@ -23,15 +20,6 @@ const getMonochromeShaderSource = (extensionDir) => {
   }
 };
 
-/// New Clutter Shader Effect that simply mixes a color in, the class applies
-/// the GLSL shader programmed into vfunc_get_static_shader_source and applies
-/// it to an Actor.
-///
-/// Clutter Shader Source Code:
-/// https://github.com/GNOME/clutter/blob/master/clutter/clutter-shader-effect.c
-///
-/// GJS Doc:
-/// https://gjs-docs.gnome.org/clutter10~10_api/clutter.shadereffect
 export const MonochromeEffect = GObject.registerClass(
   {
     GTypeName: 'FluidGlass_Dock_MonochromeEffect',},
@@ -44,19 +32,15 @@ export const MonochromeEffect = GObject.registerClass(
 
       this._static = true;
 
-      // initialize without color as a parameter
-
       let _color = params.color;
       delete params.color;
 
       super._init(params);
 
-      // set shader color
       if (_color) this.color = _color;
     }
 
     preload(path) {
-      // set shader source
       this._source = getMonochromeShaderSource(path);
       if (this._source) this.set_shader_source(this._source);
 
@@ -130,7 +114,6 @@ export const MonochromeEffect = GObject.registerClass(
       return [this.red, this.green, this.blue, this.blend];
     }
 
-    /// False set function, only cares about the color. Too hard to change.
     set(params) {
       this.color = params.color;
     }

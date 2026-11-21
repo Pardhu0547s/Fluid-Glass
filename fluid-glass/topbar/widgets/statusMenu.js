@@ -1,14 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// Shared presentation for the independent Tahoe-style status menus.  These
-// menus deliberately reuse the compact system-menu metrics, while keeping a
-// separate class for status-specific rows and widths.
-
-// No backdrop blur here: PopupMenu sits on a BoxPointer, which sets
-// OffscreenRedirect.ALWAYS, so a BACKGROUND-mode Shell.BlurEffect has nothing
-// behind it in that framebuffer to sample. This file used to attach one; it
-// never did anything. See docs/DESIGN_QA.md, Pass 8.
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -76,10 +65,6 @@ export function styleStatusMenu(menu, contentClass = '') {
     });
 }
 
-/**
- * Bind a PopupSwitchMenuItem to an async hardware toggle without snapping back
- * while D-Bus properties catch up.
- */
 export function bindStatusToggle(toggleItem, getEnabled, setEnabled, onSettled) {
     let pendingState = null;
     let pendingTimerId = 0;
@@ -103,8 +88,6 @@ export function bindStatusToggle(toggleItem, getEnabled, setEnabled, onSettled) 
 
     const scheduleSettle = () => {
         clearSettle();
-        // GNOME Shell's .toggle-switch transition is 100ms; if a concurrent
-        // menu relayout interrupts the align-constraint ease, snap the handle.
         settleTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 140, () => {
             settleTimerId = 0;
             const sw = toggleItem?._switch;

@@ -1,5 +1,3 @@
-/* Scrollbars */
-
 StScrollView {
   &.vfade { -st-vfade-offset: 68px; }
   &.hfade { -st-hfade-offset: 68px; }
@@ -22,7 +20,7 @@ StScrollBar {
   StButton#vhandle, StButton#hhandle {
     border-radius: $circular_radius;
     background-color: $hint_fg_color;
-    border: 4px solid transparent; //would be nice to margin or at least to transparent
+    border: 4px solid transparent;
 
     &:hover { background-color: $alt_fg_color; }
     &:active { background-color: $fg_color; }

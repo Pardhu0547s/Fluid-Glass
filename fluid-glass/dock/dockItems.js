@@ -5,8 +5,6 @@ import * as BoxPointer from 'resource:///org/gnome/shell/ui/boxpointer.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import { trySpawnCommandLine } from './utils.js';
 
-// import { trySpawnCommandLine } from 'resource:///org/gnome/shell/misc/util.js';
-
 import { Dash } from 'resource:///org/gnome/shell/ui/dash.js';
 
 import Shell from 'gi://Shell';
@@ -98,19 +96,21 @@ export const DockItemDotsOverlay = GObject.registerClass(
       let renderer = this.renderer;
       let { appCount, position, vertical, extension, dock } = data;
 
-      renderer.width = dock._iconSizeScaledDown || icon._icon.width;
-      renderer.height = dock._iconSizeScaledDown || icon._icon.height;
+      let rw = dock._iconSizeScaledDown || icon._icon.width;
+      let rh = dock._iconSizeScaledDown || icon._icon.height;
+      if (renderer.width !== rw) renderer.width = rw;
+      if (renderer.height !== rh) renderer.height = rh;
       renderer.pivot_point = icon._icon.pivot_point;
 
-      let canvasScale = renderer.width / renderer._canvas.width;
+      let canvasScale = rw / renderer._canvas.width;
 
-      // scaling fix
       let scale = dock._monitor.geometry_scale || 1;
       canvasScale *= scale;
-      renderer._canvas.set_scale(canvasScale, canvasScale);
+      if (renderer._canvas.scaleX !== canvasScale || renderer._canvas.scaleY !== canvasScale)
+        renderer._canvas.set_scale(canvasScale, canvasScale);
 
       let offsetX = 0;
-      let offsetY = renderer.height * 0.125 * scale;
+      let offsetY = rh * 0.125 * scale;
       if (vertical) {
         offsetX = -offsetY;
         if (position == DockPosition.RIGHT) {
@@ -123,11 +123,8 @@ export const DockItemDotsOverlay = GObject.registerClass(
         }
       }
 
-      // renderer.translationX = icon._icon.translationX + offsetX;
-      // renderer.translationY = icon._icon.translationY + offsetY;
-
-      renderer.translationX = offsetX;
-      renderer.translationY = offsetY;
+      if (renderer.translationX !== offsetX) renderer.translationX = offsetX;
+      if (renderer.translationY !== offsetY) renderer.translationY = offsetY;
 
       let options = extension.running_indicator_style_options;
       let running_indicator_style = options[extension.running_indicator_style];
@@ -158,18 +155,21 @@ export const DockItemBadgeOverlay = GObject.registerClass(
       let renderer = this.renderer;
       let { noticesCount, position, vertical, extension, scale } = data;
 
-      renderer.width = icon._icon.width;
-      renderer.height = icon._icon.height;
-      let canvasScale = renderer.width / renderer._canvas.width;
-      renderer._canvas.set_scale(canvasScale, canvasScale);
+      let rw = icon._icon.width;
+      let rh = icon._icon.height;
+      if (renderer.width !== rw) renderer.width = rw;
+      if (renderer.height !== rh) renderer.height = rh;
+      let canvasScale = rw / renderer._canvas.width;
+      if (renderer._canvas.scaleX !== canvasScale || renderer._canvas.scaleY !== canvasScale)
+        renderer._canvas.set_scale(canvasScale, canvasScale);
 
       let options = extension.notification_badge_style_options;
       let notification_badge_style =
         options[extension.notification_badge_style];
       let notification_badge_color = extension.notification_badge_color;
 
-      renderer.translationX = renderer.width / 1.5;
-      // renderer.translationY = icon._icon.translationY;
+      let tx = rw / 1.5;
+      if (renderer.translationX !== tx) renderer.translationX = tx;
 
       renderer.set_state({
         count: noticesCount,
@@ -209,7 +209,6 @@ export const DockIcon = GObject.registerClass(
 
       let container = this.get_parent();
 
-      // attach event
       let icon = this._iconActor;
       icon.reactive = true;
       icon.track_hover = true;
@@ -266,14 +265,12 @@ export const DockItemContainer = GObject.registerClass(
 
       this.custom_icon = true;
 
-      // hack to get DesktopAppInfo class
       let DesktopAppInfo = Main.overview.fluidGlassDock.DesktopAppInfo;
       if (!DesktopAppInfo) {
         try {
           DesktopAppInfo =
             Shell.AppSystem.get_default().get_installed()[0].constructor;
         } catch (err) {
-          // should be unreachable
           console.log(err);
         }
         Main.overview.fluidGlassDock.DesktopAppInfo = DesktopAppInfo;
@@ -281,7 +278,6 @@ export const DockItemContainer = GObject.registerClass(
 
       let desktopApp = params.app;
       if (desktopApp) {
-        // monkey patch dummy app
         if (!desktopApp.get_icon) {
           desktopApp.can_open_new_window = () => false;
           desktopApp.create_icon_texture = () => null;
@@ -312,7 +308,6 @@ export const DockItemContainer = GObject.registerClass(
         console.log(params);
       }
 
-      // menu
       if (params.appinfo_filename) {
         this._menu = new DockItemMenu(this, St.Side.TOP, {
           desktopApp,
@@ -365,7 +360,7 @@ export const DockBackground = GObject.registerClass(
       this._padding = 0;
 
       if (!first || !last || first == last) {
-        this.opacity = 0;
+        if (this.opacity !== 0) this.opacity = 0;
         return;
       }
 
@@ -381,56 +376,50 @@ export const DockBackground = GObject.registerClass(
         let tx2 = last._icon.translationX;
         let ty2 = last._icon.translationY;
 
-        // bottom
-        this.x = dp[0];
-        this.y = dp[1];
-        let width = dock.dash.width;
-        let height = dock.dash.height;
+        let bx = dp[0];
+        let by = dp[1];
+        let bw = dock.dash.width;
+        let bh = dock.dash.height;
 
         if (dock.isVertical()) {
-          this.y += ty;
-          height += ty2 - ty;
+          by += ty;
+          bh += ty2 - ty;
         } else {
-          this.x += tx;
-          width += tx2 - tx;
+          bx += tx;
+          bw += tx2 - tx;
         }
 
-        // padding
-        this.x -= padding;
-        width += padding * 2;
-        this.y -= padding;
-        height += padding * 2;
+        bx -= padding;
+        bw += padding * 2;
+        by -= padding;
+        bh += padding * 2;
 
-        if (!isNaN(width)) {
-          this.width = width;
-        }
-        if (!isNaN(height)) {
-          this.height = height;
-        }
-
-        this.x -= dock.x;
-        this.y -= dock.y;
+        bx -= dock.x;
+        by -= dock.y;
         this._padding = padding;
 
-        // adjust padding
         let az = -padding;
-        this.x += az / 2;
-        this.width -= az * (1 + !vertical);
-        this.y += az / 2;
-        this.height -= az * (1 + vertical);
+        bx += az / 2;
+        bw -= az * (1 + !vertical);
+        by += az / 2;
+        bh -= az * (1 + vertical);
 
         if (panel_mode) {
           if (vertical) {
-            this.y = dock.y;
-            this.height = dock.height;
+            by = dock.y;
+            bh = dock.height;
           } else {
-            this.x = dock.x;
-            this.width = dock.width;
+            bx = dock.x;
+            bw = dock.width;
           }
         }
 
-        this.opacity = 255;
-        dock.dash.opacity = this.opacity;
+        if (this.x !== bx) this.x = bx;
+        if (this.y !== by) this.y = by;
+        if (!isNaN(bw) && this.width !== bw) this.width = bw;
+        if (!isNaN(bh) && this.height !== bh) this.height = bh;
+        if (this.opacity !== 255) this.opacity = 255;
+        if (dock.dash.opacity !== 255) dock.dash.opacity = 255;
       }
     }
   }

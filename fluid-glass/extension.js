@@ -59,7 +59,6 @@ export default class FluidGlassExtension extends Extension {
 
         const extensionPath = this.dir.get_path();
 
-        // 1. Topbar & Tahoe Control Center Subsystem (Lintel)
         if (this._masterSettings.get_boolean('enable-topbar')) {
             try {
                 this._topbar = new PanelController(this._createTopbarAdapter(extensionPath));
@@ -70,7 +69,6 @@ export default class FluidGlassExtension extends Extension {
             }
         }
 
-        // 2. Liquid Glass GLSL Shader Engine Subsystem
         if (this._masterSettings.get_boolean('enable-glass-shaders')) {
             try {
                 this._glass = new GlassEngine(extensionPath, this._glassSettings, () => this.openPreferences());
@@ -82,7 +80,6 @@ export default class FluidGlassExtension extends Extension {
             }
         }
 
-        // 3. Fluid Animated Dock Subsystem (not used on login/lock screens)
         const isLockedOrGreeter = !!(Main.sessionMode?.isGreeter || Main.sessionMode?.isLocked);
         if (!isLockedOrGreeter && this._masterSettings.get_boolean('enable-dock')) {
             try {
@@ -94,7 +91,6 @@ export default class FluidGlassExtension extends Extension {
             }
         }
 
-        // Master settings dynamic reaction
         this._settingsSignals = [];
         this._settingsSignals.push(
             this._masterSettings.connect('changed::enable-topbar', () => this._syncTopbarState()),
@@ -165,7 +161,6 @@ export default class FluidGlassExtension extends Extension {
             this._settingsSignals = [];
         }
 
-        // Disable in exact reverse order: Dock -> Glass -> Topbar
         if (this._dock) {
             try {
                 this._dock.disable();

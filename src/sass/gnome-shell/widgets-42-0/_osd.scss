@@ -1,11 +1,10 @@
-
 .osd-window {
-  spacing: $base_padding * 2; // 12px
+  spacing: $base_padding * 2;
   padding: $base_padding * 2 $base_padding * 3;
   & > * { spacing: 8px; }
   margin-bottom: 4em;
 
-  StIcon { icon-size: $base_icon_size * 2; } // 32px
+  StIcon { icon-size: $base_icon_size * 2; }
 
   StLabel {
     &:ltr { margin-right: 6px; }

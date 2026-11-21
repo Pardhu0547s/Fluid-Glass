@@ -1,9 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// Translation helpers shared by the Shell process and the preferences process.
-// GNOME binds this domain to the extension's locale/ directory from the
-// `gettext-domain` entry in metadata.json before loading either entry point.
-
 import Gettext from 'gettext';
 
 export const GETTEXT_DOMAIN = 'fluid-glass@pardhu0547s.github.io';

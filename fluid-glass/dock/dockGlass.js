@@ -5,9 +5,7 @@ import { BackdropGlass } from '../glass/rendering/backdropGlass.js';
 import { reportFrameLoopError } from '../glass/logger.js';
 import { ensureGlassAllocated, setClipIfChanged, isActorValid, placeScreenGlass, GLASS_SHADOW_MAX_RADIUS } from '../glass/actors.js';
 import { isFrameSyncFrozen, SAME_FRAME_WINDOW_US, startStageLoop, stopStageLoop, hexToColorArray } from '../glass/animation.js';
-// Room around the glass rect for the shader's edge effects.
 export const SHADER_PADDING = 20;
-// The dock glass's look, from the dock-* settings, for every kind of dock.
 const DOCK_MATERIAL = [
     ['dock-tint-color', (g, s) => g.setTintColor(...hexToColorArray(s.get_string('dock-tint-color')))],
     ['dock-tint-strength', (g, s) => g.setTintStrength(s.get_double('dock-tint-strength'))],
@@ -27,7 +25,6 @@ export function createDockGlass(extensionPath, settings, logger, owner) {
     return glass;
 }
 
-/** Keeps the glass `glass()` returns, if any, in the dock's look. Returns the ids of the signals on `settings`. */
 export function followDockMaterial(settings, glass) {
     return DOCK_MATERIAL.map(([key, apply]) => settings.connect(`changed::${key}`, () => {
         const current = glass();
@@ -42,7 +39,6 @@ export class DashManager {
     extensionPath;
     targetActor;
     _settings;
-    // Monitor-sized; see _syncDockGlass().
     glass = null;
     _lastScreenW;
     _lastScreenH;
@@ -69,19 +65,22 @@ export class DashManager {
     _lastBaseW;
     _lastBaseH;
     _marginValue = 0;
-    // Tracks the hide/show transition so the reason is logged once, not per frame.
     _lastHidden;
-    // What the last _syncGeometry() based the glass rect on; see
-    // _syncGlassGeometryLive().
     _liveRef = null;
     _logger;
+    _isFluidDock = null;
+    _bgChild = null;
+    _dashChild = null;
+    _refActor = undefined;
+    _cachedMonitorIdx = -1;
+    _monitorsChangedId = 0;
+    _lastEffOpacity = -1;
 
     constructor(extensionPath, targetActor, settings, logger) {
         this.extensionPath = extensionPath;
         this.targetActor = targetActor;
         this._settings = settings;
         this._logger = logger;
-        // Pixels added around the dock's own rect.
         this._glassExpand = 0;
         this._signals = [];
         this._settingsSignals = [];
@@ -129,26 +128,48 @@ export class DashManager {
     _isDock() {
         if (!this.targetActor)
             return false;
-        return this.targetActor.get_children().some(c => {
+        if (this._isFluidDock !== null)
+            return this._isFluidDock;
+        this._isFluidDock = this.targetActor.get_children().some(c => {
             const name = c.get_name?.() ?? '';
             return name === 'fluidGlassDockBackground' || name === 'DockBackground';
         });
+        return this._isFluidDock;
+    }
+
+    _getBgChild() {
+        if (this._bgChild && isActorValid(this._bgChild) && this._bgChild.get_parent() === this.targetActor)
+            return this._bgChild;
+        this._bgChild = null;
+        if (!this.targetActor)
+            return null;
+        const children = this.targetActor.get_children();
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
+            const childName = child.get_name?.() ?? '';
+            if (child.has_style_class_name('dash-background') ||
+                childName === 'fluidGlassDockBackground' ||
+                childName === 'DockBackground') {
+                this._bgChild = child;
+                return child;
+            }
+        }
+        return null;
     }
 
     _getEffectiveOpacity() {
         let op = this.targetActor.opacity;
         if (op <= 0) {
-            let dashChild = this.targetActor.get_children?.().find(c => c.get_name?.() === 'dash');
-            if (dashChild && dashChild.opacity > 0)
-                op = dashChild.opacity;
+            if (!this._dashChild || !isActorValid(this._dashChild) || this._dashChild.get_parent() !== this.targetActor)
+                this._dashChild = this.targetActor.get_children?.().find(c => c.get_name?.() === 'dash') ?? null;
+            if (this._dashChild && this._dashChild.opacity > 0)
+                op = this._dashChild.opacity;
             else if (this.targetActor.visible)
                 op = 255;
         }
         return op;
     }
 
-    // Moves the dock away from the screen edge it is closest to by
-    // dock-margin-bottom.
     _applyMargin() {
         if (!this.targetActor || this._isDock())
             return;
@@ -196,6 +217,12 @@ export class DashManager {
         this._lastTW = this._lastTH = undefined;
         this._stableDeltaW = this._stableDeltaH = undefined;
         this._lastHidden = undefined;
+        this._isFluidDock = null;
+        this._bgChild = null;
+        this._dashChild = null;
+        this._refActor = undefined;
+        this._cachedMonitorIdx = -1;
+        this._lastEffOpacity = -1;
         this.targetActor.add_style_class_name('fluid-glass-transparent');
         this._dockParent = this.targetActor.get_parent();
         if (this._dockParent) {
@@ -214,21 +241,14 @@ export class DashManager {
                 break;
             dockRoot = p;
         }
-        // Below the dock, so the glass reads the stage before the dock is drawn.
         if (dockRoot && dockRoot.get_parent() === Main.layoutManager.uiGroup) {
             Main.layoutManager.uiGroup.insert_child_below(glass, dockRoot);
         }
         else {
             Main.layoutManager.uiGroup.add_child(glass);
         }
-        // Dash to Dock slides by relayout, so the frame tick sees last frame's
-        // position; the paint-time hook corrects it.
         glass.setLiveGeometryHook(() => this._syncGlassGeometryLive());
         glass.show();
-        // Follows the stage's own frames (startStageLoop()), so it costs nothing
-        // while nothing changes. Errors are reported rate-limited instead of
-        // logged every frame; SAME_FRAME_WINDOW_US keeps two stage views from
-        // stepping it twice in one frame.
         let frameTick = () => {
             if (!this._isEffectActive || !this.glass || !this.targetActor.mapped)
                 return;
@@ -239,7 +259,6 @@ export class DashManager {
                 return;
             this._lastTickUs = nowUs;
             try {
-                // Checked before this frame's sync dirties anything.
                 ensureGlassAllocated(this.glass);
                 this._syncGeometry();
             }
@@ -252,8 +271,6 @@ export class DashManager {
                 return;
             startStageLoop(this._frameSignalSlot, this._frameSlot, frameTick);
         };
-        // The glass is the dock's sibling, so it stays up when the dock is
-        // hidden as a whole (for instance over a fullscreen window).
         let mapSignalId = this.targetActor.connect('notify::mapped', () => {
             if (this.targetActor.mapped) {
                 startFrameSync();
@@ -263,16 +280,27 @@ export class DashManager {
                 this._hideGlass();
             }
         });
-        this._signals.push(mapSignalId);
+        let childAddedId = this.targetActor.connect('child-added', () => {
+            this._isFluidDock = null;
+            this._bgChild = null;
+            this._dashChild = null;
+            this._refActor = undefined;
+        });
+        let childRemovedId = this.targetActor.connect('child-removed', () => {
+            this._isFluidDock = null;
+            this._bgChild = null;
+            this._dashChild = null;
+            this._refActor = undefined;
+        });
+        this._signals.push(mapSignalId, childAddedId, childRemovedId);
+        this._monitorsChangedId = Main.layoutManager.connect('monitors-changed', () => {
+            this._cachedMonitorIdx = -1;
+        });
         if (this.targetActor.mapped) {
             startFrameSync();
         }
     }
 
-    // Runs at paint time (see GlassActor.setLiveGeometryHook()), when the
-    // dock's allocation is current. _syncGeometry() keeps per-frame state and
-    // must run once per frame, so only the glass rect's position is corrected
-    // here, by how far the dock moved since the tick.
     _syncGlassGeometryLive() {
         const ref = this._liveRef;
         if (!ref || !this.glass)
@@ -285,31 +313,65 @@ export class DashManager {
         this.glass.setGlassGeometry(ref.rect[0] + (nx - ref.rawX), ref.rect[1] + (ny - ref.rawY), ref.rect[2], ref.rect[3]);
     }
 
+    _resolveMonitor() {
+        const monitors = Main.layoutManager.monitors;
+        if (monitors.length <= 1)
+            return Main.layoutManager.primaryMonitor;
+        if (this._cachedMonitorIdx < 0 || !monitors[this._cachedMonitorIdx]) {
+            let idx = Main.layoutManager.findIndexForActor(this.targetActor);
+            if (idx < 0)
+                idx = Main.layoutManager.primaryIndex;
+            this._cachedMonitorIdx = idx;
+        }
+        return monitors[this._cachedMonitorIdx] || Main.layoutManager.primaryMonitor;
+    }
+
     _syncGeometry() {
         if (!this.glass || !this.targetActor || !this.targetActor.mapped)
             return;
         let bounds = this._readDockBounds();
         if (!bounds)
             return;
-        let monitorIndex = Main.layoutManager.findIndexForActor(this.targetActor);
-        if (monitorIndex < 0) {
-            monitorIndex = Main.layoutManager.primaryIndex;
+        const monitor = this._resolveMonitor();
+        const isFluid = this._isDock();
+        if (!isFluid) {
+            const edges = dockEdges(bounds, monitor);
+            bounds = this._stabilizeDockBounds(bounds, edges);
+            if (this._refActor === undefined || (this._refActor && !isActorValid(this._refActor)))
+                this._refActor = this._findReferenceActor(this.targetActor);
+            if (this._refActor)
+                bounds = balanceDockBounds(bounds, this._actorBounds(this._refActor), edges);
+            bounds = this._applyDockMargin(bounds, monitor, edges);
         }
-        let monitor = Main.layoutManager.monitors[monitorIndex] || Main.layoutManager.primaryMonitor;
-        const edges = dockEdges(bounds, monitor);
-        bounds = this._stabilizeDockBounds(bounds, edges);
-        const refActor = this._findReferenceActor(this.targetActor);
-        if (refActor)
-            bounds = balanceDockBounds(bounds, this._actorBounds(refActor), edges);
-        bounds = this._applyDockMargin(bounds, monitor, edges);
-        const { baseW, baseH } = bounds;
+        const { absX, absY, baseW, baseH } = bounds;
         if (baseW <= 9 || baseH <= 9) {
             this._hideGlass();
             return;
         }
-        this.glass.show();
-        this.glass.opacity = this._getEffectiveOpacity();
-        this._syncDockVisibility(bounds, monitor);
+        const [visibleW, visibleH] = visibleDockSize(bounds, monitor);
+        const effOpacity = this._getEffectiveOpacity();
+        if (visibleW <= 1 || visibleH <= 1 || effOpacity <= 0) {
+            if (this._lastHidden !== true) {
+                this._lastHidden = true;
+                this._logger.log(`[Liquid Glass][dock] hiding the glass: visible=(${visibleW.toFixed(1)}x${visibleH.toFixed(1)}) ` +
+                    `base=(${baseW.toFixed(1)}x${baseH.toFixed(1)}) abs=(${absX.toFixed(1)},${absY.toFixed(1)}) ` +
+                    `monitor=(${monitor?.x},${monitor?.y},${monitor?.width}x${monitor?.height}) ` +
+                    `margin=${this._marginValue}`);
+            }
+            if (this.glass.visible)
+                this._hideGlass();
+            return;
+        }
+        if (this._lastHidden === true) {
+            this._lastHidden = false;
+            this._logger.log('[Liquid Glass][dock] glass visible again');
+        }
+        if (!this.glass.visible)
+            this.glass.show();
+        if (effOpacity !== this._lastEffOpacity) {
+            this.glass.opacity = effOpacity;
+            this._lastEffOpacity = effOpacity;
+        }
         this._syncDockGlass(bounds, monitor);
     }
 
@@ -322,26 +384,20 @@ export class DashManager {
     _liveSource = null;
 
     _readDockBounds() {
+        const bgChild = this._getBgChild();
         let sourceActor = this.targetActor;
-        let children = this.targetActor.get_children();
-        for (let i = 0; i < children.length; i++) {
-            const childName = children[i].get_name?.() ?? '';
-            if (children[i].has_style_class_name('dash-background') ||
-                childName === 'fluidGlassDockBackground' ||
-                childName === 'DockBackground') {
-                children[i].opacity = 0;
-                sourceActor = children[i];
-                break;
-            }
+        if (bgChild) {
+            if (bgChild.opacity !== 0)
+                bgChild.opacity = 0;
+            sourceActor = bgChild;
         }
         let [baseW, baseH] = sourceActor.get_size();
         let [absX, absY] = sourceActor.get_transformed_position();
         if (Number.isNaN(absX) || Number.isNaN(absY))
             return null;
-        // The uncorrected position, which _syncGlassGeometryLive() compares against.
         this._liveSource = { actor: sourceActor, rawX: absX, rawY: absY };
         const bounds = { absX, absY, baseW, baseH };
-        if (sourceActor !== this.targetActor && (sourceActor.get_name?.() === 'fluidGlassDockBackground' || sourceActor.get_name?.() === 'DockBackground')) {
+        if (sourceActor !== this.targetActor && this._isDock()) {
             return bounds;
         }
         return sourceActor === this.targetActor ? bounds : clipDockBounds(bounds, this._actorBounds(this.targetActor));
@@ -352,8 +408,6 @@ export class DashManager {
         const { minCenterDist, distTopCenter, distBottomCenter } = edges;
         if (this._lastBaseW !== undefined && this._lastBaseH !== undefined) {
             let isHorizontalDock = (minCenterDist === distTopCenter || minCenterDist === distBottomCenter);
-            // The dock's thickness can jump by exactly the margin for a frame;
-            // such a jump is ignored.
             if (isHorizontalDock) {
                 if (Math.abs(Math.abs(baseH - this._lastBaseH) - this._marginValue) <= 1)
                     baseH = this._lastBaseH;
@@ -375,8 +429,6 @@ export class DashManager {
         if (!monitor || !(marginValue > 0))
             return bounds;
         const { absX, absY, baseW, baseH } = bounds;
-        // No margin correction while the dock slides in or out from its screen edge. A move along the edge
-        // is a centered dock growing or shrinking as icons come and go, which still needs it.
         let isMoving = false;
         if (this._lastAbsX !== undefined && this._lastAbsY !== undefined) {
             const horizontal = edges.minCenterDist === edges.distTopCenter || edges.minCenterDist === edges.distBottomCenter;
@@ -401,8 +453,6 @@ export class DashManager {
     _syncDockVisibility(bounds, monitor) {
         const { absX, absY, baseW, baseH } = bounds;
         const [visibleW, visibleH] = visibleDockSize(bounds, monitor);
-        // Only a degenerate box hides the glass: a dock flush against the screen
-        // edge is only a few pixels wide on screen. Logged on transition.
         if (visibleW <= 1 || visibleH <= 1) {
             if (this._lastHidden !== true) {
                 this._lastHidden = true;
@@ -429,23 +479,37 @@ export class DashManager {
         let bgH = Math.max(1.0, h + (SHADER_PADDING * 2) + (this._glassExpand * 2));
         let bgX = absX - SHADER_PADDING - this._glassExpand;
         let bgY = absY - SHADER_PADDING - this._glassExpand;
-        // The glass covers the whole monitor; the shader draws only the glass
-        // rect, in monitor-local coordinates.
         let screenW = monitor.width;
         let screenH = monitor.height;
-        // Monitor-local, as the shader uses them.
         let localBgX = bgX - monitor.x;
         let localBgY = bgY - monitor.y;
-        if (this._lastBgW !== bgW || this._lastBgH !== bgH ||
+        const boundsChanged = this._lastBgW !== bgW || this._lastBgH !== bgH ||
             this._lastBgX !== bgX || this._lastBgY !== bgY ||
             this._lastScreenW !== screenW || this._lastScreenH !== screenH ||
-            this.glass.x !== monitor.x || this.glass.y !== monitor.y) {
-            this.glass.remove_transition('size');
-            this.glass.remove_transition('position');
+            this.glass.x !== monitor.x || this.glass.y !== monitor.y;
+        if (boundsChanged) {
+            if (this.glass.get_transition('size'))
+                this.glass.remove_transition('size');
+            if (this.glass.get_transition('position'))
+                this.glass.remove_transition('position');
             this.glass.set_position(monitor.x, monitor.y);
             this.glass.set_size(screenW, screenH);
-            this.glass.remove_transition('size');
-            this.glass.remove_transition('position');
+            if (this.glass.get_transition('size'))
+                this.glass.remove_transition('size');
+            if (this.glass.get_transition('position'))
+                this.glass.remove_transition('position');
+            const CLIP_PADDING = 200;
+            setClipIfChanged(this.glass, localBgX - CLIP_PADDING, localBgY - CLIP_PADDING, bgW + CLIP_PADDING * 2, bgH + CLIP_PADDING * 2);
+            const SHADOW_MAX_RADIUS = CLIP_PADDING - 20;
+            this.glass?.setShadowMaxRadius(SHADOW_MAX_RADIUS);
+            this.glass?.setResolution(screenW, screenH);
+            this.glass?.setGlassGeometry(localBgX, localBgY, bgW, bgH);
+            const source = this._liveSource;
+            this._liveRef = source ? {
+                actor: source.actor,
+                rawX: source.rawX, rawY: source.rawY,
+                rect: [localBgX, localBgY, bgW, bgH],
+            } : null;
             this._lastBgW = bgW;
             this._lastBgH = bgH;
             this._lastBgX = bgX;
@@ -453,22 +517,7 @@ export class DashManager {
             this._lastScreenW = screenW;
             this._lastScreenH = screenH;
         }
-        // Limit drawing to the dock plus room for its shadow (not
-        // clip_to_allocation, which would cut the shadow off).
-        const CLIP_PADDING = 200;
-        setClipIfChanged(this.glass, localBgX - CLIP_PADDING, localBgY - CLIP_PADDING, bgW + CLIP_PADDING * 2, bgH + CLIP_PADDING * 2);
-        const SHADOW_MAX_RADIUS = CLIP_PADDING - 20;
-        this.glass?.setShadowMaxRadius(SHADOW_MAX_RADIUS);
-        this.glass?.setResolution(screenW, screenH);
-        this.glass?.setGlassGeometry(localBgX, localBgY, bgW, bgH);
-        const source = this._liveSource;
-        this._liveRef = source ? {
-            actor: source.actor,
-            rawX: source.rawX, rawY: source.rawY,
-            rect: [localBgX, localBgY, bgW, bgH],
-        } : null;
-        // After the geometry setters, so the relays cover this frame's rect.
-        this.glass.syncSources();
+        this.glass.syncSources(boundsChanged);
     }
 
     get _frameSlot() {
@@ -479,13 +528,13 @@ export class DashManager {
         return { get: () => this._frameSignalId, set: (id) => { this._frameSignalId = id; } };
     }
 
-    // The next sync shows it again and updates everything.
     _hideGlass() {
         this.glass?.hide();
         this._lastBgW = undefined;
         this._lastBgH = undefined;
         this._lastBgX = undefined;
         this._lastBgY = undefined;
+        this._lastEffOpacity = -1;
     }
 
     resetCachedBounds() {
@@ -505,6 +554,12 @@ export class DashManager {
         this._stableDeltaH = undefined;
         this._liveRef = null;
         this._liveSource = null;
+        this._isFluidDock = null;
+        this._bgChild = null;
+        this._dashChild = null;
+        this._refActor = undefined;
+        this._cachedMonitorIdx = -1;
+        this._lastEffOpacity = -1;
     }
 
     _stopFrameSync() {
@@ -517,7 +572,16 @@ export class DashManager {
         this._isEffectActive = false;
         this._currentMarginStyle = undefined;
         this._stopFrameSync();
-        // The dock may already have been destroyed by Dash to Dock.
+        if (this._monitorsChangedId) {
+            Main.layoutManager.disconnect(this._monitorsChangedId);
+            this._monitorsChangedId = 0;
+        }
+        this._isFluidDock = null;
+        this._bgChild = null;
+        this._dashChild = null;
+        this._refActor = undefined;
+        this._cachedMonitorIdx = -1;
+        this._lastEffOpacity = -1;
         const dockAlive = isActorValid(this.targetActor);
         for (const id of this._signals) {
             if (dockAlive)
@@ -556,8 +620,6 @@ export class DashManager {
         this._settingsSignals = [];
     }
 
-    // The first running-app indicator inside the dock (Dash to Dock's
-    // IndicatorDrawingArea), used to balance the gaps around the icons.
     _findReferenceActor(actor) {
         if (!actor)
             return null;
@@ -575,7 +637,6 @@ export class DashManager {
 export function clipDockBounds(bounds, target) {
     let { absX, absY, baseW, baseH } = bounds;
     const { absX: tX, absY: tY, baseW: tW, baseH: tH } = target;
-    // Cut off whatever sticks out of the target.
     if (absX < tX) {
         baseW -= (tX - absX);
         absX = tX;
@@ -606,9 +667,6 @@ export function dockEdges(bounds, monitor) {
     return { minCenterDist, distLeftCenter, distRightCenter, distTopCenter, distBottomCenter };
 }
 
-// The gaps before and after the reference rect. On a flipped axis (a dock
-// placed at the top, or a mirrored left/right dock) the reference's origin is
-// at its far edge, so its real start is refStart - refSize.
 function referenceGaps(start, size, refStart, refSize) {
     let before = refStart - start;
     let after = start + size - (refStart + refSize);
@@ -628,9 +686,6 @@ export function balanceDockBounds(bounds, reference, edges) {
     const [topGap, bottomGap] = referenceGaps(absY, baseH, refY, refH);
     const [leftGap, rightGap] = referenceGaps(absX, baseW, refX, refW);
     if (baseW >= baseH) {
-        // Horizontal dock (top or bottom). A difference larger than half the
-        // height is bogus and ignored. Trim the larger gap: the bottom by
-        // shrinking, the top by also moving the start down.
         const diff = Math.abs(bottomGap - topGap);
         if (diff > 0 && diff < baseH / 2) {
             if (!(bottomGap > topGap))
@@ -639,8 +694,6 @@ export function balanceDockBounds(bounds, reference, edges) {
         }
     }
     else {
-        // Vertical dock. Only the gap facing the screen center is trimmed: for a
-        // left dock that is the right gap, and the start is never moved right.
         const diff = Math.abs(rightGap - leftGap);
         if (diff > 0 && diff < baseW / 2 &&
             (edges.minCenterDist !== edges.distLeftCenter || rightGap > leftGap)) {
@@ -652,7 +705,6 @@ export function balanceDockBounds(bounds, reference, edges) {
     return { absX, absY, baseW, baseH };
 }
 
-// Trims the dock to `margin` from the screen edge it is closest to.
 export function insetDockBounds(bounds, monitor, edges, margin, stableBaseW, stableBaseH) {
     let { absX, absY, baseW, baseH } = bounds;
     const { minCenterDist, distBottomCenter, distTopCenter, distRightCenter } = edges;
@@ -683,7 +735,6 @@ function insetSpan(start, size, edge, stableSize, leading) {
     }
     if (size < 0)
         size = 0;
-    // Never grow past the last stable size.
     if (size > stableSize)
         size = stableSize;
     return [start, size];
@@ -704,6 +755,5 @@ export function visibleDockSize(bounds, monitor) {
     }
     return [visibleW, visibleH];
 }
-
 
 export { DashManager as DockGlass };

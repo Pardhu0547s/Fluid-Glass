@@ -1,6 +1,3 @@
-//
-// Nemo
-//
 .nemo-desktop.nemo-canvas-item {
   @extend %nautilus-desktop-canvas-item;
 }
@@ -19,7 +16,7 @@
     color: $dark_sidebar_fg;
     background-color: $dark_sidebar_bg;
 
-    scrolledwindow.frame { border: none; } // Removed treeview double borders
+    scrolledwindow.frame { border: none; }
 
     .view, row {
       background-color: transparent;
@@ -46,7 +43,7 @@
   paned > separator { background-image: image($solid_borders_color); }
 
   .nemo-window-pane {
-    widget.entry { // Rename entry
+    widget.entry {
       border: 2px solid if($variant =='light', $entry_highlight, $selected_bg_color);
       background-color: $entry_bg;
       border-radius: $bt_radius;
@@ -59,7 +56,7 @@
       }
     }
 
-    treeview.view { // Treeview rename entry
+    treeview.view {
       &, &:selected {
         entry {
           color: $fg_color;
@@ -125,7 +122,6 @@
       border-radius: $circular_radius;
     }
 
-    // Pathbar
     .linked.path-bar {
       > button {
         min-height: 0;
@@ -151,7 +147,6 @@
     }
   }
 
-  // Floating Bar
   .floating-bar {
     padding: 2px;
     background-color: $selected_bg_color;
@@ -189,5 +184,4 @@ menu#selection,
   }
 }
 
-// Cinnamon setting
 .view.cs-category-view { border-bottom-right-radius: $wm_radius; }

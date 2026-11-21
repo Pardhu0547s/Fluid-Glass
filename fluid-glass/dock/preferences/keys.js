@@ -1,9 +1,5 @@
 'use strict';
 
-// const ExtensionUtils = imports.misc.extensionUtils;
-// const Me = ExtensionUtils.getCurrentExtension();
-// const { PrefKeys } = Me.imports.preferences.prefKeys;
-
 import { PrefKeys } from './prefKeys.js';
 
 export const schemaId = 'org.gnome.shell.extensions.fluid-glass.dock';
@@ -11,14 +7,6 @@ export const schemaId = 'org.gnome.shell.extensions.fluid-glass.dock';
 export const SettingsKeys = (patch) => {
   let settingsKeys = new PrefKeys(patch);
   settingsKeys.setKeys({
-    // debug: {
-    //   default_value: false,
-    //   widget_type: 'switch',
-    // },
-    // 'debug-log': {
-    //   default_value: false,
-    //   widget_type: 'switch',
-    // },
     'experimental-features': {
       default_value: false,
       widget_type: 'switch',
@@ -51,13 +39,11 @@ export const SettingsKeys = (patch) => {
       default_value: false,
       widget_type: 'switch',
       key_maps: {},
-      // test: { values: [0, 1] },
     },
     'lamp-app-animation': {
       default_value: false,
       widget_type: 'switch',
       key_maps: {},
-      // test: { values: [0, 1] },
     },
     'autohide-dash': {
       default_value: true,
@@ -387,7 +373,6 @@ export const SettingsKeys = (patch) => {
     'dock-location': {
       default_value: 0,
       widget_type: 'dropdown',
-      // options: ['default', 'dot', 'dash', 'square', 'triangle', 'diamond'],
       test: { values: [0, 1, 2, 3] },
     },
     'icon-resolution': {

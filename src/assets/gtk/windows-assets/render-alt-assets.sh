@@ -11,8 +11,6 @@ NORD_SRC_FILE="windows-nord-assets.svg"
 NORD_ASSETS_DIR="titlebutton-alt-nord"
 INDEX="assets.txt"
 
-## alt titlebutton
-
 mkdir -p "$ASSETS_DIR"
 
 for i in $(cat "$INDEX"); do
@@ -43,8 +41,6 @@ fi
 
 done
 done
-
-## alt nord titlebutton
 
 mkdir -p "$NORD_ASSETS_DIR"
 

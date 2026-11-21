@@ -1,10 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// Reusable macOS-Control-Center controls. The popup deliberately uses a small
-// set of actors with predictable geometry instead of GNOME Quick Settings
-// widgets: their layout changes between Shell releases, while these controls
-// need to keep the compact Tahoe composition on GNOME 50 and 51.
-
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
@@ -15,7 +8,6 @@ import * as Slider from 'resource:///org/gnome/shell/ui/slider.js';
 
 import {_} from '../i18n.js';
 
-/** A horizontal network/focus capsule with a circular state icon. */
 export const CCTile = GObject.registerClass(
 class CCTile extends St.Button {
     _init(iconName, title, styleClass = '') {
@@ -51,8 +43,6 @@ class CCTile extends St.Button {
             y_align: Clutter.ActorAlign.CENTER,
             child: this._icon,
         });
-        // macOS Tahoe: circular icon badge on the left, title/status left-aligned
-        // right beside it.
         this._labels = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
             style_class: 'fluid-glass-cc-tile-labels',
@@ -79,10 +69,6 @@ class CCTile extends St.Button {
         this.set_child(box);
     }
 
-    /**
-     * A control resized to one grid cell is Tahoe's circle: the glyph alone,
-     * centred. The title stays the accessible name, so it is not lost.
-     */
     setCompact(compact) {
         this._labels.visible = !compact;
         this._iconBadge.x_expand = compact;
@@ -117,10 +103,6 @@ class CCTile extends St.Button {
         this._icon.icon_name = name;
     }
 
-    /**
-     * Third-party Quick Settings tiles carry a GIcon (often a themed icon from
-     * the extension's own directory), not an icon name, so take it as-is.
-     */
     setGicon(gicon) {
         if (gicon)
             this._icon.gicon = gicon;
@@ -134,12 +116,10 @@ function _sfIcon(filename, fallbackName = '') {
         if (file.query_exists(null))
             return new Gio.FileIcon({file});
     } catch (_e) {
-        // Fallback to icon_name
     }
     return fallbackName;
 }
 
-/** The large 2×2 Now Playing module from the right side of Control Center. */
 export const CCMediaCard = GObject.registerClass({
     Signals: {
         previous: {},
@@ -160,7 +140,6 @@ class CCMediaCard extends St.BoxLayout {
         this._currentArtUrl = null;
         this._playingState = null;
 
-        // Top-left rounded square artwork (macOS Tahoe vertical media layout)
         this._artwork = new St.Icon({
             icon_name: 'audio-x-generic-symbolic',
             style_class: 'fluid-glass-cc-media-artwork',
@@ -180,7 +159,6 @@ class CCMediaCard extends St.BoxLayout {
         });
         this.add_child(artBin);
 
-        // Middle: track title + artist stacked vertically below the artwork
         const metadata = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
             style_class: 'fluid-glass-cc-media-metadata',
@@ -208,7 +186,6 @@ class CCMediaCard extends St.BoxLayout {
         metadata.add_child(this._artist);
         this.add_child(metadata);
 
-        // Bottom: transport controls evenly distributed across the width
         const controls = new St.BoxLayout({
             style_class: 'fluid-glass-cc-media-controls',
             x_expand: true,
@@ -282,7 +259,6 @@ class CCMediaCard extends St.BoxLayout {
                     this._artwork.icon_size = 42;
                     return;
                 } catch (_e) {
-                    // Fall through to the neutral media glyph.
                 }
             }
             if (this._artwork.gicon)
@@ -294,11 +270,6 @@ class CCMediaCard extends St.BoxLayout {
     }
 });
 
-/**
- * A labelled Tahoe slider card. The leading glyph can be a real button (volume
- * uses it for mute), the trailing glyph is the maximum-value indicator, and the
- * optional rightmost circular accessory button opens the corresponding settings.
- */
 export const CCSlider = GObject.registerClass({
     Signals: {
         'moved': {param_types: [GObject.TYPE_DOUBLE]},

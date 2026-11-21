@@ -9,7 +9,6 @@ const Point = Graphene.Point;
 
 import { Dot } from './apps/dot.js';
 import { DockPosition } from './dock.js';
-import { Vector } from './vector.js';
 
 import { DockItemDotsOverlay, DockItemBadgeOverlay } from './dockItems.js';
 import {
@@ -69,7 +68,6 @@ export let Animator = class {
     this._target = dock.renderArea;
 
     while (this._renderers.length < count) {
-      // renderer
       let target = dock.renderArea;
       let renderer = new St.Icon({
         icon_name: 'file',
@@ -81,13 +79,11 @@ export let Animator = class {
       target.add_child(renderer);
       this._renderers.push(renderer);
 
-      // dot
       let dots = new DockItemDotsOverlay(new Dot(DOT_CANVAS_SIZE));
       dots.visible = false;
       target.add_child(dots);
       this._dots.push(dots);
 
-      // badges
       let badge = new DockItemBadgeOverlay(new Dot(DOT_CANVAS_SIZE));
       badge.visible = false;
       target.add_child(badge);
@@ -103,7 +99,6 @@ export let Animator = class {
     return true;
   }
 
-  //! begin optimization
   animate(dt) {
     let dock = this.dock;
     if (dock._hoveredIcon) {
@@ -121,7 +116,6 @@ export let Animator = class {
       return;
     }
 
-    // opacity
     let didFadeIn = false;
     if (dock.opacity < 255) {
       let opacityPerSecond = 255 / 500;
@@ -141,7 +135,6 @@ export let Animator = class {
     let m = dock.getMonitor();
     let pointer = global.get_pointer();
 
-    // simulated or transformed pointers
     if (dock.extension.simulated_pointer) {
       pointer = [...dock.extension.simulated_pointer];
       simulation = true;
@@ -150,7 +143,6 @@ export let Animator = class {
       pointer = [...dock.simulated_pointer];
       simulation = true;
     }
-    // disable icon scale animation upon hovering an item
     if (
       dock._list &&
       dock._list.visible &&
@@ -198,7 +190,6 @@ export let Animator = class {
       icon._pos = [...pos];
       icon._fixedPosition = [...pos];
 
-      // get nearest
       let bposcenter = [...pos];
       bposcenter[0] += iconCenterOffset;
       bposcenter[1] += iconCenterOffset;
@@ -241,19 +232,14 @@ export let Animator = class {
     let didScale = false;
     let didBounce = false;
 
-    //------------------------
-    // animation behavior
-    //------------------------
     let edge_distance = dock._edge_distance;
     let rise = dock.extension.animation_rise * ANIM_ICON_RAISE;
     let magnify = dock.extension.animation_magnify * ANIM_ICON_SCALE;
     let spread = dock.extension.animation_spread;
 
-    // when not much spreading, minimize magnification
     if (spread < 0.2) {
       magnify *= 0.8;
     }
-    // when too much magnification, increase spreading
     if (magnify > 0.15 && spread < 0.55) {
       spread = 0.55 + spread * 0.2;
     }
@@ -266,7 +252,6 @@ export let Animator = class {
     let total_scale = 0;
     let did_scale_count = 0;
 
-    // animate
     let firstIcon = null;
     let lastIcon = null;
     let iconTable = [];
@@ -286,7 +271,6 @@ export let Animator = class {
       if (!icon._icon) return;
       let original_pos = [...icon._pos];
 
-      // used by background resizing and repositioning
       icon._fixedPosition = [...original_pos];
 
       original_pos[0] += icon.width / 2;
@@ -312,18 +296,13 @@ export let Animator = class {
       if (dx * dx < threshold * threshold && nearestIcon) {
         let adx = Math.abs(dx);
         let hoverProgress = 1.0 - adx / threshold;
-        // let fp = hoverProgress * 0.6 * (1 + magnify);
         icon._hoverProgress = hoverProgress;
 
-        // affect scale;
         if (magnify != 0) {
-          // scale += fp;
           scale = scaleAtMax * Ease(hoverProgress);
           if (scale < 1) scale = 1;
         }
 
-        // affect rise
-        // let sz = iconSize * fp * scaleFactor;
         let sz = iconSize * (scale - 1) * scaleFactor;
         icon._translateRise = sz * rise;
         didScale = true;
@@ -335,19 +314,11 @@ export let Animator = class {
       icon._scale = scale;
       icon._targetScale = scale;
 
-      //! what is the difference between set_size and set_icon_size? and effects
-      // set_icon_size resizes the image... avoid changing per frame
-      // set_size resizes the widget
-      // icon._icon.set_size(iconSize * scale, iconSize * scale);
-
-      //! png image makes this extremely slow -- this may be the cause of "lag" experienced by some users
-      //! some themes or apps use PNG instead of SVG... set_scale is apparently resource hog
       if (
         icon._icon.gicon &&
         icon._icon.gicon.file != null &&
         !icon._icon.gicon.file?.get_path()?.toLowerCase().endsWith('svg')
       ) {
-        // skip scaling image files!... too costly
       } else {
         icon._icon.set_scale(scale, scale);
       }
@@ -359,7 +330,6 @@ export let Animator = class {
 
     let largestIconScale = 1;
 
-    //! use better collision test here?
     let total_spread_left = 0;
     let total_spread_right = 0;
     let hoveredIcon = dock._lastHoveredIcon;
@@ -372,23 +342,16 @@ export let Animator = class {
         hoveredIcon = icon;
       }
 
-      // if (icon._icon && icon._icon.hover) {
-      //   hoveredIcon = icon;
-      // }
-
       let scale = icon._scale;
       if (scale > 1.1) {
-        // affect spread
         let offset = Math.floor(
           1.25 * (scale - 1) * iconSize * scaleFactor * spread * 0.5
         );
-        // left
         for (let j = i - 1; j >= 0; j--) {
           let left = iconTable[j];
           left._translate -= offset;
           total_spread_left += offset;
         }
-        // right
         for (let j = i + 1; j < iconTable.length; j++) {
           let right = iconTable[j];
           right._translate += offset;
@@ -397,7 +360,6 @@ export let Animator = class {
       }
     }
 
-    // re-center to hovered icon
     dock._hoveredIcon = hoveredIcon;
     let TRANSLATE_COEF = 24;
     if (nearestIcon) {
@@ -414,9 +376,6 @@ export let Animator = class {
       });
     }
 
-    //-------------------
-    // interpolation / animation
-    //-------------------
     let renderOffset = dock.renderArea.get_transformed_position();
 
     let first = animateIcons[0];
@@ -434,9 +393,10 @@ export let Animator = class {
       lockPosition = false;
     }
 
+    let didMoveIcons = false;
+
     animateIcons.forEach((icon) => {
       if (!icon._icon) return;
-      // this fixes jittery hovered icon
       if (icon._targetScale > 1.9) icon._targetScale = 2;
 
       icon._scale = icon._targetScale;
@@ -456,34 +416,24 @@ export let Animator = class {
         translationY = icon._translateRise * riseDirection;
       }
 
-      //-------------------
-      // animate position
-      //-------------------
+      let curX = icon._icon.translationX;
+      let curY = icon._icon.translationY;
       {
         let speed = ANIM_POSITION_PER_SEC * slowDown;
-        let targetPosition = new Vector([translationX, translationY, 0]);
-        let currentPosition = new Vector([
-          icon._icon.translationX,
-          icon._icon.translationY,
-          0,
-        ]);
-        let dst = targetPosition.subtract(currentPosition);
-        let mag = dst.magnitude();
-        if (mag > 0) {
-          dst = dst.normalize();
+        let dx = translationX - curX;
+        let dy = translationY - curY;
+        let mag = Math.hypot(dx, dy);
+        if (mag > 0.25) {
+          didMoveIcons = true;
+          let step = speed * dt;
+          if (step < mag) {
+            let k = step / mag;
+            translationX = curX + dx * k;
+            translationY = curY + dy * k;
+          }
         }
-        let deltaVector = dst.multiplyScalar(speed * dt);
-        let deltaMag = deltaVector.magnitude();
-        let appliedVector = new Vector([targetPosition.x, targetPosition.y, 0]);
-        if (deltaMag < mag) {
-          appliedVector = currentPosition.add(deltaVector);
-        }
-        translationX = appliedVector.x;
-        translationY = appliedVector.y;
-        icon._deltaVector = appliedVector;
       }
 
-      // fix jitterness
       if (lockPosition && icon._hoverProgress == 0) {
         icon._positionCache = icon._positionCache || [];
         var lockThreshold = 48;
@@ -502,8 +452,8 @@ export let Animator = class {
 
           let edgeItems = ANIMATE_CACHE_LOOKUP;
           if (icon._positionCache.length > edgeItems) {
-            let tx = 0; //translationX;
-            let ty = 0; //translationY;
+            let tx = 0;
+            let ty = 0;
             for (let i = 0; i < edgeItems; i++) {
               tx +=
                 icon._positionCache[
@@ -523,31 +473,27 @@ export let Animator = class {
       }
 
       if (dock.animation_fps > 0) {
-        icon._icon.translationX = translationX;
-        icon._icon.translationY = translationY;
+        if (curX !== translationX) icon._icon.translationX = translationX;
+        if (curY !== translationY) icon._icon.translationY = translationY;
       } else {
-        //! retain this for smoothness at high fps
-        icon._icon.translationX =
-          (icon._icon.translationX + translationX * 3) / 4;
-        icon._icon.translationY =
-          (icon._icon.translationY + translationY * 3) / 4;
+        let nextX = Math.abs(translationX - curX) < 0.25 ? translationX : (curX + translationX * 3) / 4;
+        let nextY = Math.abs(translationY - curY) < 0.25 ? translationY : (curY + translationY * 3) / 4;
+        if (Math.abs(nextX - curX) > 0.05 || Math.abs(nextY - curY) > 0.05) {
+          didMoveIcons = true;
+        }
+        if (curX !== nextX) icon._icon.translationX = nextX;
+        if (curY !== nextY) icon._icon.translationY = nextY;
       }
 
-      // clear bounce animation
       if (icon._appwell) {
-        icon._appwell.translationY = 0;
-        didBounce = icon._appwell._bounce;
-        // clear bounce
+        if (icon._appwell.translationY !== 0) icon._appwell.translationY = 0;
+        if (icon._appwell._bounce) didBounce = true;
         icon._appwell._bounce = false;
       }
     });
 
-    //--------------
-    // renderer
-    //--------------
     animateIcons.forEach((icon) => {
       if (!icon._icon) return;
-      // dock.renderArea.opacity = 100;
       {
         let icon_name = icon._icon.icon_name;
         let app_name =
@@ -555,9 +501,7 @@ export let Animator = class {
           null;
         let gicon = null;
 
-        // override icons here
         if (dock.extension.icon_map || dock.extension.app_map) {
-          // override via icon name
           if (
             dock.extension.icon_map_cache &&
             dock.extension.icon_map_cache[icon_name]
@@ -572,7 +516,6 @@ export let Animator = class {
             icon_name = dock.extension.icon_map[icon_name];
           }
 
-          // override via app name
           if (
             app_name &&
             dock.extension.app_map_cache &&
@@ -592,36 +535,36 @@ export let Animator = class {
 
         icon._renderer = this._renderers[icon._idx];
         icon._renderer._icon = icon._icon;
-        icon._renderer.set_style_class_name('');
+        if (icon._renderer.style_class) {
+          icon._renderer.set_style_class_name('');
+        }
 
         if (!icon._appwell?._bounce) {
-          icon._renderer.translationX = 0;
-          icon._renderer.translationY = 0;
+          if (icon._renderer.translationX !== 0) icon._renderer.translationX = 0;
+          if (icon._renderer.translationY !== 0) icon._renderer.translationY = 0;
         }
 
         let renderer = icon._renderer;
         if (gicon) {
-          // apply override
-          renderer.gicon = gicon;
+          if (renderer.gicon !== gicon) {
+            renderer.gicon = gicon;
+          }
 
-          // replace PNG with override SVG
-          if (icon._icon.gicon && icon._icon.gicon.file && gicon) {
+          if (icon._icon.gicon && icon._icon.gicon.file && icon._icon.gicon !== gicon) {
             icon._icon.gicon = gicon;
           }
         } else {
           if (icon_name) {
-            renderer.icon_name = icon_name;
+            if (renderer.gicon !== null || renderer.icon_name !== icon_name) {
+              renderer.icon_name = icon_name;
+            }
           } else {
-            if (icon._icon.gicon) {
-              // Directly assign the icon's gicon to the renderer (fixed in #issue 188)
+            if (icon._icon.gicon && renderer.gicon !== icon._icon.gicon) {
               renderer.gicon = icon._icon.gicon;
             }
           }
         }
 
-        //-------------------
-        // animate scaling at renderer
-        //-------------------
         let unscaledIconSize = dock._iconSizeScaledDown * scaleFactor;
         let targetSize = unscaledIconSize * icon._targetScale;
         let currentSize = renderer.icon_size * renderer.scaleX;
@@ -629,19 +572,20 @@ export let Animator = class {
           let dst = targetSize - currentSize;
           let mag = Math.abs(dst);
           let dir = Math.sign(dst);
-          let accel = 0;
           let pixelOverTime = ANIM_SIZE_PER_SEC * slowDown;
-          let deltaSize = pixelOverTime * dir * dt;
-          let appliedSize = deltaSize;
-          appliedSize += accel;
-          if (Math.abs(appliedSize) > mag) {
-            appliedSize = dst * 0.5;
+          let appliedSize = pixelOverTime * dir * dt;
+          if (mag < 0.35) {
+            appliedSize = dst;
+          } else {
+            didMoveIcons = true;
+            if (Math.abs(appliedSize) > mag) {
+              appliedSize = dst * 0.5;
+            }
           }
           targetSize = currentSize + appliedSize;
           icon._deltaSize = appliedSize;
           icon._targetSize = targetSize;
         }
-        // compute icon scale based on size
         icon._scale = targetSize / unscaledIconSize;
 
         let baseSize = 32 * (dock.extension.icon_quality || 1);
@@ -650,9 +594,11 @@ export let Animator = class {
           renderer.set_icon_size(baseSize);
         }
         let scaleToTarget = targetSize / baseSize;
-        renderer.set_scale(scaleToTarget, scaleToTarget);
+        if (renderer.scaleX !== scaleToTarget || renderer.scaleY !== scaleToTarget) {
+          renderer.set_scale(scaleToTarget, scaleToTarget);
+        }
 
-        let p = icon.get_transformed_position();
+        let p = icon._fixedPosition;
         let adjustX = icon.width / 2 - targetSize / 2;
         let adjustY = icon.height / 2 - targetSize / 2;
 
@@ -665,112 +611,87 @@ export let Animator = class {
           }
         }
 
-        //-------------------
-        // commit position
-        //-------------------
-        if (!isNaN(p[0]) && !isNaN(p[1])) {
+        if (p && !isNaN(p[0]) && !isNaN(p[1])) {
           let iconContainer = icon._icon.get_parent();
-          // iconContainer can be null when dragging icons
           if (iconContainer) {
             if (vertical) {
-              iconContainer.translationX = adjustX / 2;
+              let cx = adjustX / 2;
+              if (iconContainer.translationX !== cx) iconContainer.translationX = cx;
             } else {
-              iconContainer.translationY = adjustY / 2;
+              let cy = adjustY / 2;
+              if (iconContainer.translationY !== cy) iconContainer.translationY = cy;
             }
 
+            let rx = p[0] + adjustX + icon._icon.translationX - renderOffset[0];
             let ry = p[1] + adjustY + icon._icon.translationY - renderOffset[1];
-            renderer.set_position(
-              p[0] + adjustX + icon._icon.translationX - renderOffset[0],
-              ry
-            );
+            if (renderer.x !== rx || renderer.y !== ry) {
+              renderer.set_position(rx, ry);
+            }
 
-            // renderer.ease({
-            //   x: p[0] + adjustX + icon._icon.translationX - renderOffset[0],
-            //   y: ry,
-            //   duration: 100,
-            //   mode: Clutter.AnimationMode.LINEAR,
-            // });
-
-            // renderer.ease({
-            //   width: baseSize,
-            //   height: baseSize,
-            //   icon_size: baseSize,
-            //   duration: 200,
-            //   mode: Clutter.AnimationMode.LINEAR,
-            // });
-
-            renderer.visible = true;
+            if (!renderer.visible) {
+              renderer.visible = true;
+            }
           }
           icon._px = p[0] - renderOffset[0];
           icon._py = p[1] - renderOffset[1];
         }
 
-        // Keep GNOME's unglassed dash label suppressed; DockTooltip renders the glass bubble.
         if (icon._label) {
-          icon._label.opacity = 0;
+          if (icon._label.opacity !== 0) icon._label.opacity = 0;
           if (icon._label.visible) {
             icon._label.hide();
           }
         }
 
-        //! todo... add placeholder opacity when dragging
-        renderer.opacity =
+        let targetOpacity =
           icon._icon == dock._dragged && dock._dragging ? 75 : 255;
+        if (renderer.opacity !== targetOpacity) {
+          renderer.opacity = targetOpacity;
+        }
       }
 
-
-
-      // badges
-      //! ***badge location at scaling is messed up***
       let badge = this._badges[icon._idx];
-      badge.hide();
-      if (icon != dock._dragged) {
+      let showBadge = false;
+      if (badge && icon != dock._dragged) {
         let appNotices = icon._appwell
           ? dock.extension.services._appNotices[icon._appwell.app.get_id()]
           : null;
-        let noticesCount = 0;
-        if (appNotices) {
-          noticesCount = appNotices.count;
-        }
-        // noticesCount = 1;
-        let target = dock.renderArea;
-        if (badge && noticesCount > 0) {
+        let noticesCount = appNotices ? appNotices.count : 0;
+        if (noticesCount > 0) {
+          showBadge = true;
           badge.update(icon, {
             noticesCount,
             position: dock._position,
             vertical,
             extension: dock.extension,
           });
-          // badge.x = icon._renderer.x + 3 * icon._scale;
-          // badge.y = icon._renderer.y - 3 * icon._scale;
 
-          // if (dock._position == DockPosition.TOP) {
-          //   badge.y = icon._renderer.y + (icon.height - 6) * icon._scale;
-          // }
-
-          badge.width = icon._renderer.width * icon._renderer.scaleX;
-          badge.height = badge.width;
-          badge.x = icon._renderer.x;
-          badge.y = icon._renderer.y;
-
-          badge.set_scale(icon._scale, icon._scale);
-          badge.show();
+          let bw = icon._renderer.width * icon._renderer.scaleX;
+          if (badge.width !== bw) badge.width = bw;
+          if (badge.height !== bw) badge.height = bw;
+          if (badge.x !== icon._renderer.x) badge.x = icon._renderer.x;
+          if (badge.y !== icon._renderer.y) badge.y = icon._renderer.y;
+          if (badge.scaleX !== icon._scale || badge.scaleY !== icon._scale) {
+            badge.set_scale(icon._scale, icon._scale);
+          }
         }
       }
+      if (badge && badge.visible !== showBadge) {
+        badge.visible = showBadge;
+      }
 
-      // dots
-      //! ***dot requires a little more aligning at dock position other than bottom***
       let dots = this._dots[icon._idx];
-      dots.hide();
+      let showDots = false;
       if (
+        dots &&
         icon != dock._dragged &&
         icon._appwell &&
         icon._appwell.app &&
         icon._appwell.app.get_n_windows
       ) {
         let appCount = dock.getAppWindowsFiltered(icon._appwell.app).length;
-        // appCount = 1;
-        if (dots && appCount > 0) {
+        if (appCount > 0) {
+          showDots = true;
           dots.update(icon, {
             appCount,
             position: dock._position,
@@ -779,16 +700,20 @@ export let Animator = class {
             dock,
           });
 
-          dots.width = icon._renderer.width * icon._renderer.scaleX;
-          dots.height = dots.width;
-          dots.x = icon._renderer.x;
-          dots.y = icon._renderer.y;
-          dots.set_scale(icon._scale, icon._scale);
-          dots.show();
+          let dw = icon._renderer.width * icon._renderer.scaleX;
+          if (dots.width !== dw) dots.width = dw;
+          if (dots.height !== dw) dots.height = dw;
+          if (dots.x !== icon._renderer.x) dots.x = icon._renderer.x;
+          if (dots.y !== icon._renderer.y) dots.y = icon._renderer.y;
+          if (dots.scaleX !== icon._scale || dots.scaleY !== icon._scale) {
+            dots.set_scale(icon._scale, icon._scale);
+          }
         }
       }
+      if (dots && dots.visible !== showDots) {
+        dots.visible = showDots;
+      }
 
-      // custom icons
       if (dock.extension.services) {
         dock.extension.services.updateIcon(icon, {
           scaleFactor,
@@ -798,32 +723,31 @@ export let Animator = class {
       }
     });
 
-    // separators
     dock._separators.forEach((actor) => {
-      let prev = actor._prev; // get_previous_sibling() || actor._prev;
-      let next = actor._next; // get_next_sibling();
+      let prev = actor._prev;
+      let next = actor._next;
+      let tx = actor.translationX;
+      let ty = actor.translationY;
       if (prev && next && prev._icon && next._icon) {
-        actor.translationX =
-          (prev._icon.translationX + next._icon.translationX) / 2;
-        actor.translationY =
-          (prev._icon.translationY + next._icon.translationY) / 2;
+        tx = (prev._icon.translationX + next._icon.translationX) / 2;
+        ty = (prev._icon.translationY + next._icon.translationY) / 2;
         let thickness = dock.extension.separator_thickness || 0;
-        if (vertical) {
-          actor.width = iconSize * 0.5 * scaleFactor;
-          actor.height = thickness + 0.5;
-        } else {
-          actor.width = thickness + 0.5;
-          actor.height = iconSize * 0.75 * scaleFactor;
-        }
-        actor.visible = thickness > 0;
+        let sw = vertical ? iconSize * 0.5 * scaleFactor : thickness + 0.5;
+        let sh = vertical ? thickness + 0.5 : iconSize * 0.75 * scaleFactor;
+        if (actor.width !== sw) actor.width = sw;
+        if (actor.height !== sh) actor.height = sh;
+        let vis = thickness > 0;
+        if (actor.visible !== vis) actor.visible = vis;
       }
 
       let any = next ?? prev;
       if (!vertical && any) {
-        actor.translationY = (any.y + any.height / 2) - (actor.y + actor.height / 2);
+        ty = (any.y + any.height / 2) - (actor.y + actor.height / 2);
       } else if (vertical && any) {
-        actor.translationX += (any.x + any.width / 2) - (actor.x + actor.width / 2);
+        tx += (any.x + any.width / 2) - (actor.x + actor.width / 2);
       }
+      if (actor.translationX !== tx) actor.translationX = tx;
+      if (actor.translationY !== ty) actor.translationY = ty;
     });
 
     let targetX = 0;
@@ -840,13 +764,6 @@ export let Animator = class {
         ? 1
         : -1;
 
-    // if (!animated && !dock._hidden && dock.extension.peek_hidden_icons) {
-    //   edge_distance = -dock._iconSizeScaledDown * scaleFactor / 1.5;
-    // }
-
-    //-------------------
-    // animate slide in slide out
-    //-------------------
     if (dock._hidden) {
       if (vertical) {
         if (dock._position == DockPosition.LEFT) {
@@ -867,40 +784,39 @@ export let Animator = class {
       }
     }
 
-    // edge
     if (vertical) {
       targetX += edge_distance * -edgeDirectionMultiplier;
     } else {
       targetY += edge_distance * -edgeDirectionMultiplier;
     }
 
-    // dock translation
+    let didSlide = false;
     {
-      let autohide_slowDown = 1;
+      let speed = Math.min(
+        1,
+        (150 + 300 * dock.extension.autohide_speed * scaleFactor) / 1000
+      );
+      let curX = dock.dash.translationX;
+      let curY = dock.dash.translationY;
+      let dx = targetX - curX;
+      let dy = targetY - curY;
+      let mag = Math.hypot(dx, dy);
       let translationX = targetX;
       let translationY = targetY;
-      let speed =
-        ((150 + 300 * dock.extension.autohide_speed * scaleFactor) / 1000) *
-        autohide_slowDown;
-
-      let v1 = new Vector([targetX, targetY, 0]);
-      let v2 = new Vector([dock.dash.translationX, dock.dash.translationY, 0]);
-      let dst = v1.subtract(v2);
-      let mag = dst.magnitude();
-      if (mag > 0) {
-        // let ndst = dst.normalize();
-        let v3 = v2.add(dst.multiplyScalar(speed));
-        translationX = v3.x;
-        translationY = v3.y;
+      if (mag >= 0.35) {
+        didSlide = true;
+        translationX = curX + dx * speed;
+        translationY = curY + dy * speed;
       }
 
-      dock.dash.translationX = translationX;
-      dock.dash.translationY = translationY;
+      if (curX !== translationX) dock.dash.translationX = translationX;
+      if (curY !== translationY) dock.dash.translationY = translationY;
     }
 
-    // background
     {
-      dock._background.style = dock.extension._backgroundStyle;
+      if (dock._background.style !== dock.extension._backgroundStyle) {
+        dock._background.style = dock.extension._backgroundStyle;
+      }
       dock._background.update({
         first,
         last,
@@ -912,62 +828,59 @@ export let Animator = class {
         dock,
       });
 
-      // allied areas
-      //! this should be at the layout -- make independent of background
-      // struts
+      let sx, sy, sw, sh;
       if (vertical) {
-        dock.struts.width =
+        sw =
           dock._background.width +
           iconSize * 0.2 * scaleFactor +
           edge_distance -
           dock._background._padding * scaleFactor;
-        dock.struts.height = dock.height;
+        sh = dock.height;
+        sy = dock.struts.y;
 
         if (dock.extension.autohide_dash) {
-          dock.struts.y = dock._background.y + dock._monitor.y;
-          dock.struts.height = dock._background.height;
-          // X11 .. click through fix ..
-          // dock.struts.width *= 1.25;
+          sy = dock._background.y + dock._monitor.y;
+          sh = dock._background.height;
         }
 
-        // dock.struts.y = dock.y;
         if (dock._position == DockPosition.RIGHT) {
-          dock.struts.x = dock.x + dock.width - dock.struts.width;
+          sx = dock.x + dock.width - sw;
         } else {
-          dock.struts.x = dock.x;
+          sx = dock.x;
         }
       } else {
-        dock.struts.width = dock.width;
-        dock.struts.height =
+        sw = dock.width;
+        sh =
           dock._background.height +
           iconSize * 0.2 * scaleFactor +
           edge_distance -
           dock._background._padding * scaleFactor;
+        sx = dock.struts.x;
 
         if (dock.extension.autohide_dash) {
-          dock.struts.x = dock._background.x + dock._monitor.x;
-          dock.struts.width = dock._background.width;
-          // X11 .. click through fix ..
-          // dock.struts.height *= 1.25;
+          sx = dock._background.x + dock._monitor.x;
+          sw = dock._background.width;
         }
 
-        // dock.struts.x = dock.x;
         if (dock._position == DockPosition.BOTTOM) {
-          dock.struts.y = dock.y + dock.height - dock.struts.height;
+          sy = dock.y + dock.height - sh;
         } else {
-          dock.struts.y = dock.y;
+          sy = dock.y;
         }
       }
+
+      if (dock.struts.width !== sw) dock.struts.width = sw;
+      if (dock.struts.height !== sh) dock.struts.height = sh;
+      if (dock.struts.x !== sx) dock.struts.x = sx;
+      if (dock.struts.y !== sy) dock.struts.y = sy;
 
       dock._updateTransparenies();
     }
 
-    dock.struts.visible = !dock._hidden;
-    dock.dash.opacity = 255;
+    const strutsVis = !dock._hidden;
+    if (dock.struts.visible !== strutsVis) dock.struts.visible = strutsVis;
+    if (dock.dash.opacity !== 255) dock.dash.opacity = 255;
 
-    //---------------------
-    // animate the list
-    //---------------------
     if (dock._list && dock._list.visible && dock._list._target) {
       dock._list.animate(dt);
       didScale = true;
@@ -980,12 +893,22 @@ export let Animator = class {
       didScale = true;
     }
 
-    if (didFadeIn || didScale || dock._dragging || didBounce) {
+    dock.extension.integrations.bms_update_size(this);
+
+    if (
+      didFadeIn ||
+      didScale ||
+      didSlide ||
+      didMoveIcons ||
+      dock._dragging ||
+      didBounce ||
+      dock._preview
+    ) {
       dock.autohider._debounceCheckHide();
       dock._debounceEndAnimation();
+    } else if (!isWithin && !dock._fast_forward) {
+      dock._endAnimation();
     }
-
-    dock.extension.integrations.bms_update_size(this);
   }
 
   _updateTooltip(dock, tooltipIcon, monitor, dt) {
@@ -1070,12 +993,9 @@ export let Animator = class {
     let dock = this.dock;
     let app_id = appwell._id;
 
-    // let scaleFactor = dock.getMonitor().geometry_scale;
-    //! why not scaleFactor?
     let travel =
       (dock._iconSize / 3) *
       ((0.25 + dock.extension.animation_bounce_height) * 1.5);
-    // * scaleFactor;
     appwell.translation_y = 0;
 
     const getTarget = (app_id) => {

@@ -1,5 +1,3 @@
-
-/* App Icons */
 %app-well-app {
   .overview-icon {
     color: $light_fg_color;
@@ -27,7 +25,6 @@
   }
 }
 
-// expanded folder
 .app-folder-dialog {
   border-radius: $bd_radius * 4;
   border: none;
@@ -50,7 +47,6 @@
       width: if($laptop == 'true', 240px, 320px) !important;
     }
 
-    /* FIXME: this is to keep the label in sync with the entry */
     .folder-name-label { padding: $base_padding; color: $light_alt_fg_color; }
 
     .edit-folder-button {
@@ -90,7 +86,6 @@
   height: if($laptop == 'true', 580px, 680px);
 }
 
-// Running app indicator (also shown in dash)
 .app-well-app-running-dot {
   width: 5px; height: 5px;
   border-radius: 5px;
@@ -141,9 +136,8 @@
   &:checked:active { background-image: none; }
 }
 
-// shutdown and other actions in the grid
 .system-action-icon {
-  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2); // FIXME: this should really have a highlight
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.2);
   background-color: $dark_bg_color;
   color: white;
   border-radius: 100px;

@@ -87,8 +87,6 @@ $toggle_checked_bg_color: rgba(white, 0.15);
     spacing: $base_padding * 2;
   }
 
-  /* Move padding into the box; this is to allow menu arrows
-     to extend to the border */
   &.button {
     padding: 0;
   }
@@ -252,7 +250,7 @@ $toggle_checked_bg_color: rgba(white, 0.15);
       color: white;
     }
 
-    min-height: 16px; // slider size
+    min-height: 16px;
     padding: $base_padding;
     border-radius: $circular_radius;
   }
@@ -271,7 +269,6 @@ $toggle_checked_bg_color: rgba(white, 0.15);
   box-shadow: 0 5px 10px 0 rgba(black, 0.18);
 
   .popup-menu-item {
-    // border-radius: $base_border_radius !important;
     min-height: 20px;
     padding: $base_padding * 2 $base_padding * 3;
 
@@ -296,7 +293,7 @@ $toggle_checked_bg_color: rgba(white, 0.15);
     padding-bottom: 2 * $container_padding;
 
     & .icon {
-      icon-size: $base_icon_size; // a non-standard symbolic size but ok
+      icon-size: $base_icon_size;
       border-radius: $circular_radius;
       padding: $base_padding * 2.5;
       background-color: $fill_color;

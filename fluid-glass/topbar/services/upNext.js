@@ -1,10 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// UpNextService — the next week of calendar events for the Up Next widget.
-//
-// Events come from the Shell's calendar server through compat/calendarEvents.js;
-// see that module for why the requested range is shaped the way it is.
-
 import GObject from 'gi://GObject';
 
 import {
@@ -42,7 +35,6 @@ export const UpNextService = GObject.registerClass({
         return buildAgenda((begin, end) => source.getEvents(begin, end), new Date());
     }
 
-    /** Re-anchor the range on today; a no-op unless the day has moved on. */
     refresh() {
         if (this._source)
             requestEventRange(this._source, new Date(), HORIZON_DAYS);

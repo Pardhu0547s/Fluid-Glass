@@ -1,23 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// CCGrid — the module grid at the top of the Control Center.
-//
-// Tahoe composes those modules on a grid of four cells per row, grouped in two
-// halves: 62px circles with a 16px gap inside a half, a 12px gutter between the
-// halves (62 + 16 + 62 = 140, 140 + 12 + 140 = 292). A control takes one of
-// three shapes — a circle (1×1), a capsule filling a half (2×1), or Now
-// Playing's square (2×2) — and the user can resize and reorder them.
-//
-// Modules flow into the first free cells in reading order (dense, row-major,
-// the way macOS fills its own grid), so a control the machine lacks or the user
-// removed never leaves a hole in the middle. A capsule or square whose other
-// half stays empty across all its rows grows to the full width instead of
-// leaving that half blank.
-//
-// Placement is a layout manager over direct children, not nested boxes, so
-// rearranging never re-parents an actor (which would drop hover and key focus).
-// The gaps are read from stylesheet.css (`.fluid-glass-cc-grid`).
-
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 import St from 'gi://St';
@@ -30,15 +10,6 @@ export const SHAPES = Object.freeze({
     large: {columns: 2, rows: 2},
 });
 
-/**
- * Put every module in the first free cells, row-major, that fit its shape.
- * Two-column shapes only start at a half's edge, so a capsule never straddles
- * the gutter.
- *
- * @param {Array<{shape?: string}>} modules in reading order
- * @returns {Array<{module: object, row: number, column: number,
- *   columns: number, rows: number}>}
- */
 export function packModules(modules) {
     const taken = [];
     const free = (row, column, columns, rows) => {
@@ -63,7 +34,6 @@ export function packModules(modules) {
         const {columns, rows} = SHAPES[module.shape] ?? SHAPES.wide;
         const step = columns === 1 ? 1 : 2;
         let placed = false;
-        // Terminates: a row below every placement so far is always free.
         for (let row = 0; !placed; row++) {
             for (let column = 0; column < COLUMNS && !placed; column += step) {
                 if (!free(row, column, columns, rows))
@@ -75,9 +45,6 @@ export function packModules(modules) {
         }
     }
 
-    // Keep 2x1 capsules at their fixed half-width (2 columns) so a sibling
-    // briefly hiding/rebuilding during a toggle never causes a capsule to
-    // flash to full width and snap back.
     return placements;
 }
 
@@ -101,7 +68,6 @@ class CCGridLayout extends Clutter.LayoutManager {
         return found ? value : fallback;
     }
 
-    /** Column offsets, cell width and row heights for a given width. */
     _geometry(container, width) {
         const gutter = this._length(container, '-fluid-glass-grid-gutter', 12);
         const pairGap = this._length(container, '-fluid-glass-grid-pair-gap', 18);
@@ -113,9 +79,6 @@ class CCGridLayout extends Clutter.LayoutManager {
 
         const shown = this._placements.filter(p => p.module.actor.visible);
         const rowCount = shown.reduce((n, p) => Math.max(n, p.row + p.rows), 0);
-        // Every row in macOS GoldenGate/Tahoe has uniform height = cell (58px),
-        // so 1×1 circles are 58×58, 2×1 pills are 134×58, and 2×2 Now Playing
-        // is 134×126 without ever stretching adjacent rows.
         const heights = new Array(rowCount).fill(cell);
 
         const y = [];
@@ -129,7 +92,6 @@ class CCGridLayout extends Clutter.LayoutManager {
     }
 
     vfunc_get_preferred_width(_container, _forHeight) {
-        // The popup's content box fixes the width (stylesheet.css).
         return [0, 0];
     }
 
@@ -169,14 +131,6 @@ class CCGrid extends St.Widget {
         });
     }
 
-    /**
-     * Lay the modules out in reading order; hidden ones take no cell. Each
-     * actor becomes a child of the grid the first time it is laid out, and
-     * stays one.
-     *
-     * @param {Array<{actor: Clutter.Actor, shape?: string}>} modules
-     * @returns {Array} the placements, for callers that need the geometry
-     */
     setModules(modules) {
         for (const {actor} of modules) {
             const parent = actor.get_parent();

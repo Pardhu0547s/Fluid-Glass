@@ -1,22 +1,3 @@
-/* extension.js
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * SPDX-License-Identifier: GPL-2.0-or-later
- *
- */
-
 ('use strict');
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -54,7 +35,7 @@ export default class FluidGlassDockExt extends Extension {
   createDock() {
     let d = new Dock({ extension: this });
     d.extension = this;
-    d.opacity = 0; // animate
+    d.opacity = 0;
     d.dock();
     this.dock = d;
     this.docks.push(this.dock);
@@ -90,7 +71,6 @@ export default class FluidGlassDockExt extends Extension {
       return;
     }
 
-    // only one dock
     if (
       Main.layoutManager.monitors.length == 1 ||
       this.multi_monitor_preference == 0
@@ -131,9 +111,7 @@ export default class FluidGlassDockExt extends Extension {
   }
 
   recreateAllDocks(delay = 750) {
-    // console.log('recreate all docks');
 
-    // recreate only the dash
     this.docks.forEach((d) => {
       d.recreateDash();
       d._beginAnimation();
@@ -143,7 +121,6 @@ export default class FluidGlassDockExt extends Extension {
 
   _showMainOverviewDash(show) {
     Main.overview.dash.opacity = show ? 255 : 0;
-    // Main.overview.dash._background.opacity = show ? 255 : 0;
     Main.overview.dash._background.style = show
       ? ''
       : 'background: transparent !important;';
@@ -166,24 +143,18 @@ export default class FluidGlassDockExt extends Extension {
   enable() {
     Main.overview.fluidGlassDock = this;
 
-    // Use UUID to avoid conflicting with other instances of this extensions (multi user setup)
     try {
       if (!this.uuid) {
         this._customUuid = GLib.get_user_name();
       }
     } catch (_e) {}
 
-    // three available timers
-    // for persistent runs
     this._timer = new Timer('loop timer');
     this._timer.initialize(3500);
 
-    // for animation runs
-    // resolution (15) will be modified by animation-fps
     this._hiTimer = new Timer('hi-res timer');
     this._hiTimer.initialize(15);
 
-    // for deferred or debounced runs
     this._loTimer = new Timer('lo-res timer');
     this._loTimer.initialize(750);
 
@@ -197,10 +168,6 @@ export default class FluidGlassDockExt extends Extension {
     this._enableSettings();
     this._loadConfig();
 
-    // no longer needed
-    // this._disable_borders = this.border_radius > 0;
-
-    // animations are always on - but may be muted
     if (!this._settingsKeys.getValue('animate-icons')) {
       this._settingsKeys.setValue('animate-icons', true);
     }
@@ -211,17 +178,14 @@ export default class FluidGlassDockExt extends Extension {
 
     this.icon_theme = St.IconTheme.new();
 
-    // integrations
     this.integrations = new Integrations();
     this.integrations.extension = this;
     this.integrations.enable();
 
-    // service
     this.services = new Services();
     this.services.extension = this;
     this.services.setupFolderIcons();
 
-    // todo follow animator and autohider protocol
     this.services.enable();
     this._onCheckServices();
 
@@ -233,11 +197,9 @@ export default class FluidGlassDockExt extends Extension {
 
     this._addEvents();
     this._queryDisplay();
-    // this.startUp();
 
     console.log('fluid-glass dock enabled');
 
-    // to allow dynamic imports
     this._loTimer.runOnce(() => {
       this.startUp();
     }, 250);
@@ -248,7 +210,6 @@ export default class FluidGlassDockExt extends Extension {
     this._hiTimer?.shutdown();
     this._loTimer?.shutdown();
     this._diagnosticTimer?.shutdown();
-    // null later
 
     this._removeEvents();
     this._disableSettings();
@@ -297,9 +258,6 @@ export default class FluidGlassDockExt extends Extension {
     });
   }
 
-  // This is needed. Each dock has a autohider class.
-  // This informs everyone to re-check overlaps
-  // TODO use signals
   checkHide() {
     this.docks.forEach((dock) => {
       if (dock.autohider) {
@@ -326,13 +284,11 @@ export default class FluidGlassDockExt extends Extension {
     });
   }
 
-  // to be called by docks
   _queryDisplay(currentMonitorIndex) {
     if (
       Main.layoutManager.monitors.length > 0 &&
       this.multi_monitor_preference > 0
     ) {
-      // if multi-monitor ... let _updateLayout take care of updating the docks
       return currentMonitorIndex;
     }
 
@@ -361,7 +317,6 @@ export default class FluidGlassDockExt extends Extension {
         console.log(err);
       }
 
-      // precompute
       {
         let icon_size = this._config['icon-size'] ?? 0;
         if (typeof icon_size == 'string') {
@@ -452,7 +407,6 @@ export default class FluidGlassDockExt extends Extension {
       this._interfaceSettings.connectObject(
         'changed::color-scheme',
         () => {
-          // apply light/dark themeing
         },
         this
       );
@@ -467,8 +421,6 @@ export default class FluidGlassDockExt extends Extension {
     this._settingsKeys.connectSettings(this._settings, (name, value) => {
       let n = name.replace(/-/g, '_');
       this[n] = value;
-
-      // console.log(`${n} ${value}`);
 
       switch (name) {
         case 'msg-to-ext': {
@@ -541,7 +493,6 @@ export default class FluidGlassDockExt extends Extension {
         case 'downloads-path':
           this.services.setupDownloads();
           break;
-        // problematic settings needing animator restart
         case 'dock-location':
           this.recreateAllDocks();
           this.animate({ preview: true });
@@ -630,8 +581,6 @@ export default class FluidGlassDockExt extends Extension {
           this.animate();
           break;
         }
-        // case 'topbar-background-color':
-        // case 'topbar-blur-background':
         case 'background-color':
         case 'blur-resolution':
         case 'blur-background':
@@ -644,9 +593,19 @@ export default class FluidGlassDockExt extends Extension {
         case 'pressure-sense': {
           break;
         }
-        case 'downloads-icon':
-        case 'documents-icon':
+        case 'downloads-icon': {
+          this.services.setupDownloads();
+          this._updateLayout();
+          this.animate({ refresh: true });
+          break;
+        }
         case 'trash-icon': {
+          this.services.setupTrash();
+          this._updateLayout();
+          this.animate({ refresh: true });
+          break;
+        }
+        case 'documents-icon': {
           this._updateLayout();
           this.animate({ refresh: true });
           break;
@@ -658,7 +617,6 @@ export default class FluidGlassDockExt extends Extension {
       let key = this._settingsKeys.getKey(k);
       let name = k.replace(/-/g, '_');
       this[name] = key.value;
-      // console.log(`${name} = ${key.value}`);
       if (key.options) {
         this[`${name}_options`] = key.options;
       }
@@ -734,10 +692,8 @@ export default class FluidGlassDockExt extends Extension {
       () => {
         Main.overview.dash.last_child.visible = false;
         Main.overview.dash.opacity = 0;
-        // fix for topbar not blurring
         this._updateBlurredBackground();
       },
-      // this.startUp.bind(this),
       'monitors-changed',
       () => {
         this._updateMultiMonitorPreference();
@@ -764,12 +720,6 @@ export default class FluidGlassDockExt extends Extension {
       this
     );
 
-    // global.stage.connectObject(
-    //   'key-press-event',
-    //   this._onKeyPressed.bind(this),
-    //   this
-    // );
-
     Main.overview.connectObject(
       'showing',
       this._onOverviewShowing.bind(this),
@@ -790,7 +740,6 @@ export default class FluidGlassDockExt extends Extension {
       this
     );
 
-    // move to services.js
     this._timer.runLoop(
       () => {
         this._onCheckServices();
@@ -847,7 +796,6 @@ export default class FluidGlassDockExt extends Extension {
     listeners.forEach((l) => {
       if (l._onFullScreen) l._onFullScreen();
     });
-    // console.log(`_onFullScreen ${f}`);
   }
 
   _onRestacked() {
@@ -866,7 +814,6 @@ export default class FluidGlassDockExt extends Extension {
 
   _onOverviewShowing() {
     this._showMainOverviewDash(false);
-    //this._loTimer.runOnce(() => { Main.overview.dash.set_height(1); }, 50);
     this._inOverview = true;
     this._autohiders().forEach((autohider) => {
       autohider._debounceCheckHide();
@@ -878,7 +825,6 @@ export default class FluidGlassDockExt extends Extension {
   }
 
   _onOverviewHidden() {
-    //Main.overview.dash.set_height(1);
     this._inOverview = false;
     this._autohiders().forEach((autohider) => {
       autohider._debounceCheckHide();
@@ -893,8 +839,7 @@ export default class FluidGlassDockExt extends Extension {
   }
 
   _onCheckServices() {
-    if (!this.services) return; // todo why does this happen?
-    // todo convert services time in seconds
+    if (!this.services) return;
     this.services.update(SERVICES_UPDATE_INTERVAL);
   }
 
@@ -958,19 +903,15 @@ export default class FluidGlassDockExt extends Extension {
 
   _updateShrink(disable) {
     if (this.shrink_icons && !disable) {
-      this.scale = 0.8; // * rescale_modifier;
+      this.scale = 0.8;
     } else {
-      this.scale = 1.0; // * rescale_modifier;
+      this.scale = 1.0;
     }
     if (this.animate_icons) {
-      // this._animators().forEach((animator) => {
-      //   animator.relayout();
-      // });
     }
   }
 
   _updateMultiMonitorPreference() {
-    // console.log('update monitors');
     this.destroyDocks();
     this._loTimer.runOnce(() => {
       this.startUp();
@@ -1001,17 +942,12 @@ export default class FluidGlassDockExt extends Extension {
 
     let rads = [0, 8, 16, 20, 24, 28, 32, 36, 40, 42];
 
-    // icons-shadow
     if (this.icon_shadow) {
       styles.push(
         '#fluidGlassDockIcon, #DockItemList StIcon {icon-shadow: rgba(0, 0, 0, 0.32) 0 2px 6px;}'
       );
-      // styles.push(
-      //   '#dash StIcon:hover, #DockItemList StIcon:hover {icon-shadow: rgba(0, 0, 0, 0.24) 0 2px 8px;}'
-      // );
     }
 
-    // dash
     {
       let r = rads[Math.floor(this.border_radius)];
       let ss = [];
@@ -1024,7 +960,6 @@ export default class FluidGlassDockExt extends Extension {
       styles.push(`#fluidGlassDockBackground { ${ss.join(' ')}}`);
     }
 
-    // icon backgrounds
     {
       let ss = [];
       ss.push(`margin: 2px;`);
@@ -1037,16 +972,8 @@ export default class FluidGlassDockExt extends Extension {
         ss.push(`background: rgba(${rgba});`);
       }
 
-      // {
-      //   let rgba = this._style.rgba(this.icon_border_color);
-      //   let t = this.icon_border_thickness;
-      //   ss.push(`border: ${t}px rgba(${rgba});`);
-      // }
-
-      // styles.push(`.icon-focused { ${ss.join(' ')}}`);
     }
 
-    // dash label
     if (this.customize_label) {
       let rads = [0, 2, 6, 10, 12, 16, 20];
       let r = rads[Math.floor(this.label_border_radius)];
@@ -1069,14 +996,11 @@ export default class FluidGlassDockExt extends Extension {
         ss.push(`color: rgba(${rgba});`);
       }
 
-      // ss.push(`padding: 8px;`);
       styles.push(`.dash-label { ${ss.join(' ')}}`);
     }
 
-    // topbar
     if (this.customize_topbar) {
       let ss = [];
-      // border
       if (this.topbar_border_thickness) {
         let rgba = this._style.rgba(this.topbar_border_color);
         ss.push(
@@ -1084,8 +1008,6 @@ export default class FluidGlassDockExt extends Extension {
         );
       }
 
-      // background
-      // ss.push('background: transparent;');
       {
         let rgba = this._style.rgba(this.topbar_background_color);
         ss.push(`background: rgba(${rgba});`);
@@ -1093,7 +1015,6 @@ export default class FluidGlassDockExt extends Extension {
       styles.push(`#panelBox #panel {${ss.join(' ')}}`);
       ss = [];
 
-      // foreground
       if (this.topbar_foreground_color && this.topbar_foreground_color[3] > 0) {
         let rgba = this._style.rgba(this.topbar_foreground_color);
         styles.push(

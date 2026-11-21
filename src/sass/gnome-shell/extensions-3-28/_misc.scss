@@ -1,9 +1,7 @@
-// Simple Dock
 #dash:desktop {
   background-color: $panel_bg;
 }
 
-//  OpenWeather Extension
 .openweather {
   &-button,
   &-button-action,
@@ -13,7 +11,6 @@
   }
 
   &-provider {
-    // generic text buttons are allocated with y-expand-ed
     padding: 0 16px;
     font-weight: 500;
     @include button(flat-normal);
@@ -62,9 +59,6 @@
   &-build-icon { color: $alt_fg_color; }
 }
 
-//
-// Gsconnect
-//
 .gsconnect-device-menu {
   background-color: if($variant == 'light', white, rgba(white, 0.06));
   border-radius: $bt_radius;
@@ -88,9 +82,6 @@
   }
 }
 
-//
-// Pop_OS cosmic widget styling
-//
 .cosmic-dock {
   #dock {
     background-color: $dash_bg;
@@ -106,10 +97,6 @@
     margin: 0 !important;
   }
 }
-
-//
-// Places Menu
-//
 
 .place-menu-item {
   &:ltr {

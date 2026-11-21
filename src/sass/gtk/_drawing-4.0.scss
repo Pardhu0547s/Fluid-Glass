@@ -1,31 +1,16 @@
-
-// Solid color image
 @function _solid($c) {
   @return linear-gradient(to bottom, $c, $c);
 }
 
-// Entries
-
 @mixin entry($t) {
-//
-// Entries drawing function
-//
-// $t: entry type
-//
 
   @if $t==normal {
-  //
-  // normal entry
-  //
     color: $text_color;
     background-color: $entry_bg;
     box-shadow: inset 0 0 0 2px transparent;
   }
 
   @if $t==hover {
-  //
-  // hover entry
-  //
     color: $text_color;
     background-color: $entry_bg;
     box-shadow: inset 0 0 0 1px gtkalpha($borders_color, 0.05), inset 0 0 0 2px transparent;
@@ -33,9 +18,6 @@
   }
 
   @if $t==focus {
-  //
-  // focused entry
-  //
     color: $text_color;
     background-color: $entry_bg;
     box-shadow: inset 0 0 0 2px $entry_highlight;
@@ -43,17 +25,11 @@
   }
 
   @if $t==insensitive {
-  //
-  // insensitive entry
-  //
     color: $disabled_fg_color;
     background-color: $entry_disabled_bg;
   }
 
   @if $t==header-normal {
-  //
-  // normal header-bar entry
-  //
     color: $header_fg;
     border-radius: $circular_radius;
     background-color: transparent;
@@ -65,9 +41,6 @@
   }
 
   @if $t==header-hover {
-  //
-  // header-hover entry
-  //
     color: $header_fg;
     background-color: transparent;
     background-image: linear-gradient(to bottom, rgba(white, 0.05), rgba(white, 0.03));
@@ -76,9 +49,6 @@
   }
 
   @if $t==header-focus {
-  //
-  // focused header-bar entry
-  //
     color: $header_fg;
     background-image: none;
     background-color: $entry_bg;
@@ -86,9 +56,6 @@
   }
 
   @if $t==header-insensitive {
-  //
-  // insensitive header-bar entry
-  //
     color: gtkalpha($header_fg, 0.35);
     background-color: gtkalpha($entry_bg, 0.02);
     background-image: none;
@@ -96,9 +63,6 @@
   }
 
   @else if $t==osd {
-  //
-  // normal osd entry
-  //
     color: $osd_fg_color;
     border-color: $osd_entry_border;
     background-color: $osd_entry_bg;
@@ -107,9 +71,6 @@
   }
 
   @else if $t==osd-focus {
-  //
-  // active osd entry
-  //
     color: $selected_fg_color;
     background-color: $selected_bg_color;
 
@@ -121,27 +82,14 @@
   }
 
   @else if $t==osd-insensitive {
-  //
-  // insensitive osd entry
-  //
     color: $osd_disabled_fg_color;
     background-color: gtkalpha($osd_entry_bg, 0.8);
   }
 }
 
-// Buttons
-
 @mixin button($t, $actionb_bg: red, $actionb_fg: green) {
-//
-// Button drawing function
-//
-// $t:    button type,
-// $actionb_bg, $actionb_fg: used for destructive and suggested action buttons
 
   @if $t==normal {
-  //
-  // normal button
-  //
     color: $alt_fg_color;
     background-color: $button_bg;
     box-shadow: none;
@@ -149,50 +97,32 @@
   }
 
   @else if $t==hover {
-  //
-  // hovered button
-  //
     color: $fg_color;
     background-color: $button_hover_bg;
   }
 
   @else if $t==active {
-  //
-  // pushed button
-  //
     color: $fg_color;
     background-color: $button_active_bg;
   }
 
   @else if $t==checked {
-  //
-  // checked button
-  //
     color: $selected_fg_color;
     background-color: $selected_bg_color;
   }
 
   @else if $t==insensitive {
-  //
-  // insensitive button
-  //
     color: $disabled_fg_color;
     background-color: $button_disabled_bg;
     box-shadow: none;
   }
 
   @else if $t==insensitive-checked {
-  //
-  // insensitive pushed button
-  //
     color: gtkalpha($selected_fg_color, 0.35);
     background-color: gtkalpha($selected_bg_color, 0.25);
   }
 
   @if $t==flat-normal {
-  //
-  // normal button
-  //
     color: $alt_fg_color;
     border: none;
     background-color: transparent;
@@ -200,49 +130,31 @@
   }
 
   @else if $t==flat-hover {
-  //
-  // hovered button
-  //
     color: $fg_color;
     background-color: $button_hover_bg;
   }
 
   @else if $t==flat-active {
-  //
-  // pushed button
-  //
     color: $fg_color;
     background-color: $button_active_bg;
   }
 
   @else if $t==flat-checked {
-  //
-  // pushed button
-  //
     color: $fg_color;
     background-color: $button_checked_bg;
   }
 
   @else if $t==flat-insensitive {
-  //
-  // insensitive button
-  //
     color: $disabled_fg_color;
     background-color: transparent;
   }
 
   @else if $t==flat-insensitive-checked {
-  //
-  // insensitive checked button
-  //
     color: $disabled_fg_color;
     background-color: $button_hover_bg;
   }
 
   @if $t==header-normal {
-  //
-  // normal header-bar button
-  //
     color: $header_fg;
     background-color: transparent;
     background-image: $header_button_image;
@@ -251,9 +163,6 @@
   }
 
   @else if $t==header-hover {
-  //
-  // hovered header-bar button
-  //
     color: $header_fg;
     background-color: transparent;
     background-image: linear-gradient(to bottom, rgba(white, 0.05), rgba(white, 0.03));
@@ -261,9 +170,6 @@
   }
 
   @else if $t==header-active {
-  //
-  // pushed header-bar button
-  //
     color: $header_fg;
     background-color: gtkalpha($header_fg, 0.25);
     background-image: none;
@@ -271,9 +177,6 @@
   }
 
   @else if $t==header-checked {
-  //
-  // checked header-bar button
-  //
     color: $header_fg;
     background-color: gtkalpha($header_fg, 0.12);
     background-image: none;
@@ -281,9 +184,6 @@
   }
 
   @else if $t==header-insensitive {
-  //
-  // insensitive header-bar button
-  //
     color: gtkalpha($header_fg, 0.35);
     background-image: none;
     background-color: transparent;
@@ -291,9 +191,6 @@
   }
 
   @else if $t==header-insensitive-checked {
-  //
-  // header-bar insensitive pushed button
-  //
     color: gtkalpha($header_fg, 0.35);
     background-image: none;
     background-color: transparent;
@@ -301,9 +198,6 @@
   }
 
   @if $t==header-backdrop {
-  //
-  // normal header-bar button
-  //
     background-color: gtkalpha($header_fg, if($variant == 'light', 0.1, 0.05));
     background-image: none;
     border: none;
@@ -311,9 +205,6 @@
   }
 
   @if $t==header-flat {
-  //
-  // normal header-bar button
-  //
     color: $header_fg;
     background-color: transparent;
     background-image: none;
@@ -322,9 +213,6 @@
   }
 
   @else if $t==header-flat-hover {
-  //
-  // hovered header-bar button
-  //
     color: $header_fg;
     background-color: gtkalpha($header_fg, 0.1);
     background-image: none;
@@ -332,9 +220,6 @@
   }
 
   @else if $t==header-flat-active {
-  //
-  // pushed header-bar button
-  //
     color: $header_fg;
     background-color: gtkalpha($header_fg, 0.25);
     background-image: none;
@@ -342,9 +227,6 @@
   }
 
   @else if $t==header-flat-checked {
-  //
-  // pushed header-bar button
-  //
     color: $header_fg;
     background-color: gtkalpha($header_fg, 0.15);
     background-image: none;
@@ -352,9 +234,6 @@
   }
 
   @else if $t==header-flat-insensitive {
-  //
-  // insensitive header-bar button
-  //
     color: gtkalpha($header_fg, 0.35);
     background-image: none;
     background-color: transparent;
@@ -362,9 +241,6 @@
   }
 
   @else if $t==header-flat-insensitive-checked {
-  //
-  // insensitive header-bar button
-  //
     color: gtkalpha($header_fg, 0.35);
     background-image: none;
     background-color: gtkalpha($header_fg, 0.06);
@@ -372,9 +248,6 @@
   }
 
   @if $t==header-flat-backdrop {
-  //
-  // normal header-bar button
-  //
     background-color: transparent;
     background-image: none;
     border: none;
@@ -382,9 +255,6 @@
   }
 
   @else if $t==osd {
-  //
-  // normal osd button
-  //
     color: $osd_fg_color;
     border-color: $osd_button_border;
     background-color: rgba(white, 0.08);
@@ -392,9 +262,6 @@
   }
 
   @else if $t==osd-hover {
-  //
-  // active osd button
-  //
     color: $osd_fg_color;
     border-color: $osd_button_border;
     background-color: rgba(white, 0.16);
@@ -402,9 +269,6 @@
   }
 
   @else if $t==osd-active {
-  //
-  // active osd button
-  //
     color: $selected_fg_color;
     border-color: $osd_button_border;
     background-color: rgba(white, 0.25);
@@ -414,9 +278,6 @@
   }
 
   @else if $t==osd-insensitive {
-  //
-  // insensitive osd button
-  //
     color: $osd_disabled_fg_color;
     border-color: $osd_button_border;
     background-color: rgba(white, 0.03);
@@ -424,9 +285,6 @@
   }
 
   @else if $t==suggested_destructive {
-  //
-  // suggested or destructive action buttons
-  //
     @if $variant == 'light' { background-clip: border-box; }
 
     color: $actionb_fg;
@@ -442,9 +300,6 @@
   }
 
   @else if $t==undecorated {
-  //
-  // reset
-  //
     border-color: transparent;
     background-color: transparent;
     background-image: none;
@@ -452,19 +307,7 @@
   }
 }
 
-//
-// Overshoot
-//
-
 @mixin overshoot($p) {
-//
-// overshoot
-//
-// $p: position
-//
-// possible $p values:
-// top, bottom, right, left
-//
 
   $_small_gradient_length: 3%;
   $_big_gradient_length: 50%;
@@ -491,22 +334,12 @@
   background-repeat: no-repeat;
   background-position: $p;
 
-  background-color: transparent; // reset some properties to be sure to not inherit them somehow
-  border: none;                  //
-  box-shadow: none;              //
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 @mixin undershoot($p, $c: $wm_shadow, $neighbor: false, $style: default) {
-//
-// undershoot
-//
-// $p: position
-// $c: shade color
-// $neighbor: use ~ instead of >
-//
-// possible $p values:
-// top, bottom, right, left
-//
 
   $_border_pos: '';
   $_direction: '';

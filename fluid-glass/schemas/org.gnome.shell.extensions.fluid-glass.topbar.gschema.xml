@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
-  <!--
-    Settings surface for Lintel. Keys are declared up front so the structure
-    is stable; the skeleton (Stage 1) does not yet read them at runtime, which
-    keeps the extension loadable even before the schema is compiled.
-  -->
   <enum id="org.gnome.shell.extensions.fluid-glass.topbar.appearance">
     <value nick="tahoe-transparent" value="0"/>
     <value nick="translucent" value="1"/>
@@ -24,9 +19,6 @@
     <value nick="dark" value="2"/>
   </enum>
 
-  <!-- Mirrors macOS's "Show date" three-way control. when-space-allows drops the
-       date (keeping the weekday) once the panel's natural width would overflow
-       the monitor, which is what the macOS menu bar does when it gets crowded. -->
   <enum id="org.gnome.shell.extensions.fluid-glass.topbar.clock-date-mode">
     <value nick="when-space-allows" value="0"/>
     <value nick="always" value="1"/>
@@ -38,7 +30,6 @@
     <value nick="native" value="1"/>
   </enum>
 
-  <!-- Keyless weather services only; see src/services/weatherProviders.js. -->
   <enum id="org.gnome.shell.extensions.fluid-glass.topbar.weather-provider">
     <value nick="open-meteo" value="0"/>
     <value nick="wttr" value="1"/>
@@ -58,7 +49,6 @@
   <schema id="org.gnome.shell.extensions.fluid-glass.topbar"
           path="/org/gnome/shell/extensions/fluid-glass/topbar/">
 
-    <!-- Layout (Stage 2) -->
     <key name="hide-activities" type="b">
       <default>true</default>
       <summary>Hide the Activities / workspace indicator</summary>
@@ -72,7 +62,6 @@
       <summary>Reveal the panel at the top edge while an app is fullscreen</summary>
     </key>
 
-    <!-- Notification Center -->
     <key name="notification-center-enabled" type="b">
       <default>false</default>
       <summary>Open the Tahoe-style Notification Center from the clock</summary>
@@ -103,7 +92,6 @@
       <summary>Temperature unit: follow the region, Celsius or Fahrenheit</summary>
     </key>
 
-    <!-- System menu (Stage 3) -->
     <key name="show-system-menu" type="b">
       <default>true</default>
       <summary>Show the left-hand system (Apple-style) menu</summary>
@@ -113,7 +101,6 @@
       <summary>System-menu logo: an emoji/symbol glyph, an icon-theme name, or a file path; empty = the distributor logo from os-release LOGO=</summary>
     </key>
 
-    <!-- Active application (Stage 4) -->
     <key name="show-active-app" type="b">
       <default>true</default>
       <summary>Show the focused application's name</summary>
@@ -123,13 +110,11 @@
       <summary>Text shown when no window is focused (empty = hide)</summary>
     </key>
 
-    <!-- Fluid Glass Quick Menu -->
     <key name="show-fluid-glass-menu" type="b">
       <default>false</default>
       <summary>Show Fluid Glass quick adjustment menu in the top bar</summary>
     </key>
 
-    <!-- Control Center (Stage 6) -->
     <key name="control-center-mode" enum="org.gnome.shell.extensions.fluid-glass.topbar.control-center-mode">
       <default>'custom'</default>
       <summary>custom = separate Wi-Fi, battery and Control Center menus; native = open Quick Settings</summary>
@@ -149,7 +134,6 @@
       <description>When true, an outer frosted liquid glass card wraps the entire Control Center. When false, modules float individually.</description>
     </key>
 
-    <!-- Clock (Stage 7) -->
     <key name="clock-show-weekday" type="b">
       <default>true</default>
       <summary>Show weekday in the clock</summary>
@@ -167,7 +151,6 @@
       <summary>Show seconds in the clock</summary>
     </key>
 
-    <!-- Appearance (Stage 8) -->
     <key name="appearance" enum="org.gnome.shell.extensions.fluid-glass.topbar.appearance">
       <default>'tahoe-transparent'</default>
       <summary>Panel background style</summary>
@@ -195,9 +178,6 @@
       <range min="-1" max="64"/>
       <summary>Horizontal spacing between panel items in px (-1 = inherit)</summary>
     </key>
-    <!-- Replaces the old integer 'font-size': the measured macOS menu bar text is
-         14px = 10.5pt, which an integer key cannot express. Renamed rather than
-         retyped so a stored integer cannot collide with the new type. -->
     <key name="font-size-pt" type="d">
       <default>10.5</default>
       <range min="0.0" max="48.0"/>

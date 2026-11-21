@@ -108,7 +108,6 @@ export let PrefKeys = class {
 
   _toRGBA() {
     console.log('implement me!');
-    // implement @ patch
     return null;
   }
 
@@ -129,7 +128,6 @@ export let PrefKeys = class {
           try {
             key.value = JSON.parse(settings.get_string(name));
           } catch (err) {
-            // fail silently
           }
           break;
         }
@@ -143,7 +141,6 @@ export let PrefKeys = class {
           try {
             if (key.object) key.object.set_selected(key.value);
           } catch (err) {
-            //
           }
           break;
         }
@@ -162,7 +159,6 @@ export let PrefKeys = class {
           try {
             if (key.object) {
               key.object.set_rgba(
-                // new Gdk.RGBA({
                 this._toRGBA({
                   red: key.value[0],
                   green: key.value[1],
@@ -172,7 +168,6 @@ export let PrefKeys = class {
               );
             }
           } catch (err) {
-            //
           }
           break;
         }
@@ -187,7 +182,6 @@ export let PrefKeys = class {
               try {
                 key.value = JSON.parse(settings.get_string(name));
               } catch (err) {
-                // fail silently
               }
               break;
             }
@@ -244,7 +238,6 @@ export let PrefKeys = class {
 
       switch (key.widget_type) {
         case 'json_array': {
-          // unimplemented
           break;
         }
         case 'switch': {
@@ -291,7 +284,6 @@ export let PrefKeys = class {
         }
       }
 
-      // when do we clean this up?
       this._builderListeners.push({
         source: key.object,
         signal_id: signal_id,

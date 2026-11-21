@@ -1,7 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// Minimal MPRIS player bridge for the Control Center Now Playing card.
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';

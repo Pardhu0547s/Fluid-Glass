@@ -645,9 +645,6 @@
       <summary>Saturation</summary>
       <description>Adjusts the saturation of the glass effect behind application windows.</description>
     </key>
-    <!-- The desktop's own right-click menu. It is configured separately from
-         application windows, with smaller corners and a more opaque body so
-         it stays readable. -->
     <key name="enable-desktop-menu-glass" type="b">
       <default>false</default>
       <summary>Enable glass effect for the desktop menu</summary>

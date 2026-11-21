@@ -1,6 +1,3 @@
-//
-// Dash to panel
-//
 #preview-menu {
   margin: 0 6px 6px !important;
   padding-bottom: 8px !important;
@@ -10,10 +7,6 @@
   }
 }
 
-
-//
-// OpenWeather Extension
-//
 .openweather {
   &-button,
   &-button-action,
@@ -23,7 +16,6 @@
   }
 
   &-provider {
-    // generic text buttons are allocated with y-expand-ed
     padding: 0 16px;
     font-weight: 500;
     @include button(flat-normal);
@@ -72,9 +64,6 @@
   &-build-icon { color: $alt_fg_color; }
 }
 
-//
-// Gsconnect
-//
 .gsconnect-device-menu {
   background-color: if($variant == 'light', rgba(black, 0.05), rgba(white, 0.05));
   border-radius: $bt_radius;
@@ -98,10 +87,6 @@
     }
   }
 }
-
-//
-// Pop_OS cosmic widget styling
-//
 
 .cosmic-solid-bg {
   background-color: #222222;
@@ -136,10 +121,6 @@
     }
   }
 }
-
-//
-// Places Menu
-//
 
 .place-menu-item {
   &:ltr {

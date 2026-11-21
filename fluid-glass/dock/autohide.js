@@ -13,22 +13,16 @@ import {
 const DEBOUNCE_HIDE_TIMEOUT = 120;
 const PRESSURE_SENSE_DISTANCE = 40;
 
-// some codes lifted from dash-to-dock intellihide
 const handledWindowTypes = [
   Meta.WindowType.NORMAL,
-  // Meta.WindowType.DOCK,
   Meta.WindowType.DIALOG,
   Meta.WindowType.MODAL_DIALOG,
-  // Meta.WindowType.TOOLBAR,
-  // Meta.WindowType.MENU,
   Meta.WindowType.UTILITY,
-  // Meta.WindowType.SPLASHSCREEN
 ];
 
 export let AutoHide = class {
   enable() {
     if (this._enabled) return;
-    // console.log('enable autohide');
     this._enabled = true;
     this._shown = true;
     this._dwell = 0;
@@ -57,7 +51,6 @@ export let AutoHide = class {
   }
 
   _getScaleFactor() {
-    //! use dock scale factor
     let scaleFactor = this.dock._monitor.geometry_scale;
     return scaleFactor;
   }
@@ -89,11 +82,9 @@ export let AutoHide = class {
 
       if (this.dock.isVertical()) {
         if (
-          // right
           (this.dock._position == DockPosition.RIGHT &&
             dy < area &&
             pointer[0] > monitor.x + sw - 4) ||
-          // left
           (this.dock._position == DockPosition.LEFT &&
             dy < area &&
             pointer[0] < monitor.x + 4)
@@ -104,7 +95,6 @@ export let AutoHide = class {
           this.last_pointer = pointer;
         }
       } else {
-        // bottom
         if (dx < area && pointer[1] + 4 > monitor.y + sh) {
           this._dwell++;
         } else {
@@ -112,8 +102,6 @@ export let AutoHide = class {
           this.last_pointer = pointer;
         }
       }
-
-      // console.log(`${this._dwell} ${dwell_count} ${this.extension.pressure_sense_sensitivity}`);
 
       if (this._dwell > dwell_count) {
         this.show();
@@ -160,16 +148,13 @@ export let AutoHide = class {
   }
 
   _track(window) {
-    //! window tracking should be made global
     if (!window._tracked) {
       window.connectObject(
         'position-changed',
-        // this._debounceCheckHide.bind(this),
         () => {
           this.dock.extension.checkHide();
         },
         'size-changed',
-        // this._debounceCheckHide.bind(this),
         () => {
           this.dock.extension.checkHide();
         },
@@ -186,12 +171,10 @@ export let AutoHide = class {
         window._tracked = false;
       }
     } catch (err) {
-      // may have been destroyed already
     }
   }
 
   _checkOverlap() {
-    // console.log("checking overlap...");
     if (this.extension._inOverview) {
       return false;
     }
@@ -200,8 +183,6 @@ export let AutoHide = class {
       pointer = [...this.extension.simulated_pointer];
     }
 
-    // console.log(pointer);
-
     let pos = this.dock.struts.get_transformed_position();
     let rect = {
       x: pos[0],
@@ -209,16 +190,11 @@ export let AutoHide = class {
       w: this.dock.struts.width,
       h: this.dock.struts.height,
     };
-    //! change to struts rect
     let arect = [rect.x, rect.y, rect.w, rect.h];
-
-    // console.log(arect);
 
     if (!this.extension.autohide_dash) {
       return false;
     }
-
-    // console.log("checking pointer location...");
 
     if (this.dock._isWithinDash(pointer) || isInRect(arect, pointer)) {
       return false;
@@ -228,13 +204,9 @@ export let AutoHide = class {
       return true;
     }
 
-    // console.log("checking fullscreen...");
-
     if (this.dock._monitor && this.dock._monitor.inFullscreen) {
       return true;
     }
-
-    // console.log("checking windows...");
 
     let monitor = this.dock._monitor;
     let actors = global.get_window_actors();
@@ -245,7 +217,6 @@ export let AutoHide = class {
     });
     windows = windows.filter((w) => w.can_close());
     windows = windows.filter((w) => w.get_monitor() == monitor.index);
-    // windows = windows.filter((w) => !w.is_override_redirect());
     let workspace = global.workspace_manager.get_active_workspace_index();
     windows = windows.filter(
       (w) =>
@@ -272,7 +243,6 @@ export let AutoHide = class {
 
     this.windows = windows;
 
-    // console.log(isOverlapped);
     return isOverlapped;
   }
 

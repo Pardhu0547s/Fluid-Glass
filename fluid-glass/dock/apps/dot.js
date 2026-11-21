@@ -1,6 +1,3 @@
-// adapted from https://github.com/jderose9/dash-to-panel
-// adapted from https://github.com/micheleg/dash-to-dock
-
 import GObject from 'gi://GObject';
 import Clutter from 'gi://Clutter';
 import Cairo from 'gi://cairo';
@@ -32,6 +29,15 @@ export const Dot = GObject.registerClass(
   }
 );
 
+function _arrEq(a, b) {
+  if (a === b) return true;
+  if (!a || !b || a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
 const DotCanvas = GObject.registerClass(
   {
     GTypeName: 'FluidGlass_Dock_DotCanvas',},
@@ -53,10 +59,10 @@ const DotCanvas = GObject.registerClass(
       if (
         !this.state ||
         this.state.count != s.count ||
-        this.state.color != s.color ||
+        !_arrEq(this.state.color, s.color) ||
         this.state.style != s.style ||
         this.state.rotate != s.rotate ||
-        this.state.translate != s.translate ||
+        !_arrEq(this.state.translate, s.translate) ||
         this.state.scale != s.scale ||
         this.state.size != s.size
       ) {
@@ -101,7 +107,6 @@ const DotCanvas = GObject.registerClass(
       }
       ctx.translate(-width / 2, -height / 2);
 
-      // _draw_dot...
       let func = this[`_draw_${this.state.style}`];
       if (typeof func === 'function') {
         func.bind(this)(ctx, this.state);
@@ -122,7 +127,7 @@ const DotCanvas = GObject.registerClass(
       ctx.translate(this._padding, size - height * 2.5);
 
       let sz = width / 20;
-      let spacing = Math.ceil(width / 18); // separation between the dots
+      let spacing = Math.ceil(width / 18);
       let dashLength = Math.ceil((width - (count - 1) * spacing) / count);
       let lineLength = width - sz * (count - 1) - spacing * (count - 1);
 
@@ -149,7 +154,7 @@ const DotCanvas = GObject.registerClass(
       let width = size - this._padding * 2;
 
       let sz = width / 14;
-      let spacing = Math.ceil(width / 16); // separation between the dots
+      let spacing = Math.ceil(width / 16);
       let dashLength = Math.floor(width / 4) - spacing;
 
       ctx.translate(
@@ -179,7 +184,7 @@ const DotCanvas = GObject.registerClass(
       let height = this.dot_size(this._barHeight + 5);
       let width = size - this._padding * 2;
 
-      let spacing = Math.ceil(width / 18); // separation between the dots
+      let spacing = Math.ceil(width / 18);
       let dashLength = height;
 
       ctx.translate(
@@ -209,7 +214,7 @@ const DotCanvas = GObject.registerClass(
       let height = this.dot_size(this._barHeight + 6);
       let width = size - this._padding * 2;
 
-      let spacing = Math.ceil(width / 16); // separation between the dots
+      let spacing = Math.ceil(width / 16);
       let dashLength = height + 8;
 
       ctx.translate(
@@ -241,7 +246,7 @@ const DotCanvas = GObject.registerClass(
       let height = this.dot_size(this._barHeight + 10);
       let width = size - this._padding * 2;
 
-      let spacing = Math.ceil(width / 16); // separation between the dots
+      let spacing = Math.ceil(width / 16);
       let dashLength = height;
 
       ctx.translate(
@@ -274,7 +279,7 @@ const DotCanvas = GObject.registerClass(
       let height = this.dot_size(this._barHeight);
       let width = size - this._padding * 2;
 
-      let spacing = Math.ceil(width / 18); // separation between the dots
+      let spacing = Math.ceil(width / 18);
       let radius = height;
 
       ctx.translate(
@@ -310,7 +315,7 @@ const DotCanvas = GObject.registerClass(
       let height = this.dot_size(this._barHeight + 2);
       let width = size - this._padding * 2;
 
-      let spacing = Math.ceil(width / 14); // separation between the dots
+      let spacing = Math.ceil(width / 14);
       let dashLength = height * 1.4;
       let radius = height * 0.9;
 

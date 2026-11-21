@@ -1,5 +1,3 @@
-/* Dash */
-
 $dash_placeholder_size: 32px;
 
 #dash {
@@ -9,7 +7,6 @@ $dash_placeholder_size: 32px;
   }
 }
 
-// OSD Tooltip
 .dash-label {
   color: $light_alt_fg_color;
   background-color: rgba(black, 0.75);
@@ -19,7 +16,7 @@ $dash_placeholder_size: 32px;
   box-shadow: none !important;
   border: none !important;
   text-align: center;
-  -y-offset: $base_margin * 2; // distance from the dash edge
+  -y-offset: $base_margin * 2;
   -x-offset: 8px;
   @include font(body-1);
 }
@@ -40,7 +37,6 @@ $dash_placeholder_size: 32px;
   }
 }
 
-// Show apps button
 .show-apps {
   @if $showapps_button == "bigsur" {
     @extend %show_apps_bigsur;

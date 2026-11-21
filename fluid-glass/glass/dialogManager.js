@@ -1,9 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// DialogManager — attaches real GLSL Liquid Glass to system ModalDialogs
-// (Log Out, Restart, Power Off, Polkit auth, etc.) and GDM / lock-screen
-// user-list & password-entry pills.
-
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -39,6 +33,7 @@ export class DialogManager {
         this._pendingIdles = new Set();
         this._groupSignals = [];
         this._settingsSignals = [];
+        this._cachedCornerRadius = settings ? settings.get_double('panel-menu-corner-radius') : 26.0;
     }
 
     setup() {
@@ -106,6 +101,7 @@ export class DialogManager {
 
     _syncThemeSettings() {
         const corner = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
+        this._cachedCornerRadius = corner;
         const themeOpts = this._glassOptions(corner);
         const updatePayload = {
             blurRadius: themeOpts.blurRadius,
@@ -142,25 +138,28 @@ export class DialogManager {
     }
 
     _makeRestackOptions(sizeActor, stackRoot, owner = 'dialogManager') {
-        const corner = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
+        const corner = this._cachedCornerRadius;
         const opts = this._glassOptions(corner);
         opts.owner = owner;
+        let lastRadius = -1;
         opts.onSync = syncHandle => {
             if (!syncHandle?.glass || !isActorValid(sizeActor) || !isActorValid(stackRoot))
                 return;
 
-            const prefR = this._settings ? this._settings.get_double('panel-menu-corner-radius') : 26.0;
+            const prefR = this._cachedCornerRadius;
             const [w, h] = sizeActor.get_transformed_size();
-            if (w >= 1 && h >= 1)
-                syncHandle.glass.setCornerRadius?.(Math.min(prefR, w * 0.5, h * 0.5));
+            if (w >= 1 && h >= 1) {
+                const r = Math.min(prefR, w * 0.5, h * 0.5);
+                if (r !== lastRadius) {
+                    syncHandle.glass.setCornerRadius?.(r);
+                    lastRadius = r;
+                }
+            }
 
             const parent = syncHandle.glass.get_parent?.();
-            if (parent && stackRoot.get_parent?.() === parent) {
-                const children = parent.get_children();
-                const gIdx = children.indexOf(syncHandle.glass);
-                const rIdx = children.indexOf(stackRoot);
-                if (gIdx !== -1 && rIdx !== -1 && gIdx !== rIdx - 1)
-                    parent.set_child_below_sibling(syncHandle.glass, stackRoot);
+            if (parent && stackRoot.get_parent?.() === parent &&
+                syncHandle.glass.get_next_sibling?.() !== stackRoot) {
+                parent.set_child_below_sibling(syncHandle.glass, stackRoot);
             }
         };
         return opts;
@@ -181,7 +180,6 @@ export class DialogManager {
         if (this._attachModalDialog(modalActor))
             return;
 
-        // ModalDialog._init adds itself to modalDialogGroup before building dialogLayout/_lightbox.
         this._scheduledModals.add(modalActor);
         this._scheduleIdle(() => {
             this._scheduledModals.delete(modalActor);
@@ -208,8 +206,6 @@ export class DialogManager {
 
         dialog.add_style_class_name?.('fluid-glass-modal-dialog');
 
-        // Disable GNOME Shell's heavy black radial lightbox shade so the liquid glass modal
-        // stays clear and bright over desktop windows while keeping reactive event blocking.
         const lightbox = modalActor._lightbox;
         let radial = null;
         let prevRadialEnabled = null;
@@ -360,7 +356,6 @@ export class DialogManager {
             return;
         }
 
-        // WorkspaceSwitcherPopup and ResizePopup construct child boxes after Main.uiGroup.add_child(this).
         this._scheduleIdle(() => {
             if (!isActorValid(child) || child.get_parent?.() !== uiGroup)
                 return;
@@ -411,7 +406,6 @@ export class DialogManager {
             this._addTempClasses(styledActors, menu._boxPointer, ['fluid-glass-transparent', 'fluid-glass-ui-popup']);
         this._addTempClasses(styledActors, menu.box, ['fluid-glass-transparent', 'fluid-glass-ui-popup-content']);
 
-        // Do not pass opts.menu so QuickSettingsMenu opacity fade completes cleanly.
         const opts = this._makeRestackOptions(menu.box, menu.actor, 'uiPopupGlass');
         const handle = attachGlass(menu.box, opts);
         const adaptiveClasses = ['fluid-glass-ui-popup-light', 'fluid-glass-ui-popup-dark'];
@@ -543,8 +537,6 @@ export class DialogManager {
         if (this._isLoginPill(root))
             this._tagShieldPill(root);
 
-        // Watch containers inside the login/unlock dialog so dynamically shown
-        // user items or password entries get tagged when created.
         this._watchSubtree(root);
     }
 
@@ -660,7 +652,6 @@ export class DialogManager {
                         `targets=[${targets}] desc=${JSON.stringify(desc)}`
                     );
                 } catch (_e) {
-                    // Best-effort diagnostics only.
                 }
                 return GLib.SOURCE_REMOVE;
             });

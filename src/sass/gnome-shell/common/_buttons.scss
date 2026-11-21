@@ -1,5 +1,3 @@
-/* Buttons */
-
 %button {
   @include button(flat-normal);
   &:hover { @include button(flat-hover); }
@@ -33,12 +31,10 @@
   border: none;
   @extend %button;
 
-  // default style
   &.default {
     @extend %default_button;
   }
 
-  // flat style
   &.flat {
     @extend %flat_button;
   }
@@ -57,12 +53,10 @@
     -st-icon-style: symbolic;
   }
 
-  // default style
   &.default {
     @extend %default_button;
   }
 
-  // flat style
   &.flat {
     @extend %flat_button;
   }

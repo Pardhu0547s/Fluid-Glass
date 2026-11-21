@@ -1,10 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// Independent menu-bar Wired / LAN / USB Tethering status indicator.
-// Visible whenever a physical Ethernet/LAN link, USB tethered phone, or
-// cellular broadband modem is connected or connecting, positioned right beside
-// the Wi-Fi menu item in the top bar.
-
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GioUnix from 'gi://GioUnix';

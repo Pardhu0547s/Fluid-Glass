@@ -1,4 +1,3 @@
-// Screenshot UI
 .icon-label-button-container {
   spacing: $base_padding;
   @include font(caption);
@@ -16,7 +15,6 @@ $screenshot_ui_button_red: $error_color;
 .screenshot-ui-panel {
   border-radius: $screenshot_ui_panel_border_radius;
   padding: $screenshot_ui_panel_padding;
-  // Reduce the bottom padding a little to accommodate the large capture button.
   margin-bottom: 4em;
   spacing: $container_padding * 2;
   color: $osd_fg_color;
@@ -26,8 +24,8 @@ $screenshot_ui_button_red: $error_color;
 }
 
 .screenshot-ui-close-button {
-  @extend .window-close; // copy window close button
-  padding: $base_padding !important; // but with more padding
+  @extend .window-close;
+  padding: $base_padding !important;
 
   &.left { margin-left: $container_padding; }
   &.right { margin-right: $container_padding; }
@@ -147,7 +145,6 @@ $screenshot_ui_button_red: $error_color;
 
   &:primary-monitor {
     .screenshot-ui-window-selector-window-container {
-      // Make some room for the panel.
       margin-bottom: 200px;
     }
   }

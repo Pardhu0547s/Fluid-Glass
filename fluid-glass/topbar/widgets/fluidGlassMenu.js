@@ -1,7 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// FluidGlassMenu — Tahoe-style menu-bar status item for live Fluid Glass adjustment.
-
 import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
@@ -153,7 +149,6 @@ export const FluidGlassMenu = GObject.registerClass({
             this._dockSettings = null;
         }
 
-        // Panel Icon
         const iconFile = Gio.File.new_for_path(GLib.build_filenamev([
             extension.path, 'icons', 'fluid-glass-symbolic.svg',
         ]));
@@ -169,7 +164,6 @@ export const FluidGlassMenu = GObject.registerClass({
     }
 
     _buildMenu() {
-        // 1. Master Toggle
         const isEnabled = this._masterSettings?.get_boolean('enable-glass-shaders') ?? true;
         this._toggle = new PopupMenu.PopupSwitchMenuItem(_('Liquid Glass'), isEnabled);
         this._toggle.add_style_class_name('fluid-glass-status-toggle');
@@ -179,7 +173,6 @@ export const FluidGlassMenu = GObject.registerClass({
         });
         this.menu.addMenuItem(this._toggle);
 
-        // 2. Material Sliders
         const matHeader = new PopupMenu.PopupMenuItem(_('Material Adjustments'), {
             reactive: false,
             can_focus: false,
@@ -228,7 +221,6 @@ export const FluidGlassMenu = GObject.registerClass({
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        // 3. Presets
         const presetHeader = new PopupMenu.PopupMenuItem(_('Presets'), {
             reactive: false,
             can_focus: false,
@@ -277,7 +269,6 @@ export const FluidGlassMenu = GObject.registerClass({
 
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-        // 4. Preferences Link
         const prefsItem = new PopupMenu.PopupMenuItem(_('Fluid Glass Settings…'));
         prefsItem.connect('activate', () => {
             this.menu.close();

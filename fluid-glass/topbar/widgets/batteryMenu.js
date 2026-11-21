@@ -1,7 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// Independent menu-bar battery status item with its own Tahoe-style popup.
-
 import Clutter from 'gi://Clutter';
 import GObject from 'gi://GObject';
 import St from 'gi://St';

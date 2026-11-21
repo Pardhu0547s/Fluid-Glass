@@ -1,12 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// WiFiService — a focused libnm model for the standalone menu-bar Wi-Fi menu.
-// Unlike ConnectivityService (which only needs an on/off switch for Control
-// Center), this service exposes real access points, signal/security state and
-// activation.  GNOME Shell's already-running NetworkAgent supplies password
-// prompts for personal networks; unsaved enterprise networks fall back to the
-// native Wi-Fi settings panel.
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -162,7 +153,6 @@ export const WifiService = GObject.registerClass({
             GLib.utf8_collate(a.name, b.name));
     }
 
-    /** Connect to an AP, or disconnect it when it is already active. */
     toggleNetwork(network) {
         if (!this._client || !network?.device || !network?.accessPoint)
             return false;
@@ -200,8 +190,6 @@ export const WifiService = GObject.registerClass({
             return true;
         }
 
-        // NetworkManager cannot infer an unsaved 802.1x configuration. The
-        // caller opens the native Wi-Fi panel for that one specialized case.
         if (isEnterpriseType(network.securityType))
             return false;
 
@@ -375,7 +363,6 @@ export const WifiService = GObject.registerClass({
             try {
                 object.disconnect(id);
             } catch (_e) {
-                // The object may already have vanished with NetworkManager.
             }
         }
         bucket.length = 0;

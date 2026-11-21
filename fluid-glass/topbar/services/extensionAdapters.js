@@ -1,23 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// ExtensionAdapters — drives third-party extensions through their own public
-// settings contract, so the Control Center can carry a proper Tahoe capsule for
-// them instead of a generic mirror of their Quick Settings tile.
-//
-// This is the precise layer above services/quickSettingsBridge.js. The bridge
-// works for anything but can only show what the tile shows; an adapter knows
-// the extension, so it picks the icon and wording, reads state straight from
-// GSettings, and keeps working when the extension's own tile is switched off.
-// Where both apply the adapter wins and `claims()` suppresses the mirror.
-//
-// Two rules this module exists to enforce:
-//   • No adapter ever imports another extension's code or touches its
-//     `stateObj`. Only `Main.extensionManager.lookup()` metadata (state, path)
-//     and its published GSettings schema.
-//   • A schema we do not ship is NEVER opened with `new Gio.Settings({schema_id})`.
-//     GLib aborts the process on a missing schema, which would take the whole
-//     Shell down with it; every lookup goes through Gio.SettingsSchemaSource.
-
 import Gettext from 'gettext';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
@@ -36,14 +16,13 @@ export const ExtensionAdapters = GObject.registerClass({
     _init(adapters = EXTENSION_ADAPTERS) {
         super._init();
         this._adapters = adapters;
-        this._records = new Map(); // adapter -> {settings, ids, localizedTitle}
+        this._records = new Map();
         this._managerId = 0;
         this._iconTheme = null;
         this._changedId = 0;
         this._enabled = false;
     }
 
-    /** Start tracking which adapters apply. Idempotent. */
     enable() {
         if (this._enabled)
             return;
@@ -57,11 +36,6 @@ export const ExtensionAdapters = GObject.registerClass({
         this._refresh();
     }
 
-    /**
-     * One entry per adapter whose extension is active and whose schema we could
-     * open. Read fresh each time so a capsule can never show a state the
-     * extension has since left.
-     */
     get entries() {
         const out = [];
         for (const [adapter, record] of this._records) {
@@ -84,7 +58,6 @@ export const ExtensionAdapters = GObject.registerClass({
         return out;
     }
 
-    /** Flip the extension behind `key` (an adapter id from `entries`). */
     toggle(key) {
         for (const [adapter, record] of this._records) {
             if (adapter.id !== key)
@@ -98,12 +71,6 @@ export const ExtensionAdapters = GObject.registerClass({
         }
     }
 
-    /**
-     * Whether an adapter supersedes this third-party Quick Settings tile, so the
-     * generic mirror must skip it. Matched on the tile's label resolved through
-     * the extension's OWN gettext domain — its title is localised, so comparing
-     * against an English string would duplicate the capsule outside en_US.
-     */
     claims(item) {
         const title = item?.title;
         if (!title)
@@ -125,7 +92,6 @@ export const ExtensionAdapters = GObject.registerClass({
             try {
                 Main.extensionManager?.disconnect(this._managerId);
             } catch (_e) {
-                // Manager already gone.
             }
             this._managerId = 0;
         }
@@ -135,14 +101,10 @@ export const ExtensionAdapters = GObject.registerClass({
         this._iconTheme = null;
     }
 
-    // ---- Adapter lifecycle ---------------------------------------------------
-
     _refresh() {
         if (!this._enabled)
             return;
 
-        // A newly loaded extension adds its icons/ to the theme search path, so
-        // take a fresh theme whenever the extension set changes.
         this._iconTheme = null;
 
         for (const adapter of this._adapters) {
@@ -162,7 +124,7 @@ export const ExtensionAdapters = GObject.registerClass({
 
             const settings = this._openSettings(adapter, extension);
             if (!settings)
-                continue; // Installed but its schema is not; stay out of the way.
+                continue;
 
             const ids = (adapter.watchKeys ?? []).map(
                 key => settings.connect(`changed::${key}`,
@@ -185,12 +147,6 @@ export const ExtensionAdapters = GObject.registerClass({
         }
     }
 
-    /**
-     * Open another extension's schema safely. Extension schemas live in their
-     * own `schemas/` dir rather than the system source, so we chain a source
-     * rooted there onto the default one and look the id up in the result. A
-     * miss returns null instead of aborting the Shell.
-     */
     _openSettings(adapter, extension) {
         try {
             let source = Gio.SettingsSchemaSource.get_default();
@@ -204,11 +160,10 @@ export const ExtensionAdapters = GObject.registerClass({
                 return null;
             return new Gio.Settings({settings_schema: schema});
         } catch (_e) {
-            return null; // Uncompiled or unreadable schemas dir.
+            return null;
         }
     }
 
-    /** The label the extension itself shows, in the session's locale. */
     _localizedTitle(adapter, extension) {
         if (!adapter.gettextDomain || !adapter.titleMsgid)
             return null;
@@ -242,7 +197,6 @@ export const ExtensionAdapters = GObject.registerClass({
             try {
                 record.settings.disconnect(id);
             } catch (_e) {
-                // Settings object already finalised.
             }
         }
         record.ids = [];

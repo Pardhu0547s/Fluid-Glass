@@ -1,12 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// BrightnessService — screen backlight.
-//   1) Main.brightnessManager (GNOME 47+)
-//   2) org.gnome.SettingsDaemon.Power.Screen (Brightness i, 0-100) when present.
-//   3) otherwise `brightnessctl` (verified: `brightnessctl -m -c backlight` →
-//      "amdgpu_bl1,backlight,62258,95%,65535", set via `brightnessctl set N%`).
-// `available` is false only when none works (e.g. a desktop with no backlight).
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -28,6 +19,8 @@ export const BrightnessService = GObject.registerClass({
 }, class BrightnessService extends GObject.Object {
     _init() {
         super._init();
+        this._destroyed = false;
+        this._ctlInFlight = false;
         this._proxy = null;
         this._propsId = 0;
         this._manager = Main.brightnessManager ?? null;
@@ -48,23 +41,23 @@ export const BrightnessService = GObject.registerClass({
         }
 
         this._ctl = GLib.find_program_in_path('brightnessctl');
-        this._ctlLevel = this._ctlGet(); // null if no backlight
+        this._ctlLevel = null;
 
-        // Fallback for older GNOME SettingsDaemon Power
         if (!this.available) {
+            if (this._ctl)
+                this._ctlGetAsync();
             try {
                 new Proxy(Gio.DBus.session, NAME, PATH, (proxy, error) => {
-                    if (error)
+                    if (error || this._destroyed)
                         return;
                     if ((proxy.Brightness ?? -1) < 0)
-                        return; // no D-Bus backlight; keep brightnessctl path
+                        return;
                     this._proxy = proxy;
                     this._propsId = proxy.connect(
                         'g-properties-changed', () => this.emit('changed'));
                     this.emit('changed');
                 });
             } catch (_e) {
-                // ignore — fall back to brightnessctl
             }
         }
     }
@@ -151,7 +144,6 @@ export const BrightnessService = GObject.registerClass({
         }
     }
 
-    /** Re-read the brightnessctl value or sync scale (no change signal from the CLI). */
     refresh() {
         if (this._manager) {
             this._bindScale();
@@ -159,35 +151,47 @@ export const BrightnessService = GObject.registerClass({
         }
         if (this._proxy)
             return;
-        const v = this._ctlGet();
-        if (v != null && v !== this._ctlLevel) {
-            this._ctlLevel = v;
-            this.emit('changed');
-        } else if (v != null) {
-            this._ctlLevel = v;
-        }
+        this._ctlGetAsync();
     }
 
-    _ctlGet() {
-        if (!this._ctl)
-            return null;
+    _ctlGetAsync() {
+        if (!this._ctl || this._ctlInFlight || this._destroyed)
+            return;
+        this._ctlInFlight = true;
         try {
-            const [ok, out] = GLib.spawn_command_line_sync(
-                'brightnessctl -m -c backlight');
-            if (!ok || !out)
-                return null;
-            const text = new TextDecoder().decode(out).trim();
-            const line = text.split('\n').filter(l => l.length).pop();
-            if (!line)
-                return null;
-            const pct = parseInt(line.split(',')[3], 10); // "95%" → 95
-            return Number.isFinite(pct) ? pct / 100 : null;
+            const proc = Gio.Subprocess.new(
+                [this._ctl, '-m', '-c', 'backlight'],
+                Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_SILENCE
+            );
+            proc.communicate_utf8_async(null, null, (p, res) => {
+                this._ctlInFlight = false;
+                if (this._destroyed)
+                    return;
+                try {
+                    const [ok, stdout] = p.communicate_utf8_finish(res);
+                    if (!ok || !stdout)
+                        return;
+                    const line = stdout.trim().split('\n').filter(l => l.length).pop();
+                    if (!line)
+                        return;
+                    const pct = parseInt(line.split(',')[3], 10);
+                    if (!Number.isFinite(pct))
+                        return;
+                    const val = pct / 100;
+                    if (val !== this._ctlLevel) {
+                        this._ctlLevel = val;
+                        this.emit('changed');
+                    }
+                } catch (_e) {
+                }
+            });
         } catch (_e) {
-            return null;
+            this._ctlInFlight = false;
         }
     }
 
     destroy() {
+        this._destroyed = true;
         if (this._currentScale && this._scaleNotifyId) {
             this._currentScale.disconnect(this._scaleNotifyId);
             this._scaleNotifyId = 0;

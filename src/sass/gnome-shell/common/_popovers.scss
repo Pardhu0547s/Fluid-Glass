@@ -1,8 +1,5 @@
-/* Popovers/Menus */
+$popop_menuitem_radius: $po_radius - $base_padding - if($variant=='light', 0, 2px);
 
-$popop_menuitem_radius: $po_radius - $base_padding - if($variant=='light', 0, 2px); // radius of the menu item, used in popovers
-
-//.the popover itself
 .popup-menu-boxpointer {
   -arrow-border-radius: $po_radius;
   -arrow-background-color: transparent;
@@ -10,7 +7,7 @@ $popop_menuitem_radius: $po_radius - $base_padding - if($variant=='light', 0, 2p
   -arrow-border-color: transparent;
   -arrow-base: 32px;
   -arrow-rise: 0;
-  -arrow-box-shadow: none; //dreaming. bug #689995
+  -arrow-box-shadow: none;
 }
 
 .arcmenu-menu {
@@ -19,7 +16,7 @@ $popop_menuitem_radius: $po_radius - $base_padding - if($variant=='light', 0, 2p
 
 @if $scale != 'default' {
   #lockDialogGroup .popup-menu,
-  .login-screen .popup-menu { // FIXME: not use? how to set the popovers on login-screen?
+  .login-screen .popup-menu {
     min-width: 24em;
     @include fontsize($base_font_size * 2 - 2);
 
@@ -56,23 +53,20 @@ $popop_menuitem_radius: $po_radius - $base_padding - if($variant=='light', 0, 2p
     }
 
     &.panel-menu {
-      -boxpointer-gap: $base_margin * 2; // distance from the panel
+      -boxpointer-gap: $base_margin * 2;
       margin-bottom: 3.5em;
     }
   }
-  // symbolic icons in popover
   .popup-menu-arrow,
   .popup-menu-icon { icon-size: $base_icon_size * 2; }
 }
 
-// container of the popover menu
 .popup-menu {
   min-width: 12em;
   color: $alt_fg_color;
 
-  //.popup-status-menu-item { font-weight: normal;  color: pink; } //dunno what that is
   &.panel-menu {
-    -boxpointer-gap: $base_margin; // distance from the panel
+    -boxpointer-gap: $base_margin;
     margin-bottom: 1.75em;
   }
 
@@ -153,7 +147,6 @@ $popop_menuitem_radius: $po_radius - $base_padding - if($variant=='light', 0, 2p
 
   &:insensitive { color: $disabled_fg_color !important; }
 
-  // add margin to switches in menu items
   .toggle-switch {
     &:ltr { margin-left: $base_margin; }
     &:rtl { margin-right: $base_margin; }
@@ -192,36 +185,31 @@ $popop_menuitem_radius: $po_radius - $base_padding - if($variant=='light', 0, 2p
   &:rtl { padding-right: $base_padding; }
 }
 
-.popup-inactive-menu-item { //all icons and other graphical elements
+.popup-inactive-menu-item {
   color: $alt_fg_color !important;
 
   &:insensitive { color: $disabled_fg_color !important; }
 }
 
-// symbolic icons in popover
 .popup-menu-arrow,
 .popup-menu-icon {
   icon-size: $base_icon_size;
   icon-shadow: none !important;
 }
 
-// container for radio and check boxes
 .popup-menu-ornament {
   icon-size: $scalable_icon_size !important;
   width: $scalable_icon_size;
 }
 
-// desktop background menu
 .background-menu {
   -boxpointer-gap: $base_margin;
-  -arrow-rise: 0px; // hide the beak on the menu
+  -arrow-rise: 0px;
 }
 
-// system status popover menu
 .aggregate-menu {
   min-width: 21em;
 
-  // lock screen, shutdown, etc. buttons
   .popup-menu-icon {
     padding: 0 !important;
     -st-icon-style: symbolic;
@@ -231,13 +219,11 @@ $popop_menuitem_radius: $po_radius - $base_padding - if($variant=='light', 0, 2p
   }
 }
 
-// right-click app menu
 .app-menu,
 .app-well-menu {
   max-width: 27.25em;
 }
 
-// Rename popup for app folders
 .rename-folder-popup {
   .rename-folder-popup-item {
     spacing: $base_spacing;

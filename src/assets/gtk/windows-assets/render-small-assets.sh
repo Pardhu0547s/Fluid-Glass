@@ -14,7 +14,6 @@ mkdir -p "$ASSETS_DIR"
 for i in $(cat "$INDEX"); do
 for d in '' '-dark'; do
 
-## small titlebutton
 if [[ -f "$ASSETS_DIR/$i$d.png" ]]; then
     echo "$ASSETS_DIR/$i$d.png exists."
 else

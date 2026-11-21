@@ -1,5 +1,3 @@
-// adapted from gnome-shell-cairo clock extension
-
 import GObject from 'gi://GObject';
 import Clutter from 'gi://Clutter';
 import Cairo from 'gi://cairo';
@@ -16,7 +14,6 @@ function _drawFrame(ctx, size, settings) {
 
   ctx.save();
   let bgSize = size * settings.frame.size;
-  // frame background
   Drawing.draw_rounded_rect(
     ctx,
     background,
@@ -27,7 +24,6 @@ function _drawFrame(ctx, size, settings) {
     0,
     radius
   );
-  // frame border
   if (borderWidth) {
     Drawing.draw_rounded_rect(
       ctx,
@@ -51,9 +47,7 @@ function _drawDial(ctx, size, settings) {
 
   ctx.save();
   let bgSize = size * settings.dial.size;
-  // dial background
   Drawing.draw_circle(ctx, background, 0, 0, bgSize);
-  // dial border
   if (borderWidth) {
     Drawing.draw_circle(ctx, border, 0, 0, bgSize, borderWidth);
   }
@@ -75,7 +69,6 @@ function _drawMarks(ctx, size, settings) {
       ctx,
       color,
       width,
-      // size / 33,
       a * (Math.PI / 180),
       -Math.floor((size * 0.9) / 2.7),
       -Math.floor(mark / 2.7)
@@ -91,7 +84,6 @@ function _drawHands(ctx, size, date, settings) {
   let h0 = d0.getHours();
   const m0 = d0.getMinutes();
 
-  // hands
   Drawing.draw_rotated_line(
     ctx,
     minute,
@@ -193,7 +185,6 @@ const ClockCanvas = GObject.registerClass(
 
       let hideIcon = false;
 
-      // do not change ... affects styles 0, 1
       let style = {
         hands: {
           hour: accent_color,
@@ -220,7 +211,6 @@ const ClockCanvas = GObject.registerClass(
       clock_style = clock_style % 7;
 
       switch (clock_style) {
-        // framed clocks
         case 7: {
           style.dial.size = 0.92;
           style.dial.background = light_color;
@@ -259,7 +249,6 @@ const ClockCanvas = GObject.registerClass(
           };
           break;
         }
-        // round clocks
         case 3: {
           style.dial.size = 0.95;
           style.dial.border = dark_color;
@@ -319,30 +308,10 @@ const ClockCanvas = GObject.registerClass(
           break;
         }
 
-        // basic clocks
-        // case 1: {
-        //   style.dial.background = light_color;
-        //   style.hands.minute = dark_color;
-        //   style = {
-        //     ...style,
-        //     marks: null,
-        //     frame: null,
-        //   };
-        //   break;
-        // }
-        // default:
-        // case 0:
-        //   style = {
-        //     ...style,
-        //     marks: null,
-        //     frame: null,
-        //   };
-        //   break;
       }
 
       _drawClock(ctx, new Date(), 0, 0, size, style);
 
-      // this._hideIcon = hideIcon;
       this._hideIcon = true;
       ctx.$dispose();
     }

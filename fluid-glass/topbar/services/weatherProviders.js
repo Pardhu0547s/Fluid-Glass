@@ -1,24 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// Keyless weather back ends for the Notification Center widget, and city search.
-//
-// Why these two: Yandex, Google and Gismeteo all require an API key tied to an
-// account (Google and Yandex also billing), which an extension cannot ship.
-// Open-Meteo (hourly, WMO codes, its own geocoder) and wttr.in (three-hourly,
-// localised descriptions) both answer anonymous requests.
-//
-// Shell-free on purpose: prefs.js imports this module for city search.
-//
-// A forecast is normalised to
-//   {
-//     timezone,       GLib.TimeZone of the location, for hour labels
-//     locationName,   the service's own name for the place, may be ''
-//     current: {temperature, kind, isDay, description},
-//     hourly:  [{unix, temperature, kind, isDay}], ascending
-//   }
-// with temperatures as numbers in the requested unit and `kind` one of the keys
-// of DESCRIPTIONS.en.
-
 import GLib from 'gi://GLib';
 import Soup from 'gi://Soup?version=3.0';
 
@@ -28,7 +7,6 @@ const USER_AGENT = 'Fluid Glass GNOME Shell extension (fluid-glass@pardhu0547s.g
 const TIMEOUT_SECONDS = 20;
 const FORECAST_HOURS = 12;
 
-// WMO 4677 codes, as Open-Meteo reports them.
 const WMO_KINDS = [
     ['clear', [0]],
     ['mostly-clear', [1]],
@@ -45,7 +23,6 @@ const WMO_KINDS = [
     ['thunderstorm', [95, 96, 99]],
 ];
 
-// World Weather Online codes, as wttr.in reports them.
 const WWO_KINDS = [
     ['clear', [113]],
     ['partly-cloudy', [116]],
@@ -110,7 +87,6 @@ function _describe(kind, _language) {
     return DESCRIPTIONS[kind] ?? '';
 }
 
-/** Two-letter language of the session locale, e.g. 'ru'; 'en' for C/POSIX. */
 export function preferredLanguage() {
     for (const name of GLib.get_language_names()) {
         const code = name.split(/[_.@]/)[0];
@@ -202,7 +178,6 @@ async function _fetchOpenMeteo(session, location, unit, language, cancellable) {
     };
 }
 
-// wttr.in prints sunrise and sunset as "05:55 AM"; minutes past midnight.
 function _clockMinutes(text) {
     const match = /(\d{1,2}):(\d{2})\s*(AM|PM)/i.exec(text ?? '');
     if (!match)
@@ -214,7 +189,6 @@ function _clockMinutes(text) {
 function _isDay(minutes, astronomy) {
     const sunrise = _clockMinutes(astronomy?.sunrise);
     const sunset = _clockMinutes(astronomy?.sunset);
-    // Polar day and night report no times; call it day rather than guess.
     if (sunrise === null || sunset === null)
         return true;
     return minutes >= sunrise && minutes < sunset;
@@ -230,8 +204,6 @@ async function _fetchWttr(session, location, unit, language, cancellable) {
     const data = await _fetchJson(session,
         `https://wttr.in/${place}?format=j1&lang=${_escape(language)}`, cancellable);
 
-    // wttr.in reports hours in the location's local time without saying which
-    // zone that is, so the zone comes from the stored city (local for GeoClue).
     const timezone = _timezone(location.timezone);
     const fahrenheit = unit === 'fahrenheit';
     const hourly = [];
@@ -283,25 +255,12 @@ const PROVIDERS = {
     'wttr': _fetchWttr,
 };
 
-/**
- * @param {Soup.Session} session
- * @param {string} provider 'open-meteo' or 'wttr'
- * @param {{latitude: number, longitude: number, timezone: string}} location
- * @param {string} unit 'celsius' or 'fahrenheit'
- * @param {string} language two-letter code for descriptions
- * @param {Gio.Cancellable|null} cancellable
- */
 export function fetchForecast(session, provider, location, unit, language,
     cancellable = null) {
     const fetch = PROVIDERS[provider] ?? PROVIDERS['open-meteo'];
     return fetch(session, location, unit, language, cancellable);
 }
 
-/**
- * Cities matching `query`, named in `language`, from Open-Meteo's geocoder.
- *
- * @returns {Promise<Array<{name, detail, latitude, longitude, timezone}>>}
- */
 export async function searchCities(session, query, language, cancellable = null) {
     const name = query.trim();
     if (name.length < 2)

@@ -1,8 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// BluetoothService — a focused model for the standalone menu-bar Bluetooth menu.
-// Manages Bluetooth adapter state, paired/connected devices, and connects/disconnects.
-
 import 'gi://GnomeBluetooth?version=3.0';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';

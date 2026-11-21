@@ -1,20 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// ScreenTimeService — active session time, from GNOME's Wellbeing history.
-//
-// GNOME Shell 50's TimeLimitsManager (js/misc/timeLimitsManager.js) records
-// every logind active/inactive transition of the session in
-// ~/.local/share/gnome-shell/session-active-history.json, an array of
-// {oldState, newState, wallTimeSecs} with INACTIVE = 0 and ACTIVE = 1, kept for
-// 14 weeks. Settings → Wellbeing charts the same file. The manager keeps its
-// totals private, so this reads the file and repeats its arithmetic, including
-// its rule that a day starts at 03:00 — "today" here and in Settings always
-// agree. The format is a Shell internal: parseHistory() rejects anything that
-// does not match it exactly rather than guessing.
-//
-// Everything above ScreenTimeService is free of Shell imports, so the arithmetic
-// can be exercised from plain gjs against the real file.
-
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -25,7 +8,6 @@ const DAY_START_HOUR = 3;
 const WEEK_DAYS = 7;
 const HOURS_PER_DAY = 24;
 
-/** @returns {Array<{oldState, newState, wallTimeSecs}>} validated history */
 export function parseHistory(text) {
     const history = JSON.parse(text);
     if (!Array.isArray(history))
@@ -47,11 +29,6 @@ export function parseHistory(text) {
     return history;
 }
 
-/**
- * [start, end) in unix seconds of the Wellbeing day `offsetDays` away from the
- * one containing `unix`. Days run 03:00 to 03:00 local time, so a DST change
- * (which happens between 01:00 and 03:00) never splits one.
- */
 export function dayBounds(unix, offsetDays = 0) {
     const now = GLib.DateTime.new_from_unix_local(unix);
     let start = GLib.DateTime.new_local(now.get_year(), now.get_month(),
@@ -62,7 +39,6 @@ export function dayBounds(unix, offsetDays = 0) {
     return [start.to_unix(), start.add_days(1).to_unix()];
 }
 
-/** Active seconds within [from, to), counting an open active period up to `now`. */
 export function activeSeconds(history, from, to, now) {
     if (!history.length)
         return 0;
@@ -75,8 +51,6 @@ export function activeSeconds(history, from, to, now) {
             total += clippedEnd - clippedStart;
     };
 
-    // Before the first entry the state is its oldState; how long it had lasted
-    // is unknown, so like the Shell, count it from the start of that day only.
     let state = history[0].oldState;
     let since = dayBounds(history[0].wallTimeSecs)[0];
     for (const entry of history) {
@@ -90,14 +64,6 @@ export function activeSeconds(history, from, to, now) {
     return total;
 }
 
-/**
- * @returns {{today: number, average: number|null,
- *   week: Array<{start: number, seconds: number, known: boolean}>,
- *   hours: Array<{start: number, seconds: number}>}}
- *   `week` is the last seven days ending today; `known` is false for days
- *   before the history begins. `average` covers the six known days before
- *   today, or is null when there are none.
- */
 export function summarize(history, now) {
     const coverage = history.length ? dayBounds(history[0].wallTimeSecs)[0] : now;
 
@@ -169,13 +135,11 @@ export const ScreenTimeService = GObject.registerClass({
         }
     }
 
-    /** 'loading', 'ok', 'disabled' (recording off) or 'error'. */
     get status() {
         try {
             if (this._limits && !this._limits.get_boolean('history-enabled'))
                 return 'disabled';
         } catch (_e) {
-            // Older schema without the key: recording is always on.
         }
         return this._status;
     }
@@ -184,7 +148,6 @@ export const ScreenTimeService = GObject.registerClass({
         return this._history ? summarize(this._history, Math.floor(Date.now() / 1000)) : null;
     }
 
-    /** Seconds allowed per day, or 0 when no daily limit is set. */
     get dailyLimit() {
         try {
             return this._limits?.get_boolean('daily-limit-enabled')
@@ -219,7 +182,6 @@ export const ScreenTimeService = GObject.registerClass({
                 this._status = 'ok';
             } catch (e) {
                 if (e.matches?.(Gio.IOErrorEnum, Gio.IOErrorEnum.NOT_FOUND)) {
-                    // Recording is on but nothing has been written yet.
                     this._history = [];
                     this._status = 'ok';
                 } else {

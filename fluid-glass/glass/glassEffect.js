@@ -1,21 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// glassEffect.js — Unified, plug-and-play Liquid Glass API for Fluid Glass.
-//
-// Provides a clean, single import to apply real GLSL backdrop glass shaders
-// (blur, refraction, specular edge lighting, corner radius, tint) to ANY
-// Clutter / St actor or collection of actors without boilerplate.
-//
-// Usage:
-//   import { attachGlass, attachMultiRegionGlass } from './glassEffect.js';
-//
-//   // Single actor:
-//   const handle = attachGlass(myWidget, { cornerRadius: 22, blurRadius: 24 });
-//
-//   // Multi-region (e.g. multiple floating pills with NO outer background sheet):
-//   const multiHandle = attachMultiRegionGlass(menuActor, () => [tile1, tile2, slider1]);
-//
-
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
@@ -38,9 +20,6 @@ let _defaultExtensionPath = null;
 let _defaultSettings = null;
 let _defaultLogger = null;
 
-/**
- * Configure shared resources once during extension initialization.
- */
 export function initGlassResources(extensionPath, settings, logger) {
     _defaultExtensionPath = extensionPath;
     _defaultSettings = settings;
@@ -76,9 +55,6 @@ export function getDefaultSettings() {
     return _defaultSettings;
 }
 
-/**
- * Handle controlling a live glass instance.
- */
 export class GlassHandle {
     constructor(glass, targetActor, options, syncFn) {
         this.glass = glass;
@@ -216,9 +192,6 @@ export class GlassHandle {
     }
 }
 
-/**
- * Configure shader properties on a BackdropGlass actor.
- */
 function applyGlassParameters(glass, options) {
     const cornerRadius = options.cornerRadius ?? 22.0;
     const blurRadius = options.blurRadius ?? 10;
@@ -262,26 +235,14 @@ function getEffectiveOpacity(actor, stopParent = null) {
     return opacity;
 }
 
-/**
- * Parent glass actor safely into the closest overlay group (modalDialogGroup,
- * UnlockDialog, _lockDialogGroup, screenShieldGroup, or uiGroup) directly
- * below the widget's root container so it renders above the container
- * wallpaper without occluding UI widgets.
- */
 function parentGlassActor(glass, targetActor) {
     let container = Main.layoutManager.uiGroup;
     if (Main.layoutManager.modalDialogGroup?.contains?.(targetActor)) {
         container = Main.layoutManager.modalDialogGroup;
     } else if (Main.screenShield?._dialog?._backgroundGroup &&
                Main.screenShield._dialog.contains?.(targetActor)) {
-        // UnlockDialog renders its blurred wallpaper inside _backgroundGroup,
-        // which is a child of UnlockDialog itself. Parenting into
-        // _dialog places the glass above _backgroundGroup and below mainBox.
         container = Main.screenShield._dialog;
     } else if (Main.screenShield?._lockDialogGroup?.contains?.(targetActor)) {
-        // LoginDialog on GDM sits inside _lockDialogGroup whose CSS paints the
-        // opaque wallpaper / #222226 background. Parenting into _lockDialogGroup
-        // keeps glass above the wallpaper and below LoginDialog.
         container = Main.screenShield._lockDialogGroup;
     } else if (Main.layoutManager.screenShieldGroup?.contains?.(targetActor)) {
         container = Main.layoutManager.screenShieldGroup;
@@ -308,13 +269,6 @@ function parentGlassActor(glass, targetActor) {
     }
 }
 
-/**
- * Attach real GLSL liquid glass to a single actor.
- *
- * @param {Clutter.Actor} targetActor - The actor to attach glass to.
- * @param {Object} [options] - Glass configuration.
- * @returns {GlassHandle}
- */
 export function attachGlass(targetActor, options = {}) {
     const extensionPath = options.extensionPath ?? getDefaultExtensionPath();
     const settings = options.settings ?? getDefaultSettings();
@@ -334,16 +288,35 @@ export function attachGlass(targetActor, options = {}) {
     parentGlassActor(glass, targetActor);
     glass.hide();
 
+    let lastX = NaN, lastY = NaN, lastW = NaN, lastH = NaN;
+    let lastMonX = NaN, lastMonY = NaN, lastScreenW = NaN, lastScreenH = NaN;
+    let lastPad = NaN, lastExpand = NaN, lastOpacity = -1;
+    let cachedMonitor = null;
+
+    const resetCache = () => {
+        lastX = lastY = lastW = lastH = NaN;
+        lastMonX = lastMonY = lastScreenW = lastScreenH = NaN;
+        lastPad = lastExpand = NaN;
+        lastOpacity = -1;
+        cachedMonitor = null;
+    };
+
     const syncFn = handle => {
         const actor = handle.targetActor;
         if (!actor || !actor.mapped) {
-            handle.glass?.hide();
+            if (handle.glass?.visible) {
+                handle.glass.hide();
+                resetCache();
+            }
             return;
         }
 
         const effOpacity = getEffectiveOpacity(actor, handle.glass?.get_parent?.() ?? null);
         if (effOpacity <= 0) {
-            handle.glass?.hide();
+            if (handle.glass?.visible) {
+                handle.glass.hide();
+                resetCache();
+            }
             return;
         }
 
@@ -352,35 +325,60 @@ export function attachGlass(targetActor, options = {}) {
         if (Number.isNaN(x) || Number.isNaN(y) || !(w >= 1) || !(h >= 1))
             return;
 
-        const monitor = Main.layoutManager.findMonitorForActor(actor) ?? Main.layoutManager.primaryMonitor;
+        const pad = handle.options.padding ?? SHADER_PADDING;
+        const expand = handle.options.expand ?? 0;
+        const rectChanged = x !== lastX || y !== lastY || w !== lastW || h !== lastH ||
+            pad !== lastPad || expand !== lastExpand;
+
+        let monitor = cachedMonitor;
+        if (!monitor || rectChanged || !Main.layoutManager.monitors.includes(monitor)) {
+            monitor = Main.layoutManager.findMonitorForActor(actor) ?? Main.layoutManager.primaryMonitor;
+            cachedMonitor = monitor;
+        }
         const monitorX = monitor?.x ?? 0;
         const monitorY = monitor?.y ?? 0;
         const screenW = Math.max(1, monitor?.width ?? 1);
         const screenH = Math.max(1, monitor?.height ?? 1);
 
-        const pad = options.padding ?? SHADER_PADDING;
-        const expand = options.expand ?? 0;
-        const bgW = w + expand * 2 + pad * 2;
-        const bgH = h + expand * 2 + pad * 2;
-        const bgX = x - expand - pad;
-        const bgY = y - expand - pad;
-        const localBgX = bgX - monitorX;
-        const localBgY = bgY - monitorY;
+        const moved = rectChanged || monitorX !== lastMonX || monitorY !== lastMonY ||
+            screenW !== lastScreenW || screenH !== lastScreenH;
 
-        placeScreenGlass(handle.glass, monitorX, monitorY, screenW, screenH, {
-            x: localBgX,
-            y: localBgY,
-            w: bgW,
-            h: bgH,
-        });
-        handle.glass.setShadowMaxRadius(GLASS_SHADOW_MAX_RADIUS);
-        handle.glass.setResolution(screenW, screenH);
-        handle.glass.setGlassGeometry(localBgX, localBgY, bgW, bgH);
-        handle.glass.syncSources();
-        handle.glass.opacity = effOpacity;
+        if (moved) {
+            const bgW = w + expand * 2 + pad * 2;
+            const bgH = h + expand * 2 + pad * 2;
+            const bgX = x - expand - pad;
+            const bgY = y - expand - pad;
+            const localBgX = bgX - monitorX;
+            const localBgY = bgY - monitorY;
+
+            placeScreenGlass(handle.glass, monitorX, monitorY, screenW, screenH, {
+                x: localBgX,
+                y: localBgY,
+                w: bgW,
+                h: bgH,
+            });
+            handle.glass.setShadowMaxRadius(GLASS_SHADOW_MAX_RADIUS);
+            handle.glass.setResolution(screenW, screenH);
+            handle.glass.setGlassGeometry(localBgX, localBgY, bgW, bgH);
+            lastX = x;
+            lastY = y;
+            lastW = w;
+            lastH = h;
+            lastMonX = monitorX;
+            lastMonY = monitorY;
+            lastScreenW = screenW;
+            lastScreenH = screenH;
+            lastPad = pad;
+            lastExpand = expand;
+        }
+        handle.glass.syncSources(moved);
+        if (effOpacity !== lastOpacity) {
+            handle.glass.opacity = effOpacity;
+            lastOpacity = effOpacity;
+        }
         if (!handle.glass.visible)
             handle.glass.show();
-        options.onSync?.(handle);
+        handle.options.onSync?.(handle, moved);
     };
 
     const handle = new GlassHandle(glass, targetActor, options, syncFn);
@@ -388,16 +386,6 @@ export function attachGlass(targetActor, options = {}) {
     return handle;
 }
 
-/**
- * Attach a single BackdropGlass instance running in Multi-Region mode.
- * Each child item gets real liquid glass refraction & specular highlights,
- * while the background between them remains 100% transparent desktop.
- *
- * @param {Clutter.Actor} containerActor - The overarching container / menu actor.
- * @param {Function|Array<Clutter.Actor>} getItems - Returns array of item actors.
- * @param {Object} [options] - Glass configuration.
- * @returns {GlassHandle}
- */
 export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
     const extensionPath = options.extensionPath ?? getDefaultExtensionPath();
     const settings = options.settings ?? getDefaultSettings();
@@ -420,23 +408,60 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
 
     const getActors = typeof getItems === 'function' ? getItems : () => (getItems ?? []);
 
+    let lastUnionX = NaN, lastUnionY = NaN, lastUnionW = NaN, lastUnionH = NaN;
+    let lastMonX = NaN, lastMonY = NaN, lastScreenW = NaN, lastScreenH = NaN;
+    let lastMaxOpacity = -1;
+    let cachedMonitor = null;
+
+    const resetCache = () => {
+        lastUnionX = lastUnionY = lastUnionW = lastUnionH = NaN;
+        lastMonX = lastMonY = lastScreenW = lastScreenH = NaN;
+        lastMaxOpacity = -1;
+        cachedMonitor = null;
+    };
+
     const syncFn = handle => {
         if (!containerActor || !containerActor.mapped) {
-            handle.glass?.hide();
+            if (handle.glass?.visible) {
+                handle.glass.hide();
+                resetCache();
+            }
             return;
         }
 
-        const items = getActors().filter(a => a && a.mapped);
-        if (items.length === 0) {
-            handle.glass?.hide();
+        const rawItems = getActors();
+        let mappedCount = 0;
+        for (let i = 0; i < rawItems.length; i++) {
+            if (rawItems[i]?.mapped)
+                mappedCount++;
+        }
+        if (mappedCount === 0) {
+            if (handle.glass?.visible) {
+                handle.glass.hide();
+                resetCache();
+            }
             return;
         }
 
-        const monitor = Main.layoutManager.findMonitorForActor(containerActor) ?? Main.layoutManager.primaryMonitor;
+        let monitor = cachedMonitor;
+        if (!monitor || !Main.layoutManager.monitors.includes(monitor)) {
+            monitor = Main.layoutManager.findMonitorForActor(containerActor) ?? Main.layoutManager.primaryMonitor;
+            cachedMonitor = monitor;
+        }
         const monitorX = monitor?.x ?? 0;
         const monitorY = monitor?.y ?? 0;
         const screenW = Math.max(1, monitor?.width ?? 1);
         const screenH = Math.max(1, monitor?.height ?? 1);
+
+        let baseScaleX = 1.0;
+        let baseScaleY = 1.0;
+        for (let a = containerActor; a && a !== global.stage; a = a.get_parent?.()) {
+            const [ax, ay] = a.get_scale?.() ?? [1.0, 1.0];
+            if (Number.isFinite(ax) && ax > 0)
+                baseScaleX *= ax;
+            if (Number.isFinite(ay) && ay > 0)
+                baseScaleY *= ay;
+        }
 
         let minX = Infinity;
         let minY = Infinity;
@@ -444,32 +469,42 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
         let maxY = -Infinity;
 
         const regions = [];
-        const pad = options.padding ?? SHADER_PADDING;
+        const pad = handle.options.padding ?? SHADER_PADDING;
         const expand = 0;
         const stopParent = handle.glass?.get_parent?.() ?? null;
         let maxOpacity = 0;
 
         const lastGoodSizes = handle._lastGoodSizes ?? (handle._lastGoodSizes = new WeakMap());
 
-        for (const item of items) {
+        for (let idx = 0; idx < rawItems.length; idx++) {
+            const item = rawItems[idx];
+            if (!item || !item.mapped)
+                continue;
             const effOpacity = getEffectiveOpacity(item, stopParent);
             if (effOpacity <= 0)
                 continue;
-            maxOpacity = Math.max(maxOpacity, effOpacity);
+            if (effOpacity > maxOpacity)
+                maxOpacity = effOpacity;
 
             const [ix, iy] = item.get_transformed_position();
-            // Use the committed allocation box instead of get_transformed_size(),
-            // because Clutter falls back to preferred size while a relayout is
-            // pending (e.g. when a tile's status label or :checked state updates).
             const [uw, uh] = getAllocatedSize(item);
             let scaleX = 1.0;
             let scaleY = 1.0;
+            let hitContainer = false;
             for (let a = item; a && a !== global.stage; a = a.get_parent?.()) {
+                if (a === containerActor) {
+                    hitContainer = true;
+                    break;
+                }
                 const [ax, ay] = a.get_scale?.() ?? [1.0, 1.0];
                 if (Number.isFinite(ax) && ax > 0)
                     scaleX *= ax;
                 if (Number.isFinite(ay) && ay > 0)
                     scaleY *= ay;
+            }
+            if (hitContainer) {
+                scaleX *= baseScaleX;
+                scaleY *= baseScaleY;
             }
             let iw = uw * scaleX;
             let ih = uh * scaleY;
@@ -502,18 +537,15 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
                 item.has_style_class_name?.('fluid-glass-cc-tile-compact') && item.checked
             );
 
-            // Compute corner radius from unscaled logical size so spring-scale
-            // animations keep each module's shape proportional instead of
-            // snapping between circle and box at pixel thresholds.
             const scale = Math.min(scaleX, scaleY);
-            const customR = options.getCornerRadius?.(item, uw, uh);
+            const customR = handle.options.getCornerRadius?.(item, uw, uh);
             let baseR;
             if (Number.isFinite(customR) && customR > 0) {
                 baseR = customR;
             } else {
                 const halfMinUnscaled = Math.min(uw, uh) * 0.5;
                 if (item.has_style_class_name?.('fluid-glass-cc-media') || halfMinUnscaled > 45.0)
-                    baseR = Math.min(options.cornerRadius ?? 26.0, 26.0);
+                    baseR = Math.min(handle.options.cornerRadius ?? 26.0, 26.0);
                 else if (isSlider || (uw * 0.5) > 105.0)
                     baseR = Math.min(halfMinUnscaled, 22.0);
                 else
@@ -532,14 +564,17 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
                 cornerRadius: baseR * scale,
             });
 
-            minX = Math.min(minX, rx);
-            minY = Math.min(minY, ry);
-            maxX = Math.max(maxX, rx + rw);
-            maxY = Math.max(maxY, ry + rh);
+            if (rx < minX) minX = rx;
+            if (ry < minY) minY = ry;
+            if (rx + rw > maxX) maxX = rx + rw;
+            if (ry + rh > maxY) maxY = ry + rh;
         }
 
         if (regions.length === 0 || maxOpacity <= 0 || !Number.isFinite(minX)) {
-            handle.glass?.hide();
+            if (handle.glass?.visible) {
+                handle.glass.hide();
+                resetCache();
+            }
             return;
         }
 
@@ -549,20 +584,37 @@ export function attachMultiRegionGlass(containerActor, getItems, options = {}) {
         const unionY = minY;
 
         handle.glass.setGlassRegions(regions);
-        placeScreenGlass(handle.glass, monitorX, monitorY, screenW, screenH, {
-            x: unionX,
-            y: unionY,
-            w: unionW,
-            h: unionH,
-        });
-        handle.glass.setShadowMaxRadius(GLASS_SHADOW_MAX_RADIUS);
-        handle.glass.setResolution(screenW, screenH);
-        handle.glass.setGlassGeometry(unionX, unionY, unionW, unionH);
-        handle.glass.syncSources();
-        handle.glass.opacity = maxOpacity;
+        const moved = unionX !== lastUnionX || unionY !== lastUnionY ||
+            unionW !== lastUnionW || unionH !== lastUnionH ||
+            monitorX !== lastMonX || monitorY !== lastMonY ||
+            screenW !== lastScreenW || screenH !== lastScreenH;
+        if (moved) {
+            placeScreenGlass(handle.glass, monitorX, monitorY, screenW, screenH, {
+                x: unionX,
+                y: unionY,
+                w: unionW,
+                h: unionH,
+            });
+            handle.glass.setShadowMaxRadius(GLASS_SHADOW_MAX_RADIUS);
+            handle.glass.setResolution(screenW, screenH);
+            handle.glass.setGlassGeometry(unionX, unionY, unionW, unionH);
+            lastUnionX = unionX;
+            lastUnionY = unionY;
+            lastUnionW = unionW;
+            lastUnionH = unionH;
+            lastMonX = monitorX;
+            lastMonY = monitorY;
+            lastScreenW = screenW;
+            lastScreenH = screenH;
+        }
+        handle.glass.syncSources(moved);
+        if (maxOpacity !== lastMaxOpacity) {
+            handle.glass.opacity = maxOpacity;
+            lastMaxOpacity = maxOpacity;
+        }
         if (!handle.glass.visible)
             handle.glass.show();
-        options.onSync?.(handle);
+        handle.options.onSync?.(handle, moved);
     };
 
     const handle = new GlassHandle(glass, containerActor, options, syncFn);

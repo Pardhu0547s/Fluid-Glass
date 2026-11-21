@@ -1,16 +1,5 @@
-// =============================================================================
-// Fluid Glass for Linux: GTK4 & Libadwaita Glass Styling Overlay (Hardware Optimized)
-// Preserves exact macOS 27" measurements and provides fast GPU-friendly glass
-// =============================================================================
-
 @import 'material';
 
-// -----------------------------------------------------------------------------
-// 1. Libadwaita Named Colors
-// Main window background is kept opaque for 120fps+ GPU rendering (crucial with
-// window effects like wobbly windows / compiz). The glass effect shines on the
-// headerbars, sidebars, popovers, menus, and cards.
-// -----------------------------------------------------------------------------
 @define-color window_bg_color #{if($variant == 'light', #f6f6f8, #1e1e24)};
 @define-color window_fg_color #{if($variant == 'light', #242424, #dedede)};
 @define-color view_bg_color #{if($variant == 'light', #ffffff, #18181c)};
@@ -29,9 +18,6 @@
 @define-color sidebar_fg_color #{if($variant == 'light', #242424, #dedede)};
 @define-color sidebar_backdrop_color #{if($variant == 'light', rgba(240, 240, 244, 0.85), rgba(22, 22, 26, 0.85))};
 
-// -----------------------------------------------------------------------------
-// 2. Window & CSD (macOS 27" Window Proportions)
-// -----------------------------------------------------------------------------
 window.csd,
 window.background {
   border-radius: $wm_radius;
@@ -40,10 +26,6 @@ window.background {
   outline-offset: -1px;
 }
 
-// -----------------------------------------------------------------------------
-// 3. Windowcontrols (macOS 27" Traffic Light Geometry)
-// Inset 16px from left window edge, 8px gap between buttons (20px dot pitch)
-// -----------------------------------------------------------------------------
 windowcontrols {
   border-spacing: 6px;
   padding: 0 13px;
@@ -67,9 +49,6 @@ windowcontrols {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 4. Headerbars (Unified 52px Toolbar & SF Pro Typography)
-// -----------------------------------------------------------------------------
 headerbar {
   min-height: $headerbar_size;
   background-color: if($variant == 'light',
@@ -100,9 +79,6 @@ headerbar {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 5. Sidebars & Split Views (240px Desktop Ratio & 32px Rows)
-// -----------------------------------------------------------------------------
 .sidebar-pane,
 .sidebar,
 .navigation-sidebar,
@@ -129,9 +105,6 @@ stacksidebar.sidebar {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 6. Popovers & Menus (18px Corner Radius)
-// -----------------------------------------------------------------------------
 popover > contents {
   border-radius: 18px;
   padding: 6px;
@@ -144,9 +117,6 @@ popover > contents {
               inset 0 1px 0 0 $glass_rim_top;
 }
 
-// -----------------------------------------------------------------------------
-// 7. Cards & Boxed Lists (12px Corner Radius)
-// -----------------------------------------------------------------------------
 .card,
 list.boxed-list {
   border-radius: 12px;
@@ -159,9 +129,6 @@ list.boxed-list {
               0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
-// -----------------------------------------------------------------------------
-// 8. Buttons & Inputs (32px Desktop Height & 8px Corner Radius)
-// -----------------------------------------------------------------------------
 button {
   min-height: 32px;
   border-radius: 8px;
@@ -213,9 +180,6 @@ entry {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 8. Switches & Sliders
-// -----------------------------------------------------------------------------
 switch {
   background-color: if($variant == 'light', rgba(0, 0, 0, 0.14), rgba(255, 255, 255, 0.16));
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.20);
@@ -231,9 +195,6 @@ switch {
   }
 }
 
-// -----------------------------------------------------------------------------
-// 9. Toast notifications & Sheets
-// -----------------------------------------------------------------------------
 toast {
   background-color: if($variant == 'light',
     rgba($glass_base_light_top, 0.88),

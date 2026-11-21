@@ -37,7 +37,6 @@ export const Style = class {
     });
 
     if (this.style_contents[name] === content) {
-      // log('skip regeneration');
       return;
     }
 
@@ -59,7 +58,6 @@ export const Style = class {
 
     theme.load_stylesheet(fn);
 
-    // log(content);
   }
 
   rgba(color) {

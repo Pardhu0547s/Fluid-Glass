@@ -1,13 +1,9 @@
-/* Message List */
-// a.k.a. notifications in the menu
-
 .message-list {
   width: 30em;
   padding: 0 $base_margin;
   text-shadow: none;
   border: none;
 
-  // padding and margins to account for scrollbar
   &:ltr {
     margin-left: 0;
     margin-right: 0;
@@ -26,9 +22,8 @@
     @extend %title_2;
     color: $disabled_fg_color;
 
-    // icon size and color
     > StIcon {
-      icon-size: $base_icon_size * 3; // 48px
+      icon-size: $base_icon_size * 3;
       margin-bottom: $base_margin * 3;
       -st-icon-style: symbolic;
     }
@@ -40,7 +35,6 @@
   margin: 0;
   padding-bottom: $base_padding;
 
-  // to account for scrollbar
   &:ltr { margin-right: $base_margin !important; }
   &:rtl { margin-left: $base_margin !important; }
 }
@@ -50,20 +44,13 @@
   spacing: $base_spacing;
 }
 
-// do-not-disturb + clear button
 .message-list-controls {
   margin: ($base_margin * 2) ($base_margin * 4) 0;
-  // NOTE: remove the padding if notification_bubble could remove margin for drop shadow
   padding: $base_margin;
   spacing: $base_spacing * 2;
   font-weight: normal;
 }
 
-// .message-list-clear-button.button {
-//   margin: 8px 8px;
-// }
-
-// message bubbles
 .message {
   .popup-menu & {
     @extend %popover_bubble;
@@ -71,7 +58,6 @@
     margin: 3px 4px;
   }
 
-  // icon container
   .message-icon-bin {
     margin: 0;
     padding: $base_padding * 4 $base_padding * 3;
@@ -80,13 +66,11 @@
 
     &:rtl { padding-left: $base_padding; }
 
-    // icon size and color
     > StIcon {
       icon-size: 32px;
       -st-icon-style: symbolic;
     }
 
-    // fallback
     > .fallback-app-icon {
       width: $base_icon_size;
       height: $base_icon_size;
@@ -99,7 +83,6 @@
     > .event-time {
       color: $hint_fg_color;
       @extend %caption;
-      /* HACK: the label should be baseline-aligned with a 1em label, fake this with some bottom padding */
       padding-bottom: 0.13em;
 
       &:ltr { text-align: right; }
@@ -109,7 +92,6 @@
 
   .message-title {
     padding-top: 0.57em;
-    // color: $fg_color;
     font-weight: bold;
   }
 
@@ -120,7 +102,6 @@
     margin-bottom: $base_margin * 2;
   }
 
-  // close button
   .message-close-button {
     color: $alt_fg_color;
     padding: 0 !important;
@@ -135,13 +116,11 @@
     StIcon { icon-size: $base_icon_size; }
   }
 
-  // body
   .message-body {
     color: $hint_fg_color;
   }
 }
 
-// URLs in messages
 .url-highlighter {
   link-color: $link_color;
 }
@@ -161,7 +140,6 @@
   StIcon { icon-size: $base_icon_size !important; }
 }
 
-// album-art
 .media-message-cover-icon {
   icon-size: $base_icon_size * 2 !important;
   margin-left: $base_padding !important;

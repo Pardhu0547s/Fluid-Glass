@@ -1,7 +1,3 @@
-//
-// Nautilus
-//
-
 $nautilus_radius: $wm_radius + 1px;
 $nautilus_sidebar_size: $sidebar_size;
 $nautilus_borders_color: if($variant== "light", darken(rgba($dark_sidebar_bg, 1), 12%), $header_border);
@@ -75,9 +71,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
   );
 }
 
-//
-// Nautilus
-//
 .nautilus-window {
   &.background.csd {
     background-color: transparent;
@@ -85,7 +78,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
     border-radius: $background_radius_style;
 
     &.unified {
-      // >= 40.0
       border-radius: $wm_radius;
 
       @if $nautilus_style == "glassy" {
@@ -199,7 +191,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
           opacity: 0.85;
         }
 
-        // row style
         @if $nautilus_style == "stable" {
           margin: 0 0;
 
@@ -278,7 +269,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
           }
         }
 
-        // other
         &.sidebar-new-bookmark-row {
           color: $selected_bg_color;
 
@@ -347,7 +337,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
         > revealer > box {
           background-color: transparent;
           padding: $container_padding * 2;
-          // border: none;
         }
       }
     }
@@ -362,20 +351,17 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
       margin: 0;
 
       .linked.nautilus-path-bar {
-        // for ≥ 3.31.90
         > button:not(:only-child):last-child {
           @include button(header-checked);
         }
       }
 
-      // workaround for 3.30.1
       &.background.frame {
         border: none;
         background-color: transparent;
       }
     }
 
-    // >= 42.0
     &.windowhandle .linked.nautilus-path-bar {
       background-color: $fill_color;
       border-radius: $bt_radius;
@@ -409,7 +395,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
     }
 
     > header {
-      // background-color: $base_color;
       border-color: $header_border;
     }
 
@@ -482,7 +467,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
     }
   }
 
-  // Reset maximized nautilus-window border-radius
   &.maximized,
   &.tiled,
   &.fullscreen {
@@ -513,7 +497,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
 
   > grid.horizontal > paned.horizontal > separator,
   > deck > box.vertical > paned.horizontal > separator {
-    // Use paned separator to hide stack border-bottom-left-radius
     border: none;
     min-width: 1px;
     min-height: 1px;
@@ -548,7 +531,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
   }
 }
 
-// Floating Bar
 .floating-bar {
   padding: $container_padding / 2;
   background-color: $selected_bg_color;
@@ -571,7 +553,6 @@ $nautilus_sidebar_image: image($dark_sidebar_bg);
 }
 
 preferencesgroup {
-  // gnome 40.0 preferences window
   list {
     @extend %circular_list;
 
@@ -593,7 +574,6 @@ preferencesgroup {
   border-radius: 5px;
 }
 
-// .view.nautilus-desktop,
 %nautilus-desktop-canvas-item,
 .nautilus-desktop.nautilus-canvas-item {
   color: white;
@@ -626,7 +606,6 @@ preferencesgroup {
   treeview.view:not(:hover):not(:active):not(:selected) {
     background-color: transparent;
     border-radius: 0;
-    // @extend %view;
   }
 }
 
@@ -677,7 +656,6 @@ $disk_space_free: darken($bg_color, 3%);
   animation-iteration-count: 3;
 }
 
-// Batch renaming dialog
 .conflict-row.activatable {
   &,
   &:active {
@@ -695,10 +673,6 @@ $disk_space_free: darken($bg_color, 3%);
   }
 }
 
-//
-// GNOME Terminal
-//
-
 terminal-window {
   &.background.csd {
     border-radius: 0;
@@ -710,11 +684,10 @@ terminal-window {
 
   &.background.csd.maximized {
     border-radius: 0;
-  } // Fixed gnome 3.32 issue: Unable to restore window size after maximization
+  }
 }
 
 window.background.csd {
-  // gnome-terminal 3.32 setting
   > box.vertical > box.horizontal > frame {
     > border {
       border-width: 0 1px 0 0;
@@ -738,16 +711,11 @@ window.background.csd {
   }
 }
 
-//
-// Gedit
-//
-
 paned.titlebar {
   > headerbar {
     button.flat.toggle.popup:not(.image-button) {
-      // left-pane header button
       box > .title {
-        padding: 0; // remove lateral padding
+        padding: 0;
         margin: -2px 0;
       }
     }
@@ -763,15 +731,12 @@ paned.gedit-side-panel-paned {
     @extend %side_separator;
   }
 
-  // 'file-browser' pane
   > box.vertical > stack > grid.horizontal {
     > box.horizontal {
-      // header-part
       margin: 4px 0;
     }
 
     > scrolledwindow {
-      // raised widget
       border-bottom-left-radius: $wm_radius;
 
       treeview.view:not(:hover):not(:selected) {
@@ -780,7 +745,6 @@ paned.gedit-side-panel-paned {
     }
   }
 
-  // 'files' pane
   stack {
     scrolledwindow {
       viewport.frame {
@@ -800,7 +764,6 @@ window.background.csd {
       > paned.gedit-side-panel-paned {
         > box.vertical > stack > grid.horizontal {
           > scrolledwindow {
-            // raised widget
             border-bottom-left-radius: $maximized_radius;
           }
         }
@@ -816,7 +779,7 @@ window.background.csd {
 
 .open-document-selector-treeview.view {
   padding: 3px 6px 3px 6px;
-  border-color: $base_color; // disable borders, making them transparent doesn't work for some reason
+  border-color: $base_color;
 
   &:hover {
     background-color: mix($fg_color, $base_color, 7%);
@@ -842,19 +805,16 @@ window.background.csd {
 }
 
 .gedit-document-panel {
-  // 'documents' pane
   row.activatable {
     padding: 6px 0;
   }
 
   row button {
-    // 'close' button
     min-width: 22px;
     min-height: 22px;
     padding: 0;
     margin: 0 6px;
     border-radius: 100px;
-    // -gtk-outline-radius: 100px;
 
     image {
       color: inherit;
@@ -942,9 +902,6 @@ window.background.csd {
   }
 }
 
-//
-// Gnome Builder
-//
 .gb-search-entry-occurrences-tag {
   background: none;
 }
@@ -1085,14 +1042,12 @@ omnibar.linked > entry:not(:only-child) {
 
   &:backdrop {
     @include entry(header-normal);
-    // background-image: none;
 
     opacity: 0.65;
   }
 }
 
 entry.search.preferences-search {
-  // preferences-search
   box-shadow: none;
   border: none;
   border-right: 1px solid $borders_color;
@@ -1124,9 +1079,6 @@ preferencesbin {
     button {
       border-width: 0 0 0 1px;
 
-      // &:first-child {
-      //   border-left: 1px solid $borders_color;
-      // }
     }
   }
 
@@ -1242,16 +1194,12 @@ window.org-gnome-Builder.workspace {
   }
 }
 
-//
-//  Gnome-Logs
-//
 window.background > box.vertical box.horizontal {
   list.categories {
     border-radius: 0 0 0 $wm_radius;
-  } // side-pane
+  }
   > box.vertical > scrolledwindow > viewport.frame > list {
     row.event.activatable {
-      // > 3.25.90
       color: $fg_color;
       transition-duration: 0.1s;
       &:hover,
@@ -1260,7 +1208,6 @@ window.background > box.vertical box.horizontal {
       }
 
       label.compressed-entries-label {
-        // hard-coded background-color?
         background-image: image($suggested_color);
         color: $selected_fg_color;
         font-weight: 700;
@@ -1271,7 +1218,6 @@ window.background > box.vertical box.horizontal {
         color: darken($fg_color, 20%);
         transition-property:
           opacity,
-          // exclude background-color
           border-image,
           background-image,
           box-shadow;
@@ -1294,7 +1240,7 @@ window.background > box.vertical box.horizontal {
         }
 
         &-header {
-          background-image: image($base_color); // stop highlighting
+          background-image: image($base_color);
           color: $selected_bg_color;
           &:hover {
             background-image: image(mix($selected_bg_color, $base_color, 5%));
@@ -1319,26 +1265,19 @@ window.background > box.vertical box.horizontal {
   }
 }
 
-//
-// Gnome-Usage
-//
 widget {
   &#PROCESSOR,
   &#MEMORY {
     list {
       row {
-        margin: -1px; // kill ugly parent borders
+        margin: -1px;
         border: 1px solid $solid_borders_color;
 
         &.max {
-          color: $osd_bg_color; // enforce dark foreground
-          // FIXME: we can't override the salmon-pinky background
-          // background-image: image($destructive_color);
-          // border: 1px solid $destructive_color;
+          color: $osd_bg_color;
         }
       }
 
-      // kill ugly separators
       separator.list {
         box-shadow: inset 0 0 0 1px $solid_borders_color;
       }
@@ -1347,7 +1286,7 @@ widget {
 
   &#STORAGE {
     list {
-      margin: -1px; // kill ugly borders
+      margin: -1px;
 
       row.activatable {
         color: gtkalpha($fg_color, 0.75);
@@ -1357,7 +1296,6 @@ widget {
         }
       }
 
-      // kill ugly separators
       separator.list {
         box-shadow: inset 0 0 0 1px $solid_borders_color;
       }
@@ -1368,7 +1306,7 @@ widget {
     searchbar {
       box-shadow:
         inset 0 -2px $borders_color,
-        inset 0 -1px $bg_color; // Removed double borders under headerbar
+        inset 0 -1px $bg_color;
       entry,
       button {
         margin-bottom: 2px;
@@ -1386,37 +1324,26 @@ graph-switcher-button.toggle {
   color: gtkalpha($fg_color, 0.75);
   font-weight: 500;
   &:hover {
-    // use opaque
     color: $fg_color;
     background-image: image(if($variant == "light", rgba(black, 0.05), rgba(white, 0.03)));
   }
 }
 
 rg-graph.big {
-  // FIXME: We need to re-define these properties to prevent weird
-  // 'non-repeated' imaging behind the main graph.
   background-position: left top;
   background-origin: border-box;
   background-repeat: repeat;
 }
 
 box.speedometer {
-  // FIXME: 'outter' meant 'outer'?
-  // circular progress should be drawn with our $accent_color though,
-  // damned adwaita.css picks @theme_selected_bg_color up.
   &-outter {
     opacity: 0.8;
-  } // reduce alpha for our troughs
+  }
 
   &-content-area {
-    // cover up meter troughs with selection colour
     box-shadow: 0 0 0 4px gtkalpha($selected_bg_color, 0.2);
   }
 }
-
-//
-// Gnome Documents
-//
 
 .documents-scrolledwin.frame {
   border-width: 0;
@@ -1474,9 +1401,6 @@ button.documents-favorite:active:hover {
   border-image: url("assets/thumbnail-frame.png") 3 3 6 4;
 }
 
-//
-// Gnome Photos
-//
 .photos-entry-tag {
   @extend %documents-entry-tag;
 }
@@ -1495,9 +1419,6 @@ button.documents-favorite:active:hover {
   transition: opacity 0.2s ease-out;
 }
 
-//
-// Gnome Tweak Tool ( Gnome tweaks )
-//
 window.background.csd {
   > hdyleaflet,
   > leaflet,
@@ -1507,7 +1428,6 @@ window.background.csd {
     }
 
     frame:not(.view) list:not(.contacts-contact-list) {
-      // Don't set this to Gnome-Contacts
       @extend %circular_list;
 
       row.activatable {
@@ -1581,7 +1501,6 @@ list {
   border: none;
 }
 
-// Themed side headerbar
 .titlebar > headerbar.titlebar.tweak-titlebar-left {
   @extend %side_headerbar_left;
 }
@@ -1603,7 +1522,6 @@ row#AutostartTitle.tweak {
   }
 }
 
-// separator of sidebar on Gnome control center and Gnome tweaks
 window.background.csd {
   > hdyleaflet,
   > leaflet,
@@ -1622,18 +1540,15 @@ window.background.csd {
   > hdyleaflet > box.vertical > stack.main-container,
   > leaflet > box.vertical > stack.main-container,
   > leaflet > box.vertical:last-child > scrolledwindow {
-    // Right side
     background-color: $base_color;
     border-bottom-right-radius: $wm_radius;
   }
 
-  // sidebar on gnome tweak
   list.tweak-categories,
   > leaflet > box > scrolledwindow > viewport > list.navigation-sidebar {
     @extend %side_style_left;
     border-radius: 0 0 0 $wm_radius;
 
-    // Themed left sidebar
     > row:not(:selected):not(:hover) {
       background: none;
     }
@@ -1654,17 +1569,12 @@ window.background.csd {
       border-bottom-right-radius: $maximized_radius;
     }
 
-    // sidebar on gnome tweak
     list.tweak-categories,
     leaflet > box > scrolledwindow > viewport > list.navigation-sidebar {
       border-radius: 0 0 0 $maximized_radius;
     }
   }
 }
-
-//
-// Gnome Control Center
-//
 
 window.background.csd {
   > box.titlebar.horizontal {
@@ -1678,7 +1588,6 @@ window.background.csd {
   }
 
   > headerbar.titlebar {
-    // gnome 3.32 or later
     > box.horizontal > headerbar:first-child,
     > hdyleaflet > headerbar:first-child,
     > leaflet > headerbar:first-child {
@@ -1706,8 +1615,8 @@ window.background.csd {
     @extend %side_separator;
   }
 
-  > leaflet > stack.background, // > 3.38.0
-  > hdyleaflet > stack.background, // > 3.34.0
+  > leaflet > stack.background,
+  > hdyleaflet > stack.background,
   > box.horizontal > stack.background {
     background-color: $base_color;
     border-bottom-right-radius: $wm_radius;
@@ -1715,7 +1624,6 @@ window.background.csd {
     > widget {
       > box.horizontal > box.horizontal > box.vertical {
         > button {
-          // wallpaper set button
           &:active {
             color: $fg_color;
             background-image: none;
@@ -1726,7 +1634,6 @@ window.background.csd {
       }
 
       > box.vertical > box.vertical {
-        // Gnome 3.34 Wallpaper setting
         > scrolledwindow > viewport.frame {
           background-color: $base_color;
           border-bottom-right-radius: $wm_radius + 1px;
@@ -1776,10 +1683,9 @@ window.background.csd {
     }
   }
 
-  > leaflet > box.vertical > scrolledwindow.view, // > 3.38.0
-  > hdyleaflet > box.vertical > scrolledwindow.view, // > 3.34.0
+  > leaflet > box.vertical > scrolledwindow.view,
+  > hdyleaflet > box.vertical > scrolledwindow.view,
   > box.horizontal > box.vertical > scrolledwindow.view {
-    // > 3.25.90
     @extend %side_style_left;
     border-bottom-left-radius: $wm_radius + 1px;
 
@@ -1787,7 +1693,6 @@ window.background.csd {
       background-color: transparent;
 
       list {
-        // left-pane
         background-color: transparent;
 
         separator {
@@ -1808,14 +1713,13 @@ window.background.csd {
       border-radius: 0 0 $maximized_radius $maximized_radius;
     }
 
-    > leaflet > stack.background, // > 3.38.0
-    > hdyleaflet > stack.background, // > 3.34.0
+    > leaflet > stack.background,
+    > hdyleaflet > stack.background,
     > box.horizontal > stack.background {
       border-bottom-right-radius: $maximized_radius;
 
       > widget {
         > box.vertical > box.vertical {
-          // Gnome 3.34 Wallpaper setting
           > scrolledwindow > viewport.frame {
             border-bottom-right-radius: $maximized_radius;
           }
@@ -1823,10 +1727,9 @@ window.background.csd {
       }
     }
 
-    > leaflet > box.vertical > scrolledwindow.view, // > 3.38.0
-    > hdyleaflet > box.vertical > scrolledwindow.view, // > 3.34.0
+    > leaflet > box.vertical > scrolledwindow.view,
+    > hdyleaflet > box.vertical > scrolledwindow.view,
     > box.horizontal > box.vertical > scrolledwindow.view {
-      // > 3.25.90
       border-bottom-left-radius: $maximized_radius;
     }
   }
@@ -1836,13 +1739,8 @@ box.horizontal > separator.sidebar,
 hdyleaflet > separator.sidebar,
 leaflet > separator.sidebar,
 leaflet > leaflet > separator.sidebar {
-  // reset
   @extend %side_separator;
 }
-
-//
-// Gnome system monitor
-//
 
 window#gnome-system-monitor.background.csd {
   > box.vertical > stack {
@@ -1865,10 +1763,6 @@ window#gnome-system-monitor.background.csd {
   }
 }
 
-//
-// Gnome-sound-recorder
-//
-
 window.background.csd > stack {
   > grid.vertical {
     > scrolledwindow {
@@ -1884,7 +1778,7 @@ window.background.csd > stack {
 
     scrolledwindow.frame.emptyGrid {
       border: none;
-    } // Removed ugly borders
+    }
   }
 }
 
@@ -1908,13 +1802,8 @@ window.background.csd {
   }
 }
 
-//
-// Gnome Contacts
-//
-
 window.background.csd {
   > deck > box > leaflet {
-    // >= 40.0
     > headerbar:first-child {
       @extend %side_headerbar_left;
 
@@ -1959,7 +1848,6 @@ window.background.csd {
 
   > overlay > grid.horizontal {
     > frame:dir(ltr) > border {
-      // Removed ugly borders
       border-top-width: 0;
       border-left-width: 0;
       border-bottom-width: 0;
@@ -1975,7 +1863,6 @@ window.background.csd {
   > overlay > hdyleaflet,
   > overlay > leaflet,
   > deck > box > overlay > leaflet {
-    // >= 40.0
     > stack {
       @extend %side_style_left;
       border-bottom-left-radius: $wm_radius;
@@ -2015,7 +1902,6 @@ window.background.csd {
 }
 
 entry.contacts-postal-entry {
-  // background-color: transparent;
   @extend %linked_entrys;
 
   &:focus {
@@ -2034,10 +1920,6 @@ entry.contacts-postal-entry:focus + entry.contacts-postal-entry {
   border-top-color: $entry_highlight;
 }
 
-//
-// Epiphany (Gnome Web)
-//
-
 $question_bg_color: #ffea00;
 
 headerbar.titlebar.incognito-mode {
@@ -2053,14 +1935,12 @@ headerbar.titlebar.incognito-mode {
   }
 }
 
-// reset inverted foreground colour
 notebook > box > stack > box.vertical > paned.vertical > overlay {
   > .floating-bar {
     color: gtkalpha($fg_color, 0.75);
   }
 }
 
-// overrides foregrounds for 3.24's ssd-mode
 .background headerbar entry {
   &.starred,
   &.non-starred {
@@ -2074,7 +1954,6 @@ notebook > box > stack > box.vertical > paned.vertical > overlay {
     }
   }
 
-  // render yellow 'star' icon if bookmarked
   &.starred > image.right {
     color: darken($question_bg_color, 10%);
     &:hover,
@@ -2085,9 +1964,7 @@ notebook > box > stack > box.vertical > paned.vertical > overlay {
   }
 }
 
-// popover for downloaded lists
 popover.background:not(.emoji-picker) > box.vertical {
-  // For clean button
   button:not(.destructive-action):not(.suggested-action):only-child {
     &:active,
     &:checked {
@@ -2097,7 +1974,6 @@ popover.background:not(.emoji-picker) > box.vertical {
 }
 
 popover.background:not(.emoji-picker) > box.vertical > scrolledwindow {
-  // re-define background colours for GtkListBox
   > viewport.frame > list.background {
     background-color: transparent;
 
@@ -2124,7 +2000,6 @@ popover.background:not(.emoji-picker) > box.vertical > scrolledwindow {
   }
 }
 
-// popover for bookmarks
 popover.background:not(.emoji-picker) > box.vertical > stack > box.vertical {
   scrolledwindow > viewport.frame {
     border: 1px solid $borders_color;
@@ -2145,18 +2020,15 @@ popover.background:not(.emoji-picker) > box.vertical > stack > box.vertical {
       button.flat {
         min-width: 16px;
         min-height: 16px;
-        padding: 4px; // Same as of image.sidebar-icon
-        // margin: 0 4px;
+        padding: 4px;
         border-radius: 100px;
-        // -gtk-outline-radius: 100px;
       }
     }
   }
 }
 
-// bookmark-tag flowbox-childs (almost hard-coded)
 flowboxchild.bookmark-tag-widget {
-  color: $bg_color; // unchecked
+  color: $bg_color;
   font-weight: 500;
 
   label {
@@ -2165,16 +2037,14 @@ flowboxchild.bookmark-tag-widget {
 
   &-selected {
     color: $selected_fg_color;
-  } // checked
+  }
 }
 
 stack#titlebar_container.titlebar {
   > stack > headerbar,
   > headerbar.titlebar > deck > headerbar {
-    // Gnome 3.38
     border-color: $header_bg;
 
-    // entry.suggestion.url_entry {}
   }
 }
 
@@ -2188,7 +2058,6 @@ notebook.main-notebook {
       }
 
       &:first-child {
-        //Not use
         border-left-width: 0;
       }
     }
@@ -2199,11 +2068,9 @@ notebook.main-notebook {
   }
 }
 
-// Gnome version >= 40.0
 window.background.csd {
   > deck > deck > fullscreenbox > flap > box > windowhandle {
     > headerbar.titlebar {
-      // Gnome 40.0
       border-color: $header_bg;
     }
   }
@@ -2268,10 +2135,6 @@ tabbox {
   }
 }
 
-//
-// Gnome Music
-//
-
 window.background.csd {
   > box.vertical > overlay > stack.background {
     border-radius: 0 0 $wm_radius $wm_radius;
@@ -2285,10 +2148,6 @@ window.background.csd {
     }
   }
 }
-
-//
-// Gnome Weather
-//
 
 #weather-page,
 #weekly-forecast-frame {
@@ -2313,9 +2172,6 @@ window.background.csd {
   }
 }
 
-//
-// Gnome Clocks
-//
 window.background.csd.unified {
   > deck > deck > deck {
     > box.vertical > headerbar.titlebar.windowhandle {
@@ -2340,10 +2196,6 @@ window.background.csd.unified {
   }
 }
 
-//
-// Gnome Calendar
-//
-
 window.background.org-gnome-Calendar {
   .week-view weekgrid {
     event.color-light {
@@ -2361,10 +2213,6 @@ window.background.org-gnome-Calendar {
     }
   }
 }
-
-//
-// Polari
-//
 
 .polari-room-list {
   .sidebar {
@@ -2412,10 +2260,6 @@ stack:disabled.view.polari-entry-area {
   background-image: image($bg_color);
 }
 
-//
-// Gnome Flashback
-//
-
 #gf-bubble,
 #gf-osd-window,
 #gf-input-source-popup,
@@ -2445,7 +2289,7 @@ stack:disabled.view.polari-entry-area {
     trough {
       background: none;
     }
-  } // FIXME still needs button styling
+  }
 }
 
 #gf-input-source {
@@ -2472,10 +2316,6 @@ gf-candidate-box {
   }
 }
 
-//
-// rhythmbox
-//
-
 %toolbar_radio_button {
   @if $variant == "dark" {
     border: none;
@@ -2490,7 +2330,6 @@ gf-candidate-box {
   }
 }
 
-// add top-border to inline-toolbar
 .sidebar-paned .inline-toolbar.horizontal.sidebar-toolbar {
   box-shadow: inset 0 1px $borders_color;
   padding: 4px;
@@ -2505,16 +2344,13 @@ gf-candidate-box {
   }
 }
 
-// tweak sidebar styling
 .sidebar-paned {
   scrolledwindow {
     border: none;
   }
 
-  // treeview.view.sidebar { }
 }
 
-// tweak border and frame in alt-toolbar
 window.csd > box.vertical > box.vertical,
 window.solid-csd > box.vertical > box.vertical {
   > toolbar.horizontal {
@@ -2546,12 +2382,9 @@ window.solid-csd > box.vertical > box.vertical {
   }
 }
 
-// hard-coded spacing depends on non-scalable unit,
-// seems cover-art widget is the most biggest thing?
 window.background > box.vertical > toolbar.primary-toolbar {
   > toolitem {
     > .linked > button.image-button.raised {
-      // 'shuffle/repeat'
       min-height: 36px;
       min-width: 36px;
       padding: 0;
@@ -2564,7 +2397,6 @@ window.background > box.vertical > toolbar.primary-toolbar {
     }
 
     button.flat.scale {
-      // 'volume'
       min-height: 24px;
       min-width: 36px;
       padding: 0;
@@ -2583,21 +2415,13 @@ window.background > box.vertical > toolbar.primary-toolbar {
   }
 }
 
-//
-// Gnome Calculator
-//
-
 window.background {
   > headerbar.titlebar {
-    // mode-selector button
     > button.flat.popup.toggle.text-button.title {
-      // .title class existed
-      margin: 6px 0; // set standard margins
+      margin: 6px 0;
 
       > grid > widget {
-        // down arrow
         padding-top: 3px;
-        // add spacing between arrow and label
         &:dir(ltr) {
           padding-left: 4px;
         }
@@ -2625,15 +2449,10 @@ window.background {
         }
       }
 
-      // &.suggested-action {  // '=' button
-      // }
     }
   }
 }
 
-//
-// Fractal
-//
 .background.csd.main-window {
   .sidebar.rooms-sidebar {
     border-bottom-left-radius: $wm_radius;
@@ -2648,15 +2467,10 @@ window.background {
   }
 }
 
-//
-// Seahorse
-//
-
 window.background.csd {
   > leaflet.unfolded {
     > scrolledwindow > viewport.frame {
       > list {
-        // left side
         background-color: $dark_sidebar_bg;
         border-bottom-left-radius: $wm_radius;
 
@@ -2671,19 +2485,14 @@ window.background.csd {
       border-bottom-right-radius: $wm_radius;
     }
 
-    // > box.vertical > searchbar > revealer > box { background-color: $base_color; }
   }
 }
 
-//
-// documents-scrolledwi (Totem, Documents, EvView)
-//
 .documents-scrolledwin {
   background-color: transparent;
 
   .content-view:not(:selected):not(:hover) {
     background-color: transparent;
-    // border-radius: 0 0 $wm_radius $wm_radius;
   }
 
   .content-view:hover {
@@ -2691,7 +2500,6 @@ window.background.csd {
   }
 
   viewport.frame {
-    // Documents
     background-color: transparent;
 
     widget > frame.content-view:not(:selected):not(:hover) {
@@ -2700,15 +2508,11 @@ window.background.csd {
       }
 
       background-color: transparent;
-      // border-radius: 0 0 $wm_radius $wm_radius;
     }
   }
 }
 
-// Documents
-
 window.background.csd {
-  // Documents actionbar
   > box.vertical > overlay > stack > box.vertical {
     > actionbar > revealer > box {
       border-radius: 0 0 $wm_radius $wm_radius;
@@ -2726,9 +2530,6 @@ window.background.csd {
   }
 }
 
-//
-// Document Viewer
-//
 window.background.csd {
   > box.vertical {
     > scrolledwindow {
@@ -2767,9 +2568,6 @@ window.background.csd {
   }
 }
 
-//
-// Archive Manager (File roller)
-//
 window.background.csd {
   > grid.horizontal > paned.horizontal {
     > scrolledwindow {
@@ -2814,9 +2612,6 @@ window.background.csd {
   }
 }
 
-//
-// Eye of GNOME Image Viewer
-//
 window.background.csd {
   > box.vertical > box.vertical > box.vertical {
     > paned.horizontal {
@@ -2828,9 +2623,6 @@ window.background.csd {
   }
 }
 
-//
-// Gnome-Disk
-//
 window.background.csd {
   > box.vertical > paned.horizontal {
     > scrolledwindow {
@@ -2868,9 +2660,6 @@ window.background.csd {
   }
 }
 
-//
-// Gnome Todo
-//
 .org-gnome-Todo {
   stack.background,
   scrolledwindow.background {
@@ -2883,7 +2672,6 @@ window.background.csd {
         border-radius: 0 0 $wm_radius $wm_radius;
 
         .new-task-row {
-          // border-radius: $bt_radius; // not use!
 
           button,
           entry {
@@ -2906,13 +2694,8 @@ window.background.csd {
   }
 }
 
-//
-// Geary
-//
-
-.geary-main-window.background.csd, // <= 3.38
+.geary-main-window.background.csd,
 window#GearyMainWindow.background.csd {
-  // <= 3.32
   > overlay > box.vertical {
     > paned {
       > separator {
@@ -2995,7 +2778,6 @@ window#GearyMainWindow.background.csd {
   }
 
   stack#conversation_viewer {
-    // 3.28
     background-color: $base_color;
     border-bottom-right-radius: $wm_radius + 1px;
 
@@ -3047,15 +2829,12 @@ window#GearyMainWindow.background.csd {
   }
 }
 
-// >= 40.0
 .geary-main-window {
   &.background.csd.unified {
     background: none;
 
     .geary-main-layout {
-      // >= 40.0 reset
       > leaflet > leaflet > headerbar {
-        // left and center headerbar
         &:first-child {
           box-shadow: none;
         }
@@ -3065,18 +2844,15 @@ window#GearyMainWindow.background.csd {
       }
 
       > leaflet > headerbar {
-        // right headerbar
         box-shadow: none;
       }
     }
   }
 
   .geary-main-layout {
-    // >= 40.0
     @extend %side_style_left;
 
     > leaflet > leaflet > headerbar {
-      // left and center headerbar
       &:first-child {
         @extend %side_headerbar_left;
         background-color: transparent;
@@ -3087,7 +2863,6 @@ window#GearyMainWindow.background.csd {
     }
 
     > leaflet > leaflet > box {
-      // >= 44.0
       > headerbar {
         @extend %side_headerbar_right;
         box-shadow: none;
@@ -3124,13 +2899,11 @@ window#GearyMainWindow.background.csd {
 
     > leaflet > headerbar,
     > leaflet > box > widget > headerbar {
-      // right headerbar
       @extend %side_headerbar_right;
     }
   }
 
   frame.geary-folder-frame {
-    // left side
     background-color: transparent;
 
     > border {
@@ -3159,7 +2932,6 @@ window#GearyMainWindow.background.csd {
   }
 
   frame.geary-conversation-frame {
-    // center part
     background-color: $base_color;
 
     > border {
@@ -3167,7 +2939,6 @@ window#GearyMainWindow.background.csd {
     }
 
     scrolledwindow {
-      // margin: -1px 0;
       padding: 0 $container_padding / 2;
       background-color: $base_color;
 
@@ -3201,7 +2972,6 @@ window#GearyMainWindow.background.csd {
 
   leaflet > leaflet > box.vertical {
     searchbar {
-      // center part searchbar
       > revealer > box {
         background-color: $base_color;
         border-color: $dark_sidebar_border;
@@ -3209,10 +2979,9 @@ window#GearyMainWindow.background.csd {
     }
 
     > revealer > components-conversation-actions {
-      // center part actionbar
       margin-top: -1px;
       background-color: $base_color;
-      border-color: transparent; // not use?
+      border-color: transparent;
       box-shadow: inset 0 1px $dark_sidebar_border;
 
       button {
@@ -3231,7 +3000,6 @@ window#GearyMainWindow.background.csd {
   }
 
   conversation-list {
-    // center part >= 44.0
     list#conversation-list {
       padding: $container_padding;
 
@@ -3270,7 +3038,6 @@ window#GearyMainWindow.background.csd {
   }
 
   geary-conversation-viewer#conversation_viewer {
-    // right side
     background-color: $base_color;
 
     list.background.conversation-listbox.content {
@@ -3330,7 +3097,6 @@ geary-composer-box.background.csd {
   }
 }
 
-// Accounts setting dialog
 .geary-accounts-editor-pane-content {
   frame:not(.geary-signature) {
     > border {
@@ -3350,10 +3116,6 @@ geary-composer-box.background.csd {
     }
   }
 }
-
-//
-// Gnome-Box
-//
 
 window.background.csd {
   > overlay > stack.content-bg {
@@ -3394,10 +3156,6 @@ window.background.csd {
   }
 }
 
-//
-// Dialogs
-//
-
 dialog.background.csd {
   background-image: none;
   background-color: $dialog_bg_color;
@@ -3410,7 +3168,6 @@ dialog.background.csd {
   > headerbar {
     &.titlebar {
       > label:not(.title):not(.subtitle) {
-        // wallpaper set dialog
         font-weight: 700;
       }
     }
@@ -3423,11 +3180,10 @@ dialog.background.csd {
 
     > leaflet.unfolded > box.vertical.view {
       background: none;
-    } // Formats setting dialog gnome >= 41.0
+    }
 
     > grid.horizontal {
       > scrolledwindow.frame {
-        //removed ugly boders for nautilus batch renaming dialog
         border: none;
 
         > viewport.frame {
@@ -3444,7 +3200,6 @@ dialog.background.csd {
 
       > stack {
         > scrolledwindow.frame {
-          // reset border for totem setting dialog
           border: 1px solid $borders_color;
         }
       }
@@ -3457,7 +3212,6 @@ dialog.background.csd {
         background-color: $base_color;
 
         iconview.view:not(:hover):not(:selected):not(:active) {
-          // Wallpaper setting window
           background-color: transparent;
         }
       }
@@ -3486,7 +3240,6 @@ dialog.background.csd {
       }
 
       > notebook > stack {
-        // Control center wifi setting 3.36 or later
         border-radius: 0 0 $wm_radius $wm_radius;
       }
     }
@@ -3496,7 +3249,6 @@ dialog.background.csd {
         border-radius: 0 0 $wm_radius $wm_radius;
 
         > box.horizontal > notebook > stack {
-          // Control center wifi setting
           border-radius: 0 0 $wm_radius $wm_radius;
         }
       }
@@ -3506,15 +3258,11 @@ dialog.background.csd {
       background-color: $borders_color;
     }
 
-    // Outline for low res icons
     .lowres-icon {
-      // FIXME: not use
       -gtk-icon-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
     }
 
-    // Dropshadow for large icons
     .icon-dropshadow {
-      // FIXME: not use
       -gtk-icon-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
     }
 
@@ -3556,12 +3304,9 @@ dialog.background.csd {
   }
 }
 
-//
-// Extensions
-//
 window.background.csd {
-  > stack, // GameMode setting
-  > stack > scrolledwindow > viewport > box, // User Themes (Workspace) setting
+  > stack,
+  > stack > scrolledwindow > viewport > box,
   > box > stack > scrolledwindow > viewport > box {
     > list {
       @extend %circular_list;
@@ -3572,14 +3317,13 @@ window.background.csd {
     }
   }
 
-  stack stack stack frame, // ArcMenu setting
-  > stack > stack > box > frame, // Night Theme Switcher setting
-  > stack > stack > box > box > frame, // Night Theme Switcher setting bottom lists
-  > stack > box > stack > box > frame, // ArcMenu setting
-  > stack > box > stack > scrolledwindow > viewport frame, // ArcMenu setting
-  > stack > box > stack > box > scrolledwindow > viewport > frame, // ArcMenu setting
+  stack stack stack frame,
+  > stack > stack > box > frame,
+  > stack > stack > box > box > frame,
+  > stack > box > stack > box > frame,
+  > stack > box > stack > scrolledwindow > viewport frame,
+  > stack > box > stack > box > scrolledwindow > viewport > frame,
   > stack > grid > scrolledwindow > viewport > box > frame {
-    // GSConnect setting
     > border {
       border: none;
     }
@@ -3595,7 +3339,6 @@ window.background.csd {
 
   > stack > box > box > list,
   > stack > box > stack > scrolledwindow > viewport > list {
-    // ArcMenu setting sidebar
     border-bottom-left-radius: $wm_radius;
   }
 
@@ -3604,15 +3347,10 @@ window.background.csd {
   &.fullscreen {
     > stack > box > box > list,
     > stack > box > stack > scrolledwindow > viewport > list {
-      // ArcMenu setting sidebar
       border-bottom-left-radius: $maximized_radius;
     }
   }
 }
-
-//
-// Unified window (> = Gnome 40)
-//
 
 window.background.csd.unified {
   headerbar {
@@ -3622,7 +3360,6 @@ window.background.csd.unified {
     }
   }
 
-  // ...and add it on the window itself
   > decoration-overlay {
     box-shadow: inset 0 0 0 1px $highlight_color;
   }

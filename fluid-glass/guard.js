@@ -1,11 +1,5 @@
 import GObject from 'gi://GObject';
 
-/**
- * Guard against GLib GType duplicate registration errors during extension reload / re-evaluation.
- * In GLib, registered GType names can never be unregistered. If GJS evaluates a module again
- * (or dynamic import / reload occurs), GObject.registerClass throws "Error: Type name ... is already registered".
- * This guard catches that condition, assigns a safe unique GTypeName, and caches the class.
- */
 if (!GObject._origRegisterClass) {
     GObject._origRegisterClass = GObject.registerClass;
     GObject.registerClass = function(...args) {

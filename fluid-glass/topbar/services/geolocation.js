@@ -1,18 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// GeoLocator — the user's approximate position from GeoClue, for weather.
-//
-// Uses the Shell's own GeoClue identity and accuracy ('org.gnome.Shell', CITY),
-// which geoclue.conf allows as a system component. The Shell's location agent
-// still enforces Settings → Privacy → Location: with it off, GeoClue refuses at
-// once with AccessDenied ("Geolocation disabled for UID …"), reported here as
-// state 'disabled'. There is deliberately no IP-geolocation fallback — turning
-// Location off must mean no position leaves the machine.
-//
-// Geoclue.Simple.new is called with an explicit callback instead of through
-// Gio._promisify, which would patch the Geoclue class the Shell's own weather
-// client has already promisified.
-
 import Geoclue from 'gi://Geoclue';
 import Gio from 'gi://Gio';
 import GObject from 'gi://GObject';
@@ -25,7 +10,6 @@ function _stopClient(simple) {
     try {
         simple?.get_client()?.call_stop(null, null);
     } catch (_e) {
-        // The client may already be gone with the service.
     }
 }
 
@@ -66,12 +50,10 @@ export const GeoLocator = GObject.registerClass({
         }
     }
 
-    /** 'idle', 'locating', 'ready', 'disabled' or 'error'. */
     get state() {
         return this._state;
     }
 
-    /** {name, latitude, longitude, timezone} once state is 'ready'. */
     get location() {
         return this._location;
     }
@@ -113,7 +95,6 @@ export const GeoLocator = GObject.registerClass({
                 try {
                     simple.get_client().distance_threshold = DISTANCE_THRESHOLD_M;
                 } catch (_e) {
-                    // Only a tuning knob.
                 }
                 this._simpleId = simple.connect('notify::location', () => this._sync());
                 this._sync();
@@ -128,7 +109,6 @@ export const GeoLocator = GObject.registerClass({
             name: _nearestCityName(geo.latitude, geo.longitude),
             latitude: geo.latitude,
             longitude: geo.longitude,
-            // The user is where the session is: forecast hours use local time.
             timezone: '',
         };
         this._setState('ready');

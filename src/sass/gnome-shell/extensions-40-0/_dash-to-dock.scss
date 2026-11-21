@@ -1,6 +1,3 @@
-// Dash to Dock
-
-// Scrollview style
 .bottom #dashtodockDashScrollview,
 .top #dashtodockDashScrollview {
   -st-hfade-offset: 24px;
@@ -151,7 +148,7 @@
     }
   }
 
-  #dash { // default-mode
+  #dash {
     background: none;
     box-shadow: none;
 
@@ -185,7 +182,7 @@
     }
   }
 
-  &:overview #dash { // overview-mode #1
+  &:overview #dash {
     background: none;
 
     .dash-background {
@@ -220,7 +217,7 @@
   }
 
   &.opaque:overview,
-  &.transparent:overview { // overview-mode #2
+  &.transparent:overview {
     #dash {
       background-color: transparent;
       box-shadow: none;
@@ -231,7 +228,7 @@
     }
   }
 
-  &.extended:overview, // overview-mode #3
+  &.extended:overview,
   &.opaque.extended:overview,
   &.transparent.extended:overview {
     #dash {

@@ -1,6 +1,3 @@
-//
-// Xfce4
-//
 $text_shadow: 0 0 1px rgba(0, 0, 0, 0.26),
               0 1px 2px rgba(0, 0, 0, 0.32),
               0 2px 3px rgba(0, 0, 0, 0.12);
@@ -19,50 +16,42 @@ $text_shadow: 0 0 1px rgba(0, 0, 0, 0.26),
   -gtk-icon-shadow: none;
   box-shadow: none;
 
-  &, // unset borders
+  &,
   frame > border { border-width: 0; }
 
-  &#XfcePanelWindow { // main panel container >= 4.13.3?
-    // FIXME: unneeded 1px borders are reserved by its code itself
+  &#XfcePanelWindow {
     border: none;
 
-    &, &.marching-ants { transition: none; } // unset transitions
+    &, &.marching-ants { transition: none; }
   }
 
   button, button.flat {
     font-weight: 700;
     @extend %panel_button;
-    // -gtk-icon-style: symbolic;
 
-    &#launcher-arrow { // launcher applet
-      // FIXME: quite weird pseudo-classe transitions, especially :hover
-      // state can't be cleared properly ( -> an upstream issue)
+    &#launcher-arrow {
       &, + button.toggle {
-        &:hover { box-shadow: none; } // hide indicators
+        &:hover { box-shadow: none; }
       }
 
-      + button.toggle:checked { // 'arrow' toggle button
+      + button.toggle:checked {
         color: $selected_bg_color;
         box-shadow: none;
       }
     }
 
     &#xfce4-notification-plugin {
-      padding: 0 1px; // for 4.12.2
+      padding: 0 1px;
     }
 
-    // &#whiskermenu-button {
-    //   &:active, &:checked {
-    //   }
-    // }
   }
 
   menu {
-    font-weight: 400; // for enforcing regular weight
+    font-weight: 400;
     text-shadow: none;
   }
 
-  menubar.-vala-panel-appmenu-private { // xfce4 appmenu plugin
+  menubar.-vala-panel-appmenu-private {
     > menuitem {
       font-weight: normal;
     }
@@ -72,7 +61,6 @@ $text_shadow: 0 0 1px rgba(0, 0, 0, 0.26),
     > button.toggle {
       font-weight: 400;
       @extend %panel_button;
-      // -gtk-icon-style: symbolic;
     }
   }
 }
@@ -102,7 +90,6 @@ window#whiskermenu-window {
 
   entry.search:focus { background-color: $base_color; }
 
-  // Need to set Whisker menu background opacity less than 100
   > frame > border {
     border-radius: $wm_radius;
     padding: 6px;
@@ -114,7 +101,7 @@ window#whiskermenu-window {
                 $wm_outline;
   }
 
-  box.categories > button.radio { // sidebar categories button
+  box.categories > button.radio {
     padding: $container_padding / 2 $container_padding;
     margin: 1px 0;
 
@@ -128,7 +115,7 @@ window#whiskermenu-window {
     }
   }
 
-  scrolledwindow.frame { // App list (tree)
+  scrolledwindow.frame {
     padding: $container_padding / 2;
     background-color: $base_color;
     border-radius: $bt_radius;
@@ -144,10 +131,9 @@ window#whiskermenu-window {
       }
     }
 
-    // iconview.view { border-radius: 0; }
   }
 
-  .title-area > .commands-area > button.flat.command-button { // Bottom command buttons
+  .title-area > .commands-area > button.flat.command-button {
     &:checked, &:active {
       background-color: if($variant=='light', rgba(black, 0.25), rgba(white, 0.25));
       color: $fg_color;
@@ -155,7 +141,6 @@ window#whiskermenu-window {
   }
 }
 
-// Thunar
 window.background.csd.thunar {
   > grid.horizontal > paned.horizontal > scrolledwindow.frame.sidebar.shortcuts-pane {
     border-bottom-left-radius: $wm_radius;
@@ -226,7 +211,6 @@ window.thunar {
       margin-right: 10px;
     }
 
-    // FIXME: need to unset for weird allocation height
     entry {
       min-height: if($variant == 'light', 22px, 24px);
     }
@@ -234,19 +218,16 @@ window.thunar {
 
   > grid > toolbar > toolitem > widget > box > entry {
     min-height: if($variant == 'light', 22px, 24px);
-    margin-left: $container_padding / 2; // Not use!
+    margin-left: $container_padding / 2;
     -gtk-icon-style: symbolic;
   }
 
   notebook {
-    // hide unneeded border
     stack > scrolledwindow.frame.standard-view {
       border-top-width: 0;
       border-right-width: 0;
     }
 
-    // an allocation height of label node affects to close button's
-    // image height (it's quite weird).
     header.top tab.reorderable-page > box > label { min-height: 0; }
   }
 
@@ -273,19 +254,10 @@ window.thunar {
   }
 }
 
-
-//
-// Xfsm dialog
-//
 dialog.xfsm-logout-dialog {
   border: 1px solid if($variant=='light', rgba(black, 0.15), rgba(black, 0.75));
   box-shadow: none;
 }
-
-
-//
-// mousepad
-//
 
 window.background.csd {
   > box.vertical > notebook > stack > scrolledwindow.frame {

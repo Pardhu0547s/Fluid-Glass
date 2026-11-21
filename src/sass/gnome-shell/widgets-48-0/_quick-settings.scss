@@ -89,8 +89,6 @@ $toggle_shadow: if($trans =='true', inset 0 0 4px rgba(white, 0.35), 0 5px 10px 
     spacing: 6px;
   }
 
-  /* Move padding into the box; this is to allow menu arrows
-     to extend to the border */
   &.button {
     padding: 0;
   }
@@ -276,7 +274,7 @@ $toggle_shadow: if($trans =='true', inset 0 0 4px rgba(white, 0.35), 0 5px 10px 
       color: $toggle_fg_color;
     }
 
-    min-height: 16px; // slider size
+    min-height: 16px;
     padding: 0;
     border-radius: $circular_radius;
   }
@@ -299,7 +297,6 @@ $toggle_shadow: if($trans =='true', inset 0 0 4px rgba(white, 0.35), 0 5px 10px 
   }
 
   .popup-menu-item {
-    // border-radius: $base_border_radius !important;
     min-height: 20px;
     padding: $base_padding * 2 $base_padding * 3;
     color: $toggle_fg_color !important;
@@ -326,7 +323,7 @@ $toggle_shadow: if($trans =='true', inset 0 0 4px rgba(white, 0.35), 0 5px 10px 
     color: $toggle_fg_color;
 
     & .icon {
-      icon-size: $base_icon_size; // a non-standard symbolic size but ok
+      icon-size: $base_icon_size;
       border-radius: $circular_radius;
       padding: $base_padding * 2.5;
       background-color: $toggle_bg_color;
@@ -422,8 +419,6 @@ $toggle_shadow: if($trans =='true', inset 0 0 4px rgba(white, 0.35), 0 5px 10px 
     @extend %default_button;
   }
 }
-
-// background apps
 
 .background-apps-quick-toggle {
   min-height: 40px;

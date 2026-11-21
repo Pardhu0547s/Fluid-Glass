@@ -1,22 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// FullscreenReveal — macOS-style access to the panel from a fullscreen app.
-//
-// GNOME tracks LayoutManager.panelBox with `trackFullscreen`, so the box is
-// normally hidden while a fullscreen window is present on the primary monitor.
-// We keep that native resting state and add a deliberate trigger on the top
-// edge: a pressure barrier, the same mechanism as GNOME's hot corner, so the
-// pointer has to push up against the edge rather than merely touch it.  Merely
-// reaching the top row happens all the time in fullscreen browsers, editors and
-// video players, and must not cover their UI.  Only when another monitor sits
-// directly above (a barrier would impede crossing to it) do we fall back to a
-// one-pixel, non-strut edge that reveals after the pointer dwells on it.
-//
-// The reveal shows the existing panel as an overlay; leaving the panel hides it
-// again once no panel popup is open.  We never replace the panel or change its
-// chrome tracking/struts, and destroy() restores the visibility that GNOME
-// would currently choose.
-
 import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
@@ -29,7 +10,6 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import {PanelAdapter} from './compat/panelAdapter.js';
 
 const EDGE_HEIGHT = 1;
-// Matches GNOME's hot corner (HOT_CORNER_PRESSURE_THRESHOLD/_TIMEOUT).
 const PRESSURE_THRESHOLD = 100;
 const PRESSURE_TIMEOUT_MS = 1000;
 const EDGE_DWELL_MS = 500;
@@ -91,16 +71,12 @@ export class FullscreenReveal {
 
         const panelBox = PanelAdapter.panelBox;
         if (panelBox) {
-            // LayoutManager may re-assert trackFullscreen visibility after a
-            // restack. Keep the box visible only during our explicit reveal.
             this._panelVisibleId = panelBox.connect(
                 'notify::visible', () => this._onPanelVisibilityChanged());
         }
 
         this._pressureBarrier = new Layout.PressureBarrier(
             PRESSURE_THRESHOLD, PRESSURE_TIMEOUT_MS, Shell.ActionMode.NORMAL);
-        // Dragging (a selection, a scrollbar, a game's mouselook) into the
-        // edge is not a request for the panel.
         this._pressureBarrier.setEventFilter(() => this._pointerButtonHeld());
         this._pressureBarrier.connect('trigger', () => this._reveal());
 
@@ -141,7 +117,6 @@ export class FullscreenReveal {
                 ? this._settings.get_boolean('fullscreen-reveal')
                 : true;
         } catch (_e) {
-            // A stale compiled schema should degrade to the new default.
             return true;
         }
     }
@@ -184,7 +159,6 @@ export class FullscreenReveal {
         }
 
         this._destroyBarrier();
-        // While revealed the edge would sit over the panel's top row.
         if (this._revealed || !this._edge) {
             this._hideEdge();
             return;
@@ -285,9 +259,6 @@ export class FullscreenReveal {
         panelBox.remove_all_transitions();
         panelBox.translation_y = 0;
 
-        // Outside fullscreen GNOME's tracked panel is visible. During Overview
-        // it is also visible, but LayoutManager owns that transition; showing it
-        // here is safe and avoids leaving it hidden after an interrupted reveal.
         if (!this._isPrimaryFullscreen() || Main.overview.visible)
             panelBox.show();
         else if (global.window_group.visible)
@@ -454,8 +425,6 @@ export class FullscreenReveal {
         if (this._panel)
             this._panel.track_hover = this._panelTrackHover;
 
-        // Remove the barrier before destroying its PressureBarrier, which
-        // would otherwise splice the wrong entry out of its list.
         this._destroyBarrier();
         this._pressureBarrier?.destroy();
         this._pressureBarrier = null;
@@ -466,8 +435,6 @@ export class FullscreenReveal {
             this._edge = null;
         }
 
-        // Recreate the visibility decision that trackFullscreen would make at
-        // this instant, because no fullscreen signal is guaranteed on disable.
         if (panelBox) {
             if (this._isPrimaryFullscreen() &&
                 !Main.overview.visible && global.window_group.visible)

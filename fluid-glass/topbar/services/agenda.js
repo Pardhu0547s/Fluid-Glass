@@ -1,9 +1,3 @@
-// SPDX-License-Identifier: GPL-2.0-or-later
-//
-// buildAgenda — calendar events for the coming days, grouped by day.
-//
-// Kept free of Shell and GI imports so it can be exercised from plain gjs.
-
 export const HORIZON_DAYS = 7;
 
 function _startOfDay(date) {
@@ -15,20 +9,11 @@ function _addDays(date, days) {
 }
 
 function _isOver(event, now) {
-    // A zero-length event (a reminder) is over once its moment has passed.
     if (event.end.getTime() === event.date.getTime())
         return event.date < now;
     return event.end <= now;
 }
 
-/**
- * @param {function(Date, Date): Array<{id, summary, date: Date, end: Date}>} getEvents
- *   events overlapping [begin, end), as Calendar.DBusEventSource.getEvents()
- * @param {Date} now
- * @param {number} days how many days, starting today
- * @returns {Array<{date: Date, offset: number, events: Array}>} only days with
- *   events; each event appears once, on the first day it is still ahead
- */
 export function buildAgenda(getEvents, now, days = HORIZON_DAYS) {
     const agenda = [];
     const seen = new Set();

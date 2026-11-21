@@ -1,4 +1,4 @@
-.window-picker { //container around window thumbnails
+.window-picker {
   -horizontal-spacing: 16px;
   -vertical-spacing: 16px;
   padding: 0 16px 32px;
@@ -21,15 +21,11 @@
 .window-clone-border {
   border: 4px solid $light_track_color;
   border-radius: $bt_radius + 4px;
-  // For window decorations with round corners we can't match
-  // the exact shape when the window is scaled. So apply a shadow
-  // to fix that case
   box-shadow: inset 0 0 0 1px $light_track_color;
 }
 
 $_close_size: 42px;
 
-//close buttons
 .window-close {
   background-size: $_close_size;
   height: $_close_size;
@@ -40,7 +36,7 @@ $_close_size: 42px;
   background-color: transparent;
   color: transparent;
   box-shadow: none;
-  StIcon { icon-size: $_close_size; } // for safety
+  StIcon { icon-size: $_close_size; }
   background-image: url("assets/window-close.svg");
   transition-duration: 300ms;
 

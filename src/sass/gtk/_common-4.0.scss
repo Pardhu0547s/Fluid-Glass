@@ -1,8 +1,4 @@
-//This is the RIGHT PLACE to edit the stylesheet
-
-//let's start by telling people not to edit the generated CSS:
 $cakeisalie: "This stylesheet is generated, DO NOT EDIT";
-/* #{$cakeisalie} */
 
 $side_style_shadow: linear-gradient(to left, rgba(black, if($variant == 'light', 0.02, 0.06)), transparent 6px);
 $sidebar_bg_color: if($blur =='true', transparent, $dark_sidebar_bg);
@@ -47,7 +43,6 @@ $sidebar_bg_color: if($blur =='true', transparent, $dark_sidebar_bg);
   }
 }
 
-// catch all extend
 %selected_items {
   background-color: $selected_bg_color;
   color: $selected_fg_color;
@@ -142,7 +137,6 @@ $sidebar_bg_color: if($blur =='true', transparent, $dark_sidebar_bg);
   box-shadow: none;
 }
 
-// Buttons on selected backgrounds
 %selected-button {
   color: $selected_fg_color;
   background-color: transparent;
@@ -196,9 +190,6 @@ $sidebar_bg_color: if($blur =='true', transparent, $dark_sidebar_bg);
   background-image: none;
 }
 
-//
-// Base States
-//
 .background {
   color: $fg_color;
 
@@ -247,11 +238,10 @@ treeview.expander:disabled { -gtk-icon-filter: opacity(0.5); }
 }
 
 textview {
-  background-color: $base_color; // This will get overridden by .view, needed by gedit line numbers
+  background-color: $base_color;
 
   > text {
     background-color: $base_color;
-    // @extend %view;
     selection { &:focus, & { @extend %selection_items; }}
   }
 
@@ -407,16 +397,13 @@ window.assistant {
   padding: $container_padding;
 }
 
-//
-// Spinner Animations
-//
 @keyframes spin {
   to { transform: rotate(1turn); }
 }
 
 spinner {
   background: none;
-  opacity: 0; // non spinning spinner makes no sense
+  opacity: 0;
   -gtk-icon-source: -gtk-icontheme('process-working-symbolic');
 
   &:checked {
@@ -429,7 +416,6 @@ spinner {
   }
 }
 
-// General Typography
 .large-title {
   font-weight: 300;
   font-size: 24pt;
@@ -481,10 +467,6 @@ spinner {
   font-feature-settings: "tnum";
 }
 
-//
-// Text Entries
-//
-
 %linked_entrys {
   @include entry(normal);
   border: none;
@@ -517,7 +499,7 @@ entry {
 
   &.search { border-radius: $circular_radius; }
 
-  > image { // icons inside the entry
+  > image {
     color: $alt_fg_color;
   }
 
@@ -539,17 +521,16 @@ entry {
 
   &:focus-within {
     > placeholder {
-      opacity: 0; // We hide placeholders on focus
+      opacity: 0;
     }
   }
 
   > text > selection { @extend %selection_items; }
 
-  // error and warning style
   @each $e_type, $e_color, $e_fg_color in (warning, $warning_color, $light_fg_color),
                                           (error, $error_color, $light_fg_color),
                                           (success, $success_color, $light_fg_color),
-                                          (search-missing, $error_color, $light_fg_color) { // entry.search-missing for Gnome-Builder
+                                          (search-missing, $error_color, $light_fg_color) {
     &.#{$e_type} {
       color: $e_color;
       @if $gnome_version == 'old' {
@@ -619,7 +600,6 @@ entry {
     box-shadow: none;
   }
 
-  // linked entries
   .linked:not(.vertical) > &,
   .linked:not(.vertical) > &:focus-within {
     @extend %linked;
@@ -651,8 +631,6 @@ entry {
 
   &:hover { box-shadow: $shadow_4; }
 
-  // side margins: compensate the entry padding with a negative margin
-  // then the negative margin itself
   :dir(ltr) & {
     margin-left: $container_padding / 2;
     margin-right: 0;
@@ -663,7 +641,6 @@ entry {
     margin-right: $container_padding / 2;
   }
 
-  // seems any sizing doesn't work
   > button {
     min-height: 20px;
     min-width: 20px;
@@ -675,7 +652,7 @@ entry {
 
 treeview entry {
   &:focus-within {
-    &:dir(rtl), &:dir(ltr) { // specificity bump hack
+    &:dir(rtl), &:dir(ltr) {
       background-color: $base_color;
       transition-property: color, background;
     }
@@ -690,15 +667,9 @@ treeview entry {
   }
 }
 
-// Editable Labels
 editablelabel > stack > text {
   @include entry(normal);
 }
-
-//
-// Buttons
-//
-// stuff for .needs-attention
 
 $_dot_color: '';
 
@@ -714,8 +685,6 @@ $_dot_color: '';
 }
 
 %needs_attention {
-  // the dot is drawn by using two radial gradient, the first one is the actual dot, the other
-  // simulates the shadow labels and icons normally have in buttons.
   animation: needs_attention 150ms ease-in;
 
   background-image: radial-gradient(farthest-side, $_dot_color 96%, $_dot_color);
@@ -897,14 +866,13 @@ button {
     }
   }
 
-  // hide separators
   &.font {
     separator { background-color: transparent; background-image: none; }
     > box { border-spacing: $container_padding; }
     > box > box > label { font-weight: bold; }
   }
 
-  @at-root %circular_button, &.circular, &.close { // The Bloody Circul Button
+  @at-root %circular_button, &.circular, &.close {
     border-radius: $circular_radius;
     padding: 0;
     min-height: $menuitem_size;
@@ -989,7 +957,6 @@ button {
     box-shadow: inset 0 0 0 1px $drop_target_color;
   }
 
-  // big standalone buttons like in Documents pager
   &.osd {
     color: white;
     background-color: rgba(black, 0.65);
@@ -1022,7 +989,6 @@ button {
     }
   }
 
-  //overlay / OSD style
   @at-root %osd_button,
   .osd & {
     @include button(osd);
@@ -1049,7 +1015,6 @@ button {
   .osd .linked:not(.vertical):not(.path-bar) > &:hover:not(:checked):not(:active):not(:only-child),
   .osd .linked:not(.vertical):not(.path-bar) > &:hover:not(:checked):not(:active) + &:not(:checked):not(:active) { box-shadow: none; }
 
-  // Suggested and Destructive Action buttons
   @each $b_type, $b_color, $b_fg in (suggested-action, $suggested_color, $light_fg_color),
                                     (destructive-action, $destructive_color, $light_fg_color) {
     &.#{$b_type} {
@@ -1079,15 +1044,12 @@ button {
   }
 
   stackswitcher > & {
-    // to position the needs attention dot, padding is added to the button
-    // child, a label needs just lateral padding while an icon needs vertical
-    // padding added too.
 
-    outline-offset: -3px; // needs to be set or it gets overridden by GtkRadioButton outline-offset
+    outline-offset: -3px;
 
     > label {
-      padding-left: $container_padding;  // label padding
-      padding-right: $container_padding; //
+      padding-left: $container_padding;
+      padding-right: $container_padding;
     }
 
     > image {
@@ -1117,7 +1079,6 @@ button {
     }
   }
 
-  // hide separators
   &.font,
   &.file { separator { background-color: transparent; }}
 
@@ -1239,8 +1200,6 @@ splitbutton {
     background: none;
   }
 
-  // Since the inner button doesn't have any style classes on it,
-  // we have to add them manually
   > menubutton > button,
   &.image-button > button {
     min-width: 24px;
@@ -1258,7 +1217,6 @@ splitbutton {
     }
   }
 
-  // Reimplementing linked so we don't blow up css
   > button:not(:only-child):not(:first-child):not(:last-child),
   > menubutton:not(:only-child):not(:first-child):not(:last-child) > button {
     border-radius: 0;
@@ -1367,7 +1325,6 @@ buttoncontent {
   }
 }
 
-// Some crazy linking stuff
 @mixin linking_rules($a:0.7, $var:$variant, $vert:'false', $entry_rules:'true', $button_rules:'true',
                      $e_border:$entry_border, $b_border:$button_border) {
 
@@ -1392,7 +1349,6 @@ buttoncontent {
   }
 }
 
-// special case, because path-bars are bugged
 @mixin pathbar_linking_rules ($sep_color: $button_border, $button_rules: 'true') {
 
   @if $button_rules == 'true' {
@@ -1402,7 +1358,6 @@ buttoncontent {
   }
 }
 
-// Apply the rules defined above
 .linked:not(.vertical) {
   &:not(.path-bar) { @include linking_rules(); }
   &.path-bar { @include pathbar_linking_rules(); }
@@ -1410,7 +1365,6 @@ buttoncontent {
 
 .linked.vertical { @include linking_rules($vert:'true'); }
 
-// menu buttons
 modelbutton.flat {
   transition: $shorter_transition;
   min-height: 20px + $container_padding;
@@ -1437,7 +1391,6 @@ modelbutton.flat {
   &:checked { color: $fg_color; }
   &:disabled { color: $disabled_fg_color; }
 
-  // FIXME: temporary workaround
   check:last-child,
   radio:last-child { margin-left: 8px; }
 
@@ -1466,9 +1419,6 @@ modelbutton.flat {
   }
 }
 
-//
-// Links
-//
 %links,
 link,
 button.link {
@@ -1508,9 +1458,6 @@ button.link {
   > label { text-decoration-line: underline; }
 }
 
-//
-// Spinbuttons
-//
 spinbutton {
   background: none;
   min-height: $menuitem_size;
@@ -1582,7 +1529,6 @@ spinbutton {
     }
   }
 
-  // Misc
   treeview &:not(.vertical),
   row &:not(.vertical) {
     min-height: 0;
@@ -1635,10 +1581,6 @@ spinbutton {
   font-feature-settings: "tnum";
 }
 
-//
-// Comboboxes
-//
-
 dropdown > button > box {
   border-spacing: $container_padding;
 }
@@ -1648,14 +1590,12 @@ combobox {
   min-height: $menuitem_size - 4px;
 
   button.combo {
-    min-width: 0;       // otherwise the arrow placement is unsymmetric
+    min-width: 0;
     min-height: $menuitem_size - 4px;
-    // margin: 0;
     padding-left: $container_padding * 2;
     padding-right: $container_padding * 2;
   }
 
-  // align menu labels with the button label
   > popover.menu > contents modelbutton {
     padding-left: $container_padding + 4px;
     padding-right: $container_padding + 4px;
@@ -1679,7 +1619,7 @@ combobox {
     @include button(normal);
   }
 
-  button.combo:checked { transition: none; } // workaround for menuitem selection
+  button.combo:checked { transition: none; }
 
   &:drop(active) button.combo {
     color: $drop_target_color;
@@ -1687,12 +1627,10 @@ combobox {
     box-shadow: none;
   }
 
-  // newstyle
   popover {
    margin-top: $container_padding / 2;
    padding: 0;
 
-    // drodowns with searchboxes on top
     .dropdown-searchbar {
       padding: $container_padding;
       border-bottom: 1px solid $borders_color;
@@ -1722,10 +1660,8 @@ combobox {
   }
 
   .linked:not(.vertical) > & > box > button.combo {
-    // the combobox is a composite widget so the way we do button linking doesn't
-    // work, special case needed.
     &:dir(ltr),
-    &:dir(rtl) { @extend %linked_middle; } // specificity bump
+    &:dir(rtl) { @extend %linked_middle; }
   }
 
   .linked:not(.vertical) > &:first-child > box > button.combo {
@@ -1743,7 +1679,6 @@ combobox {
     border-radius: $bt_radius;
   }
 
-  // .linked.vertical > & > box > button.combo { @extend %linked_vertical_middle; }
   .linked.vertical > &:first-child > box > button.combo {
     border-top-left-radius: $bt_radius;
     border-top-right-radius: $bt_radius;
@@ -1759,10 +1694,6 @@ combobox {
   }
 }
 
-//
-// Toolbars
-//
-
 .toolbar {
   padding: $container_padding;
   border-spacing: $container_padding;
@@ -1774,7 +1705,6 @@ combobox {
   &.horizontal separator { margin: 0 $container_padding; }
   &.vertical separator { margin: $container_padding 0; }
 
-  // oldstyle toolbar buttons
   > button {
     @extend %flat_button;
   }
@@ -1809,7 +1739,6 @@ searchbar {
     color: $header_fg;
   }
 
-  // Close button on searchbar
   button.flat, .close {
     min-width: 18px;
     min-height: 18px;
@@ -1869,10 +1798,6 @@ actionbar > revealer > box {
   }
 }
 
-//
-// Headerbars
-//
-
 %header_separator {
   min-width: 0;
   min-height: 0;
@@ -1882,9 +1807,7 @@ actionbar > revealer > box {
   &:backdrop { opacity: 0.65; }
 }
 
-// Headerbar Entries
 %headerbar_entrys {
-  // min-height: $menuitem_size - 6px;
   @include entry(header-normal);
 
   &:backdrop {
@@ -1939,7 +1862,6 @@ actionbar > revealer > box {
   }
 }
 
-// Headerbar Buttons
 %headerbar_buttons {
   @include button(header-normal);
 
@@ -2137,7 +2059,7 @@ headerbar {
 
   menubutton.flat > button:not(.flat) { @extend %headerbar_buttons; }
 
-  splitbutton { // reset
+  splitbutton {
     border-radius: $circular_radius;
     padding: $container_padding / 2;
     @include button(header-normal);
@@ -2244,7 +2166,7 @@ headerbar {
     > button:checked + button { border-image: none; }
   }
 
-  popover { // reset
+  popover {
     entry {
       min-height: $menuitem_size - 4px;
       padding: 2px $container_padding + 2px;
@@ -2270,10 +2192,7 @@ headerbar {
     }
   }
 
-  // Headerbar Switches
   switch {
-    // margin-top: ($headerbar_size - 24px) / 2;
-    // margin-bottom: ($headerbar_size - 24px) / 2;
 
     &:backdrop { opacity: 0.75; }
   }
@@ -2295,7 +2214,6 @@ headerbar {
     }
   }
 
-  // Selectionmode
   .selection-mode &,
   &.selection-mode {
     color: $light_fg_color;
@@ -2343,7 +2261,7 @@ headerbar {
 
   .tiled &, .tiled &:backdrop,
   .maximized &, .maximized &:backdrop {
-    border-radius: $maximized_radius $maximized_radius 0 0; // squared corners when the window is max'd or tiled
+    border-radius: $maximized_radius $maximized_radius 0 0;
     box-shadow: none;
   }
 
@@ -2367,7 +2285,6 @@ headerbar {
 
   separator.titlebutton { @extend %header_separator; }
 
-  // Titlebuttons
   windowcontrols {
     border-spacing: $container_padding;
     padding: 0 8px;
@@ -2414,7 +2331,6 @@ headerbar {
         &:backdrop { opacity: 1; }
       }
 
-      // Load png assets for each button, Fix the Chrome window restore button bug
       @each $k in ('close', 'maximize', 'minimize') {
         @each $l, $m in ('',''), (':backdrop','-backdrop'), (':backdrop:hover','-backdrop-hover'), (':hover','-hover'), (':active','-active') {
           &.#{$k}#{$l} {
@@ -2489,7 +2405,6 @@ headerbar {
   }
 }
 
-// Fixes split headerbars too
 .titlebar:not(headerbar) {
   window > &,
   window.csd > & {
@@ -2506,10 +2421,6 @@ headerbar {
     @extend %side_separator;
   }
 }
-
-//
-// Pathbars
-//
 
 $pathbar_button_checked_bg: if($variant == 'light', #808080, #b8b8b8);
 
@@ -2553,15 +2464,12 @@ pathbar > button {
   }
 }
 
-//
-// Tree Views
-//
 columnview.view,
 treeview.view {
-  border-left-color: $solid_borders_color; // this is actually the tree lines color,
-  border-top-color: $solid_borders_color; // while this is the grid lines color, better then nothing
+  border-left-color: $solid_borders_color;
+  border-top-color: $solid_borders_color;
 
-  > rubberband { @extend %rubberband; } // to avoid borders being overridden by the previously set props
+  > rubberband { @extend %rubberband; }
 
   acceleditor > label { background-color: $selected_bg_color; }
 
@@ -2608,7 +2516,7 @@ treeview.view {
     &:disabled { color: $alt_disabled_fg_color; }
   }
 
-  &.progressbar { // progress bar in treeviews
+  &.progressbar {
     color: $selected_fg_color;
     border-radius: $bt_radius;
     background-color: $progress_color;
@@ -2620,7 +2528,7 @@ treeview.view {
     }
   }
 
-  &.trough { // progress bar trough in treeviews
+  &.trough {
     color: $fg_color;
     background-color: $button_border;
     border-radius: $bt_radius;
@@ -2687,10 +2595,6 @@ treeview.navigation-sidebar {
   padding: 0;
 }
 
-//
-// Menus
-//
-
 menubar {
   padding: 0;
   background-color: $header_bg;
@@ -2711,7 +2615,7 @@ menubar {
     border: none;
     border-radius: $bt_radius / 2;
 
-    &:hover { //Seems like it :hover even with keyboard focus
+    &:hover {
       transition: none;
       @include button(hover);
     }
@@ -2730,20 +2634,16 @@ menubar {
     border-radius: $mn_radius;
   }
 
-  //nested submenus
   & > item popover.menu popover.menu {
     padding: 0 0 $container_padding 0;
   }
 
   & > item popover.menu.background popover.menu.background > contents {
     margin: 0;
-    border-radius: $mn_radius; //including top
+    border-radius: $mn_radius;
   }
 }
 
-//
-// Popovers
-//
 popover {
   &.background {
     background-color: transparent;
@@ -2835,7 +2735,6 @@ popover {
   }
 }
 
-//touch selection handlebars for the Popover.osd above
 cursor-handle {
   background-color: transparent;
   background-image: none;
@@ -2844,10 +2743,6 @@ cursor-handle {
   &.top { -gtk-icon-source: -gtk-icontheme('selection-start-symbolic'); }
   &.bottom { -gtk-icon-source: -gtk-icontheme('selection-end-symbolic'); }
 }
-
-//
-// Popover Base Menus
-//
 
 popover.menu {
   &.background {
@@ -2972,13 +2867,9 @@ popover.menu {
 
   label.title {
     font-weight: bold;
-    padding: $container_padding / 2 ($container_padding + 20px); //this will fall apart with font sizing
+    padding: $container_padding / 2 ($container_padding + 20px);
   }
 }
-
-//
-// Notebooks and Tabs
-//
 
 %tabs_tab {
   color: $disabled_fg_color;
@@ -3015,7 +2906,7 @@ notebook {
     border-radius: 16px + $container_padding / 2;
   }
 
-  > stack:not(:only-child) { // the :not(:only-child) is for "hidden" notebooks
+  > stack:not(:only-child) {
     background-color: $base_color;
     border-radius: 16px + $container_padding / 2;
   }
@@ -3044,7 +2935,6 @@ notebook {
     }
 
     @each $_pos, $_bpos in (top, bottom), (bottom, top), (right, left), (left, right) {
-      // sizing and borders
       &.#{$_pos} {
         > tabs {
           margin: 0;
@@ -3064,7 +2954,6 @@ notebook {
       }
     }
 
-    // overflow arrows
     &.top, &.bottom {
       > tabs > arrow.up {
         -gtk-icon-source: -gtk-icontheme('pan-end-symbolic');
@@ -3100,7 +2989,6 @@ notebook {
     > tabs > tab {
       @extend %tabs_tab;
 
-      // close button
       button.flat,
       button.close-button,
       button.image-button.flat {
@@ -3130,10 +3018,6 @@ notebook {
   }
 }
 
-//
-// Scrollbars
-//
-
 scrollbar {
   $_slider_min_length: 40px;
 
@@ -3153,7 +3037,6 @@ scrollbar {
     &.up { -gtk-icon-source: -gtk-icontheme('pan-left-symbolic'); }
   }
 
-  // slider
   > range > trough {
     background: none;
     padding: 0;
@@ -3253,15 +3136,6 @@ scrollbar {
   &.vertical > range > trough > slider { min-height: $_slider_min_length; }
 }
 
-// treeview ~ scrollbar.vertical {
-//   border-top: 1px solid $borders_color;
-//   margin-top: -1px;
-// }
-
-//
-// Switches
-//
-
 switch {
   transition: $longer_transition;
   border-radius: $circular_radius;
@@ -3335,9 +3209,6 @@ switch {
   &:disabled > slider { box-shadow: none; }
 }
 
-//
-// Check and Radio items
-//
 .view.content-view.check:not(list),
 .content-view .tile check:not(list) {
   min-height: 40px;
@@ -3349,7 +3220,6 @@ switch {
 checkbutton, radiobutton {
   padding: 2px 0;
 
-  // this is for a nice focus on check and radios text
   &.text-button {
     padding: 2px 0;
     outline-offset: 0;
@@ -3432,9 +3302,6 @@ radio {
                                                   -gtk-recolor(url("assets/scalable/radio-mixed-symbolic@2.svg"))); }
 }
 
-//
-// GtkScale
-//
 scale {
   $_marks_length: $container_padding;
   $_marks_distance: 2px;
@@ -3443,7 +3310,6 @@ scale {
   min-width: 15px;
   padding: $container_padding * 2;
 
-  // The slider is inside the trough, negative margin to make it bigger
   > trough > slider {
     background-color: $selected_fg_color;
     border: 1px solid $button_border;
@@ -3529,7 +3395,6 @@ scale {
     }
   }
 
-  // Trough
   > trough {
     $_scale_trough_bg: if($variant == 'light', rgba(black, 0.16), rgba(white, 0.20));
     $_scale_trough_hover_bg: if($variant == 'light', rgba(black, 0.22), rgba(white, 0.28));
@@ -3541,7 +3406,6 @@ scale {
     &:hover { background-color: $_scale_trough_hover_bg; }
     &:disabled { background-color: gtkalpha($_scale_trough_bg, 0.55); }
 
-    //OSD troughs
     .osd & {
       background-color: rgba(white, 0.22);
 
@@ -3550,7 +3414,6 @@ scale {
       }
     }
 
-    // Troughs in selected list-rows and infobars
     modelbutton:hover &,
     row:selected &,
     infobar & {
@@ -3566,7 +3429,6 @@ scale {
     }
   }
 
-  // The colored part of trough
   > trough > highlight {
     border-radius: $circular_radius;
     background-color: $selected_bg_color;
@@ -3578,8 +3440,6 @@ scale {
     &:disabled { background-color: gtkalpha($selected_bg_color, 0.55); }
   }
 
-  // this is another differently styled part of the trough, the most relevant use case is for example
-  // in media player to indicate how much video stream as been cached
   > trough > fill {
     border-radius: $circular_radius;
     background-color: gtkalpha($selected_bg_color, 0.5);
@@ -3659,11 +3519,6 @@ scale {
     &.fine-tune indicator { min-width: ($_marks_length - 1px); }
   }
 
-  // *WARNING* scale with marks madness following
-
-  // FIXME: OSD and selected list rows missing, I don't feel like adding the other 144 assets needed for those...
-  // $suffix: if($variant == 'light', '', '-dark');
-
   @each $dir_class, $dir_infix in ('horizontal', 'horz'),
                                   ('vertical', 'vert') {
     @each $marks_infix, $marks_class in ('scale-has-marks-above', 'marks-before:not(.marks-after)'),
@@ -3677,8 +3532,6 @@ scale {
             transform: none;
 
             &#{$state} {
-              // an asymmetric slider asset is used here, so the margins are uneven, the smaller
-              // margin is set on the point side.
               margin: -10px;
               $_scale_asset: 'assets/slider-#{$dir_infix}-#{$marks_infix}#{$state_infix}';
               border-style: none;
@@ -3720,7 +3573,6 @@ scale {
           }
 
           &.fine-tune slider {
-            // bigger negative margins to make the trough grow here as well
             margin: -7px;
 
             @if $dir_class == 'horizontal' {
@@ -3735,17 +3587,12 @@ scale {
   }
 }
 
-
-//
-// Progress bars
-//
 progressbar {
   padding: 0;
   font-size: smaller;
   color: gtkalpha($fg_color, 0.7);
   font-feature-settings: "tnum";
 
-  // sizing
   &.horizontal {
     > trough {
       min-width: 150px;
@@ -3765,9 +3612,6 @@ progressbar {
       }
     }
   }
-
-//  &.horizontal > trough > progress { margin: 0 -1px; } // the progress node is positioned after the trough border
-//  &.vertical > trough > progress { margin: -1px 0; }   // this moves it over it.
 
   &.osd {
     min-width: $container_padding / 2;
@@ -3790,20 +3634,16 @@ progressbar {
     }
   }
 
-  // Moving bit
   > trough > progress {
-    // min-height: $container_padding - 2px;
-    // min-width: $container_padding - 2px;
     background-color: $progress_color;
     border: none;
     border-radius: $bt_radius;
-    box-shadow: none; //needed for clipping
+    box-shadow: none;
 
     row:selected &,
     infobar & { background-color: $selected_fg_color; }
   }
 
-  // Trough
   > trough {
     min-height: $container_padding - 2px;
     min-width: $container_padding - 2px;
@@ -3816,9 +3656,6 @@ progressbar {
   }
 }
 
-//
-// Level Bar
-//
 levelbar {
   block {
     min-width: 32px;
@@ -3863,9 +3700,6 @@ levelbar {
   }
 }
 
-//
-// Print dialog
-//
 window.dialog.print {
   drawing {
     color: $fg_color;
@@ -3883,9 +3717,6 @@ window.dialog.print {
   .dialog-action-box { margin: $container_padding * 2; }
 }
 
-//
-// Frames
-//
 frame,
 .frame {
   border: 1px solid $borders_color;
@@ -3909,7 +3740,7 @@ frame {
 }
 
 scrolledwindow {
-  viewport.frame { // avoid double borders when viewport inside scrolled window
+  viewport.frame {
     border: none;
 
     .frame {
@@ -3927,8 +3758,6 @@ scrolledwindow {
     }
   }
 
-  // This is used by GtkScrolledWindow, when content is touch-dragged past boundaries.
-  // This draws a box on top of the content, the size changes programmatically.
   > overshoot {
     &.top { @include overshoot(top); }
     &.bottom { @include overshoot(bottom); }
@@ -3936,7 +3765,6 @@ scrolledwindow {
     &.right { @include overshoot(right); }
   }
 
-  // Overflow indication, works similarly to the overshoot, the size if fixed tho.
   > undershoot {
     background: none;
     border: none;
@@ -3961,15 +3789,13 @@ scrolledwindow {
     &:dir(rtl) { @include undershoot(left); }
   }
 
-  > junction { // the small square between two scrollbars
+  > junction {
     border: none;
     background-color: $fill_color;
 
-    // &:dir(rtl) { border-style: solid solid none none; }
   }
 }
 
-//vbox and hbox separators
 separator {
   background-color: $borders_color;
   min-width: 1px;
@@ -3982,10 +3808,6 @@ separator {
     &.vertical { min-height: $container_padding * 2; }
   }
 }
-
-//
-// Lists
-//
 
 $list_shadow: if($variant == 'light', none, inset 0 0 8px rgba(black, 0.03));
 $list_border: if($variant == 'light', rgba(black, 0.05), rgba(black, 0.15));
@@ -4018,7 +3840,7 @@ $list_background: if($variant == 'light', rgba(black, 0.02), rgba(black, 0.12));
     border-top-right-radius: $mn_radius + 1px;
   }
 
-  &:last-child { // Not use ?
+  &:last-child {
     border-bottom-left-radius: $mn_radius + 1px;
     border-bottom-right-radius: $mn_radius + 1px;
   }
@@ -4151,7 +3973,6 @@ row {
     color: $fg_color;
     background-color: $visit_color;
 
-    // button { @extend %selected-button; }
   }
 
   &.activatable {
@@ -4182,11 +4003,9 @@ row {
 }
 
 columnview {
-  // move padding to child cells
   > listview > row {
     padding: 0;
 
-    // align horizontal sizing with header buttons
     > cell {
       padding: $container_padding + 2px $container_padding;
 
@@ -4196,12 +4015,10 @@ columnview {
     }
   }
 
-  // make column separators visible when :show-column-separators is true
   &.column-separators > listview > row > cell {
     border-left-color: $borders_color;
   }
 
-  // shrink vertically for .data-table
   &.data-table > listview > row > cell {
     padding-top: 2px;
     padding-bottom: 2px;
@@ -4225,10 +4042,10 @@ columnview row:not(:selected) cell editablelabel.editing text selection {
   background-color: $selected_bg_color;
 }
 
-.rich-list { /* rich lists usually containing other widgets than just labels/text */
+.rich-list {
   > row {
     padding: 8px 12px;
-    min-height: 32px; /* should be tall even when only containing a label */
+    min-height: 32px;
 
     > box {
       border-spacing: 12px;
@@ -4240,10 +4057,6 @@ columnview row:not(:selected) cell editablelabel.editing text selection {
     padding-right: 12px;
   }
 }
-
-/****************
- * AdwActionRow *
- ****************/
 
 row {
   label.subtitle {
@@ -4267,7 +4080,6 @@ row {
       border-spacing: 3px;
       padding: 0;
 
-      // Specificity bump for header bar
       &,
       > .title,
       > .subtitle {
@@ -4308,10 +4120,6 @@ row {
     }
   }
 }
-
-/******************************
- * AdwEntryRow and AdwSpinRow *
- ******************************/
 
 row.entry {
   &:disabled {
@@ -4402,10 +4210,6 @@ row.spin {
   }
 }
 
-/***************
- * AdwComboRow *
- ***************/
-
 row.combo {
   image.dropdown-arrow:disabled {
     filter: opacity($disabled_opacity);
@@ -4436,10 +4240,6 @@ row.combo {
   }
 }
 
-/******************
- * AdwExpanderRow *
- ******************/
-
 @mixin margin-start($margin) {
   &:dir(ltr) {
     margin-left: $margin;
@@ -4451,8 +4251,6 @@ row.combo {
 }
 
 row.expander {
-  // Drop transparent background on expander rows to let nested rows handle it,
-  // avoiding double highlights.
   background: none;
   padding: 0px;
 
@@ -4469,8 +4267,6 @@ row.expander {
   list.nested > row {
     @extend %boxed_list_row;
   }
-
-  // AdwExpanderRow arrow rotation
 
   image.expander-row-arrow {
     @extend .dim-label;
@@ -4509,10 +4305,6 @@ row.expander {
   }
 }
 
-/***************
- * AdwButtonRow *
- ***************/
-
 row.button {
   > box {
     margin-left: 12px;
@@ -4529,11 +4321,6 @@ row.button {
     @extend .heading;
   }
 }
-
-
-/*****************
- * Boxed Lists *
- *****************/
 
 %boxed_list_row {
   outline: none;
@@ -4585,7 +4372,6 @@ list.boxed-list {
   @extend %circular_list;
 
   > row {
-    // Regular rows and expander header rows background
     &, &.expander row.header {
       @extend %boxed_list_row;
     }
@@ -4594,7 +4380,6 @@ list.boxed-list {
       border: none;
     }
 
-    // Rounded top
     &:first-child {
       &, &.expander row.header {
         border-top-left-radius: $mn_radius;
@@ -4602,7 +4387,6 @@ list.boxed-list {
       }
     }
 
-    // Rounded bottom
     &:last-child {
       &,
       &.expander:not(:checked),
@@ -4683,9 +4467,6 @@ list.boxed-list-separate {
   }
 }
 
-//
-// App Notifications
-//
 .app-notification {
   padding: $container_padding;
   margin: 6px 16px 16px 16px;
@@ -4714,16 +4495,13 @@ list.boxed-list-separate {
   }
 }
 
-//
-// Expanders
-//
 expander {
   min-width: 16px;
   min-height: 16px;
   -gtk-icon-source: -gtk-icontheme('pan-end-symbolic');
 
   &:dir(rtl) { -gtk-icon-source: -gtk-icontheme('pan-end-symbolic-rtl'); }
-  &:hover { color: $alt_fg_color; } //only lightens the arrow
+  &:hover { color: $alt_fg_color; }
   &:checked { -gtk-icon-source: -gtk-icontheme('pan-down-symbolic'); }
   &:disabled { filter: opacity($disabled_opacity); }
 }
@@ -4752,9 +4530,6 @@ expander-widget {
   }
 }
 
-//
-// Calendar
-//
 %calendar,
 calendar {
   color: $fg_color;
@@ -4811,11 +4586,7 @@ calendar {
   }
 }
 
-//
-// Dialogs
-//
-
-window.dialog.message { // Message Dialog styling
+window.dialog.message {
   &.background { background-color: $dialog_bg_color; }
 
   .titlebar {
@@ -4904,9 +4675,6 @@ window.aboutdialog image.large-icons {
   -gtk-icon-size: 128px;
 }
 
-//
-// Filechooser
-//
 filechooser {
   paned.horizontal > separator {
     background-image: image($header_border);
@@ -4914,9 +4682,6 @@ filechooser {
 
   #pathbarbox { border-bottom: 1px solid $borders_color; }
 }
-
-// Filechooser, we put this here to give a different style between csd and
-// ssd on certain DE-s
 
 filechooserbutton > button > box {
   border-spacing: $container_padding;
@@ -4926,10 +4691,6 @@ filechooserbutton:drop(active) {
   box-shadow: none;
   border-color: transparent;
 }
-
-//
-// Sidebar
-//
 
 .sidebar {
   border: none;
@@ -4974,10 +4735,9 @@ stacksidebar {
   }
 }
 
-// Navigation Sidebar
 .navigation-sidebar {
   background-color: transparent;
-  padding: 8px; //only vertical padding. horizontal row size would clip
+  padding: 8px;
 
   > separator {
     margin: $container_padding 0;
@@ -5028,11 +4788,8 @@ placessidebar {
   > viewport.frame { border-style: none; }
 
   .navigation-sidebar > row {
-    // Needs overriding of the GtkListBoxRow padding
     min-height: 32px;
     padding: 0 8px;
-    // Using margins/padding directly in the SidebarRow
-    // will make the animation of the new bookmark row jump
     > revealer {
       padding: 0;
     }
@@ -5083,9 +4840,6 @@ placessidebar {
   }
 }
 
-//
-// Placesview
-//
 placesview {
   .server-list-button > image {
     -gtk-icon-transform: rotate(0turn);
@@ -5096,16 +4850,11 @@ placesview {
     -gtk-icon-transform: rotate(-0.5turn);
   }
 
-  // this selects the "connect to server" label
   > actionbar > revealer > box > label {
     padding-left: 8px;
     padding-right: 8px;
   }
 }
-
-//
-// Paned
-//
 
 paned {
   > separator {
@@ -5153,10 +4902,6 @@ paned {
     }
   }
 }
-
-//
-// GtkInfoBar
-//
 
 infobar {
   border-style: none;
@@ -5228,13 +4973,8 @@ searchbar .close {
    &:hover { @include button(flat-hover); }
 }
 
-//
-// Tooltips
-//
 tooltip {
   &.background {
-    // background-color needs to be set this way otherwise it gets drawn twice
-    // see https://bugzilla.gnome.org/show_bug.cgi?id=736155 for details.
     background-color: $osd_bg_color;
     background-clip: padding-box;
     border-radius: $mn_radius;
@@ -5257,19 +4997,12 @@ tooltip {
   }
 }
 
-//
-// Color Chooser
-//
 colorswatch {
-  // This widget is made of two boxes one on top of the other, the lower box is GtkColorSwatch {} the other one
-  // is GtkColorSwatch .overlay {}, GtkColorSwatch has the programmatically set background, so most of the style
-  // is applied to the overlay box.
 
   $_colorswatch-radius: 2px;
 
   &, &:drop(active) { border-style: none; }
 
-  // border rounding
   &.top {
     border-top-left-radius: $_colorswatch-radius + 0.5px;
     border-top-right-radius: $_colorswatch-radius + 0.5;
@@ -5332,11 +5065,11 @@ colorswatch {
   }
 
   &#add-color-button {
-    border-style: solid; // the borders are drawn by the overlay for standard colorswatches to have them semi
-    border-width: 1px;   // translucent on the colored background, here it's not necessary so they need to be set
+    border-style: solid;
+    border-width: 1px;
     @include button(normal);
     &:hover { @include button(hover); }
-    overlay { @include button(undecorated); } // reset the overlay to not cover the button style underneath
+    overlay { @include button(undecorated); }
   }
 }
 
@@ -5368,13 +5101,8 @@ button.color {
   }
 }
 
-// colorscale popup
 colorchooser .popover.osd { border-radius: $bt_radius; }
 
-//
-// Misc
-//
-//content view (grid/list)
 .content-view {
   background-color: $base_color;
 
@@ -5400,26 +5128,19 @@ colorchooser .popover.osd { border-radius: $bt_radius; }
 }
 
 .scale-popup {
-  // .osd & { @extend %osd; }
 
-  .osd & button.flat {  //FIXME: quick hack, redo properly
+  .osd & button.flat {
     border-style: none;
     border-radius: $bt_radius;
   }
 
-  button { // +/- buttons on GtkVolumeButton popup
+  button {
     border: none;
     @extend %flat_button;
   }
 }
 
-// Decouple the font of context menus from their entry/textview
 .context-menu { font: initial; }
-// .monospace { font-family: Monospace; }
-
-//
-// Shortcuts Help
-//
 
 .keycap {
   min-width: $small_size - 4px;
@@ -5443,17 +5164,10 @@ stackswitcher {
 
 shortcuts-section { margin: 20px; }
 
-//
-// Dnd
-//
 *:drop(active):focus,
 *:drop(active) {
   box-shadow: inset 0 0 0 1px $drop_target_color;
 }
-
-//
-// Window Decorations
-//
 
 window {
   border: none;
@@ -5471,8 +5185,6 @@ window {
 
     &:backdrop {
       transition: $shadow_transition;
-      // the transparent shadow here is to enforce that the shadow extents don't
-      // change when we go to backdrop, to prevent jumping windows
       box-shadow: 0 3px 6px RGB(0 0 0 / 10%),
                   0 7px 24px RGB(0 0 0 / 6%),
                   0 12px 32px transparent,
@@ -5528,16 +5240,11 @@ window {
     box-shadow: none;
   }
 
-  // server-side decorations as used by mutter
   &.ssd {
-    // just doing borders, wm draws actual shadows
     box-shadow: 0 0 0 1px rgba(black, if($variant == 'light', 0.15, 0.75));
   }
 }
 
-//
-// Emoji
-//
 popover.emoji-picker {
   padding: 0;
   border-radius: $mn_radius;
@@ -5550,7 +5257,6 @@ popover.emoji-picker {
 .emoji-searchbar {
   padding: $container_padding;
   border-spacing: $container_padding;
-  // border-bottom: 1px solid $borders_color;
 
   entry { margin: 0; }
 }
@@ -5565,7 +5271,6 @@ popover.emoji-picker {
   }
 }
 
-// mimic tab style
 button.emoji-section {
   margin: 0;
   padding: 1px $container_padding * 2;

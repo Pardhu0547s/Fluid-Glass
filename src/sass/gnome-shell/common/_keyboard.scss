@@ -1,13 +1,8 @@
-/* On-screen Keyboard */
-
 $key_size: 1.2em;
 $key_border_radius: $base_border_radius + 3px;
 $key_bg_color:  $bg_color;
-// $default_key_bg_color: darken($key_bg_color, 4%);
 $default_key_bg_color: if($variant=='light', darken($solid_osd_bg_color, 11%), lighten($solid_osd_bg_color, 2%));
 
-
-// draw keys using button function
 #keyboard {
   background-color: rgba(black, 0.25);
   box-shadow: none;
@@ -22,14 +17,12 @@ $default_key_bg_color: if($variant=='light', darken($solid_osd_bg_color, 11%), l
   }
 }
 
-// the container for individual keys
 .key-container,
 .keyboard-layout {
   padding: $base_margin;
   spacing: $base_margin;
 }
 
-// the keys
 .keyboard-key {
   font-size: round(16) + pt;
   font-weight: bold;
@@ -44,13 +37,13 @@ $default_key_bg_color: if($variant=='light', darken($solid_osd_bg_color, 11%), l
   &:focus, &:hover { color: $fg_color; background-color: if($variant == 'light', white, lighten($solid_bg_color, 10%)); }
   &:checked, &:active { color: $fg_color; background-color: darken($solid_bg_color, 10%); }
 
-  &:grayed { //FIXME
+  &:grayed {
     background-color: $alt_dark_bg_color;
     color: $light_alt_fg_color;
     border-color: $alt_dark_bg_color;
   }
 
-  &.default-key { // non-character keys
+  &.default-key {
     background-color: $alt_solid_bg_color;
     box-shadow: 0 2px 3px rgba(black, 0.15);
 
@@ -58,7 +51,7 @@ $default_key_bg_color: if($variant=='light', darken($solid_osd_bg_color, 11%), l
     &:checked, &:active { color: $fg_color; background-color: darken($alt_solid_bg_color, 10%); }
   }
 
-  &.enter-key { // enter key is suggested-action
+  &.enter-key {
     color: $light_fg_color;
     background-color: $primary_color;
     box-shadow: 0 2px 3px rgba(black, 0.15);
@@ -81,7 +74,7 @@ $default_key_bg_color: if($variant=='light', darken($solid_osd_bg_color, 11%), l
   StIcon { icon-size: 1.125em; }
 }
 
-.keyboard-subkeys { //long press on a key popup
+.keyboard-subkeys {
   color: inherit;
   -arrow-border-radius: $bt_radius;
   -arrow-background-color: rgba(black, 0.45);
@@ -93,7 +86,6 @@ $default_key_bg_color: if($variant=='light', darken($solid_osd_bg_color, 11%), l
   box-shadow: 0 2px 5px rgba(black, 0.25);
 }
 
-// emoji
 .emoji-page {
   .keyboard-key {
     background-color: transparent;
@@ -113,7 +105,6 @@ $default_key_bg_color: if($variant=='light', darken($solid_osd_bg_color, 11%), l
   }
 }
 
-// On-screen Keyboard
 .word-suggestions {
   font-size: 14pt;
   spacing: 12px;

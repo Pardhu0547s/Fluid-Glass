@@ -6,7 +6,6 @@ export const Vector = class {
     }
   }
 
-  // Getter and setter for individual dimensions (x, y, z)
   get x() {
     return this.components[0];
   }
@@ -31,7 +30,6 @@ export const Vector = class {
     this.components[2] = value;
   }
 
-  // Addition of vectors
   add(otherVector) {
     if (this.components.length !== otherVector.components.length) {
       throw new Error('Vectors must be of the same length for addition.');
@@ -44,7 +42,6 @@ export const Vector = class {
     return new Vector(result);
   }
 
-  // Subtraction of vectors
   subtract(otherVector) {
     if (this.components.length !== otherVector.components.length) {
       throw new Error('Vectors must be of the same length for subtraction.');
@@ -57,7 +54,6 @@ export const Vector = class {
     return new Vector(result);
   }
 
-  // Dot product of vectors
   dotProduct(otherVector) {
     if (this.components.length !== otherVector.components.length) {
       throw new Error('Vectors must be of the same length for dot product.');
@@ -70,13 +66,11 @@ export const Vector = class {
     return result;
   }
 
-  // Scalar multiplication of vectors
   multiplyScalar(scalar) {
     const result = this.components.map((component) => component * scalar);
     return new Vector(result);
   }
 
-  // Cross product of vectors (for 3-dimensional vectors)
   crossProduct(otherVector) {
     if (this.components.length !== 3 || otherVector.components.length !== 3) {
       throw new Error(
@@ -92,12 +86,10 @@ export const Vector = class {
     return new Vector(result);
   }
 
-  // Magnitude (length) of the vector
   magnitude() {
     return Math.sqrt(this.components.reduce((acc, val) => acc + val ** 2, 0));
   }
 
-  // Normalize the vector
   normalize() {
     const mag = this.magnitude();
     if (mag === 0) {
@@ -106,13 +98,11 @@ export const Vector = class {
     return this.multiplyScalar(1 / mag);
   }
 
-  // Inverse the vector
   inverse() {
     const invertedComponents = this.components.map((component) => -component);
     return new Vector(invertedComponents);
   }
 
-  // Angle between two vectors (in radians)
   angleBetween(otherVector) {
     const dotProd = this.dotProduct(otherVector);
     const mag1 = this.magnitude();
@@ -120,7 +110,6 @@ export const Vector = class {
     return Math.acos(dotProd / (mag1 * mag2));
   }
 
-  // Create a vector from an angle (in radians) and an optional magnitude
   fromAngle(angle, magnitude = 1) {
     const x = magnitude * Math.cos(angle);
     const y = magnitude * Math.sin(angle);

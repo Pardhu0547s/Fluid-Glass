@@ -1,15 +1,5 @@
 'use strict';
 
-/*
-t - current time
-b - beginning value
-c - change in value
-d - duration
-*/
-
-//----------------------
-/* PennerEasing */
-//----------------------
 export const Linear = {
   easeNone: (t, b, c, d) => {
     return (c * t) / d + b;
@@ -72,16 +62,10 @@ var Back = {
   },
 };
 
-//----------------------
-/* AHEasing */
-//----------------------
-
-// constants
 const MPI = Math.PI;
 const MPI_2 = Math.PI / 2;
 const MPI_4 = Math.PI / 4;
 
-// helpers (optional, mirrors C macros)
 const MABS = Math.abs;
 const MMIN = Math.min;
 const MMAX = Math.max;
@@ -96,12 +80,10 @@ const MFLOOR = Math.floor;
 const MCEIL = Math.ceil;
 const MROUND = Math.round;
 
-// Linear
 function LinearInterpolation(p) {
   return p;
 }
 
-// Quadratic
 export const QuadraticEaseIn = function (p) {
   return p * p;
 };
@@ -118,7 +100,6 @@ export const QuadraticEaseInOut = function (p) {
   }
 };
 
-// Cubic
 export const CubicEaseIn = function (p) {
   return p * p * p;
 };
@@ -137,7 +118,6 @@ export const CubicEaseInOut = function (p) {
   }
 };
 
-// Quartic
 function QuarticEaseIn(p) {
   return p * p * p * p;
 }
@@ -156,7 +136,6 @@ function QuarticEaseInOut(p) {
   }
 }
 
-// Quintic
 function QuinticEaseIn(p) {
   return p * p * p * p * p;
 }
@@ -175,7 +154,6 @@ function QuinticEaseInOut(p) {
   }
 }
 
-// Sine
 function SineEaseIn(p) {
   return Math.sin((p - 1) * MPI_2) + 1;
 }
@@ -188,7 +166,6 @@ function SineEaseInOut(p) {
   return 0.5 * (1 - Math.cos(p * MPI));
 }
 
-// Circular
 function CircularEaseIn(p) {
   return 1 - Math.sqrt(1 - p * p);
 }
@@ -205,7 +182,6 @@ function CircularEaseInOut(p) {
   }
 }
 
-// Exponential
 function ExponentialEaseIn(p) {
   return p === 0 ? p : Math.pow(2, 10 * (p - 1));
 }
@@ -224,7 +200,6 @@ function ExponentialEaseInOut(p) {
   }
 }
 
-// Elastic
 function ElasticEaseIn(p) {
   return Math.sin(13 * MPI_2 * p) * Math.pow(2, 10 * (p - 1));
 }
@@ -246,7 +221,6 @@ function ElasticEaseInOut(p) {
   }
 }
 
-// Back
 function BackEaseIn(p) {
   return p * p * p - p * Math.sin(p * MPI);
 }
@@ -266,7 +240,6 @@ function BackEaseInOut(p) {
   }
 }
 
-// Bounce
 export const BounceEaseIn = function (p) {
   return 1 - BounceEaseOut(1 - p);
 };

@@ -20,10 +20,6 @@ const POINTER_CONFIG = {
     right:  { side: 4.0, cls: 'fluid-glass-dock-tooltip-right' },
 };
 
-/**
- * Floating Liquid Glass speech-bubble tooltip for dock icons with a closed-form
- * GLSL pointer tail and background-adaptive foreground typography.
- */
 export const DockTooltip = GObject.registerClass(
     {
         GTypeName: 'FluidGlass_Dock_DockTooltip',
