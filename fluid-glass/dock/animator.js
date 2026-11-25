@@ -30,6 +30,7 @@ const ANIM_ICON_RAISE = 0.5;
 const ANIM_ICON_SCALE = 1.5;
 const ANIM_ICON_HIT_AREA = 2.5;
 const ANIMATE_CACHE_LOOKUP = 4;
+const ANIM_SETTLE_GRACE_MS = 500;
 
 const DOT_CANVAS_SIZE = 96;
 
@@ -906,7 +907,11 @@ export let Animator = class {
     ) {
       dock.autohider._debounceCheckHide();
       dock._debounceEndAnimation();
-    } else if (!isWithin && !dock._fast_forward) {
+    } else if (
+      !isWithin &&
+      !dock._fast_forward &&
+      Date.now() - (dock._lastBeginAt || 0) > ANIM_SETTLE_GRACE_MS
+    ) {
       dock._endAnimation();
     }
   }

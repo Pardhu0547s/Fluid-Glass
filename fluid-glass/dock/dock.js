@@ -285,15 +285,17 @@ export let Dock = GObject.registerClass(
     }
 
     _onFocusWindow(evt) {
-      this._updateFocusedIcon();
+      this._beginAnimation();
       this.autohider._debounceCheckHide();
       return Clutter.EVENT_PROPAGATE;
     }
     _onFullScreen() {
+      this._beginAnimation();
       this.autohider._debounceCheckHide();
       return Clutter.EVENT_PROPAGATE;
     }
     _onRestacked() {
+      this._beginAnimation();
       this.autohider._debounceCheckHide();
       return Clutter.EVENT_PROPAGATE;
     }
@@ -1204,6 +1206,7 @@ export let Dock = GObject.registerClass(
         this._favorite_ids = Fav.getAppFavorites()._getIds();
       }
 
+      this._lastBeginAt = Date.now();
       this.animationInterval = this.extension.animationInterval;
       this._debounceEndAnimation();
 
