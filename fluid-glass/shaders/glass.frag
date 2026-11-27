@@ -46,11 +46,11 @@ uniform float blur_rect_h;
 uniform float blur_tex_w;
 uniform float blur_tex_h;
 
-#define EDGE_LENS_FALLOFF 2.4
+#define EDGE_LENS_FALLOFF 2.2
 
 #define EDGE_LENS_REACH 96.0
 
-#define EDGE_LENS_BAND 22.0
+#define EDGE_LENS_BAND 24.0
 
 uniform float edge_taps_enabled;
 uniform float early_exit_enabled;
@@ -601,38 +601,6 @@ void main() {
         max(lensBand + gradientStep(resolution) + smoothZoneEarly,
             edgeFeather * 4.0),
         max(max(ao_radius, rim_width), outline_width + 1.0));
-    if (early_exit_enabled > 0.5 && debug_view < 0.5 && -d >= interiorThreshold) {
-        vec2 uvFlat = stabilizedUV(uv, uv);
-        vec3 flatRgb = texture2D(cogl_sampler1, blurUV(uvFlat, resolution)).rgb;
-
-        flatRgb = applySCB(flatRgb, brightness, contrast, saturation);
-        flatRgb = mix(flatRgb, activeTint, activeBaseStrength);
-        flatRgb = mix(flatRgb, vec3(tint_r, tint_g, tint_b), tint_strength);
-
-        vec3 litFlat = flatRgb;
-        if (surface_light_enabled > 0.5 && (specular_intensity > 0.0 || sheen_intensity > 0.0)) {
-            vec3 lightDirFlat = normalize(vec3(cos(radians(light_angle_deg)),
-                                               sin(radians(light_angle_deg)), 0.38));
-            float facing = max(lightDirFlat.z, 0.0);
-            float specFlat = pow(facing, max(shininess, 1.0)) * specular_intensity * 0.65;
-            float sheenFlat = pow(facing, 1.65) * sheen_intensity;
-            float lightFlat = specFlat + sheenFlat;
-
-            litFlat = flatRgb + lightFlat - (flatRgb * lightFlat);
-            float maxChannelFlat = max(litFlat.r, max(litFlat.g, litFlat.b));
-            if (maxChannelFlat > 1.0) {
-                litFlat /= maxChannelFlat;
-            }
-            litFlat = max(litFlat, 0.0);
-            if (highlight_backdrop_color > 0.5 && lightFlat > 0.0)
-                litFlat = backdropHighlight(flatRgb, litFlat, lightFlat);
-        }
-
-        litFlat = max(litFlat + ditherLSB(pixel_coord), 0.0);
-
-        cogl_color_out = vec4(litFlat, 1.0) * cogl_color_in;
-        return;
-    }
 
     float lightAngleRad = radians(light_angle_deg);
     float shadowAlpha = 0.0;
@@ -688,61 +656,70 @@ void main() {
         return;
     }
 
-#ifdef LG_SHAPE_TEXTURE
-    vec2 gradH = shapeHeightGradient(local_pos, box_size, max_z, resolution);
-#else
-    vec2 gradH = heightGradient(local_pos, box_size, corner, lensBand, max_z * lensScale, resolution);
-#endif
-    vec3 normal = getNormal(gradH);
-
-    vec2 disp = getDisplacement(d, normal, resolution);
-
-    float bevelPx = max(lensBand, 0.001);
-    float depthPx = max(-d, 0.0);
-    float edgeT = clamp(1.0 - depthPx / bevelPx, 0.0, 1.0);
-
-    float lensShape = pow(edgeT, EDGE_LENS_FALLOFF);
-
-    vec2 dispPx = disp * resolution * lensShape * lensScale;
-    float dispLenPx = length(dispPx);
-    vec2 dispDirPx = dispPx / max(dispLenPx, 1.0e-4);
-    if (dispLenPx > EDGE_LENS_REACH) {
-        dispLenPx = EDGE_LENS_REACH;
-        dispPx = dispDirPx * EDGE_LENS_REACH;
-    }
-
-    disp = dispPx / max(resolution, vec2(1.0));
-
-    float shapeRate = EDGE_LENS_FALLOFF * pow(edgeT, EDGE_LENS_FALLOFF - 1.0) / bevelPx;
-    float footprintPx = 2.0 * dispLenPx * (shapeRate + 1.0 / bevelPx);
-    vec2 footprintExt = (footprintPx > 2.0 && edge_taps_enabled > 0.5)
-        ? dispDirPx * (min(footprintPx, 64.0) * 0.5) / resolution
-        : vec2(0.0);
-
-    vec2 refractedUv = stabilizedUV(uv + disp, uv);
-
-    vec2 chromaVec = disp * clamp(chroma_strength, 0.0, 1.0);
-    vec2 uvG = refractedUv;
-
-    vec2 chromaPx = chromaVec * resolution;
-    bool chromaActive = dot(chromaPx, chromaPx) > 1.0e-4;
-
-    float edgeProximity = 1.0 - smoothstep(0.0, edgeFeather * 4.0, -d);
-    float aa_spread = mix(0.75, 2.5, edgeProximity);
-    vec2 texel = vec2(aa_spread) / resolution;
-
+    vec3 normal;
+    vec2 disp;
     vec3 refractedRgb;
-    if (chromaActive) {
-        vec2 uvR = stabilizedUV(refractedUv - chromaVec, refractedUv);
-        vec2 uvB = stabilizedUV(refractedUv + chromaVec, refractedUv);
-
-        refractedRgb = vec3(
-            sampleBackdrop(uvR, footprintExt, texel, resolution).r,
-            sampleBackdrop(uvG, footprintExt, texel, resolution).g,
-            sampleBackdrop(uvB, footprintExt, texel, resolution).b
-        );
+    if (early_exit_enabled > 0.5 && -d >= interiorThreshold) {
+        normal = vec3(0.0, 0.0, 1.0);
+        disp = vec2(0.0);
+        vec2 uvFlat = stabilizedUV(uv, uv);
+        refractedRgb = texture2D(cogl_sampler1, blurUV(uvFlat, resolution)).rgb;
     } else {
-        refractedRgb = sampleBackdrop(uvG, footprintExt, texel, resolution);
+#ifdef LG_SHAPE_TEXTURE
+        vec2 gradH = shapeHeightGradient(local_pos, box_size, max_z, resolution);
+#else
+        vec2 gradH = heightGradient(local_pos, box_size, corner, lensBand, max_z * lensScale, resolution);
+#endif
+        normal = getNormal(gradH);
+
+        disp = getDisplacement(d, normal, resolution);
+
+        float bevelPx = max(lensBand, 0.001);
+        float depthPx = max(-d, 0.0);
+        float edgeT = clamp(1.0 - depthPx / bevelPx, 0.0, 1.0);
+
+        float lensShape = pow(edgeT, EDGE_LENS_FALLOFF);
+
+        vec2 dispPx = disp * resolution * lensShape * lensScale;
+        float dispLenPx = length(dispPx);
+        vec2 dispDirPx = dispPx / max(dispLenPx, 1.0e-4);
+        if (dispLenPx > EDGE_LENS_REACH) {
+            dispLenPx = EDGE_LENS_REACH;
+            dispPx = dispDirPx * EDGE_LENS_REACH;
+        }
+
+        disp = dispPx / max(resolution, vec2(1.0));
+
+        float shapeRate = EDGE_LENS_FALLOFF * pow(edgeT, EDGE_LENS_FALLOFF - 1.0) / bevelPx;
+        float footprintPx = 2.0 * dispLenPx * (shapeRate + 1.0 / bevelPx);
+        vec2 footprintExt = (footprintPx > 2.0 && edge_taps_enabled > 0.5)
+            ? dispDirPx * (min(footprintPx, 64.0) * 0.5) / resolution
+            : vec2(0.0);
+
+        vec2 refractedUv = stabilizedUV(uv + disp, uv);
+
+        vec2 chromaVec = disp * clamp(chroma_strength, 0.0, 1.0);
+        vec2 uvG = refractedUv;
+
+        vec2 chromaPx = chromaVec * resolution;
+        bool chromaActive = dot(chromaPx, chromaPx) > 1.0e-4;
+
+        float edgeProximity = 1.0 - smoothstep(0.0, edgeFeather * 4.0, -d);
+        float aa_spread = mix(0.75, 2.5, edgeProximity);
+        vec2 texel = vec2(aa_spread) / resolution;
+
+        if (chromaActive) {
+            vec2 uvR = stabilizedUV(refractedUv - chromaVec, refractedUv);
+            vec2 uvB = stabilizedUV(refractedUv + chromaVec, refractedUv);
+
+            refractedRgb = vec3(
+                sampleBackdrop(uvR, footprintExt, texel, resolution).r,
+                sampleBackdrop(uvG, footprintExt, texel, resolution).g,
+                sampleBackdrop(uvB, footprintExt, texel, resolution).b
+            );
+        } else {
+            refractedRgb = sampleBackdrop(uvG, footprintExt, texel, resolution);
+        }
     }
 
     vec3 adjustedRefracted = applySCB(refractedRgb, brightness, contrast, saturation);

@@ -44,7 +44,7 @@
       <description>Adjusts the contrast of the dock.</description>
     </key>
     <key name="dock-saturation" type="d">
-      <default>1.5</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
       <description>Adjusts the saturation of the dock.</description>
     </key>
@@ -257,7 +257,7 @@
       <summary>Contrast</summary>
     </key>
     <key name="panel-menu-saturation" type="d">
-      <default>1.5</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
     </key>
     <key name="panel-menu-corner-radius" type="d">
@@ -334,7 +334,7 @@
       <description>Adjusts the contrast of the menu.</description>
     </key>
     <key name="menu-saturation" type="d">
-      <default>1.5</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
       <description>Adjusts the saturation of the menu.</description>
     </key>
@@ -399,7 +399,7 @@
       <description>Adjusts the contrast of the notifications.</description>
     </key>
     <key name="notification-saturation" type="d">
-      <default>1.5</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
       <description>Adjusts the saturation of the notifications.</description>
     </key>
@@ -502,7 +502,7 @@
       <description>Adjusts the contrast of the quick settings.</description>
     </key>
     <key name="quick-settings-saturation" type="d">
-      <default>1.5</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
       <description>Adjusts the saturation of the quick settings.</description>
     </key>
@@ -574,7 +574,7 @@
       <description>Adjusts the contrast of the on-screen displays.</description>
     </key>
     <key name="osd-saturation" type="d">
-      <default>1.5</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
       <description>Adjusts the saturation of the on-screen displays.</description>
     </key>
@@ -700,13 +700,13 @@
     </key>
 
     <key name="glass-max-z" type="d">
-      <default>88.0</default>
+      <default>92.0</default>
       <summary>Maximum Z depth (Thickness)</summary>
       <description>Controls the physical thickness or depth of the glass effect.</description>
     </key>
 
     <key name="glass-displacement-scale" type="d">
-      <default>10.5</default>
+      <default>13.5</default>
       <summary>Displacement scale</summary>
       <description>Controls the strength of the light refraction distortion.</description>
     </key>
@@ -724,14 +724,14 @@
     </key>
 
     <key name="glass-ior" type="d">
-      <default>2.40</default>
+      <default>2.45</default>
       <summary>Index of Refraction (IOR)</summary>
       <description>Simulates the material's optical density (glass is typically 1.5 - 2.4).</description>
     </key>
 
     <key name="glass-chroma-strength" type="d">
       <range min="0.0" max="1.0"/>
-      <default>0.0</default>
+      <default>0.15</default>
       <summary>Chromatic aberration strength</summary>
       <description>RGB color separation caused by refraction, as a fraction of the refraction's displacement: blue is shifted that much further than green, and red that much less.</description>
     </key>
@@ -750,31 +750,31 @@
     </key>
 
     <key name="glass-specular-intensity" type="d">
-      <default>0.0</default>
+      <default>0.22</default>
       <summary>Specular intensity</summary>
       <description>The brightness of specular highlights on the glass surface.</description>
     </key>
     
     <key name="glass-shininess" type="d">
-      <default>42.0</default>
+      <default>48.0</default>
       <summary>Shininess</summary>
       <description>Controls the sharpness of the specular reflections.</description>
     </key>
 
     <key name="glass-rim-width" type="d">
-      <default>2.3</default>
+      <default>2.6</default>
       <summary>Rim light width</summary>
       <description>The width of the rim lighting band near the edges.</description>
     </key>
 
     <key name="glass-rim-intensity" type="d">
-      <default>0.5</default>
+      <default>0.85</default>
       <summary>Rim light intensity</summary>
       <description>The overall brightness of the rim lighting.</description>
     </key>
 
     <key name="glass-rim-directional-power" type="d">
-      <default>1.9</default>
+      <default>1.7</default>
       <summary>Rim directional power</summary>
       <description>Controls how the light direction affects the rim mask.</description>
     </key>
@@ -792,7 +792,7 @@
     </key>
 
     <key name="glass-sheen-intensity" type="d">
-      <default>0.0</default>
+      <default>0.05</default>
       <summary>Sheen intensity</summary>
       <description>The intensity of the background sheen across the glass surface.</description>
     </key>
@@ -869,7 +869,7 @@
       <summary>Contrast</summary>
     </key>
     <key name="top-bar-saturation" type="d">
-      <default>1.5</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
     </key>
     <key name="top-bar-margin-top" type="i">
@@ -1013,7 +1013,7 @@
       <summary>Contrast</summary>
     </key>
     <key name="desktop-widget-saturation" type="d">
-      <default>1.5</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
     </key>
     <key name="desktop-widget-enable-adaptive-text-color" type="b">
@@ -1098,7 +1098,7 @@
       <summary>Contrast</summary>
     </key>
     <key name="glass-clock-saturation" type="d">
-      <default>1.3</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
     </key>
 
@@ -1236,7 +1236,7 @@
       <summary>Contrast</summary>
     </key>
     <key name="launcher-saturation" type="d">
-      <default>1.5</default>
+      <default>1.0</default>
       <summary>Saturation</summary>
     </key>
     <key name="launcher-enable-adaptive-text-color" type="b">

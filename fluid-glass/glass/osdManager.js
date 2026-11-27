@@ -4,7 +4,7 @@ import St from 'gi://St';
 import GLib from 'gi://GLib';
 import { BackdropGlass } from './rendering/backdropGlass.js';
 import { isActorValid, ensureGlassAllocated, setClipIfChanged } from './actors.js';
-import { StageContrastSampler, AdaptiveContrastConfig, sanitizeColorPreference } from './contrastSampler.js';
+import { StageContrastSampler, AdaptiveContrastConfig, sanitizeColorPreference, subscribeContrastEvents } from './contrastSampler.js';
 import { reportFrameLoopError } from './logger.js';
 import { isFrameSyncFrozen, SAME_FRAME_WINDOW_US, startStageLoop, stopStageLoop, resolveCrossFade, adaptiveColorTweener, hexToColorArray, hexToRgb, rgbToHex } from './animation.js';
 const SHADER_PADDING = 20;
@@ -515,17 +515,27 @@ export class OsdManager {
         if (!this._adaptiveConfig.enabled)
             return;
         this._updateAdaptiveTextColors();
-        if (this._adaptiveTimerId !== 0)
-            return;
-        this._adaptiveTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._adaptiveConfig.sampleIntervalMs, () => {
-            let isActive = this._osdStates.some(s => s.osdWindow && s.osdWindow.visible);
-            if (isActive)
+        if (!this._adaptiveUnsubscribe) {
+            this._adaptiveUnsubscribe = subscribeContrastEvents((reason) => {
+                if (!this._adaptiveConfig.enabled)
+                    return;
+                const isActive = this._osdStates.some(s => s.osdWindow && s.osdWindow.visible);
+                if (!isActive)
+                    return;
+                if (reason === 'theme')
+                    this._contrastSampler.resetThemePreference();
+                else
+                    this._contrastSampler.invalidate();
                 this._updateAdaptiveTextColors();
-            return GLib.SOURCE_CONTINUE;
-        });
+            });
+        }
     }
 
     _stopAdaptiveColorSampling() {
+        if (this._adaptiveUnsubscribe) {
+            this._adaptiveUnsubscribe();
+            this._adaptiveUnsubscribe = null;
+        }
         if (this._adaptiveTimerId !== 0) {
             GLib.source_remove(this._adaptiveTimerId);
             this._adaptiveTimerId = 0;

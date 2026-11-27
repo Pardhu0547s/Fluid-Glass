@@ -7,7 +7,7 @@ import Meta from 'gi://Meta';
 import Gio from 'gi://Gio';
 import { BackdropGlass } from './rendering/backdropGlass.js';
 import { ContentLens } from './rendering/pipelines.js';
-import { StageContrastSampler, AdaptiveContrastConfig, sanitizeColorPreference } from './contrastSampler.js';
+import { StageContrastSampler, AdaptiveContrastConfig, sanitizeColorPreference, subscribeContrastEvents } from './contrastSampler.js';
 import { UnpickableWidget, ensureGlassAllocated, resolveMonitorGeometry, getAllocatedSize, isActorValid, placeScreenGlass, resolveGlassOrigin, applyGlassScale, GLASS_SHADOW_MAX_RADIUS } from './actors.js';
 import { MENU_NO_ANIMATION, accentColors } from './shellVersion.js';
 const SHADER_PADDING = 20;
@@ -595,6 +595,7 @@ export class UIManager {
         if (!this.targetActor)
             return;
         this.targetActor.add_style_class_name('fluid-glass-transparent');
+        this.menu?._boxPointer?.bin?.add_style_class_name?.('fluid-glass-transparent');
         this.animActor.add_style_class_name('fluid-glass-transparent');
         this.animActor.add_style_class_name('fluid-glass-menu-root');
         this._syncStyleVariant();
@@ -982,21 +983,38 @@ export class UIManager {
         else {
             this._updateAdaptiveTextColors(false);
         }
+        if (!this._adaptiveUnsubscribe) {
+            this._adaptiveUnsubscribe = subscribeContrastEvents((reason) => {
+                if (!this.menu?.isOpen || !this._adaptiveConfig.enabled)
+                    return;
+                if (reason === 'theme')
+                    this._contrastSampler.resetThemePreference();
+                else
+                    this._contrastSampler.invalidate();
+                this._updateAdaptiveTextColors(false);
+            });
+        }
         if (this._adaptiveTimerId !== 0)
             return;
-        this._adaptiveTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._adaptiveConfig.sampleIntervalMs, () => {
+        this._adaptiveTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT_IDLE, 220, () => {
             if (!this.menu?.isOpen) {
                 this._adaptiveTimerId = 0;
                 return GLib.SOURCE_REMOVE;
             }
             const opening = this._tickId !== 0 || this._morphTickId !== 0;
-            if (!opening || this._awaitingOpenColors)
-                this._updateAdaptiveTextColors(this._awaitingOpenColors);
-            return GLib.SOURCE_CONTINUE;
+            if (opening)
+                return GLib.SOURCE_CONTINUE;
+            this._adaptiveTimerId = 0;
+            this._updateAdaptiveTextColors(this._awaitingOpenColors);
+            return GLib.SOURCE_REMOVE;
         });
     }
 
     _stopAdaptiveColorSampling() {
+        if (this._adaptiveUnsubscribe) {
+            this._adaptiveUnsubscribe();
+            this._adaptiveUnsubscribe = null;
+        }
         if (this._adaptiveTimerId !== 0) {
             GLib.source_remove(this._adaptiveTimerId);
             this._adaptiveTimerId = 0;
@@ -1435,8 +1453,10 @@ export class UIManager {
     }
 
     _restoreMenuActors() {
-        if (!this._actorDestroyed)
+        if (!this._actorDestroyed) {
             this.targetActor.remove_style_class_name('fluid-glass-transparent');
+            this.menu?._boxPointer?.bin?.remove_style_class_name?.('fluid-glass-transparent');
+        }
         if (!this._actorDestroyed && this.animActor) {
             this.animActor.remove_style_class_name('fluid-glass-transparent');
             this.animActor.remove_style_class_name('fluid-glass-menu-root');

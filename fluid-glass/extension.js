@@ -7,6 +7,7 @@ import {PanelController} from './topbar/panelController.js';
 import {GlassEngine} from './glassEngine.js';
 import FluidGlassDockExt from './dock/extension.js';
 import {initGlassResources} from './glass/glassEffect.js';
+import {readGreeterWallpaper, syncGreeterWallpaper, isGreeterProcess} from './distroColors.js';
 
 class DockSubsystem extends FluidGlassDockExt {
     constructor(parent) {
@@ -95,10 +96,89 @@ export default class FluidGlassExtension extends Extension {
         this._settingsSignals.push(
             this._masterSettings.connect('changed::enable-topbar', () => this._syncTopbarState()),
             this._masterSettings.connect('changed::enable-glass-shaders', () => this._syncGlassState()),
-            this._masterSettings.connect('changed::enable-dock', () => this._syncDockState())
+            this._masterSettings.connect('changed::enable-dock', () => this._syncDockState()),
+            this._masterSettings.connect('changed::login-wallpaper', () => {
+                if (!Main.sessionMode?.isGreeter && !isGreeterProcess())
+                    syncGreeterWallpaper(this._masterSettings.get_string('login-wallpaper'));
+            })
         );
 
+        if (Main.sessionMode?.isGreeter || isGreeterProcess()) {
+            this._setupGreeterWallpaper();
+        } else {
+            const wall = this._masterSettings.get_string('login-wallpaper');
+            if (wall)
+                syncGreeterWallpaper(wall);
+        }
+
         console.log('[FluidGlass] All subsystems initialized successfully.');
+    }
+
+    _findLockDialogGroup() {
+        if (Main.screenShield?._lockDialogGroup)
+            return Main.screenShield._lockDialogGroup;
+        const uiGroup = Main.layoutManager?.uiGroup;
+        if (!uiGroup)
+            return null;
+        for (const child of uiGroup.get_children()) {
+            if (child?.name === 'lockDialogGroup')
+                return child;
+        }
+        return null;
+    }
+
+    _applyGreeterWallpaper() {
+        if (!Main.sessionMode?.isGreeter && !isGreeterProcess())
+            return false;
+        const path = readGreeterWallpaper();
+        if (!path)
+            return true;
+        const actor = this._findLockDialogGroup();
+        if (!actor)
+            return false;
+        if (this._greeterWallActor !== actor) {
+            this._greeterWallActor = actor;
+            this._greeterWallOrigStyle = actor.get_style?.() ?? null;
+        }
+        const escaped = path.replace(/"/g, '\\"');
+        actor.set_style(
+            `background-image: url("file://${escaped}"); ` +
+            'background-position: center; background-size: cover; background-repeat: no-repeat;'
+        );
+        return true;
+    }
+
+    _setupGreeterWallpaper() {
+        this._greeterWallActor = null;
+        this._greeterWallOrigStyle = null;
+        this._greeterUiSignalId = 0;
+        if (this._applyGreeterWallpaper())
+            return;
+        const uiGroup = Main.layoutManager?.uiGroup;
+        if (!uiGroup)
+            return;
+        this._greeterUiSignalId = uiGroup.connect('child-added', () => {
+            if (this._applyGreeterWallpaper() && this._greeterUiSignalId) {
+                uiGroup.disconnect(this._greeterUiSignalId);
+                this._greeterUiSignalId = 0;
+            }
+        });
+    }
+
+    _cleanupGreeterWallpaper() {
+        if (this._greeterUiSignalId) {
+            try {
+                Main.layoutManager?.uiGroup?.disconnect(this._greeterUiSignalId);
+            } catch (_e) {}
+            this._greeterUiSignalId = 0;
+        }
+        if (this._greeterWallActor) {
+            try {
+                this._greeterWallActor.set_style(this._greeterWallOrigStyle || null);
+            } catch (_e) {}
+            this._greeterWallActor = null;
+            this._greeterWallOrigStyle = null;
+        }
     }
 
     _syncDockState() {
@@ -153,6 +233,8 @@ export default class FluidGlassExtension extends Extension {
 
     disable() {
         console.log('[FluidGlass] Disabling Unified Fluid Glass Suite...');
+
+        this._cleanupGreeterWallpaper();
 
         if (this._settingsSignals) {
             for (const sig of this._settingsSignals) {

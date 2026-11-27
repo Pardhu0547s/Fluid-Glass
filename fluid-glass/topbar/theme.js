@@ -1,18 +1,20 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import Shell from 'gi://Shell';
 import St from 'gi://St';
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import {sanitizeFontFamily, sanitizeFontWeight} from './cssValues.js';
 import {resolveAccentColor} from '../distroColors.js';
+import {
+    captureLuminanceStrip,
+    decideUseDarkText,
+    isHighContrast,
+    subscribeContrastEvents,
+} from '../glass/contrastSampler.js';
 
 const FILE_NAME = 'fluid-glass-dynamic.css';
 const OVERVIEW_CLASS = 'fluid-glass-overview-transparent';
-const CONTRAST_SAMPLE_FRACTIONS = [0.08, 0.20, 0.34, 0.50, 0.66, 0.80, 0.92];
-const DARK_TEXT_THRESHOLD = 0.18;
-const CONTRAST_HYSTERESIS = 0.035;
 
 const clamp01 = v => Math.max(0, Math.min(1, v));
 
@@ -22,6 +24,8 @@ export class ThemeManager {
         this._enabled = false;
         this._settings = null;
         this._settingsId = 0;
+        this._glassSettings = null;
+        this._glassSettingsId = 0;
         this._masterSettings = null;
         this._masterSettingsId = 0;
         this._desktop = null;
@@ -34,6 +38,7 @@ export class ThemeManager {
         this._contrastId = 0;
         this._contrastSerial = 0;
         this._autoTextIsDark = null;
+        this._unsubscribeContrast = null;
         this._themeContext = null;
         this._themeChangedId = 0;
         this._overviewShowingId = 0;
@@ -62,6 +67,20 @@ export class ThemeManager {
         }
 
         try {
+            this._glassSettings = this._extension?.getGlassSettings?.() ?? null;
+        } catch (_e) {
+            this._glassSettings = null;
+        }
+        if (this._glassSettings?.settings_schema?.has_key('top-bar-enable-adaptive-text-color')) {
+            this._glassSettingsId = this._glassSettings.connect(
+                'changed::top-bar-enable-adaptive-text-color', () => {
+                    this._autoTextIsDark = null;
+                    this._rebuild();
+                    this.requestContrastUpdate(80);
+                });
+        }
+
+        try {
             this._masterSettings = this._extension?.getMasterSettings?.() ?? null;
         } catch (_e) {
             this._masterSettings = null;
@@ -74,8 +93,9 @@ export class ThemeManager {
         this._desktop = new Gio.Settings({schema_id: 'org.gnome.desktop.interface'});
         this._desktopId = this._desktop.connect(
             'changed::color-scheme', () => {
+                this._autoTextIsDark = null;
                 this._rebuild();
-                this.requestContrastUpdate();
+                this.requestContrastUpdate(80);
             });
         this._desktopAccentId = this._desktop.connect(
             'changed::accent-color', () => {
@@ -90,12 +110,18 @@ export class ThemeManager {
             schema_id: 'org.gnome.desktop.background',
         });
         this._backgroundId = this._background.connect(
-            'changed', () => this.requestContrastUpdate(1100));
+            'changed', () => this.requestContrastUpdate(600));
 
         this._fullscreenId = global.display.connect(
-            'in-fullscreen-changed', () => this.requestContrastUpdate(250));
+            'in-fullscreen-changed', () => this.requestContrastUpdate(200));
         this._monitorsId = Main.layoutManager.connect(
-            'monitors-changed', () => this.requestContrastUpdate(250));
+            'monitors-changed', () => this.requestContrastUpdate(200));
+
+        this._unsubscribeContrast = subscribeContrastEvents((reason) => {
+            if (reason === 'theme')
+                this._autoTextIsDark = null;
+            this.requestContrastUpdate(reason === 'theme' ? 60 : 180);
+        });
 
         this._themeContext = St.ThemeContext.get_for_stage(global.stage);
         this._themeChangedId = this._themeContext.connect('changed', () => {
@@ -193,6 +219,12 @@ export class ThemeManager {
     }
 
     _usesAdaptiveContrast() {
+        try {
+            if (this._glassSettings?.settings_schema?.has_key('top-bar-enable-adaptive-text-color') &&
+                !this._glassSettings.get_boolean('top-bar-enable-adaptive-text-color'))
+                return false;
+        } catch (_e) {
+        }
         return this._settingString('text-mode', 'auto') === 'auto' &&
             this._panelIsTransparentNow();
     }
@@ -203,50 +235,23 @@ export class ThemeManager {
             return;
 
         const serial = ++this._contrastSerial;
-        const y = Math.round(monitor.y + 1);
-        const samples = [];
-        for (const fraction of CONTRAST_SAMPLE_FRACTIONS) {
-            if (!this._enabled || serial !== this._contrastSerial)
-                return;
-            const x = Math.round(monitor.x +
-                Math.max(1, monitor.width - 2) * fraction);
-            try {
-                const [color] = await new Shell.Screenshot().pick_color(x, y);
-                if (color)
-                    samples.push(this._relativeLuminance(color));
-            } catch (_e) {
-            }
-        }
-
-        if (!this._enabled || serial !== this._contrastSerial || !samples.length)
+        const rect = {
+            x: monitor.x,
+            y: Math.round(monitor.y + 1),
+            width: Math.max(1, monitor.width),
+            height: 2,
+        };
+        const luminance = await captureLuminanceStrip(rect, 32);
+        if (!this._enabled || serial !== this._contrastSerial || luminance === null)
             return;
-        samples.sort((a, b) => a - b);
-        const luminance = samples[Math.floor(samples.length / 2)];
 
-        let darkText;
-        if (this._autoTextIsDark === null)
-            darkText = luminance >= DARK_TEXT_THRESHOLD;
-        else if (this._autoTextIsDark)
-            darkText = luminance >= DARK_TEXT_THRESHOLD - CONTRAST_HYSTERESIS;
-        else
-            darkText = luminance > DARK_TEXT_THRESHOLD + CONTRAST_HYSTERESIS;
+        const preferDarkText = !this._isDark();
+        const darkText = decideUseDarkText(luminance, preferDarkText, this._autoTextIsDark);
 
         if (darkText === this._autoTextIsDark)
             return;
         this._autoTextIsDark = darkText;
         this._rebuild();
-    }
-
-    _relativeLuminance(color) {
-        const linear = channel => {
-            const value = channel / 255;
-            return value <= 0.04045
-                ? value / 12.92
-                : ((value + 0.055) / 1.055) ** 2.4;
-        };
-        return 0.2126 * linear(color.red) +
-            0.7152 * linear(color.green) +
-            0.0722 * linear(color.blue);
     }
 
     _generate() {
@@ -267,12 +272,18 @@ export class ThemeManager {
         const appearance = gs('appearance', 'tahoe-transparent');
         const textMode = gs('text-mode', 'auto');
         const isDark = this._isDark();
+        const hc = isHighContrast();
+        const lightFg = hc ? '255, 255, 255' : '245, 245, 247';
+        const darkFg = hc ? '0, 0, 0' : '29, 29, 31';
 
-        let fg = isDark ? '255, 255, 255' : '0, 0, 0';
+        let useDarkFg = !isDark;
         if (textMode === 'light')
-            fg = '255, 255, 255';
+            useDarkFg = false;
         else if (textMode === 'dark')
-            fg = '0, 0, 0';
+            useDarkFg = true;
+        else if (this._usesAdaptiveContrast() && this._autoTextIsDark !== null)
+            useDarkFg = this._autoTextIsDark;
+        const fg = useDarkFg ? darkFg : lightFg;
 
         const lines = [];
         const panel = [];
@@ -316,8 +327,8 @@ export class ThemeManager {
         lines.push(`#panel.fluid-glass .fluid-glass-battery-percentage { color: rgb(${fg}) !important; }`);
         lines.push(`.fluid-glass-control-center-icon { color: rgb(${fg}) !important; }`);
 
-        const shadow = fg === '255, 255, 255'
-            ? '0 1px 2px rgba(0, 0, 0, 0.40)'
+        const shadow = !useDarkFg
+            ? '0 1px 2px rgba(0, 0, 0, 0.34)'
             : 'none';
         lines.push(`#panel.fluid-glass { text-shadow: ${shadow}; }`);
         lines.push(`#panel.fluid-glass StIcon { icon-shadow: ${shadow}; }`);
@@ -506,6 +517,10 @@ export class ThemeManager {
         this._enabled = false;
         this._contrastSerial++;
 
+        if (this._unsubscribeContrast) {
+            this._unsubscribeContrast();
+            this._unsubscribeContrast = null;
+        }
         if (this._contrastId) {
             GLib.Source.remove(this._contrastId);
             this._contrastId = 0;
@@ -514,6 +529,10 @@ export class ThemeManager {
         if (this._settingsId) {
             this._settings.disconnect(this._settingsId);
             this._settingsId = 0;
+        }
+        if (this._glassSettingsId && this._glassSettings) {
+            this._glassSettings.disconnect(this._glassSettingsId);
+            this._glassSettingsId = 0;
         }
         if (this._masterSettingsId && this._masterSettings) {
             this._masterSettings.disconnect(this._masterSettingsId);
@@ -580,6 +599,8 @@ export class ThemeManager {
         this._desktop = null;
         this._background = null;
         this._settings = null;
+        this._glassSettings = null;
+        this._masterSettings = null;
         this._file = null;
         this._extension = null;
     }

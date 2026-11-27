@@ -637,22 +637,22 @@ export class MaterialSettings {
             this._bindSettings();
         }
         else {
-            this._uniforms.set('max_z', 88.0);
-            this._uniforms.set('displacement_scale', 10.5);
+            this._uniforms.set('max_z', 92.0);
+            this._uniforms.set('displacement_scale', 13.5);
             this._uniforms.set('edge_smoothing', 0.5);
             this._uniforms.set('profile_shape_n', 3.6);
-            this._uniforms.set('ior', 2.40);
-            this._uniforms.set('chroma_strength', 0.0);
+            this._uniforms.set('ior', 2.45);
+            this._uniforms.set('chroma_strength', 0.15);
             this._uniforms.set('corner_smoothing', 0.6);
             this._uniforms.set('highlight_backdrop_color', 1.0);
-            this._uniforms.set('specular_intensity', 0.0);
-            this._uniforms.set('shininess', 42.0);
-            this._uniforms.set('rim_width', 2.3);
-            this._uniforms.set('rim_intensity', 0.5);
-            this._uniforms.set('rim_directional_power', 1.9);
+            this._uniforms.set('specular_intensity', 0.22);
+            this._uniforms.set('shininess', 48.0);
+            this._uniforms.set('rim_width', 2.6);
+            this._uniforms.set('rim_intensity', 0.85);
+            this._uniforms.set('rim_directional_power', 1.7);
             this._uniforms.set('rim_power', 3.0);
             this._uniforms.set('rim_light_color_intensity', 1.0);
-            this._uniforms.set('sheen_intensity', 0.0);
+            this._uniforms.set('sheen_intensity', 0.05);
             this._uniforms.set('light_angle_deg', 90.0);
             this._uniforms.set('shadow_radius', 50.0);
             this._uniforms.set('shadow_intensity', 0.22);

@@ -199,7 +199,7 @@ function applyGlassParameters(glass, options) {
     const tintStrength = options.tintStrength ?? 0.12;
     const brightness = options.brightness ?? 1.0;
     const contrast = options.contrast ?? 1.0;
-    const saturation = options.saturation ?? 1.5;
+    const saturation = options.saturation ?? 1.0;
     const padding = options.padding ?? SHADER_PADDING;
 
     glass.setPadding(padding);

@@ -149,15 +149,13 @@ class CCMediaCard extends St.BoxLayout {
             x_align: Clutter.ActorAlign.CENTER,
             y_align: Clutter.ActorAlign.CENTER,
         });
-        const artBin = new St.Bin({
+        this._artBin = new St.Bin({
             style_class: 'fluid-glass-cc-media-artwork-bin',
-            width: 42,
-            height: 42,
             x_align: Clutter.ActorAlign.START,
             y_align: Clutter.ActorAlign.START,
             child: this._artwork,
         });
-        this.add_child(artBin);
+        this.add_child(this._artBin);
 
         const metadata = new St.BoxLayout({
             orientation: Clutter.Orientation.VERTICAL,
@@ -253,14 +251,18 @@ class CCMediaCard extends St.BoxLayout {
             this._currentArtUrl = nextArtUrl;
             if (nextArtUrl) {
                 try {
-                    this._artwork.gicon = new Gio.FileIcon({
-                        file: Gio.File.new_for_uri(nextArtUrl),
-                    });
-                    this._artwork.icon_size = 42;
+                    const escaped = nextArtUrl.replace(/"/g, '\\"');
+                    this._artBin.set_style(
+                        `background-image: url("${escaped}"); ` +
+                        'background-size: cover; background-position: center; background-repeat: no-repeat;'
+                    );
+                    this._artwork.visible = false;
                     return;
                 } catch (_e) {
                 }
             }
+            this._artBin.set_style(null);
+            this._artwork.visible = true;
             if (this._artwork.gicon)
                 this._artwork.gicon = null;
             this._artwork.icon_size = 20;

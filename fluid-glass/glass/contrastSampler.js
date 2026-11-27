@@ -4,28 +4,28 @@ import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import Mtk from 'gi://Mtk';
 import St from 'gi://St';
+import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { getTransformedRect, isActorValid } from './actors.js';
 import { utilsLog } from './logger.js';
 import { createTarget } from './rendering/backdropGlass.js';
 import { coglContext, paintStageToContent } from './shellVersion.js';
 import { adaptiveColorTweener, hexToRgb, resolveCrossFade } from './animation.js';
-const SWITCH_ADVANTAGE = 1.2;
-const SWITCH_ADVANTAGE_TOWARD_PREFERRED = 1.02;
-const SWITCH_ADVANTAGE_AGAINST_PREFERRED = 1.6;
-const AMBIGUOUS_RATIO = 1.15;
-const SWITCH_SETTLE_MS = 600;
-const MIN_READABLE_CONTRAST = 4.5;
+
+const DARK_BG_MAX_LUMA = 0.13;
+const LIGHT_BG_MIN_LUMA = 0.38;
+const LUMA_HYSTERESIS = 0.03;
 const BACKDROP_COVERS_GLASS_ALPHA = 190;
-const READABILITY_FLIP_COOLDOWN = 3;
-const BACKGROUND_REALLY_MOVED = 0.15;
 const BACKDROP_SEARCH_DEPTH = 8;
-const PREFERRED_RETURN = 1.15;
+const SAMPLE_MAX_EDGE = 12;
+const SAMPLE_MAX_EDGE_MERGED = 28;
+const COLOR_TWEEN_MS = 320;
+
 export const AdaptiveContrastConfig = {
     enabled: true,
     samplePerElement: false,
     sampleIntervalMs: 200,
-    lightTextColor: '#f2f2f2',
-    darkTextColor: '#1a1a1a',
+    lightTextColor: '#f5f5f7',
+    darkTextColor: '#1d1d1f',
     preference: 'auto',
     preferredMinContrast: 0,
 };
@@ -55,15 +55,289 @@ function _srgbToLinear(c) {
 }
 
 function _luminanceFromRgb(r, g, b) {
-    const rl = _srgbToLinear(r);
-    const gl = _srgbToLinear(g);
-    const bl = _srgbToLinear(b);
-    return 0.2126 * rl + 0.7152 * gl + 0.0722 * bl;
+    return 0.2126 * _srgbToLinear(r) + 0.7152 * _srgbToLinear(g) + 0.0722 * _srgbToLinear(b);
 }
 
-function _trimmedMean(values, trimRatio = 0.1) {
+class _ContrastEventHub {
+    _listeners = new Set();
+    _attached = false;
+    _desktop = null;
+    _desktopId = 0;
+    _a11y = null;
+    _a11yId = 0;
+    _background = null;
+    _backgroundId = 0;
+    _displayIds = [];
+    _wsId = 0;
+    _overviewShowingId = 0;
+    _overviewHiddenId = 0;
+    _monitorsId = 0;
+    _focusWin = null;
+    _focusWinIds = [];
+    _sceneTimerId = 0;
+    _themeSettleTimerId = 0;
+    _cachedSystemDark = null;
+    _cachedHighContrast = null;
+
+    isHighContrast() {
+        if (this._cachedHighContrast !== null && this._attached)
+            return this._cachedHighContrast;
+        try {
+            const s = this._a11y ?? new Gio.Settings({ schema_id: 'org.gnome.desktop.a11y.interface' });
+            const hc = s.get_boolean('high-contrast');
+            if (this._attached)
+                this._cachedHighContrast = hc;
+            return hc;
+        } catch (_e) {
+            return false;
+        }
+    }
+
+    isSystemDark() {
+        if (Main.sessionMode?.isGreeter || Main.sessionMode?.isLocked)
+            return true;
+        if (this._cachedSystemDark !== null && this._attached)
+            return this._cachedSystemDark;
+        try {
+            const s = this._desktop ?? new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+            const dark = s.get_string('color-scheme') === 'prefer-dark';
+            if (this._attached)
+                this._cachedSystemDark = dark;
+            return dark;
+        } catch (_e) {
+            return true;
+        }
+    }
+
+    subscribe(fn) {
+        this._listeners.add(fn);
+        if (!this._attached)
+            this._attach();
+        return () => {
+            this._listeners.delete(fn);
+            if (this._listeners.size === 0)
+                this._detach();
+        };
+    }
+
+    _emit(reason) {
+        for (const fn of [...this._listeners]) {
+            try {
+                fn(reason);
+            } catch (_e) {
+            }
+        }
+    }
+
+    _scheduleScene(delayMs = 140) {
+        if (this._sceneTimerId) {
+            GLib.Source.remove(this._sceneTimerId);
+            this._sceneTimerId = 0;
+        }
+        this._sceneTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT_IDLE, delayMs, () => {
+            this._sceneTimerId = 0;
+            this._emit('scene');
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
+    _bindFocusWindow() {
+        this._unbindFocusWindow();
+        const win = global.display?.focus_window ?? null;
+        if (!win)
+            return;
+        this._focusWin = win;
+        try {
+            this._focusWinIds = [
+                win.connect('position-changed', () => this._scheduleScene(180)),
+                win.connect('size-changed', () => this._scheduleScene(180)),
+                win.connect('unmanaged', () => {
+                    this._unbindFocusWindow();
+                    this._scheduleScene(140);
+                }),
+            ];
+        } catch (_e) {
+            this._focusWin = null;
+            this._focusWinIds = [];
+        }
+    }
+
+    _unbindFocusWindow() {
+        if (this._focusWin) {
+            for (const id of this._focusWinIds) {
+                try {
+                    this._focusWin.disconnect(id);
+                } catch (_e) {
+                }
+            }
+        }
+        this._focusWin = null;
+        this._focusWinIds = [];
+    }
+
+    _attach() {
+        if (this._attached)
+            return;
+        this._attached = true;
+        try {
+            this._desktop = new Gio.Settings({ schema_id: 'org.gnome.desktop.interface' });
+            this._cachedSystemDark = this._desktop.get_string('color-scheme') === 'prefer-dark';
+            this._desktopId = this._desktop.connect('changed::color-scheme', () => {
+                this._cachedSystemDark = this._desktop.get_string('color-scheme') === 'prefer-dark';
+                this._emit('theme');
+                if (this._themeSettleTimerId)
+                    GLib.Source.remove(this._themeSettleTimerId);
+                this._themeSettleTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT_IDLE, 340, () => {
+                    this._themeSettleTimerId = 0;
+                    this._emit('scene');
+                    return GLib.SOURCE_REMOVE;
+                });
+            });
+        } catch (_e) {
+            this._desktop = null;
+        }
+        try {
+            this._a11y = new Gio.Settings({ schema_id: 'org.gnome.desktop.a11y.interface' });
+            this._cachedHighContrast = this._a11y.get_boolean('high-contrast');
+            this._a11yId = this._a11y.connect('changed::high-contrast', () => {
+                this._cachedHighContrast = this._a11y.get_boolean('high-contrast');
+                this._emit('theme');
+            });
+        } catch (_e) {
+            this._a11y = null;
+        }
+        try {
+            this._background = new Gio.Settings({ schema_id: 'org.gnome.desktop.background' });
+            this._backgroundId = this._background.connect('changed', () => this._scheduleScene(450));
+        } catch (_e) {
+            this._background = null;
+        }
+        if (global.display) {
+            this._displayIds = [
+                global.display.connect('notify::focus-window', () => {
+                    this._bindFocusWindow();
+                    this._scheduleScene(140);
+                }),
+                global.display.connect('restacked', () => this._scheduleScene(140)),
+                global.display.connect('in-fullscreen-changed', () => this._scheduleScene(140)),
+                global.display.connect('window-created', () => this._scheduleScene(220)),
+            ];
+            this._bindFocusWindow();
+        }
+        if (global.workspace_manager) {
+            this._wsId = global.workspace_manager.connect('active-workspace-changed', () => this._scheduleScene(220));
+        }
+        if (Main.overview) {
+            this._overviewShowingId = Main.overview.connect('showing', () => this._scheduleScene(200));
+            this._overviewHiddenId = Main.overview.connect('hidden', () => this._scheduleScene(200));
+        }
+        if (Main.layoutManager) {
+            this._monitorsId = Main.layoutManager.connect('monitors-changed', () => this._scheduleScene(250));
+        }
+    }
+
+    _detach() {
+        if (!this._attached)
+            return;
+        this._attached = false;
+        this._cachedSystemDark = null;
+        this._cachedHighContrast = null;
+        if (this._sceneTimerId) {
+            GLib.Source.remove(this._sceneTimerId);
+            this._sceneTimerId = 0;
+        }
+        if (this._themeSettleTimerId) {
+            GLib.Source.remove(this._themeSettleTimerId);
+            this._themeSettleTimerId = 0;
+        }
+        this._unbindFocusWindow();
+        if (this._desktop && this._desktopId) {
+            this._desktop.disconnect(this._desktopId);
+            this._desktopId = 0;
+        }
+        this._desktop = null;
+        if (this._a11y && this._a11yId) {
+            this._a11y.disconnect(this._a11yId);
+            this._a11yId = 0;
+        }
+        this._a11y = null;
+        if (this._background && this._backgroundId) {
+            this._background.disconnect(this._backgroundId);
+            this._backgroundId = 0;
+        }
+        this._background = null;
+        if (global.display) {
+            for (const id of this._displayIds)
+                global.display.disconnect(id);
+        }
+        this._displayIds = [];
+        if (this._wsId && global.workspace_manager) {
+            global.workspace_manager.disconnect(this._wsId);
+            this._wsId = 0;
+        }
+        if (this._overviewShowingId && Main.overview) {
+            Main.overview.disconnect(this._overviewShowingId);
+            this._overviewShowingId = 0;
+        }
+        if (this._overviewHiddenId && Main.overview) {
+            Main.overview.disconnect(this._overviewHiddenId);
+            this._overviewHiddenId = 0;
+        }
+        if (this._monitorsId && Main.layoutManager) {
+            Main.layoutManager.disconnect(this._monitorsId);
+            this._monitorsId = 0;
+        }
+    }
+}
+
+const _contrastHub = new _ContrastEventHub();
+
+export function isSystemDark() {
+    return _contrastHub.isSystemDark();
+}
+
+export function isHighContrast() {
+    return _contrastHub.isHighContrast();
+}
+
+export function subscribeContrastEvents(listener) {
+    return _contrastHub.subscribe(listener);
+}
+
+export function decideUseDarkText(luminance, preferDarkText, prevUseDarkText = null) {
+    const luma = _clamp(luminance, 0, 1);
+    const hc = isHighContrast();
+    const darkMax = hc ? 0.17 : DARK_BG_MAX_LUMA;
+    const lightMin = hc ? 0.28 : LIGHT_BG_MIN_LUMA;
+    if (preferDarkText) {
+        if (prevUseDarkText === false)
+            return luma > darkMax + LUMA_HYSTERESIS;
+        const threshold = prevUseDarkText === null ? darkMax : darkMax - LUMA_HYSTERESIS;
+        return luma >= threshold;
+    }
+    if (prevUseDarkText === true)
+        return luma >= lightMin - LUMA_HYSTERESIS;
+    const threshold = prevUseDarkText === null ? lightMin : lightMin + LUMA_HYSTERESIS;
+    return luma > threshold;
+}
+
+function _resolvePreferDarkText(preference) {
+    if (preference === 'dark')
+        return true;
+    if (preference === 'light')
+        return false;
+    return !isSystemDark();
+}
+
+function _trimmedMean(values, trimRatio = 0.2) {
     if (values.length === 0)
         return null;
+    if (values.length <= 2) {
+        let s = 0;
+        for (let i = 0; i < values.length; i++)
+            s += values[i];
+        return s / values.length;
+    }
     const sorted = [...values].sort((a, b) => a - b);
     const trim = Math.floor(sorted.length * trimRatio);
     const start = _clamp(trim, 0, sorted.length - 1);
@@ -75,9 +349,7 @@ function _trimmedMean(values, trimRatio = 0.1) {
 }
 
 function _getActorRect(actor) {
-    if (!actor)
-        return null;
-    if (!actor.mapped)
+    if (!actor || !actor.mapped)
         return null;
     const [x, y, w, h] = getTransformedRect(actor);
     if (![x, y, w, h].every(Number.isFinite) || w <= 0 || h <= 0)
@@ -122,8 +394,6 @@ function _reportCapturePath(msg) {
     utilsLog(`[Liquid Glass][contrast] ${msg}`);
 }
 
-const SAMPLE_MAX_EDGE = 48;
-const SAMPLE_MAX_EDGE_MERGED = 64;
 let _readCtx = null;
 let _readTemplate = null;
 let _readTarget = null;
@@ -194,7 +464,7 @@ function _captureViaStage(rect, maxEdge = SAMPLE_MAX_EDGE) {
     const y = Math.floor(rect.y);
     const width = Math.max(1, Math.floor(rect.width));
     const height = Math.max(1, Math.floor(rect.height));
-    const scale = Math.min(1, Math.max(maxEdge / Math.max(width, height), 1 / Math.min(width, height)));
+    const scale = Math.min(1, maxEdge / Math.max(width, height));
     let content;
     try {
         content = paintStageToContent(new Mtk.Rectangle({ x, y, width, height }), scale);
@@ -205,7 +475,17 @@ function _captureViaStage(rect, maxEdge = SAMPLE_MAX_EDGE) {
     const texture = content?.get_texture();
     if (!texture)
         return Promise.resolve(null);
-    return _drawAndRead(texture, 0, 0, 1, 1, texture.get_width(), texture.get_height());
+    return _drawAndRead(texture, 0, 0, 1, 1, Math.max(1, texture.get_width()), Math.max(1, texture.get_height()));
+}
+
+export async function captureLuminanceStrip(rect, maxEdge = 32) {
+    if (!rect || rect.width <= 0 || rect.height <= 0)
+        return null;
+    const shot = await _captureViaStage(rect, maxEdge);
+    if (!shot)
+        return null;
+    const values = luminanceSamplesInRect(shot, undefined, 0, 0, shot.width, shot.height, 1);
+    return values.length > 0 ? _trimmedMean(values, 0.25) : null;
 }
 
 function _imageOf(pixbuf) {
@@ -219,7 +499,7 @@ function _imageOf(pixbuf) {
         height,
         stride: pixbuf.get_rowstride(),
         channels: pixbuf.get_n_channels(),
-        step: Math.max(1, Math.floor(Math.min(width, height) / SAMPLE_MAX_EDGE)),
+        step: 1,
     };
 }
 
@@ -349,9 +629,11 @@ function _readSignature(paintSignature) {
 }
 
 function _skipKey(rects, config) {
+    const sys = isSystemDark() ? 'd' : 'l';
+    const hc = isHighContrast() ? 'h' : 'n';
     return rects
         .map(r => `${Math.round(r.x)},${Math.round(r.y)},${Math.round(r.width)},${Math.round(r.height)}`)
-        .join(';') + `|${config.samplePerElement ? 'e' : 'm'}|${config.preference ?? 'auto'}|${config.preferredMinContrast}|${config.lightTextColor}|${config.darkTextColor}`;
+        .join(';') + `|${config.samplePerElement ? 'e' : 'm'}|${config.preference ?? 'auto'}|${sys}${hc}|${config.lightTextColor}|${config.darkTextColor}`;
 }
 
 function _pixelLuminance(data, idx, channels, tone) {
@@ -387,12 +669,9 @@ export function luminanceSamples(shot, tone) {
 }
 
 export class StageContrastSampler {
-    _lastLuma = null;
-    _lastIsBright = null;
-    _lastSwitchAt = null;
-    _holdConfig = '';
-    _roundsSinceFlip = READABILITY_FLIP_COOLDOWN;
-    _lastRawLuma = null;
+    _lastUseDark = null;
+    _lastPreferDark = null;
+    _perActorUseDark = new WeakMap();
     _lastRect = null;
     _lastDecided = null;
     _unchangedSignature = null;
@@ -409,6 +688,16 @@ export class StageContrastSampler {
     reset() {
         this.invalidate();
         this._lastRect = null;
+        this._lastUseDark = null;
+        this._lastPreferDark = null;
+        this._perActorUseDark = new WeakMap();
+    }
+
+    resetThemePreference() {
+        this.invalidate();
+        this._lastUseDark = null;
+        this._lastPreferDark = null;
+        this._perActorUseDark = new WeakMap();
     }
 
     async sampleLuminance(rect, tone) {
@@ -437,7 +726,7 @@ export class StageContrastSampler {
             _reportCapturePath('capture produced no usable pixels (everything below the alpha cutoff)');
             return null;
         }
-        return _trimmedMean(values, 0.30);
+        return _trimmedMean(values, 0.25);
     }
 
     _measure(rect, sources) {
@@ -470,98 +759,34 @@ export class StageContrastSampler {
         return sum / weight;
     }
 
-    decideTextColor(luminance, config = AdaptiveContrastConfig) {
-        if (luminance === null || luminance === undefined)
+    decideTextColor(luminance, config = AdaptiveContrastConfig, targetActor = null) {
+        if (luminance === null || luminance === undefined || !Number.isFinite(luminance))
             return null;
-        if (!Number.isFinite(luminance))
-            return null;
-        luminance = _clamp(luminance, 0, 1);
-        const colorLuma = (hex) => {
-            const rgb = parseInt(hex.slice(1), 16);
-            return _luminanceFromRgb((rgb >> 16) & 255, (rgb >> 8) & 255, rgb & 255);
-        };
-        const light = colorLuma(config.lightTextColor);
-        const dark = colorLuma(config.darkTextColor);
-        const contrast = (background, foreground) => (Math.max(background, foreground) + 0.05) / (Math.min(background, foreground) + 0.05);
-        const rawLight = contrast(luminance, light);
-        const rawDark = contrast(luminance, dark);
-        const preference = config.preference ?? 'auto';
-        const hasPreference = preference !== 'auto';
-        const preferDark = preference === 'dark';
-        const ambiguous = Math.max(rawLight, rawDark) < Math.min(rawLight, rawDark) * AMBIGUOUS_RATIO;
-        const floor = hasPreference ? config.preferredMinContrast : 0;
-        const readableAt = (bright) => floor > 0 && bright === preferDark ? floor : MIN_READABLE_CONTRAST;
-        if (config.samplePerElement) {
-            const preferredReads = floor > 0 && (preferDark ? rawDark : rawLight) >= floor;
-            if ((ambiguous || preferredReads) && hasPreference)
-                return preferDark ? config.darkTextColor : config.lightTextColor;
-            return rawDark > rawLight ? config.darkTextColor : config.lightTextColor;
+        const preferDark = _resolvePreferDarkText(config.preference ?? 'auto');
+        if (this._lastPreferDark !== null && this._lastPreferDark !== preferDark) {
+            this._lastUseDark = null;
+            this._perActorUseDark = new WeakMap();
         }
-        const now = GLib.get_monotonic_time();
-        const holdConfig = `${preference}|${floor}|${config.lightTextColor}|${config.darkTextColor}`;
-        if (holdConfig !== this._holdConfig) {
-            this._holdConfig = holdConfig;
-            this._lastSwitchAt = null;
-        }
-        if (this._lastIsBright !== null && this._inSettleHold(now)) {
-            const heldContrast = this._lastIsBright ? rawDark : rawLight;
-            const otherContrast = this._lastIsBright ? rawLight : rawDark;
-            const heldUnreadable = heldContrast < readableAt(this._lastIsBright) && otherContrast >= readableAt(!this._lastIsBright);
-            if (!heldUnreadable)
-                return this._lastIsBright ? config.darkTextColor : config.lightTextColor;
-        }
-        const smoothed = this._lastLuma === null
-            ? luminance : this._lastLuma * 0.7 + luminance * 0.3;
-        this._lastLuma = smoothed;
-        const lightContrast = contrast(smoothed, light);
-        const darkContrast = contrast(smoothed, dark);
-        let isBright;
-        if (floor > 0) {
-            const preferred = preferDark ? darkContrast : lightContrast;
-            const onPreferred = this._lastIsBright === null || this._lastIsBright === preferDark;
-            isBright = preferred >= (onPreferred ? floor : floor * PREFERRED_RETURN) ? preferDark : !preferDark;
-        }
-        else if (ambiguous && hasPreference) {
-            isBright = preferDark;
-        }
-        else if (this._lastIsBright === null) {
-            isBright = darkContrast > lightContrast;
-        }
-        else {
-            isBright = this._lastIsBright;
-            const current = isBright ? darkContrast : lightContrast;
-            const alternative = isBright ? lightContrast : darkContrast;
-            const towardPreferred = hasPreference && preferDark !== isBright;
-            const advantage = !hasPreference ? SWITCH_ADVANTAGE
-                : (towardPreferred ? SWITCH_ADVANTAGE_TOWARD_PREFERRED : SWITCH_ADVANTAGE_AGAINST_PREFERRED);
-            if (alternative > current * advantage)
-                isBright = !isBright;
-        }
-        const rawCurrent = isBright ? rawDark : rawLight;
-        const rawAlternative = isBright ? rawLight : rawDark;
-        const jumped = this._lastRawLuma === null ||
-            Math.abs(luminance - this._lastRawLuma) > BACKGROUND_REALLY_MOVED;
-        this._lastRawLuma = luminance;
-        const wasBright = isBright;
-        if (rawCurrent < readableAt(isBright) && rawAlternative >= readableAt(!isBright) &&
-            (jumped || this._roundsSinceFlip >= READABILITY_FLIP_COOLDOWN))
-            isBright = !isBright;
-        this._roundsSinceFlip = isBright === wasBright ? this._roundsSinceFlip + 1 : 0;
-        if (this._lastIsBright !== null && this._lastIsBright !== isBright)
-            this._lastSwitchAt = now;
-        this._lastIsBright = isBright;
-        return isBright ? config.darkTextColor : config.lightTextColor;
-    }
+        this._lastPreferDark = preferDark;
 
-    _inSettleHold(now = GLib.get_monotonic_time()) {
-        return this._lastSwitchAt !== null && now - this._lastSwitchAt < SWITCH_SETTLE_MS * 1000;
+        if (config.samplePerElement) {
+            const prev = targetActor ? (this._perActorUseDark.get(targetActor) ?? null) : null;
+            const useDark = decideUseDarkText(luminance, preferDark, prev);
+            if (targetActor)
+                this._perActorUseDark.set(targetActor, useDark);
+            return useDark ? config.darkTextColor : config.lightTextColor;
+        }
+
+        const useDark = decideUseDarkText(luminance, preferDark, this._lastUseDark);
+        this._lastUseDark = useDark;
+        return useDark ? config.darkTextColor : config.lightTextColor;
     }
 
     _backdropColorFor(actor, config, root) {
         const backdrop = backdropLuminance(actor, root);
         if (backdrop === null)
             return null;
-        return this.decideTextColor(backdrop.luminance, { ...config, samplePerElement: true });
+        return this.decideTextColor(backdrop.luminance, { ...config, samplePerElement: true }, actor);
     }
 
     async chooseColorsForActors(actors, config = AdaptiveContrastConfig, root = null, paintSignature, backdrops) {
@@ -602,7 +827,6 @@ export class StageContrastSampler {
             return null;
         this.invalidate();
         this._lastRect = rect;
-        this._lastLuma = null;
         const color = this.decideTextColor(luma, config);
         this._lastDecided = color;
         return color;
@@ -610,14 +834,9 @@ export class StageContrastSampler {
 
     _resetIfRegionMoved(merged) {
         const last = this._lastRect;
-        const moved = !last || ['x', 'y', 'width', 'height'].some(k => Math.abs(merged[k] - last[k]) > 2);
-        if (moved) {
-            this._lastLuma = null;
-            this._lastIsBright = null;
-            this._lastRawLuma = null;
-            this._lastSwitchAt = null;
-            this._roundsSinceFlip = READABILITY_FLIP_COOLDOWN;
-        }
+        const moved = !last || ['x', 'y', 'width', 'height'].some(k => Math.abs(merged[k] - last[k]) > 4);
+        if (moved)
+            this._lastUseDark = null;
         this._lastRect = merged;
     }
 
@@ -630,11 +849,8 @@ export class StageContrastSampler {
             this.invalidate();
             return result;
         }
-        const inHold = this._lastIsBright !== null && this._inSettleHold();
         const color = this.decideTextColor(luma, config);
-        const converged = this._lastLuma !== null && Math.abs(this._lastLuma - _clamp(luma, 0, 1)) < 0.01;
-        settle(!inHold && color !== null && color === this._lastDecided && converged &&
-            this._roundsSinceFlip >= READABILITY_FLIP_COOLDOWN);
+        settle(color !== null);
         this._lastDecided = color;
         if (color)
             for (const actor of targets)
@@ -684,7 +900,7 @@ export class StageContrastSampler {
                     if (sx1 > sx0 && sy1 > sy0) {
                         const values = luminanceSamplesInRect(shot, tone, sx0, sy0, sx1, sy1, 1);
                         if (values.length > 0)
-                            luma = _trimmedMean(values, 0.30);
+                            luma = _trimmedMean(values, 0.25);
                     }
                 }
                 if (luma === null)
@@ -693,7 +909,7 @@ export class StageContrastSampler {
                     this.invalidate();
                     return result;
                 }
-                const color = this.decideTextColor(luma, config);
+                const color = this.decideTextColor(luma, config, targets[i]);
                 if (color)
                     result.set(targets[i], color);
             }
@@ -706,7 +922,7 @@ export class StageContrastSampler {
                 this.invalidate();
                 return result;
             }
-            const color = this.decideTextColor(luma, config);
+            const color = this.decideTextColor(luma, config, targets[i]);
             if (color)
                 result.set(targets[i], color);
         }
@@ -714,8 +930,6 @@ export class StageContrastSampler {
         return result;
     }
 }
-
-const COLOR_TWEEN_MS = 380;
 
 export class AdaptiveTextColor {
     _roots;
@@ -725,7 +939,9 @@ export class AdaptiveTextColor {
     _options;
     _sampler = new StageContrastSampler();
     _config = { ...AdaptiveContrastConfig, enabled: true, samplePerElement: false };
-    _timerId = 0;
+    _debounceId = 0;
+    _unsubscribe = null;
+    _active = false;
     _inFlight = false;
     _first = true;
     _pending = 0;
@@ -744,24 +960,49 @@ export class AdaptiveTextColor {
         this._config.preference = preference;
         this._config.preferredMinContrast = preferredMinContrast;
         this.stop();
+        this._active = true;
         this._first = true;
         this._sampler.reset();
-        this.update();
-        this._timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, Math.max(100, intervalMs), () => {
-            this.update();
-            return GLib.SOURCE_CONTINUE;
+        this._unsubscribe = subscribeContrastEvents((reason) => {
+            if (!this._active)
+                return;
+            if (reason === 'theme')
+                this._sampler.resetThemePreference();
+            else
+                this._sampler.invalidate();
+            this._scheduleUpdate(reason === 'theme' ? 40 : 120);
         });
+        this.update();
     }
 
     stop() {
-        if (this._timerId) {
-            GLib.Source.remove(this._timerId);
-            this._timerId = 0;
+        this._active = false;
+        if (this._unsubscribe) {
+            this._unsubscribe();
+            this._unsubscribe = null;
         }
+        if (this._debounceId) {
+            GLib.Source.remove(this._debounceId);
+            this._debounceId = 0;
+        }
+    }
+
+    _scheduleUpdate(delayMs = 120) {
+        if (!this._active)
+            return;
+        if (this._debounceId)
+            GLib.Source.remove(this._debounceId);
+        this._debounceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT_IDLE, delayMs, () => {
+            this._debounceId = 0;
+            if (this._active)
+                this.update();
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     invalidate() {
         this._sampler.invalidate();
+        this._scheduleUpdate(100);
     }
 
     isAnimating() {
@@ -773,8 +1014,12 @@ export class AdaptiveTextColor {
     }
 
     update() {
-        if (this._inFlight || this._pending > 0 || this._options.held?.())
+        if (!this._active || this._inFlight || this._pending > 0)
             return;
+        if (this._options.held?.()) {
+            this._scheduleUpdate(120);
+            return;
+        }
         const targets = [];
         for (const root of this._roots()) {
             if (!this._options.ownColor)
@@ -790,6 +1035,8 @@ export class AdaptiveTextColor {
         const glasses = () => this._glasses().filter(g => g.mapped);
         this._sampler.chooseColorsForActors(targets, this._config, null, () => glasses().reduce((sum, g) => sum + (g.paintCount ?? NaN), 0), glasses)
             .then(colors => {
+            if (!this._active)
+                return;
             const batch = GLib.get_monotonic_time();
             for (const [actor, color] of colors)
                 this._apply(actor, color, skip, batch);
@@ -799,12 +1046,12 @@ export class AdaptiveTextColor {
     }
 
     colorFor(rect) {
-        if (!this._timerId)
+        if (!this._active)
             return;
         this._pending++;
         this._sampler.chooseColorFor(rect, this._config, this._glasses())
             .then(color => {
-            if (!color)
+            if (!this._active || !color)
                 return;
             const batch = GLib.get_monotonic_time();
             for (const root of this._roots())
@@ -880,8 +1127,9 @@ export class AdaptiveClassContrast {
     _opts;
     _sampler = new StageContrastSampler();
     _states = new WeakMap();
-    _timerId = 0;
+    _debounceId = 0;
     _idleId = 0;
+    _unsubscribe = null;
     _inFlight = false;
     _active = false;
     _epoch = 0;
@@ -901,7 +1149,7 @@ export class AdaptiveClassContrast {
 
     _fallbackIsLight() {
         try {
-            return this._opts.fallbackIsDark ? !this._opts.fallbackIsDark() : false;
+            return this._opts.fallbackIsDark ? !this._opts.fallbackIsDark() : !isSystemDark();
         } catch (_e) {
             return false;
         }
@@ -953,6 +1201,20 @@ export class AdaptiveClassContrast {
         }
     }
 
+    _scheduleUpdate(delayMs = 100) {
+        if (!this._active)
+            return;
+        if (this._debounceId)
+            GLib.Source.remove(this._debounceId);
+        const epoch = this._epoch;
+        this._debounceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT_IDLE, delayMs, () => {
+            this._debounceId = 0;
+            if (this._active && epoch === this._epoch)
+                this.update();
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+
     start(skipInitial = true) {
         this.stop(false);
         this._active = true;
@@ -967,6 +1229,18 @@ export class AdaptiveClassContrast {
         const targets = this._opts.getTargets?.() ?? [];
         this.applyPending(targets);
 
+        this._unsubscribe = subscribeContrastEvents((reason) => {
+            if (!this._active || epoch !== this._epoch)
+                return;
+            if (reason === 'theme') {
+                this._lastIsLight = null;
+                this._sampler.resetThemePreference();
+            } else {
+                this._sampler.invalidate();
+            }
+            this._scheduleUpdate(reason === 'theme' ? 40 : 120);
+        });
+
         if (skipInitial) {
             this._idleId = GLib.idle_add(GLib.PRIORITY_HIGH, () => {
                 this._idleId = 0;
@@ -978,28 +1252,22 @@ export class AdaptiveClassContrast {
         } else {
             this.update();
         }
-
-        const interval = Math.max(150, this._opts.intervalMs ?? 300);
-        this._timerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, interval, () => {
-            if (!this._active || epoch !== this._epoch) {
-                this._timerId = 0;
-                return GLib.SOURCE_REMOVE;
-            }
-            this.update();
-            return GLib.SOURCE_CONTINUE;
-        });
     }
 
     stop(clearApplied = false) {
         this._active = false;
         this._epoch++;
+        if (this._unsubscribe) {
+            this._unsubscribe();
+            this._unsubscribe = null;
+        }
         if (this._idleId) {
             GLib.Source.remove(this._idleId);
             this._idleId = 0;
         }
-        if (this._timerId) {
-            GLib.Source.remove(this._timerId);
-            this._timerId = 0;
+        if (this._debounceId) {
+            GLib.Source.remove(this._debounceId);
+            this._debounceId = 0;
         }
         if (clearApplied)
             this.clearClasses();
@@ -1007,6 +1275,7 @@ export class AdaptiveClassContrast {
 
     invalidate() {
         this._sampler.invalidate();
+        this._scheduleUpdate(90);
     }
 
     clearClasses() {
@@ -1044,6 +1313,8 @@ export class AdaptiveClassContrast {
                 const isLight = color === AdaptiveContrastConfig.darkTextColor;
                 const targets = this._opts.getTargets?.() ?? [];
                 this._applyAll(targets, isLight);
+                if (this._opts.perElement)
+                    this._scheduleUpdate(180);
             } catch (e) {
                 this._opts.logger?.error?.(`[Liquid Glass] ${this._opts.label ?? 'surface'} adaptive contrast init failed: ${e}`);
             } finally {
@@ -1057,8 +1328,10 @@ export class AdaptiveClassContrast {
     update() {
         if (!this._active || this._inFlight || !this.isEnabled())
             return;
-        if (this._opts.shouldDefer?.())
+        if (this._opts.shouldDefer?.()) {
+            this._scheduleUpdate(120);
             return;
+        }
         const targets = (this._opts.getTargets?.() ?? []).filter(a => a && isActorValid(a) && a.visible && a.mapped);
         if (targets.length === 0)
             return;

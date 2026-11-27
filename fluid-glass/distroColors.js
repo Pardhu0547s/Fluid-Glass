@@ -148,6 +148,11 @@ const GREETER_PREFS_PATHS = [
     '/var/tmp/fluid-glass-greeter-prefs.json',
 ];
 
+const GREETER_WALLPAPER_PATHS = [
+    '/usr/share/gnome-shell/extensions/fluid-glass@pardhu0547s.github.io/greeter-wallpaper',
+    '/var/tmp/fluid-glass-greeter-wallpaper',
+];
+
 export function isGreeterProcess() {
     try {
         const user = (GLib.get_user_name() || '').toLowerCase();
@@ -193,6 +198,60 @@ export function syncGreeterPrefs(updates) {
             GLib.chmod(path, 0o644);
         } catch (_e) {}
     }
+}
+
+export function syncGreeterWallpaper(sourcePath) {
+    if (isGreeterProcess())
+        return '';
+    const trimmed = (sourcePath || '').trim();
+    if (!trimmed) {
+        for (const dest of GREETER_WALLPAPER_PATHS) {
+            try {
+                if (GLib.file_test(dest, GLib.FileTest.EXISTS))
+                    Gio.File.new_for_path(dest).delete(null);
+            } catch (_e) {}
+        }
+        syncGreeterPrefs({'login-wallpaper': ''});
+        return '';
+    }
+    if (!GLib.file_test(trimmed, GLib.FileTest.EXISTS))
+        return '';
+    let bytes;
+    try {
+        const [ok, content] = GLib.file_get_contents(trimmed);
+        if (!ok || !content || content.length === 0)
+            return '';
+        bytes = content;
+    } catch (_e) {
+        return '';
+    }
+    let activeDest = '';
+    for (const dest of GREETER_WALLPAPER_PATHS) {
+        try {
+            GLib.file_set_contents(dest, bytes);
+            GLib.chmod(dest, 0o644);
+            if (!activeDest)
+                activeDest = dest;
+        } catch (_e) {}
+    }
+    syncGreeterPrefs({'login-wallpaper': activeDest});
+    return activeDest;
+}
+
+export function readGreeterWallpaper() {
+    const prefs = readGreeterPrefs();
+    const configured = (prefs?.['login-wallpaper'] || '').trim();
+    if (configured && GLib.file_test(configured, GLib.FileTest.EXISTS))
+        return configured;
+    if (configured === '')
+        return '';
+    for (const candidate of GREETER_WALLPAPER_PATHS) {
+        try {
+            if (GLib.file_test(candidate, GLib.FileTest.EXISTS))
+                return candidate;
+        } catch (_e) {}
+    }
+    return '';
 }
 
 export function resolveAccentColor(masterSettings, topbarSettings = null) {

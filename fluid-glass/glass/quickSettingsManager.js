@@ -7,7 +7,7 @@ import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import { BackdropGlass } from './rendering/backdropGlass.js';
 import { ContentLens } from './rendering/pipelines.js';
-import { StageContrastSampler, AdaptiveContrastConfig, sanitizeColorPreference } from './contrastSampler.js';
+import { StageContrastSampler, AdaptiveContrastConfig, sanitizeColorPreference, subscribeContrastEvents } from './contrastSampler.js';
 import { LayoutOpaqueActor, ensureGlassAllocated, isActorValid, resolveMonitorGeometry, getAllocatedSize, getTransformedRect, placeScreenGlass, resolveGlassOrigin, applyGlassScale, GLASS_SHADOW_MAX_RADIUS, setPositionIfChanged, setScaleIfChanged } from './actors.js';
 import { MENU_NO_ANIMATION } from './shellVersion.js';
 const SHADER_PADDING = 20;
@@ -1086,22 +1086,39 @@ export class QuickSettingsManager {
         else {
             this._updateAdaptiveTextColors(false);
         }
+        if (!this._adaptiveUnsubscribe) {
+            this._adaptiveUnsubscribe = subscribeContrastEvents((reason) => {
+                if (!this.menu?.isOpen || !this._adaptiveConfig.enabled)
+                    return;
+                if (reason === 'theme')
+                    this._contrastSampler.resetThemePreference();
+                else
+                    this._contrastSampler.invalidate();
+                this._updateAdaptiveTextColors(false);
+            });
+        }
         if (this._adaptiveTimerId !== 0)
             return;
-        this._adaptiveTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._adaptiveConfig.sampleIntervalMs, () => {
+        this._adaptiveTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT_IDLE, 240, () => {
             if (!this.menu?.isOpen) {
                 this._adaptiveTimerId = 0;
                 return GLib.SOURCE_REMOVE;
             }
             const opening = this._tickId !== 0 || this._morphTickId !== 0 || !!this._intro?.running;
-            if (!opening || this._awaitingOpenColors)
-                this._updateAdaptiveTextColors(this._awaitingOpenColors);
-            return GLib.SOURCE_CONTINUE;
+            if (opening)
+                return GLib.SOURCE_CONTINUE;
+            this._adaptiveTimerId = 0;
+            this._updateAdaptiveTextColors(this._awaitingOpenColors);
+            return GLib.SOURCE_REMOVE;
         });
     }
 
     _stopAdaptiveColorSampling() {
         this._clearBackdropTracking();
+        if (this._adaptiveUnsubscribe) {
+            this._adaptiveUnsubscribe();
+            this._adaptiveUnsubscribe = null;
+        }
         if (this._adaptiveTimerId !== 0) {
             GLib.source_remove(this._adaptiveTimerId);
             this._adaptiveTimerId = 0;

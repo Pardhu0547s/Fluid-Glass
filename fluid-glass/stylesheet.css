@@ -100,7 +100,7 @@
 
 .fluid-glass-system-menu-content,
 .fluid-glass-system-menu-content.fluid-glass-dark {
-    color: #ffffff;
+    color: #f5f5f7;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -108,7 +108,7 @@
 }
 
 .fluid-glass-system-menu-content.fluid-glass-light {
-    color: #000000;
+    color: #1d1d1f;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -122,7 +122,7 @@
     color: inherit;
     background-color: transparent;
     border: 0 solid transparent;
-    border-radius: 6px;
+    border-radius: 10px;
     box-shadow: none;
     transition-duration: 80ms;
 }
@@ -137,9 +137,9 @@
 .fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:focus,
 .fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:active,
 .fluid-glass-system-menu-content.fluid-glass-dark .popup-menu-item:checked {
-    color: #ffffff;
+    color: #f5f5f7;
     background-color: rgba(255, 255, 255, 0.16);
-    border-radius: 6px;
+    border-radius: 10px;
 }
 
 .fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:hover,
@@ -147,9 +147,9 @@
 .fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:focus,
 .fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:active,
 .fluid-glass-system-menu-content.fluid-glass-light .popup-menu-item:checked {
-    color: #000000;
+    color: #1d1d1f;
     background-color: rgba(0, 0, 0, 0.08);
-    border-radius: 6px;
+    border-radius: 10px;
 }
 
 .fluid-glass-system-menu-content .popup-menu-item:active:hover,
@@ -232,7 +232,7 @@
     margin: 0 5px 3px 5px;
     background-color: transparent;
     border: 0 solid transparent;
-    border-radius: 6px;
+    border-radius: 10px;
 }
 
 .fluid-glass-status-menu {
@@ -311,7 +311,7 @@
     min-height: 22px;
     padding: 2px 8px;
     font-size: 9pt;
-    border-radius: 5px;
+    border-radius: 10px;
 }
 
 .fluid-glass-status-menu-content .popup-separator-menu-item,
@@ -601,10 +601,10 @@
 .fluid-glass-cc-tile-title,
 .fluid-glass-cc-media-title,
 .fluid-glass-cc-slider-title {
-    color: #ffffff;
+    color: #f5f5f7;
     font-family: "SF Pro Text";
-    font-weight: 700;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.38);
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.36);
 }
 
 .fluid-glass-cc-tile-title {
@@ -612,11 +612,11 @@
 }
 
 .fluid-glass-cc-tile-status {
-    color: rgba(255, 255, 255, 0.78);
+    color: rgba(245, 245, 247, 0.74);
     font-family: "SF Pro Text";
     font-weight: 500;
     font-size: 8pt;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.32);
 }
 
 .fluid-glass-cc-media {
@@ -641,7 +641,7 @@
     min-height: 44px;
     max-width: 44px;
     max-height: 44px;
-    border-radius: 10px;
+    border-radius: 14px;
     background-color: rgba(255, 255, 255, 0.14);
 }
 
@@ -655,8 +655,8 @@
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
-    border-radius: 10px;
-    color: rgba(255, 255, 255, 0.90);
+    border-radius: 14px;
+    color: rgba(245, 245, 247, 0.90);
 }
 
 .fluid-glass-cc-media-title {
@@ -686,15 +686,19 @@
 
 .fluid-glass-cc-media-button,
 .fluid-glass-cc-media-play,
-.fluid-glass-cc-media-button:hover,
 .fluid-glass-cc-media-button:focus {
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
     box-shadow: none !important;
     border-radius: 999px;
-    padding: 2px 6px;
+    padding: 4px 6px;
     transition-duration: 140ms;
+}
+
+.fluid-glass-cc-media-button:hover,
+.fluid-glass-cc-media-play:hover {
+    background-color: rgba(255, 255, 255, 0.14) !important;
 }
 
 .fluid-glass-cc-tile.fluid-glass-cc-tile-compact,
@@ -869,12 +873,12 @@
 .fluid-glass-cc-light .fluid-glass-cc-tile-title,
 .fluid-glass-cc-light .fluid-glass-cc-media-title,
 .fluid-glass-cc-light .fluid-glass-cc-slider-title {
-    color: #1a1a1a;
+    color: #1d1d1f;
     text-shadow: none;
 }
 
 .fluid-glass-cc-light .fluid-glass-cc-tile-status {
-    color: rgba(0, 0, 0, 0.65);
+    color: rgba(29, 29, 31, 0.65);
     text-shadow: none;
 }
 
@@ -885,7 +889,7 @@
 .fluid-glass-cc-light .fluid-glass-cc-tile-icon,
 .fluid-glass-cc-light .fluid-glass-cc-tile-compact .fluid-glass-cc-tile-icon,
 .fluid-glass-cc-tile-compact.fluid-glass-cc-light .fluid-glass-cc-tile-icon {
-    color: #1a1a1a;
+    color: #1d1d1f;
 }
 
 .fluid-glass-cc-light .fluid-glass-cc-tile-icon:checked,
@@ -916,7 +920,12 @@
 
 .fluid-glass-cc-light .fluid-glass-cc-media-control,
 .fluid-glass-cc-light .fluid-glass-cc-media-play-icon {
-    color: rgba(0, 0, 0, 0.85);
+    color: rgba(29, 29, 31, 0.88);
+}
+
+.fluid-glass-cc-light .fluid-glass-cc-media-button:hover,
+.fluid-glass-cc-light .fluid-glass-cc-media-play:hover {
+    background-color: rgba(0, 0, 0, 0.08) !important;
 }
 
 .fluid-glass-cc-light .fluid-glass-cc-slider-icon,
@@ -935,9 +944,9 @@
 }
 
 .fluid-glass-cc-light .fluid-glass-cc-track {
-    color: #1a1a1a;
+    color: #1d1d1f;
     -barlevel-background-color: rgba(0, 0, 0, 0.16);
-    -barlevel-active-background-color: #1a1a1a;
+    -barlevel-active-background-color: #1d1d1f;
 }
 
 .fluid-glass-cc-light .fluid-glass-cc-edit-controls,
@@ -948,7 +957,7 @@
 .fluid-glass-cc-edit-controls.fluid-glass-cc-light:hover,
 .fluid-glass-cc-edit-controls.fluid-glass-cc-light:focus,
 .fluid-glass-cc-edit-controls.fluid-glass-cc-light.fluid-glass-cc-edit-done {
-    color: #1a1a1a;
+    color: #1d1d1f;
     text-shadow: none;
 }
 
@@ -1264,12 +1273,14 @@
 
 #lintelNotificationCenter.fluid-glass-nc-dark .message .message-header,
 #lintelNotificationCenter.fluid-glass-nc-dark .message .message-header .event-time {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(245, 245, 247, 0.72);
+    font-feature-settings: "tnum";
 }
 
 #lintelNotificationCenter.fluid-glass-nc-light .message .message-header,
 #lintelNotificationCenter.fluid-glass-nc-light .message .message-header .event-time {
-    color: rgba(0, 0, 0, 0.65);
+    color: rgba(29, 29, 31, 0.65);
+    font-feature-settings: "tnum";
 }
 
 #lintelNotificationCenter .message .message-header .message-expand-button,
@@ -3448,10 +3459,12 @@
 }
 
 .fluid-glass-dock-tooltip-label {
-    font-size: 13px;
+    font-family: "SF Pro Text";
+    font-size: 12.5px;
     font-weight: 500;
-    color: #ffffff;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    letter-spacing: -0.01em;
+    color: #f5f5f7;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.42);
 }
 
 .fluid-glass-dock-tooltip-bottom {
@@ -3471,13 +3484,13 @@
 }
 
 .fluid-glass-dock-tooltip.fluid-glass-dock-tooltip-light .fluid-glass-dock-tooltip-label {
-    color: #1a1a1a !important;
+    color: #1d1d1f !important;
     text-shadow: none;
 }
 
 .fluid-glass-dock-tooltip.fluid-glass-dock-tooltip-dark .fluid-glass-dock-tooltip-label {
-    color: #ffffff !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+    color: #f5f5f7 !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.42);
 }
 
 .screenshot-ui-panel,

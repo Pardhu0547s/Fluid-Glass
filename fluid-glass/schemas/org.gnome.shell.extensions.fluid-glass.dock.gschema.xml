@@ -47,7 +47,7 @@
         <description>Minimize app genie on a lamp animation.</description>
     </key>
     <key type="b" name="autohide-dash">
-        <default>false</default>
+        <default>true</default>
         <summary>Autohide dash panel</summary>
         <description>Animate dash icons on hover.</description>
     </key>

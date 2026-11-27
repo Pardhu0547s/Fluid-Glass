@@ -4,7 +4,7 @@ import St from 'gi://St';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import { attachGlass, SHADER_PADDING } from '../glass/glassEffect.js';
-import { AdaptiveClassContrast } from '../glass/contrastSampler.js';
+import { AdaptiveClassContrast, isSystemDark } from '../glass/contrastSampler.js';
 import { isActorValid } from '../glass/actors.js';
 
 const POINTER_DEPTH_PX = 9;
@@ -114,7 +114,7 @@ export const DockTooltip = GObject.registerClass(
                         return 'auto';
                     }
                 },
-                fallbackIsDark: () => true,
+                fallbackIsDark: () => isSystemDark(),
                 getInitialRect: () => this._currentRect(),
             });
         }
@@ -237,15 +237,18 @@ export const DockTooltip = GObject.registerClass(
                 this.show();
                 this._glassHandle?.show?.();
                 this.remove_all_transitions();
-                this.ease({
-                    opacity: 255,
-                    duration: SHOW_FADE_MS,
-                    mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-                });
+                if (St.Settings.get().enable_animations) {
+                    this.ease({
+                        opacity: 255,
+                        duration: SHOW_FADE_MS,
+                        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+                    });
+                } else {
+                    this.opacity = 255;
+                }
                 this._adaptive?.start(true);
             } else if (textChanged || movedFar) {
                 this._adaptive?.invalidate();
-                this._adaptive?.update();
             }
         }
 
@@ -255,6 +258,12 @@ export const DockTooltip = GObject.registerClass(
             this._shown = false;
             this._adaptive?.stop(false);
             this.remove_all_transitions();
+            if (!St.Settings.get().enable_animations) {
+                this.opacity = 0;
+                this.hide();
+                this._glassHandle?.hide?.();
+                return;
+            }
             this.ease({
                 opacity: 0,
                 duration: HIDE_FADE_MS,

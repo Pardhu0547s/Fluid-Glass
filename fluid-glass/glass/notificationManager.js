@@ -5,7 +5,7 @@ import GLib from 'gi://GLib';
 import { BackdropGlass } from './rendering/backdropGlass.js';
 import { isActorValid, ensureGlassAllocated, getTransformedRect, resolveMonitorGeometry, setClipIfChanged } from './actors.js';
 import { addFrameTicker, removeFrameTicker, addBeforeRedraw, removeBeforeRedraw, startSyncLoop, stopStageLoop, resolveCrossFade, adaptiveColorTweener, hexToColorArray, hexToRgb } from './animation.js';
-import { StageContrastSampler, AdaptiveContrastConfig, sanitizeColorPreference } from './contrastSampler.js';
+import { StageContrastSampler, AdaptiveContrastConfig, sanitizeColorPreference, subscribeContrastEvents } from './contrastSampler.js';
 import { BANNER_TRANSPARENT_CLASS } from './shellVersion.js';
 const SHADER_PADDING = 20;
 
@@ -476,19 +476,37 @@ export class NotificationManager {
         if (!this._adaptiveConfig.enabled)
             return;
         this._updateAdaptiveTextColors();
+        if (!this._adaptiveUnsubscribe) {
+            this._adaptiveUnsubscribe = subscribeContrastEvents((reason) => {
+                if (!this.currentBanner || !this.glass || !this._adaptiveConfig.enabled)
+                    return;
+                if (reason === 'theme')
+                    this._contrastSampler.resetThemePreference();
+                else
+                    this._contrastSampler.invalidate();
+                this._updateAdaptiveTextColors();
+            });
+        }
         if (this._adaptiveTimerId !== 0)
             return;
-        this._adaptiveTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this._adaptiveConfig.sampleIntervalMs, () => {
+        this._adaptiveTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT_IDLE, 240, () => {
             if (!this.currentBanner || !this.glass) {
                 this._adaptiveTimerId = 0;
                 return GLib.SOURCE_REMOVE;
             }
+            if (this._bannerSliding())
+                return GLib.SOURCE_CONTINUE;
+            this._adaptiveTimerId = 0;
             this._updateAdaptiveTextColors();
-            return GLib.SOURCE_CONTINUE;
+            return GLib.SOURCE_REMOVE;
         });
     }
 
     _stopAdaptiveColorSampling() {
+        if (this._adaptiveUnsubscribe) {
+            this._adaptiveUnsubscribe();
+            this._adaptiveUnsubscribe = null;
+        }
         if (this._adaptiveTimerId !== 0) {
             GLib.source_remove(this._adaptiveTimerId);
             this._adaptiveTimerId = 0;

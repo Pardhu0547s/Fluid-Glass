@@ -4,7 +4,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as DateMenu from 'resource:///org/gnome/shell/ui/dateMenu.js';
 import {attachGlass, attachMultiRegionGlass} from './glassEffect.js';
-import {AdaptiveClassContrast} from './contrastSampler.js';
+import {AdaptiveClassContrast, isSystemDark} from './contrastSampler.js';
 import {isActorValid} from './actors.js';
 
 function findByStyleClass(root, className, out = []) {
@@ -366,7 +366,7 @@ export class DialogManager {
         });
     }
 
-    _createAdaptiveContrast(label, targetActor, handle, lightClass, darkClass, fallbackIsDark = () => true) {
+    _createAdaptiveContrast(label, targetActor, handle, lightClass, darkClass, fallbackIsDark = () => isSystemDark()) {
         return new AdaptiveClassContrast({
             label,
             logger: this._logger,

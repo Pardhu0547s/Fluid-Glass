@@ -15,9 +15,9 @@ const PRESETS = [
     {
         id: 'tahoe-crystal',
         title: _('Tahoe Crystal'),
-        blur: 10,
-        tint: 0.12,
-        sat: 1.5,
+        blur: 4,
+        tint: 0.06,
+        sat: 1.0,
         bright: 1.0,
         accent: '#007aff',
     },

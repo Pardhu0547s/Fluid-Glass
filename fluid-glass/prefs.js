@@ -4,7 +4,7 @@ import Gtk from 'gi://Gtk';
 import Gdk from 'gi://Gdk';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
-import {resolveAccentColor, syncGreeterPrefs} from './distroColors.js';
+import {resolveAccentColor, syncGreeterPrefs, syncGreeterWallpaper} from './distroColors.js';
 
 const EXTENSION_UUID = 'fluid-glass@pardhu0547s.github.io';
 
@@ -288,7 +288,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         page.add(groupPresets);
 
         const presets = [
-            ['tahoe-crystal', _('Tahoe Crystal'), _('Recommended · light frosted glass')],
+            ['tahoe-crystal', _('Tahoe Crystal'), _('Recommended · clear refractive liquid glass')],
             ['deep-frosted', _('Deep Frosted'), _('Heavier blur for bright or busy wallpapers')],
             ['midnight-glass', _('Midnight Obsidian'), _('Darker tint with luminous edges')],
             ['electric-neon', _('Electric Neon'), _('Vivid saturation with a cyan accent')],
@@ -368,6 +368,73 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
             this.sMaster.connect('changed::accent-color', updateAccentSubtitle);
         if (this.sLintel)
             this.sLintel.connect('changed::system-menu-icon', updateAccentSubtitle);
+
+        if (this.sMaster) {
+            const groupLogin = new Adw.PreferencesGroup({
+                title: _('Login Screen'),
+                description: _('Applies only to the GDM login screen'),
+            });
+            page.add(groupLogin);
+
+            const wallRow = new Adw.ActionRow({
+                title: _('Login Screen Wallpaper'),
+            });
+            const chooseBtn = new Gtk.Button({
+                label: _('Choose…'),
+                valign: Gtk.Align.CENTER,
+            });
+            const resetBtn = new Gtk.Button({
+                icon_name: 'edit-clear-symbolic',
+                tooltip_text: _('Reset to system default'),
+                valign: Gtk.Align.CENTER,
+                css_classes: ['flat'],
+            });
+
+            const syncWallUi = () => {
+                const cur = (this.sMaster.get_string('login-wallpaper') ?? '').trim();
+                if (cur) {
+                    wallRow.set_subtitle(GLib.path_get_basename(cur));
+                    resetBtn.set_sensitive(true);
+                } else {
+                    wallRow.set_subtitle(_('System default (only affects login screen)'));
+                    resetBtn.set_sensitive(false);
+                }
+            };
+            syncWallUi();
+            this.sMaster.connect('changed::login-wallpaper', syncWallUi);
+
+            chooseBtn.connect('clicked', () => {
+                const filter = new Gtk.FileFilter();
+                filter.set_name(_('Images'));
+                filter.add_mime_type('image/png');
+                filter.add_mime_type('image/jpeg');
+                filter.add_mime_type('image/webp');
+                filter.add_mime_type('image/svg+xml');
+                const dialog = new Gtk.FileDialog({
+                    title: _('Choose Login Screen Wallpaper'),
+                    default_filter: filter,
+                });
+                dialog.open(window, null, (_dlg, res) => {
+                    try {
+                        const file = dialog.open_finish(res);
+                        const path = file?.get_path();
+                        if (!path)
+                            return;
+                        this.sMaster.set_string('login-wallpaper', path);
+                        syncGreeterWallpaper(path);
+                    } catch (_e) {}
+                });
+            });
+
+            resetBtn.connect('clicked', () => {
+                this.sMaster.set_string('login-wallpaper', '');
+                syncGreeterWallpaper('');
+            });
+
+            wallRow.add_suffix(chooseBtn);
+            wallRow.add_suffix(resetBtn);
+            groupLogin.add(wallRow);
+        }
 
         const groupActions = new Adw.PreferencesGroup({title: _('Maintenance')});
         page.add(groupActions);
@@ -473,7 +540,7 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
                 ['enable-menu-glass', _('Calendar'), null],
                 ['enable-desktop-menu-glass', _('Desktop Context Menu'), null],
                 ['enable-notification-glass', _('Notifications'), null],
-                ['enable-osd-glass', _('Volume & Brightness OSD'), null],
+                ['enable-osd-glass', _('Volume and Brightness OSD'), null],
                 ['enable-application-glass', _('Application Windows'), _('Supported translucent apps only')],
             ];
             for (const [key, title, subtitle] of targets)
@@ -598,18 +665,32 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
 
         const groupLook = new Adw.PreferencesGroup({title: _('Appearance')});
         page.add(groupLook);
-        const transRow = new Adw.ActionRow({
+        const transRow = new Adw.SwitchRow({
             title: _('Transparent Background'),
             subtitle: _('Remove the solid dock fill so only the glass shows'),
         });
-        const transBtn = new Gtk.Button({
-            label: _('Apply'),
-            valign: Gtk.Align.CENTER,
+        let syncingTrans = false;
+        const syncTransSwitch = () => {
+            syncingTrans = true;
+            try {
+                const bg = this.sDock.get_value('background-color').deep_unpack();
+                transRow.set_active((bg?.[3] ?? 0) <= 0.001);
+            } catch (_e) {
+                transRow.set_active(true);
+            }
+            syncingTrans = false;
+        };
+        syncTransSwitch();
+        this.sDock.connect('changed::background-color', syncTransSwitch);
+        transRow.connect('notify::active', r => {
+            if (syncingTrans)
+                return;
+            if (r.get_active()) {
+                this.sDock.set_value('background-color', new GLib.Variant('(dddd)', [0.0, 0.0, 0.0, 0.0]));
+            } else {
+                this.sDock.set_value('background-color', new GLib.Variant('(dddd)', [0.12, 0.12, 0.14, 0.35]));
+            }
         });
-        transBtn.connect('clicked', () => {
-            this.sDock.set_value('background-color', new GLib.Variant('(dddd)', [0.0, 0.0, 0.0, 0.0]));
-        });
-        transRow.add_suffix(transBtn);
         groupLook.add(transRow);
     }
 
@@ -933,9 +1014,9 @@ export default class FluidGlassPreferences extends ExtensionPreferences {
         const keepAuto = curAcc === 'auto' || curAcc === '' || curAcc === 'system';
 
         if (presetId === 'tahoe-crystal') {
-            setGlass('blur-radius', 10, true);
-            setGlass('tint-strength', 0.12);
-            setGlass('saturation', 1.5);
+            setGlass('blur-radius', 4, true);
+            setGlass('tint-strength', 0.06);
+            setGlass('saturation', 1.0);
             setGlass('brightness', 1.0);
             if (this.sLintel)
                 this.sLintel.set_string('control-center-mode', 'custom');

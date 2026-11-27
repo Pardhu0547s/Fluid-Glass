@@ -619,7 +619,7 @@ export class BlurRenderer {
     _setGaussianBlurRadius(radius) {
         const RES_SCALE = this._blurDownscale >= 4 ? 4.0 : 2.0;
         const MAX_SIGMA_TEXEL = 15.0;
-        const MIN_SIGMA_TEXEL = 1.0;
+        const MIN_SIGMA_TEXEL = 0.5;
         if (radius <= 0) {
             if (this.PASS_COUNT !== 0) {
                 this.PASS_COUNT = 0;
@@ -629,7 +629,7 @@ export class BlurRenderer {
             this._repaint();
             return;
         }
-        const sigmaTexel = Math.min(radius / RES_SCALE, MAX_SIGMA_TEXEL);
+        const sigmaTexel = Math.min((radius * 0.65) / RES_SCALE, MAX_SIGMA_TEXEL);
         const kernelSigma = Math.max(sigmaTexel, MIN_SIGMA_TEXEL);
         const sideTaps = Math.max(2, Math.ceil(kernelSigma * 4));
         const fetchPairs = Math.max(2, Math.ceil(sideTaps / 2));
